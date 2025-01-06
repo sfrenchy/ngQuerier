@@ -1,110 +1,118 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { ApiService } from '../../services/api.service';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { HttpErrorResponse } from '@angular/common/http';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
+import { ApiService } from '@services/api.service';
+import { AuthService } from '@services/auth.service';
+import { LanguageSelectorComponent } from '@components/language-selector/language-selector.component';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css'],
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, LanguageSelectorComponent]
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, TranslateModule, LanguageSelectorComponent]
 })
 export class LoginComponent implements OnInit {
-  email = '';
-  password = '';
-  selectedUrl = '';
+  loginForm: FormGroup;
   showPassword = false;
   isLoading = false;
-  isConfigured = false;
   isCheckingConfiguration = false;
-  apiError: string | null = null;
-  urls: string[] = [];
+  isConfigured = false;
+  apiUrls: string[] = [];
+  selectedUrl: string | null = null;
+  apiError = false;
 
   constructor(
-    private authService: AuthService,
+    private formBuilder: FormBuilder,
+    private router: Router,
     private apiService: ApiService,
-    private router: Router
-  ) {}
-
-  ngOnInit() {
-    this.loadSavedUrls();
+    private authService: AuthService
+  ) {
+    this.loginForm = this.formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
   }
 
-  loadSavedUrls() {
-    const savedUrls = localStorage.getItem('savedApiUrls');
-    this.urls = savedUrls ? JSON.parse(savedUrls) : [];
-  }
-
-  onUrlChange() {
-    if (this.selectedUrl) {
-      this.apiService.setBaseUrl(this.selectedUrl);
-      this.apiError = null;
-      
-      this.isCheckingConfiguration = true;
-      this.apiService.isConfigured().subscribe(
-        isConfigured => {
-          this.isConfigured = isConfigured;
-          this.isCheckingConfiguration = false;
-        },
-        error => {
-          console.error('Error checking configuration:', error);
-          this.isConfigured = false;
-          this.isCheckingConfiguration = false;
-          
-          if (error instanceof HttpErrorResponse) {
-            if (error.status === 0) {
-              this.apiError = "Impossible de joindre l'API";
-            } else if (error.status >= 500) {
-              this.apiError = "L'API est actuellement indisponible";
-            } else {
-              this.apiError = "Une erreur est survenue lors de la connexion à l'API";
-            }
-          }
-        }
-      );
-    } else {
-      this.isConfigured = false;
-      this.apiError = null;
+  ngOnInit(): void {
+    // Load saved API URLs from localStorage
+    const savedUrls = localStorage.getItem('apiUrls');
+    if (savedUrls) {
+      this.apiUrls = JSON.parse(savedUrls);
+      // Select the first URL by default
+      if (this.apiUrls.length > 0) {
+        this.selectedUrl = this.apiUrls[0];
+        this.onUrlChange();
+      }
     }
   }
 
-  onAddApi() {
+  onUrlChange(): void {
+    if (this.selectedUrl) {
+      this.apiService.setBaseUrl(this.selectedUrl);
+      this.apiError = false;
+      this.isCheckingConfiguration = true;
+      this.isConfigured = false;
+
+      this.apiService.checkConfiguration().subscribe({
+        next: (isConfigured: boolean) => {
+          this.isConfigured = isConfigured;
+          this.isCheckingConfiguration = false;
+          this.apiError = false;
+        },
+        error: () => {
+          this.apiError = true;
+          this.isCheckingConfiguration = false;
+          this.isConfigured = false;
+        }
+      });
+    }
+  }
+
+  onDeleteUrl(url: string): void {
+    const index = this.apiUrls.indexOf(url);
+    if (index > -1) {
+      this.apiUrls.splice(index, 1);
+      localStorage.setItem('apiUrls', JSON.stringify(this.apiUrls));
+      
+      // If there are remaining URLs, select the first one
+      if (this.apiUrls.length > 0) {
+        this.selectedUrl = this.apiUrls[0];
+        this.onUrlChange();
+      } else {
+        this.selectedUrl = null;
+        this.isConfigured = false;
+      }
+    }
+  }
+
+  onAddApi(): void {
     this.router.navigate(['/add-api']);
   }
 
-  onConfigureApi() {
-    // TODO: Implémenter la configuration de l'API
-    console.log('Configure API clicked');
+  onConfigureApi(): void {
+    this.router.navigate(['/configure/admin']);
   }
 
-  onDeleteUrl(url: string) {
-    const savedUrls = this.urls.filter(u => u !== url);
-    localStorage.setItem('savedApiUrls', JSON.stringify(savedUrls));
-    this.urls = savedUrls;
-    this.selectedUrl = '';
-    this.apiError = null;
-  }
-
-  onSubmit() {
-    if (!this.selectedUrl || !this.email || !this.password) return;
-
-    this.isLoading = true;
-    this.authService.login(this.email, this.password).subscribe(
-      success => {
-        if (success) {
-          this.router.navigate(['/dashboard']);
+  onSubmit(): void {
+    if (this.loginForm.valid && this.selectedUrl) {
+      this.isLoading = true;
+      const { email, password } = this.loginForm.value;
+      
+      this.authService.login(email, password).subscribe({
+        next: (success: boolean) => {
+          if (success) {
+            this.router.navigate(['/dashboard']);
+          }
+          this.isLoading = false;
+        },
+        error: () => {
+          this.isLoading = false;
+          // TODO: Show error message
         }
-        this.isLoading = false;
-      },
-      error => {
-        console.error('Login failed:', error);
-        this.isLoading = false;
-      }
-    );
+      });
+    }
   }
 } 

@@ -4,7 +4,8 @@ import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
+import { LanguageSelectorComponent } from '@components/language-selector/language-selector.component';
+import { ApiService } from '@services/api.service';
 
 @Component({
   selector: 'app-add-api',
@@ -21,7 +22,8 @@ export class AddApiComponent {
   constructor(
     private formBuilder: FormBuilder,
     public router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private apiService: ApiService
   ) {
     this.apiForm = this.formBuilder.group({
       protocol: ['https', Validators.required],
@@ -39,12 +41,15 @@ export class AddApiComponent {
   onSubmit(): void {
     if (this.apiForm.valid) {
       this.isLoading = true;
+      const url = this.fullUrl;
       // Get the current list of URLs from localStorage
       const savedUrls = JSON.parse(localStorage.getItem('apiUrls') || '[]');
       // Add the new URL to the list
-      savedUrls.push(this.fullUrl);
+      savedUrls.push(url);
       // Save the updated list back to localStorage
       localStorage.setItem('apiUrls', JSON.stringify(savedUrls));
+      // Set the base URL in the API service
+      this.apiService.setBaseUrl(url);
       // Navigate back to login
       setTimeout(() => {
         this.isLoading = false;

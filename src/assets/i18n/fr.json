@@ -2,17 +2,16 @@
   "LOGIN": {
     "TITLE": "Connexion",
     "SELECT_API": "Sélectionner une URL d'API",
-    "USERNAME": "Nom d'utilisateur",
+    "API_UNREACHABLE": "Impossible de joindre l'API",
+    "DELETE_URL": "Supprimer cette URL",
+    "ADD_API": "Ajouter une API",
+    "CONFIGURE_API": "Configurer l'API",
     "EMAIL": "Email",
     "EMAIL_PLACEHOLDER": "Entrez votre email",
     "PASSWORD": "Mot de passe",
     "PASSWORD_PLACEHOLDER": "Entrez votre mot de passe",
-    "LOGIN_BUTTON": "Se connecter",
     "LOADING": "Chargement...",
-    "API_ERROR": "Impossible de joindre l'API",
-    "DELETE_URL": "Supprimer cette URL",
-    "CONFIGURE_API": "Configurer l'API",
-    "ADD_API": "Ajouter une API"
+    "SUBMIT": "Se connecter"
   },
   "API": {
     "ERRORS": {
@@ -35,5 +34,137 @@
     "CANCEL": "Annuler",
     "SAVE": "Enregistrer",
     "SAVING": "Enregistrement..."
+  },
+  "CONFIGURE": {
+    "ADMIN": {
+      "TITLE": "Configuration de l'administrateur",
+      "DESCRIPTION": "Créez le compte administrateur principal",
+      "FIRST_NAME": "Prénom",
+      "FIRST_NAME_PLACEHOLDER": "Entrez votre prénom",
+      "LAST_NAME": "Nom",
+      "LAST_NAME_PLACEHOLDER": "Entrez votre nom",
+      "EMAIL": "Email",
+      "EMAIL_PLACEHOLDER": "Entrez votre email",
+      "EMAIL_REQUIRED": "L'email est requis",
+      "EMAIL_INVALID": "Veuillez entrer une adresse email valide",
+      "PASSWORD": "Mot de passe",
+      "PASSWORD_PLACEHOLDER": "Entrez votre mot de passe"
+    },
+    "SMTP": {
+      "TITLE": "Configuration SMTP",
+      "DESCRIPTION": "Configurez le serveur SMTP pour l'envoi d'emails",
+      "HOST": "Hôte SMTP",
+      "HOST_PLACEHOLDER": "Ex: smtp.gmail.com",
+      "PORT": "Port",
+      "PORT_PLACEHOLDER": "Ex: 587",
+      "USE_SSL": "Utiliser SSL/TLS",
+      "REQUIRE_AUTH": "Authentification requise",
+      "USERNAME": "Nom d'utilisateur",
+      "USERNAME_PLACEHOLDER": "Nom d'utilisateur SMTP",
+      "PASSWORD": "Mot de passe",
+      "PASSWORD_PLACEHOLDER": "Mot de passe SMTP",
+      "SENDER_EMAIL": "Email expéditeur",
+      "SENDER_EMAIL_PLACEHOLDER": "Ex: noreply@mondomaine.com",
+      "SENDER_NAME": "Nom expéditeur",
+      "SENDER_NAME_PLACEHOLDER": "Ex: Service Querier",
+      "ERROR": {
+        "TEST_FAILED": "Échec du test de la configuration SMTP. Veuillez vérifier vos paramètres.",
+        "SETUP_FAILED": "Échec de l'enregistrement de la configuration. Veuillez réessayer."
+      }
+    }
+  },
+  "COMMON": {
+    "CANCEL": "Annuler",
+    "NEXT": "Suivant",
+    "BACK": "Retour",
+    "FINISH": "Terminer",
+    "SAVE": "Enregistrer",
+    "DELETE": "Supprimer",
+    "TEST": "Tester",
+    "VALIDATION": {
+      "EMAIL_REQUIRED": "L'email est requis",
+      "EMAIL_INVALID": "Veuillez entrer une adresse email valide",
+      "EMAIL_TOO_LONG": "L'adresse email est trop longue (maximum 254 caractères)",
+      "EMAIL_LOCAL_PART_TOO_LONG": "La partie avant @ est trop longue (maximum 64 caractères)",
+      "PASSWORD_REQUIRED": "Le mot de passe est requis",
+      "PASSWORD_MIN_LENGTH": "Le mot de passe doit contenir au moins {{length}} caractères",
+      "PASSWORD_REQUIRE_DIGIT": "Le mot de passe doit contenir au moins un chiffre",
+      "PASSWORD_REQUIRE_LOWERCASE": "Le mot de passe doit contenir au moins une lettre minuscule",
+      "PASSWORD_REQUIRE_UPPERCASE": "Le mot de passe doit contenir au moins une lettre majuscule",
+      "PASSWORD_REQUIRE_NON_ALPHANUMERIC": "Le mot de passe doit contenir au moins un caractère spécial",
+      "PASSWORD_REQUIRE_UNIQUE_CHARS": "Le mot de passe doit contenir au moins {{count}} caractères uniques"
+    }
+  },
+  "DASHBOARD": {
+    "TITLE": "Tableau de bord",
+    "WELCOME": "Bienvenue",
+    "MENU": "Menu"
+  },
+  "MENU": {
+    "CATEGORIES": {
+      "TITLE": "Catégories",
+      "ADD": "Ajouter une catégorie",
+      "EDIT": "Modifier la catégorie",
+      "DELETE": "Supprimer la catégorie",
+      "NAME": "Nom",
+      "NAME_PLACEHOLDER": "Nom de la catégorie",
+      "ICON": "Icône",
+      "ICON_PLACEHOLDER": "Classe d'icône"
+    },
+    "PAGES": {
+      "TITLE": "Pages",
+      "ADD": "Ajouter une page",
+      "EDIT": "Modifier la page",
+      "DELETE": "Supprimer la page",
+      "NAME": "Nom",
+      "NAME_PLACEHOLDER": "Nom de la page",
+      "DESCRIPTION": "Description",
+      "DESCRIPTION_PLACEHOLDER": "Description de la page"
+    }
+  },
+  "USERS": {
+    "TITLE": "Utilisateurs",
+    "ADD": "Ajouter un utilisateur",
+    "EDIT": "Modifier l'utilisateur",
+    "DELETE": "Supprimer l'utilisateur",
+    "NAME": "Nom",
+    "EMAIL": "Email",
+    "ROLE": "Rôle",
+    "ACTIONS": "Actions"
+  },
+  "ROLES": {
+    "TITLE": "Rôles",
+    "ADD": "Ajouter un rôle",
+    "EDIT": "Modifier le rôle",
+    "DELETE": "Supprimer le rôle",
+    "NAME": "Nom",
+    "PERMISSIONS": "Permissions"
+  },
+  "DB": {
+    "CONNECTIONS": {
+      "TITLE": "Connexions",
+      "ADD": "Ajouter une connexion",
+      "EDIT": "Modifier la connexion",
+      "DELETE": "Supprimer la connexion",
+      "NAME": "Nom",
+      "TYPE": "Type",
+      "HOST": "Hôte",
+      "PORT": "Port",
+      "DATABASE": "Base de données",
+      "USERNAME": "Nom d'utilisateur",
+      "PASSWORD": "Mot de passe",
+      "TEST": "Tester la connexion"
+    }
+  },
+  "QUERIES": {
+    "TITLE": "Requêtes",
+    "ADD": "Ajouter une requête",
+    "EDIT": "Modifier la requête",
+    "DELETE": "Supprimer la requête",
+    "NAME": "Nom",
+    "DESCRIPTION": "Description",
+    "SQL": "SQL",
+    "PARAMETERS": "Paramètres",
+    "TEST": "Tester la requête"
   }
 } 

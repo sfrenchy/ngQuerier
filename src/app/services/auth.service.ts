@@ -21,11 +21,14 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<boolean> {
+    const currentUrl = this.apiService.getBaseUrl();
+    
     return this.apiService.signIn(email, password).pipe(
       map(response => {
         if (response && response.token) {
           localStorage.setItem('access_token', response.token);
           localStorage.setItem('refresh_token', response.refreshToken);
+          localStorage.setItem('last_used_url', currentUrl);
           this.loadCurrentUser();
           return true;
         }
@@ -37,6 +40,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('last_used_url');
     this.currentUserSubject.next(null);
     this.apiService.signOut().subscribe();
   }
@@ -75,7 +79,11 @@ export class AuthService {
 
   private getUserFromStorage(): User | null {
     const token = this.getAccessToken();
-    if (!token) return null;
+    const lastUsedUrl = localStorage.getItem('last_used_url');
+    
+    if (!token || !lastUsedUrl) return null;
+
+    this.apiService.setBaseUrl(lastUsedUrl);
 
     try {
       this.loadCurrentUser();

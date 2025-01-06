@@ -30,6 +30,14 @@ export class ApiService {
     this.baseUrl = environment.apiUrl;
   }
 
+  setBaseUrl(url: string) {
+    this.baseUrl = url;
+  }
+
+  getBaseUrl(): string {
+    return this.baseUrl;
+  }
+
   // Auth Methods
   signIn(email: string, password: string): Observable<any> {
     return this.http.post(

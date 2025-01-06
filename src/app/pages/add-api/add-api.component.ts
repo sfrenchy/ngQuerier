@@ -1,33 +1,35 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
+import { LanguageSelectorComponent } from '../../components/language-selector/language-selector.component';
 
 @Component({
   selector: 'app-add-api',
   templateUrl: './add-api.component.html',
-  styleUrls: ['./add-api.component.css'],
+  styleUrls: ['./add-api.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, LanguageSelectorComponent]
 })
-export class AddApiComponent implements OnInit {
+export class AddApiComponent {
   apiForm: FormGroup;
-  isLoading = false;
   protocols = ['http', 'https'];
+  isLoading = false;
 
   constructor(
-    private fb: FormBuilder,
-    public router: Router
+    private formBuilder: FormBuilder,
+    public router: Router,
+    private translate: TranslateService
   ) {
-    this.apiForm = this.fb.group({
+    this.apiForm = this.formBuilder.group({
       protocol: ['https', Validators.required],
-      host: ['', [Validators.required]],
-      port: [5000, [Validators.required, Validators.min(1), Validators.max(65535)]],
-      path: ['api/v1', Validators.required]
+      host: ['', Validators.required],
+      port: ['', [Validators.required, Validators.min(1), Validators.max(65535)]],
+      path: ['', Validators.required]
     });
   }
-
-  ngOnInit(): void {}
 
   get fullUrl(): string {
     const form = this.apiForm.value;
@@ -37,14 +39,17 @@ export class AddApiComponent implements OnInit {
   onSubmit(): void {
     if (this.apiForm.valid) {
       this.isLoading = true;
-      const savedUrls = JSON.parse(localStorage.getItem('savedApiUrls') || '[]');
+      // Get the current list of URLs from localStorage
+      const savedUrls = JSON.parse(localStorage.getItem('apiUrls') || '[]');
+      // Add the new URL to the list
       savedUrls.push(this.fullUrl);
-      localStorage.setItem('savedApiUrls', JSON.stringify(savedUrls));
-      
+      // Save the updated list back to localStorage
+      localStorage.setItem('apiUrls', JSON.stringify(savedUrls));
+      // Navigate back to login
       setTimeout(() => {
         this.isLoading = false;
         this.router.navigate(['/login']);
-      }, 500);
+      }, 1000);
     }
   }
 } 

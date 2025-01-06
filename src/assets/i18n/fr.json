@@ -1,0 +1,39 @@
+{
+  "LOGIN": {
+    "TITLE": "Connexion",
+    "SELECT_API": "Sélectionner une URL d'API",
+    "USERNAME": "Nom d'utilisateur",
+    "EMAIL": "Email",
+    "EMAIL_PLACEHOLDER": "Entrez votre email",
+    "PASSWORD": "Mot de passe",
+    "PASSWORD_PLACEHOLDER": "Entrez votre mot de passe",
+    "LOGIN_BUTTON": "Se connecter",
+    "LOADING": "Chargement...",
+    "API_ERROR": "Impossible de joindre l'API",
+    "DELETE_URL": "Supprimer cette URL",
+    "CONFIGURE_API": "Configurer l'API",
+    "ADD_API": "Ajouter une API"
+  },
+  "API": {
+    "ERRORS": {
+      "UNREACHABLE": "Impossible de joindre l'API",
+      "UNAVAILABLE": "L'API est actuellement indisponible",
+      "UNKNOWN": "Une erreur est survenue lors de la connexion à l'API"
+    },
+    "DELETE_URL": "Supprimer cette URL"
+  },
+  "ADD_API": {
+    "TITLE": "Ajouter une API",
+    "PROTOCOL": "Protocole",
+    "HOST": "Hôte",
+    "HOST_PLACEHOLDER": "exemple.com",
+    "PORT": "Port",
+    "PORT_PLACEHOLDER": "5000",
+    "PATH": "Chemin de l'API",
+    "PATH_PLACEHOLDER": "api/v1",
+    "PREVIEW": "Aperçu",
+    "CANCEL": "Annuler",
+    "SAVE": "Enregistrer",
+    "SAVING": "Enregistrement..."
+  }
+} 

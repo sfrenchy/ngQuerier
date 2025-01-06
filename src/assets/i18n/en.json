@@ -1,0 +1,39 @@
+{
+  "LOGIN": {
+    "TITLE": "Login",
+    "SELECT_API": "Select API URL",
+    "USERNAME": "Username",
+    "EMAIL": "Email",
+    "EMAIL_PLACEHOLDER": "Enter your email",
+    "PASSWORD": "Password",
+    "PASSWORD_PLACEHOLDER": "Enter your password",
+    "LOGIN_BUTTON": "Login",
+    "LOADING": "Loading...",
+    "API_ERROR": "Unable to reach API",
+    "DELETE_URL": "Delete this URL",
+    "CONFIGURE_API": "Configure API",
+    "ADD_API": "Add API"
+  },
+  "API": {
+    "ERRORS": {
+      "UNREACHABLE": "Unable to reach API",
+      "UNAVAILABLE": "API is currently unavailable",
+      "UNKNOWN": "An error occurred while connecting to the API"
+    },
+    "DELETE_URL": "Delete this URL"
+  },
+  "ADD_API": {
+    "TITLE": "Add API",
+    "PROTOCOL": "Protocol",
+    "HOST": "Host",
+    "HOST_PLACEHOLDER": "example.com",
+    "PORT": "Port",
+    "PORT_PLACEHOLDER": "5000",
+    "PATH": "API Path",
+    "PATH_PLACEHOLDER": "api/v1",
+    "PREVIEW": "Preview",
+    "CANCEL": "Cancel",
+    "SAVE": "Save",
+    "SAVING": "Saving..."
+  }
+} 

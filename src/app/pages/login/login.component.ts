@@ -1,27 +1,56 @@
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css'],
   standalone: true,
   imports: [CommonModule, FormsModule]
 })
-export class LoginComponent {
-  email: string = '';
-  password: string = '';
-  showPassword: boolean = false;
-  isLoading: boolean = false;
-  selectedUrl: string = '';
-  urls: string[] = ['http://localhost:3000', 'https://api.example.com'];
+export class LoginComponent implements OnInit {
+  email = '';
+  password = '';
+  selectedUrl = '';
+  showPassword = false;
+  isLoading = false;
+  urls: string[] = [];
+
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
+  ngOnInit() {
+    this.loadSavedUrls();
+  }
+
+  loadSavedUrls() {
+    const savedUrls = localStorage.getItem('savedApiUrls');
+    this.urls = savedUrls ? JSON.parse(savedUrls) : [];
+  }
+
+  onAddApi() {
+    this.router.navigate(['/add-api']);
+  }
 
   onSubmit() {
+    if (!this.selectedUrl || !this.email || !this.password) return;
+
     this.isLoading = true;
-    // Logique de connexion à implémenter
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 2000);
+    this.authService.login(this.email, this.password).subscribe(
+      success => {
+        if (success) {
+          this.router.navigate(['/dashboard']);
+        }
+        this.isLoading = false;
+      },
+      error => {
+        console.error('Login failed:', error);
+        this.isLoading = false;
+      }
+    );
   }
 } 

@@ -1,19 +1,15 @@
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+
 import { routes } from './app.routes';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter([
-      {
-        path: '',
-        redirectTo: 'login',
-        pathMatch: 'full'
-      },
-      {
-        path: 'login',
-        loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
-      }
-    ])
+    provideRouter(routes),
+    provideHttpClient(
+      withInterceptors([AuthInterceptor])
+    )
   ]
 };

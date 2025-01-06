@@ -1,3 +1,69 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-text;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-card-bg rounded shadow-md p-4;
+  }
+
+  .btn {
+    @apply px-6 py-3 rounded font-medium tracking-wide transition-colors duration-200;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary text-background hover:bg-primary/90;
+  }
+
+  .btn-secondary {
+    @apply btn bg-secondary text-text hover:bg-secondary/90;
+  }
+
+  .input {
+    @apply bg-card-bg border border-primary rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+
+  .select {
+    @apply input appearance-none bg-no-repeat bg-[right_0.5rem_center];
+  }
+
+  .app-bar {
+    @apply bg-card-bg text-text shadow-md;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-text mb-1;
+  }
+
+  /* Form validation styles */
+  .input.ng-invalid.ng-touched {
+    @apply border-red-500;
+  }
+
+  .input:focus.ng-invalid.ng-touched {
+    @apply ring-red-500;
+  }
+
+  /* Dropdown styles */
+  .dropdown {
+    @apply relative inline-block;
+  }
+
+  .dropdown-content {
+    @apply hidden absolute z-10 bg-card-bg rounded shadow-lg mt-1 py-1 w-full;
+  }
+
+  .dropdown-content.show {
+    @apply block;
+  }
+
+  .dropdown-item {
+    @apply block px-4 py-2 text-text hover:bg-primary/10 cursor-pointer;
+  }
+}

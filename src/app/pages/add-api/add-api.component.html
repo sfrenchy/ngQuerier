@@ -1,0 +1,104 @@
+<div class="min-h-screen bg-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full card">
+    <!-- Header -->
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold">Add API</h2>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="apiForm" class="space-y-6">
+      <!-- Protocol Selector -->
+      <div>
+        <label class="label">Protocol</label>
+        <div class="flex gap-2">
+          <button *ngFor="let protocol of protocols"
+                  type="button"
+                  (click)="apiForm.get('protocol')?.setValue(protocol)"
+                  [class.btn-primary]="apiForm.get('protocol')?.value === protocol"
+                  [class.btn-secondary]="apiForm.get('protocol')?.value !== protocol"
+                  class="flex-1">
+            {{ protocol }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Host Field -->
+      <div>
+        <label class="label" for="host">Host</label>
+        <div class="relative">
+          <input formControlName="host"
+                 id="host"
+                 type="text"
+                 class="input w-full pl-10"
+                 placeholder="example.com">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center text-text">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Port Field -->
+      <div>
+        <label class="label" for="port">Port</label>
+        <div class="relative">
+          <input formControlName="port"
+                 id="port"
+                 type="number"
+                 class="input w-full pl-10"
+                 min="1"
+                 max="65535"
+                 placeholder="5000">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center text-text">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Path Field -->
+      <div>
+        <label class="label" for="path">API Path</label>
+        <div class="relative">
+          <input formControlName="path"
+                 id="path"
+                 type="text"
+                 class="input w-full pl-10"
+                 placeholder="api/v1">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center text-text">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="card bg-card-secondary p-4">
+        <div class="font-bold mb-2">Preview:</div>
+        <div class="font-mono">{{ fullUrl }}</div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-4">
+        <button type="button" 
+                (click)="router.navigate(['/login'])" 
+                class="btn-secondary flex-1">
+          Cancel
+        </button>
+        <button type="submit" 
+                (click)="onSubmit()" 
+                [disabled]="!apiForm.valid"
+                class="btn-primary flex-1 flex justify-center items-center">
+          <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ isLoading ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div> 

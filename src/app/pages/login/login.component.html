@@ -14,7 +14,7 @@
           <option value="" disabled selected>Select API URL</option>
           <option *ngFor="let url of urls" [value]="url">{{url}}</option>
         </select>
-        <button class="absolute inset-y-0 right-0 px-3 flex items-center text-text">
+        <button (click)="onAddApi()" class="absolute inset-y-0 right-0 px-3 flex items-center text-text">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>

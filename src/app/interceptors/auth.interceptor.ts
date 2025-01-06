@@ -6,12 +6,11 @@ import {
   HttpInterceptorFn,
   HttpErrorResponse
 } from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, filter, take, switchMap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
 let isRefreshing = false;
-const refreshTokenSubject = new BehaviorSubject<any>(null);
 
 export const AuthInterceptor: HttpInterceptorFn = (
   request: HttpRequest<unknown>,
@@ -19,19 +18,20 @@ export const AuthInterceptor: HttpInterceptorFn = (
 ): Observable<HttpEvent<unknown>> => {
   const authService = inject(AuthService);
 
-  // N'ajoutez pas le token pour les requêtes de login et de refresh token
-  if (isAuthenticationRequest(request)) {
+  // Skip auth header for certain endpoints
+  if (shouldSkipAuth(request.url)) {
     return next(request);
   }
 
-  const token = authService.getAccessToken();
+  // Add auth header
+  const token = localStorage.getItem('access_token');
   if (token) {
     request = addToken(request, token);
   }
 
   return next(request).pipe(
-    catchError(error => {
-      if (error instanceof HttpErrorResponse && error.status === 401) {
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
         return handle401Error(request, next, authService);
       }
       return throwError(() => error);
@@ -54,13 +54,18 @@ function handle401Error(
 ): Observable<HttpEvent<unknown>> {
   if (!isRefreshing) {
     isRefreshing = true;
-    refreshTokenSubject.next(null);
 
     return authService.refreshToken().pipe(
-      switchMap(token => {
+      switchMap(success => {
         isRefreshing = false;
-        refreshTokenSubject.next(token);
-        return next(addToken(request, token.token));
+        if (success) {
+          const token = localStorage.getItem('access_token');
+          if (token) {
+            return next(addToken(request, token));
+          }
+        }
+        authService.logout();
+        return throwError(() => new Error('Session expired'));
       }),
       catchError(error => {
         isRefreshing = false;
@@ -69,17 +74,10 @@ function handle401Error(
       })
     );
   }
-
-  return refreshTokenSubject.pipe(
-    filter(token => token !== null),
-    take(1),
-    switchMap(token => next(addToken(request, token.token)))
-  );
+  return next(request);
 }
 
-function isAuthenticationRequest(request: HttpRequest<unknown>): boolean {
-  return (
-    request.url.includes('signin') ||
-    request.url.includes('refreshtoken')
-  );
+function shouldSkipAuth(url: string): boolean {
+  const authEndpoints = ['/auth/login', '/auth/refresh', '/setup', '/health'];
+  return authEndpoints.some(endpoint => url.endsWith(endpoint));
 } 

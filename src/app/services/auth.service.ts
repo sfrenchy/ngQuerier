@@ -1,54 +1,57 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { User } from '../models/api.models';
+
+interface AuthResponse {
+  token: string;
+  refreshToken: string;
+}
+
+interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject: BehaviorSubject<User | null>;
-  public currentUser: Observable<User | null>;
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private apiService: ApiService) {
-    this.currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
-    this.currentUser = this.currentUserSubject.asObservable();
-  }
-
-  public get currentUserValue(): User | null {
-    return this.currentUserSubject.value;
+    this.checkAuth();
   }
 
   login(email: string, password: string): Observable<boolean> {
-    const currentUrl = this.apiService.getBaseUrl();
-    
     return this.apiService.signIn(email, password).pipe(
       map(response => {
         if (response && response.token) {
           localStorage.setItem('access_token', response.token);
           localStorage.setItem('refresh_token', response.refreshToken);
-          localStorage.setItem('last_used_url', currentUrl);
-          this.loadCurrentUser();
+          this.checkAuth();
           return true;
         }
         return false;
-      })
+      }),
+      catchError(() => of(false))
     );
   }
 
   logout(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    localStorage.removeItem('last_used_url');
     this.currentUserSubject.next(null);
     this.apiService.signOut().subscribe();
   }
 
-  refreshToken(): Observable<any> {
+  refreshToken(): Observable<boolean> {
     const refreshToken = localStorage.getItem('refresh_token');
     if (!refreshToken) {
-      return new Observable(subscriber => subscriber.error('No refresh token'));
+      return of(false);
     }
 
     return this.apiService.refreshToken(refreshToken).pipe(
@@ -56,40 +59,31 @@ export class AuthService {
         if (response && response.token) {
           localStorage.setItem('access_token', response.token);
           localStorage.setItem('refresh_token', response.refreshToken);
-          return response;
+          return true;
         }
-        throw new Error('Invalid refresh token response');
-      })
+        return false;
+      }),
+      catchError(() => of(false))
     );
   }
 
-  getAccessToken(): string | null {
-    return localStorage.getItem('access_token');
-  }
-
-  private loadCurrentUser(): void {
-    this.apiService.getCurrentUser().subscribe(
-      user => this.currentUserSubject.next(user),
-      error => {
-        console.error('Error loading user:', error);
-        this.currentUserSubject.next(null);
-      }
-    );
-  }
-
-  private getUserFromStorage(): User | null {
-    const token = this.getAccessToken();
-    const lastUsedUrl = localStorage.getItem('last_used_url');
-    
-    if (!token || !lastUsedUrl) return null;
-
-    this.apiService.setBaseUrl(lastUsedUrl);
-
-    try {
-      this.loadCurrentUser();
-      return this.currentUserValue;
-    } catch {
-      return null;
+  private checkAuth(): void {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      this.apiService.getCurrentUser().subscribe({
+        next: (user: User) => this.currentUserSubject.next(user),
+        error: () => {
+          this.currentUserSubject.next(null);
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+        }
+      });
+    } else {
+      this.currentUserSubject.next(null);
     }
+  }
+
+  isAuthenticated(): boolean {
+    return !!localStorage.getItem('access_token');
   }
 } 

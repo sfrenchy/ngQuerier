@@ -2,17 +2,16 @@
   "LOGIN": {
     "TITLE": "Login",
     "SELECT_API": "Select API URL",
-    "USERNAME": "Username",
+    "API_UNREACHABLE": "Unable to reach API",
+    "DELETE_URL": "Delete this URL",
+    "ADD_API": "Add API",
+    "CONFIGURE_API": "Configure API",
     "EMAIL": "Email",
     "EMAIL_PLACEHOLDER": "Enter your email",
     "PASSWORD": "Password",
     "PASSWORD_PLACEHOLDER": "Enter your password",
-    "LOGIN_BUTTON": "Login",
     "LOADING": "Loading...",
-    "API_ERROR": "Unable to reach API",
-    "DELETE_URL": "Delete this URL",
-    "CONFIGURE_API": "Configure API",
-    "ADD_API": "Add API"
+    "SUBMIT": "Login"
   },
   "API": {
     "ERRORS": {
@@ -35,5 +34,137 @@
     "CANCEL": "Cancel",
     "SAVE": "Save",
     "SAVING": "Saving..."
+  },
+  "CONFIGURE": {
+    "ADMIN": {
+      "TITLE": "Administrator Configuration",
+      "DESCRIPTION": "Create the main administrator account",
+      "FIRST_NAME": "First Name",
+      "FIRST_NAME_PLACEHOLDER": "Enter your first name",
+      "LAST_NAME": "Last Name",
+      "LAST_NAME_PLACEHOLDER": "Enter your last name",
+      "EMAIL": "Email",
+      "EMAIL_PLACEHOLDER": "Enter your email",
+      "EMAIL_REQUIRED": "Email is required",
+      "EMAIL_INVALID": "Please enter a valid email address",
+      "PASSWORD": "Password",
+      "PASSWORD_PLACEHOLDER": "Enter your password"
+    },
+    "SMTP": {
+      "TITLE": "SMTP Configuration",
+      "DESCRIPTION": "Configure the SMTP server for sending emails",
+      "HOST": "SMTP Host",
+      "HOST_PLACEHOLDER": "Ex: smtp.gmail.com",
+      "PORT": "Port",
+      "PORT_PLACEHOLDER": "Ex: 587",
+      "USE_SSL": "Use SSL/TLS",
+      "REQUIRE_AUTH": "Authentication required",
+      "USERNAME": "Username",
+      "USERNAME_PLACEHOLDER": "SMTP username",
+      "PASSWORD": "Password",
+      "PASSWORD_PLACEHOLDER": "SMTP password",
+      "SENDER_EMAIL": "Sender Email",
+      "SENDER_EMAIL_PLACEHOLDER": "Ex: noreply@mydomain.com",
+      "SENDER_NAME": "Sender Name",
+      "SENDER_NAME_PLACEHOLDER": "Ex: Querier Service",
+      "ERROR": {
+        "TEST_FAILED": "Failed to test SMTP configuration. Please verify your settings.",
+        "SETUP_FAILED": "Failed to save configuration. Please try again."
+      }
+    }
+  },
+  "COMMON": {
+    "CANCEL": "Cancel",
+    "NEXT": "Next",
+    "BACK": "Back",
+    "FINISH": "Finish",
+    "SAVE": "Save",
+    "DELETE": "Delete",
+    "TEST": "Test",
+    "VALIDATION": {
+      "EMAIL_REQUIRED": "Email is required",
+      "EMAIL_INVALID": "Please enter a valid email address",
+      "EMAIL_TOO_LONG": "Email address is too long (maximum 254 characters)",
+      "EMAIL_LOCAL_PART_TOO_LONG": "The part before @ is too long (maximum 64 characters)",
+      "PASSWORD_REQUIRED": "Password is required",
+      "PASSWORD_MIN_LENGTH": "Password must be at least {{length}} characters long",
+      "PASSWORD_REQUIRE_DIGIT": "Password must contain at least one digit",
+      "PASSWORD_REQUIRE_LOWERCASE": "Password must contain at least one lowercase letter",
+      "PASSWORD_REQUIRE_UPPERCASE": "Password must contain at least one uppercase letter",
+      "PASSWORD_REQUIRE_NON_ALPHANUMERIC": "Password must contain at least one special character",
+      "PASSWORD_REQUIRE_UNIQUE_CHARS": "Password must contain at least {{count}} unique characters"
+    }
+  },
+  "DASHBOARD": {
+    "TITLE": "Dashboard",
+    "WELCOME": "Welcome",
+    "MENU": "Menu"
+  },
+  "MENU": {
+    "CATEGORIES": {
+      "TITLE": "Categories",
+      "ADD": "Add Category",
+      "EDIT": "Edit Category",
+      "DELETE": "Delete Category",
+      "NAME": "Name",
+      "NAME_PLACEHOLDER": "Category name",
+      "ICON": "Icon",
+      "ICON_PLACEHOLDER": "Icon class"
+    },
+    "PAGES": {
+      "TITLE": "Pages",
+      "ADD": "Add Page",
+      "EDIT": "Edit Page",
+      "DELETE": "Delete Page",
+      "NAME": "Name",
+      "NAME_PLACEHOLDER": "Page name",
+      "DESCRIPTION": "Description",
+      "DESCRIPTION_PLACEHOLDER": "Page description"
+    }
+  },
+  "USERS": {
+    "TITLE": "Users",
+    "ADD": "Add User",
+    "EDIT": "Edit User",
+    "DELETE": "Delete User",
+    "NAME": "Name",
+    "EMAIL": "Email",
+    "ROLE": "Role",
+    "ACTIONS": "Actions"
+  },
+  "ROLES": {
+    "TITLE": "Roles",
+    "ADD": "Add Role",
+    "EDIT": "Edit Role",
+    "DELETE": "Delete Role",
+    "NAME": "Name",
+    "PERMISSIONS": "Permissions"
+  },
+  "DB": {
+    "CONNECTIONS": {
+      "TITLE": "Connections",
+      "ADD": "Add Connection",
+      "EDIT": "Edit Connection",
+      "DELETE": "Delete Connection",
+      "NAME": "Name",
+      "TYPE": "Type",
+      "HOST": "Host",
+      "PORT": "Port",
+      "DATABASE": "Database",
+      "USERNAME": "Username",
+      "PASSWORD": "Password",
+      "TEST": "Test Connection"
+    }
+  },
+  "QUERIES": {
+    "TITLE": "Queries",
+    "ADD": "Add Query",
+    "EDIT": "Edit Query",
+    "DELETE": "Delete Query",
+    "NAME": "Name",
+    "DESCRIPTION": "Description",
+    "SQL": "SQL",
+    "PARAMETERS": "Parameters",
+    "TEST": "Test Query"
   }
 } 

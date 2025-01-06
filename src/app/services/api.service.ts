@@ -24,18 +24,37 @@ import {
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl: string;
+  private baseUrl: string = '';
 
-  constructor(private http: HttpClient) {
-    this.baseUrl = environment.apiUrl;
-  }
+  constructor(private http: HttpClient) {}
 
-  setBaseUrl(url: string) {
+  setBaseUrl(url: string): void {
     this.baseUrl = url;
   }
 
   getBaseUrl(): string {
     return this.baseUrl;
+  }
+
+  // Generic HTTP methods
+  get<T>(endpoint: string, params?: any): Observable<T> {
+    const url = ApiEndpoints.buildUrl(this.baseUrl, endpoint);
+    return this.http.get<T>(url, { params });
+  }
+
+  post<T>(endpoint: string, body: any): Observable<T> {
+    const url = ApiEndpoints.buildUrl(this.baseUrl, endpoint);
+    return this.http.post<T>(url, body);
+  }
+
+  put<T>(endpoint: string, body: any): Observable<T> {
+    const url = ApiEndpoints.buildUrl(this.baseUrl, endpoint);
+    return this.http.put<T>(url, body);
+  }
+
+  delete<T>(endpoint: string): Observable<T> {
+    const url = ApiEndpoints.buildUrl(this.baseUrl, endpoint);
+    return this.http.delete<T>(url);
   }
 
   // Auth Methods
@@ -74,10 +93,12 @@ export class ApiService {
     );
   }
 
-  isConfigured(): Observable<boolean> {
-    return this.http.get<boolean>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.isConfigured)
-    );
+  checkApiStatus(): Observable<void> {
+    return this.http.get<void>(`${this.baseUrl}/health`);
+  }
+
+  checkConfiguration(): Observable<boolean> {
+    return this.get<boolean>(ApiEndpoints.isConfigured);
   }
 
   // User Management Methods
@@ -406,5 +427,52 @@ export class ApiService {
         );
       })
     );
+  }
+
+  // Configuration Methods
+  testSmtpConfiguration(config: {
+    host: string;
+    port: number;
+    useSSL: boolean;
+    requireAuth: boolean;
+    username?: string;
+    password?: string;
+    senderEmail: string;
+    senderName: string;
+  }): Observable<boolean> {
+    return this.post<boolean>(ApiEndpoints.smtpTest, config);
+  }
+
+  setup(config: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    host: string;
+    port: number;
+    useSSL: boolean;
+    requireAuth: boolean;
+    username?: string;
+    smtpPassword?: string;
+    senderEmail: string;
+    senderName: string;
+  }): Observable<boolean> {
+    return this.post<boolean>(ApiEndpoints.setup, {
+      admin: {
+        name: config.lastName,
+        firstName: config.firstName,
+        email: config.email,
+        password: config.password,
+      },
+      smtp: {
+        host: config.host,
+        port: config.port,
+        username: config.username,
+        password: config.smtpPassword,
+        useSSL: config.useSSL,
+        senderEmail: config.senderEmail,
+        senderName: config.senderName,
+      },
+    });
   }
 } 

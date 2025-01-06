@@ -1,8 +1,13 @@
 <div class="min-h-screen bg-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
   <div class="max-w-md w-full card">
-    <!-- Logo -->
-    <div class="flex justify-center mb-8">
-      <img src="assets/images/querier_logo_no_bg_big.png" alt="Querier Logo" class="w-48">
+    <!-- Header with Logo and Language Selector -->
+    <div class="relative mb-8">
+      <div class="absolute top-0 right-0">
+        <app-language-selector></app-language-selector>
+      </div>
+      <div class="flex justify-center">
+        <img src="assets/images/querier_logo_no_bg_big.png" alt="Querier Logo" class="w-48">
+      </div>
     </div>
 
     <!-- API URL Selector -->
@@ -10,12 +15,14 @@
       <div class="relative">
         <select [(ngModel)]="selectedUrl" 
                 (ngModelChange)="onUrlChange()"
-                class="select w-full"
+                class="select w-full cursor-pointer"
                 [class.ng-invalid]="!selectedUrl">
-          <option value="" disabled selected>Select API URL</option>
+          <option value="" disabled selected>{{ 'LOGIN.SELECT_API' | translate }}</option>
           <option *ngFor="let url of urls" [value]="url">{{url}}</option>
         </select>
-        <button (click)="onAddApi()" class="absolute inset-y-0 right-0 px-3 flex items-center text-text">
+        <button (click)="onAddApi()" 
+                class="absolute inset-y-0 right-0 px-3 flex items-center text-text"
+                [title]="'LOGIN.ADD_API' | translate">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
@@ -38,11 +45,11 @@
           <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
           </svg>
-          {{ apiError }}
+          {{ apiError | translate }}
         </div>
         <button (click)="onDeleteUrl(selectedUrl)" 
                 class="ml-2 p-1 hover:bg-error/20 rounded-full transition-colors"
-                title="Supprimer cette URL">
+                [title]="'API.DELETE_URL' | translate">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
           </svg>
@@ -56,14 +63,14 @@
           class="space-y-6">
       <!-- Email Field -->
       <div>
-        <label class="label" for="email">Email</label>
+        <label class="label" for="email">{{ 'LOGIN.EMAIL' | translate }}</label>
         <div class="relative">
           <input [(ngModel)]="email" 
                  id="email"
                  name="email"
                  type="email" 
                  class="input w-full pl-10" 
-                 placeholder="Email">
+                 [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center text-text">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
@@ -74,14 +81,14 @@
 
       <!-- Password Field -->
       <div>
-        <label class="label" for="password">Password</label>
+        <label class="label" for="password">{{ 'LOGIN.PASSWORD' | translate }}</label>
         <div class="relative">
           <input [(ngModel)]="password" 
                  id="password"
                  name="password"
                  [type]="showPassword ? 'text' : 'password'" 
                  class="input w-full pl-10 pr-10" 
-                 placeholder="Password">
+                 [placeholder]="'LOGIN.PASSWORD_PLACEHOLDER' | translate">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center text-text">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -106,7 +113,7 @@
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
-        {{ isLoading ? 'Loading...' : 'Login' }}
+        {{ (isLoading ? 'LOGIN.LOADING' : 'LOGIN.LOGIN_BUTTON') | translate }}
       </button>
     </form>
 
@@ -119,7 +126,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
-        Configure API
+        {{ 'LOGIN.CONFIGURE_API' | translate }}
       </button>
     </div>
   </div>

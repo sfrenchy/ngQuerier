@@ -100,11 +100,17 @@ export interface EntityProperty {
 }
 
 export interface SQLQuery {
-  id: number;
-  name: string;
-  description: string;
-  query: string;
-  parameters: SQLQueryParameter[];
+  Id: number;
+  Name: string;
+  Description: string;
+  Query: string;
+  ConnectionId: number;
+  IsPublic: boolean;
+  Parameters?: { [key: string]: any };
+  CreatedAt?: Date;
+  LastModifiedAt?: Date;
+  CreatedBy?: string;
+  OutputDescription?: string;
 }
 
 export interface SQLQueryParameter {

@@ -16,6 +16,10 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/databases/databases.component').then(m => m.DatabasesComponent)
       },
       {
+        path: 'queries',
+        loadComponent: () => import('./pages/queries/queries.component').then(m => m.QueriesComponent)
+      },
+      {
         path: 'settings',
         children: [
           {
@@ -33,5 +37,10 @@ export const routes: Routes = [
         ]
       }
     ]
+  },
+  {
+    path: 'queries',
+    loadComponent: () => import('./pages/queries/queries.component').then(m => m.QueriesComponent),
+    canActivate: [authGuard]
   }
 ];

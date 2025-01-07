@@ -188,15 +188,17 @@
     }
   },
   "QUERIES": {
-    "TITLE": "Requêtes",
-    "ADD": "Ajouter une requête",
-    "EDIT": "Modifier la requête",
-    "DELETE": "Supprimer la requête",
+    "TITLE": "Requêtes SQL",
+    "ADD": "Nouvelle requête",
     "NAME": "Nom",
+    "NAME_PLACEHOLDER": "Entrez le nom de la requête",
     "DESCRIPTION": "Description",
-    "SQL": "SQL",
-    "PARAMETERS": "Paramètres",
-    "TEST": "Tester la requête"
+    "DESCRIPTION_PLACEHOLDER": "Entrez une description pour la requête",
+    "DATABASE": "Base de données",
+    "SELECT_DATABASE": "Sélectionnez une base de données",
+    "QUERY": "Requête SQL",
+    "IS_PUBLIC": "Requête publique",
+    "NO_QUERIES": "Aucune requête trouvée"
   },
   "SETTINGS": {
     "API_CONFIGURATION": "Configuration de l'API",

@@ -175,5 +175,28 @@
     "SQL": "SQL",
     "PARAMETERS": "Parameters",
     "TEST": "Test Query"
+  },
+  "SETTINGS": {
+    "API_CONFIGURATION": "API Configuration",
+    "PROTOCOL": "Protocol",
+    "HOST": "Host",
+    "PORT": "Port",
+    "CORS_CONFIGURATION": "CORS Configuration",
+    "ALLOWED_HOSTS": "Allowed Hosts",
+    "ALLOWED_ORIGINS": "Allowed Origins",
+    "ALLOWED_METHODS": "Allowed Methods",
+    "ALLOWED_HEADERS": "Allowed Headers",
+    "TOKEN_CONFIGURATION": "Token Configuration",
+    "RESET_PASSWORD_TOKEN_VALIDITY": "Reset Password Token Validity (minutes)",
+    "EMAIL_CONFIRMATION_TOKEN_VALIDITY": "Email Confirmation Token Validity (minutes)",
+    "PASSWORD_RULES": "Password Rules",
+    "REQUIRE_DIGIT": "Require digit",
+    "REQUIRE_LOWERCASE": "Require lowercase",
+    "REQUIRE_UPPERCASE": "Require uppercase",
+    "REQUIRE_NON_ALPHANUMERIC": "Require special character",
+    "REQUIRED_LENGTH": "Minimum length"
+  },
+  "COMMON": {
+    "SAVE": "Save"
   }
 } 

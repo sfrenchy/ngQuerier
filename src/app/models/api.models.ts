@@ -102,7 +102,30 @@ export interface QueryAnalysis {
 }
 
 export interface ApiConfiguration {
-  baseUrl: string;
-  requireHttps: boolean;
-  corsOrigins: string[];
+  Scheme: string;
+  Host: string;
+  Port: number;
+  AllowedHosts: string;
+  AllowedOrigins: string;
+  AllowedMethods: string;
+  AllowedHeaders: string;
+  ResetPasswordTokenValidity: number;
+  EmailConfirmationTokenValidity: number;
+  RequireDigit: boolean;
+  RequireLowercase: boolean;
+  RequireNonAlphanumeric: boolean;
+  RequireUppercase: boolean;
+  RequiredLength: number;
+  RequiredUniqueChars: number;
+  SmtpHost: string;
+  SmtpPort: number;
+  SmtpUsername: string;
+  SmtpPassword: string;
+  SmtpUseSSL: boolean;
+  SmtpSenderEmail: string;
+  SmtpSenderName: string;
+  SmtpRequireAuth: boolean;
+  RedisEnabled: boolean;
+  RedisHost: string;
+  RedisPort: number;
 } 

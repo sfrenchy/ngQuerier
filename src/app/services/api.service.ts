@@ -480,4 +480,13 @@ export class ApiService {
     const token = localStorage.getItem('access_token');
     return of(!!token);
   }
+
+  // API Configuration Methods
+  getApiConfiguration(): Observable<ApiConfiguration> {
+    return this.http.get<ApiConfiguration>(`${this.baseUrl}/settings/api-configuration`);
+  }
+
+  updateApiConfiguration(config: ApiConfiguration): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/settings/api-configuration`, config);
+  }
 } 

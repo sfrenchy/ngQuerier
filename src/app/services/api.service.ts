@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { ApiEndpoints } from './api-endpoints';
@@ -474,5 +474,10 @@ export class ApiService {
         senderName: config.senderName,
       },
     });
+  }
+
+  isAuthenticated(): Observable<boolean> {
+    const token = localStorage.getItem('access_token');
+    return of(!!token);
   }
 } 

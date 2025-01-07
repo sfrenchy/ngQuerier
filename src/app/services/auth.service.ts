@@ -29,9 +29,9 @@ export class AuthService {
   login(email: string, password: string): Observable<boolean> {
     return this.apiService.signIn(email, password).pipe(
       map(response => {
-        if (response && response.token) {
-          localStorage.setItem('access_token', response.token);
-          localStorage.setItem('refresh_token', response.refreshToken);
+        if (response && response.Token) {
+          localStorage.setItem('access_token', response.Token);
+          localStorage.setItem('refresh_token', response.RefreshToken);
           this.checkAuth();
           return true;
         }

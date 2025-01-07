@@ -45,12 +45,13 @@ export enum QDBConnectionType {
 }
 
 export interface MenuCategory {
-  id: number;
-  names: { [key: string]: string };
-  icon: string;
-  order: number;
-  isVisible: boolean;
-  roles: Role[];
+  Id: number;
+  Names: { [key: string]: string };
+  Icon: string;
+  Order: number;
+  IsVisible: boolean;
+  Roles: string[];
+  Route: string;
 }
 
 export interface MenuPage {

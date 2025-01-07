@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User, Role } from '@models/api.models';
+import { ApiService } from '@services/api.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,6 +9,8 @@ import { User, Role } from '@models/api.models';
 export class UserService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
+
+  constructor(private apiService: ApiService) { }
 
   setCurrentUser(user: User | null): void {
     this.currentUserSubject.next(user);
@@ -45,5 +48,9 @@ export class UserService {
 
   canManageContent(): boolean {
     return this.hasAnyRole(['Admin', 'Content Manager']);
+  }
+
+  getRoles() {
+    return this.apiService.getAllRoles();
   }
 } 

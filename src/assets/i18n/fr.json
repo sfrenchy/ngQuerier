@@ -110,7 +110,15 @@
       "DELETE_USER": "Êtes-vous sûr de vouloir supprimer l'utilisateur \"{{name}}\" ?",
       "DELETE_GENERIC": "Êtes-vous sûr de vouloir supprimer cet élément ?",
       "DELETE_DATABASE": "Êtes-vous sûr de vouloir supprimer la base de données '{{name}}' ?"
-    }
+    },
+    "NAME": "Nom",
+    "ICON": "Icône",
+    "ORDER": "Ordre",
+    "ROUTE": "Route",
+    "VISIBILITY": "Visibilité",
+    "ROLES": "Rôles",
+    "ACTIONS": "Actions",
+    "TRANSLATIONS": "Traductions"
   },
   "DASHBOARD": {
     "TITLE": "Tableau de bord",
@@ -119,14 +127,14 @@
   },
   "MENU": {
     "CATEGORIES": {
-      "TITLE": "Catégories",
-      "ADD": "Ajouter une catégorie",
-      "EDIT": "Modifier la catégorie",
-      "DELETE": "Supprimer la catégorie",
-      "NAME": "Nom",
-      "NAME_PLACEHOLDER": "Nom de la catégorie",
-      "ICON": "Icône",
-      "ICON_PLACEHOLDER": "Classe d'icône"
+      "TITLE": "Catégories de Menu",
+      "ADD": "Ajouter une Catégorie",
+      "EDIT": "Modifier la Catégorie",
+      "CREATE": "Créer une Catégorie",
+      "NO_CATEGORIES": "Aucune catégorie de menu trouvée",
+      "NAME_PLACEHOLDER": "Entrez le nom de la catégorie",
+      "ICON_PLACEHOLDER": "Entrez la classe d'icône (ex: fas fa-home)",
+      "ROUTE_PLACEHOLDER": "Entrez le chemin de la route"
     },
     "PAGES": {
       "TITLE": "Pages",
@@ -247,5 +255,9 @@
     "CONTEXT_API_ROUTE_PLACEHOLDER": "Séparateur de route d'API (ex: api/v1)",
     "GENERATE_PROCEDURES": "Générer les contrôleurs pour les procédures stockées",
     "NO_CONNECTIONS": "Aucune base de données configurée"
+  },
+  "LANGUAGES": {
+    "EN": "Anglais",
+    "FR": "Français"
   }
 } 

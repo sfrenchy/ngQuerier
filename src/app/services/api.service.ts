@@ -56,9 +56,12 @@ export class ApiService {
     return this.http.put<T>(url, body);
   }
 
+  patch<T>(endpoint: string, data: any): Observable<T> {
+    return this.http.patch<T>(`${this.baseUrl}/${endpoint}`, data);
+  }
+
   delete<T>(endpoint: string): Observable<T> {
-    const url = ApiEndpoints.buildUrl(this.baseUrl, endpoint);
-    return this.http.delete<T>(url);
+    return this.http.delete<T>(`${this.baseUrl}/${endpoint}`);
   }
 
   // Auth Methods

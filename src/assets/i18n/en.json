@@ -116,14 +116,14 @@
   },
   "MENU": {
     "CATEGORIES": {
-      "TITLE": "Categories",
+      "TITLE": "Menu Categories",
       "ADD": "Add Category",
       "EDIT": "Edit Category",
-      "DELETE": "Delete Category",
-      "NAME": "Name",
-      "NAME_PLACEHOLDER": "Category name",
-      "ICON": "Icon",
-      "ICON_PLACEHOLDER": "Icon class"
+      "CREATE": "Create Category",
+      "NO_CATEGORIES": "No menu categories found",
+      "NAME_PLACEHOLDER": "Enter category name",
+      "ICON_PLACEHOLDER": "Enter icon class (e.g. fas fa-home)",
+      "ROUTE_PLACEHOLDER": "Enter route path"
     },
     "PAGES": {
       "TITLE": "Pages",
@@ -245,5 +245,9 @@
     "CONTEXT_API_ROUTE_PLACEHOLDER": "API route separator (e.g. api/v1)",
     "GENERATE_PROCEDURES": "Generate controllers for stored procedures",
     "NO_CONNECTIONS": "No database configured"
+  },
+  "LANGUAGES": {
+    "EN": "English",
+    "FR": "French"
   }
 } 

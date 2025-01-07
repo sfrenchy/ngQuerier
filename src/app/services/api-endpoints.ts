@@ -40,6 +40,8 @@ export class ApiEndpoints {
 
   // Menu Category Controller
   static readonly menuCategories = 'dynamicmenucategory';
+  static readonly menuCategoryById = 'dynamicmenucategory/{id}';
+  static readonly menuCategoryVisibility = 'dynamicmenucategory/{id}/visibility';
 
   // DynamicPage Controller
   static readonly pages = 'dynamicpage';

@@ -108,7 +108,8 @@
       "TITLE": "Confirmation",
       "DELETE_ROLE": "Êtes-vous sûr de vouloir supprimer le rôle \"{{name}}\" ?",
       "DELETE_USER": "Êtes-vous sûr de vouloir supprimer l'utilisateur \"{{name}}\" ?",
-      "DELETE_GENERIC": "Êtes-vous sûr de vouloir supprimer cet élément ?"
+      "DELETE_GENERIC": "Êtes-vous sûr de vouloir supprimer cet élément ?",
+      "DELETE_DATABASE": "Êtes-vous sûr de vouloir supprimer la base de données '{{name}}' ?"
     }
   },
   "DASHBOARD": {
@@ -187,15 +188,17 @@
     }
   },
   "QUERIES": {
-    "TITLE": "Requêtes",
-    "ADD": "Ajouter une requête",
-    "EDIT": "Modifier la requête",
-    "DELETE": "Supprimer la requête",
+    "TITLE": "Requêtes SQL",
+    "ADD": "Nouvelle requête",
     "NAME": "Nom",
+    "NAME_PLACEHOLDER": "Entrez le nom de la requête",
     "DESCRIPTION": "Description",
-    "SQL": "SQL",
-    "PARAMETERS": "Paramètres",
-    "TEST": "Tester la requête"
+    "DESCRIPTION_PLACEHOLDER": "Entrez une description pour la requête",
+    "DATABASE": "Base de données",
+    "SELECT_DATABASE": "Sélectionnez une base de données",
+    "QUERY": "Requête SQL",
+    "IS_PUBLIC": "Requête publique",
+    "NO_QUERIES": "Aucune requête trouvée"
   },
   "SETTINGS": {
     "API_CONFIGURATION": "Configuration de l'API",
@@ -230,5 +233,19 @@
     "REDIS_ENABLED": "Activer Redis",
     "REDIS_HOST": "Serveur Redis",
     "REDIS_PORT": "Port Redis"
+  },
+  "DATABASES": {
+    "TITLE": "Bases de données",
+    "ADD": "Ajouter une base de données",
+    "NAME": "Nom",
+    "NAME_PLACEHOLDER": "Nom de la base de données",
+    "PROVIDER": "Fournisseur",
+    "SELECT_PROVIDER": "Sélectionner un fournisseur",
+    "CONNECTION_STRING": "Chaîne de connexion",
+    "CONNECTION_STRING_PLACEHOLDER": "Chaîne de connexion à la base de données",
+    "CONTEXT_API_ROUTE": "Route de l'API",
+    "CONTEXT_API_ROUTE_PLACEHOLDER": "Séparateur de route d'API (ex: api/v1)",
+    "GENERATE_PROCEDURES": "Générer les contrôleurs pour les procédures stockées",
+    "NO_CONNECTIONS": "Aucune base de données configurée"
   }
 } 

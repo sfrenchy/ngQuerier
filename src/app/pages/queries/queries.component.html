@@ -1,0 +1,144 @@
+<div class="p-6">
+  <div class="bg-gray-800 rounded-lg shadow-lg text-gray-100">
+    <div class="p-6 border-b border-gray-700">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-semibold">{{ 'QUERIES.TITLE' | translate }}</h2>
+        <button
+          (click)="onAddClick()"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
+        >
+          <i class="fas fa-plus"></i>
+          {{ 'QUERIES.ADD' | translate }}
+        </button>
+      </div>
+    </div>
+    
+    <div class="p-6">
+      <div class="space-y-4">
+        <div *ngIf="showAddForm" class="bg-gray-700 rounded-lg p-6 mb-4">
+          <form [formGroup]="queryForm" (ngSubmit)="onSubmit()" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-2">
+                {{ 'QUERIES.NAME' | translate }}
+              </label>
+              <input
+                type="text"
+                formControlName="name"
+                class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                [placeholder]="'QUERIES.NAME_PLACEHOLDER' | translate"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-2">
+                {{ 'QUERIES.DESCRIPTION' | translate }}
+              </label>
+              <textarea
+                formControlName="description"
+                rows="3"
+                class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                [placeholder]="'QUERIES.DESCRIPTION_PLACEHOLDER' | translate"
+              ></textarea>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-2">
+                {{ 'QUERIES.DATABASE' | translate }}
+              </label>
+              <select
+                formControlName="connectionId"
+                class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">{{ 'QUERIES.SELECT_DATABASE' | translate }}</option>
+                <option *ngFor="let conn of connections" [value]="conn.Id">
+                  {{ conn.Name }}
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-2">
+                {{ 'QUERIES.QUERY' | translate }}
+              </label>
+              <ngx-monaco-editor
+                formControlName="query"
+                [options]="editorOptions"
+                class="h-64 w-full rounded overflow-hidden"
+              ></ngx-monaco-editor>
+            </div>
+
+            <div>
+              <label class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  formControlName="isPublic"
+                  class="w-4 h-4 text-blue-600 bg-gray-900 border-gray-600 rounded focus:ring-blue-500"
+                />
+                <span class="text-sm font-medium">{{ 'QUERIES.IS_PUBLIC' | translate }}</span>
+              </label>
+            </div>
+            
+            <div class="flex justify-end gap-4">
+              <button
+                type="button"
+                (click)="onCancelClick()"
+                class="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+              >
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+              <button
+                type="submit"
+                [disabled]="!queryForm.valid"
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {{ 'COMMON.SAVE' | translate }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div *ngFor="let query of queries" class="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="flex flex-col gap-2">
+              <span class="text-lg">{{ query.Name }}</span>
+              <div class="flex gap-2">
+                <span class="text-sm text-gray-400">{{ query.Description }}</span>
+                <span class="px-2 py-1 text-xs rounded bg-blue-600 text-white">
+                  {{ getConnectionName(query.ConnectionId) }}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <button
+              (click)="onEditClick(query)"
+              class="text-blue-400 hover:text-blue-300 transition-colors"
+              title="{{ 'COMMON.EDIT' | translate }}"
+            >
+              <i class="fas fa-edit"></i>
+            </button>
+            <button
+              (click)="onDeleteClick(query)"
+              class="text-red-400 hover:text-red-300 transition-colors"
+              title="{{ 'COMMON.DELETE' | translate }}"
+            >
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div *ngIf="queries.length === 0" class="text-center text-gray-400 py-8">
+          {{ 'QUERIES.NO_QUERIES' | translate }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-confirmation-dialog
+  *ngIf="showDeleteConfirmation"
+  [messageKey]="'COMMON.CONFIRMATION.DELETE_QUERY'"
+  [messageParams]="{ name: queryToDelete?.Name }"
+  (confirm)="onConfirmDelete()"
+  (cancel)="onCancelDelete()"
+></app-confirmation-dialog>

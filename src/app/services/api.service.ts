@@ -27,10 +27,13 @@ import {
 export class ApiService {
   private baseUrl: string = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.baseUrl = localStorage.getItem('baseUrl') || '';
+  }
 
   setBaseUrl(url: string): void {
     this.baseUrl = url;
+    localStorage.setItem('baseUrl', url);
   }
 
   getBaseUrl(): string {
@@ -179,6 +182,32 @@ export class ApiService {
   getDBConnections(): Observable<DBConnection[]> {
     return this.http.get<DBConnection[]>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.dbConnections)
+    );
+  }
+
+  addDBConnection(connection: DBConnection): Observable<DBConnection> {
+    return this.http.post<DBConnection>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.addDbConnection),
+      connection
+    );
+  }
+
+  updateDBConnection(id: number, connection: DBConnection): Observable<DBConnection> {
+    return this.http.put<DBConnection>(
+      ApiEndpoints.buildUrl(
+        this.baseUrl,
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.updateDbConnection, { id: id.toString() })
+      ),
+      connection
+    );
+  }
+
+  deleteDBConnection(id: number): Observable<any> {
+    return this.http.delete(
+      ApiEndpoints.buildUrl(
+        this.baseUrl,
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteDbConnection, { id: id.toString() })
+      )
     );
   }
 
@@ -412,7 +441,7 @@ export class ApiService {
   ): Observable<{ items: any[]; total: number }> {
     return this.getSQLQueries().pipe(
       map(queries => {
-        const query = queries.find(q => q.name === queryName);
+        const query = queries.find(q => q.Name === queryName);
         if (!query) {
           throw new Error(`Query not found: ${queryName}`);
         }
@@ -427,7 +456,7 @@ export class ApiService {
           ApiEndpoints.buildUrl(
             this.baseUrl,
             ApiEndpoints.replaceUrlParams(ApiEndpoints.executeSqlQuery, {
-              id: query.id.toString()
+              id: query.Id.toString()
             })
           ),
           {},
@@ -496,5 +525,26 @@ export class ApiService {
 
   updateApiConfiguration(config: ApiConfiguration): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/settings/api-configuration`, config);
+  }
+
+  // SQL Queries
+  getQueries(): Observable<SQLQuery[]> {
+    return this.http.get<SQLQuery[]>(`${this.baseUrl}/SQLQuery`);
+  }
+
+  getQuery(id: number): Observable<SQLQuery> {
+    return this.http.get<SQLQuery>(`${this.baseUrl}/SQLQuery/${id}`);
+  }
+
+  createQuery(query: SQLQuery): Observable<SQLQuery> {
+    return this.http.post<SQLQuery>(`${this.baseUrl}/SQLQuery`, query);
+  }
+
+  updateQuery(id: number, query: SQLQuery): Observable<SQLQuery> {
+    return this.http.put<SQLQuery>(`${this.baseUrl}/SQLQuery/${id}`, query);
+  }
+
+  deleteQuery(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/SQLQuery/${id}`);
   }
 } 

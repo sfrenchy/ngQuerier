@@ -30,10 +30,18 @@ export interface Role {
 }
 
 export interface DBConnection {
-  id: number;
-  name: string;
-  connectionString: string;
-  provider: string;
+  Id: number;
+  Name: string;
+  ConnectionType: QDBConnectionType;
+  ConnectionString: string;
+  ApiRoute: string;
+  GenerateProcedureControllersAndServices?: boolean;
+}
+
+export enum QDBConnectionType {
+  SqlServer = 0,
+  MySQL = 1,
+  PgSQL = 2
 }
 
 export interface MenuCategory {
@@ -92,11 +100,17 @@ export interface EntityProperty {
 }
 
 export interface SQLQuery {
-  id: number;
-  name: string;
-  description: string;
-  query: string;
-  parameters: SQLQueryParameter[];
+  Id: number;
+  Name: string;
+  Description: string;
+  Query: string;
+  ConnectionId: number;
+  IsPublic: boolean;
+  Parameters?: { [key: string]: any };
+  CreatedAt?: Date;
+  LastModifiedAt?: Date;
+  CreatedBy?: string;
+  OutputDescription?: string;
 }
 
 export interface SQLQueryParameter {

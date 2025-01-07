@@ -15,11 +15,11 @@ export class UserAvatarComponent {
     const user = this.userService.getCurrentUser();
     if (!user) return '';
     
-    return (user.firstName[0] + user.lastName[0]).toUpperCase();
+    return (user.FirstName[0] + user.LastName[0]).toUpperCase();
   }
 
   get userFullName(): string {
     const user = this.userService.getCurrentUser();
-    return user?.fullName || '';
+    return user?.FirstName + ' ' + user?.LastName || '';
   }
 } 

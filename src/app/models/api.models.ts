@@ -1,10 +1,27 @@
 export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  userName: string;
-  roles: string[];
+  Id: string;
+  Email: string;
+  FirstName: string;
+  LastName: string;
+  Phone: string | null;
+  Roles: Role[];
+  LanguageCode: string | null;
+  Img: string | null;
+  Poste: string | null;
+  UserName: string;
+  DateFormat: string | null;
+  Currency: string | null;
+  AreaUnit: string | null;
+  IsEmailConfirmed: boolean;
+}
+
+export interface ApiUser {
+  Id: string;
+  Email: string;
+  FirstName: string;
+  LastName: string;
+  RoleId: string;
+  IsEmailValidated: boolean;
 }
 
 export interface Role {
@@ -25,7 +42,7 @@ export interface MenuCategory {
   icon: string;
   order: number;
   isVisible: boolean;
-  roles: string[];
+  roles: Role[];
 }
 
 export interface MenuPage {
@@ -34,7 +51,7 @@ export interface MenuPage {
   icon: string;
   order: number;
   isVisible: boolean;
-  roles: string[];
+  roles: Role[];
   route: string;
   menuCategoryId: number;
 }
@@ -128,4 +145,13 @@ export interface ApiConfiguration {
   RedisEnabled: boolean;
   RedisHost: string;
   RedisPort: number;
+}
+
+export interface UserCreateUpdate {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  userName: string;
+  roles: string[];
 } 

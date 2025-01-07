@@ -105,7 +105,8 @@
       "DELETE_ROLE": "Are you sure you want to delete the role \"{{name}}\"?",
       "DELETE_USER": "Are you sure you want to delete the user \"{{name}}\"?",
       "DELETE_GENERIC": "Are you sure you want to delete this item?"
-    }
+    },
+    "SELECT": "Select"
   },
   "DASHBOARD": {
     "TITLE": "Dashboard",
@@ -151,7 +152,8 @@
     "NAME": "Name",
     "EMAIL": "Email",
     "ROLE": "Role",
-    "ACTIONS": "Actions"
+    "ACTIONS": "Actions",
+    "NO_USERS": "No users found"
   },
   "ROLES": {
     "TITLE": "Role Management",

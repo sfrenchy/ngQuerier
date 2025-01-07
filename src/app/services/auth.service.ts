@@ -3,6 +3,7 @@ import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { UserService } from './user.service';
+import { User } from '@models/api.models';
 
 @Injectable({
   providedIn: 'root'
@@ -24,11 +25,20 @@ export class AuthService {
           
           // Mise à jour des informations utilisateur
           this.userService.setCurrentUser({
-            id: response.Id,
-            email: response.Email,
-            firstName: response.FirstName,
-            lastName: response.LastName,
-            roles: response.Roles
+            Id: response.Id,
+            Email: response.Email,
+            FirstName: response.FirstName,
+            LastName: response.LastName,
+            Phone: null,
+            Roles: response.Roles,
+            LanguageCode: null,
+            Img: null,
+            Poste: null,
+            UserName: response.Email,
+            DateFormat: null,
+            Currency: null,
+            AreaUnit: null,
+            IsEmailConfirmed: response.IsEmailConfirmed
           });
           
           return true;

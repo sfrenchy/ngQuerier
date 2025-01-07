@@ -18,6 +18,7 @@ import {
   SQLQueryRequest,
   QueryAnalysis,
   ApiConfiguration,
+  UserCreateUpdate
 } from '../models/api.models';
 
 @Injectable({
@@ -114,14 +115,14 @@ export class ApiService {
     );
   }
 
-  addUser(user: Partial<User>): Observable<User> {
+  addUser(user: UserCreateUpdate): Observable<User> {
     return this.http.put<User>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.addUser),
       user
     );
   }
 
-  updateUser(id: string, user: Partial<User>): Observable<User> {
+  updateUser(id: string, user: UserCreateUpdate): Observable<User> {
     return this.http.put<User>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.updateUser),
       { ...user, id }
@@ -134,6 +135,13 @@ export class ApiService {
         this.baseUrl,
         ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteUser, { id })
       )
+    );
+  }
+
+  resendConfirmationEmail(userId: string): Observable<any> {
+    return this.http.post(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.resendConfirmationEmail),
+      { userId }
     );
   }
 

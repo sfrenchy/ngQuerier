@@ -101,6 +101,7 @@
     "ADD": "Ajouter",
     "SEARCH": "Rechercher",
     "LOADING": "Chargement...",
+    "SELECT": "Sélectionner",
     "CONFIRM_DELETE": "Confirmation de suppression",
     "CONFIRM_DELETE_MESSAGE": "Êtes-vous sûr de vouloir supprimer cet élément ?",
     "CONFIRMATION": {
@@ -154,7 +155,8 @@
     "NAME": "Nom",
     "EMAIL": "Email",
     "ROLE": "Rôle",
-    "ACTIONS": "Actions"
+    "ACTIONS": "Actions",
+    "NO_USERS": "Aucun utilisateur trouvé"
   },
   "ROLES": {
     "TITLE": "Gestion des rôles",

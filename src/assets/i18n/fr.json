@@ -93,6 +93,21 @@
       "PASSWORD_REQUIRE_UPPERCASE": "Le mot de passe doit contenir au moins une lettre majuscule",
       "PASSWORD_REQUIRE_NON_ALPHANUMERIC": "Le mot de passe doit contenir au moins un caractère spécial",
       "PASSWORD_REQUIRE_UNIQUE_CHARS": "Le mot de passe doit contenir au moins {{count}} caractères uniques"
+    },
+    "SAVE": "Enregistrer",
+    "CANCEL": "Annuler",
+    "DELETE": "Supprimer",
+    "EDIT": "Modifier",
+    "ADD": "Ajouter",
+    "SEARCH": "Rechercher",
+    "LOADING": "Chargement...",
+    "CONFIRM_DELETE": "Confirmation de suppression",
+    "CONFIRM_DELETE_MESSAGE": "Êtes-vous sûr de vouloir supprimer cet élément ?",
+    "CONFIRMATION": {
+      "TITLE": "Confirmation",
+      "DELETE_ROLE": "Êtes-vous sûr de vouloir supprimer le rôle \"{{name}}\" ?",
+      "DELETE_USER": "Êtes-vous sûr de vouloir supprimer l'utilisateur \"{{name}}\" ?",
+      "DELETE_GENERIC": "Êtes-vous sûr de vouloir supprimer cet élément ?"
     }
   },
   "DASHBOARD": {
@@ -142,11 +157,15 @@
     "ACTIONS": "Actions"
   },
   "ROLES": {
-    "TITLE": "Rôles",
+    "TITLE": "Gestion des rôles",
     "ADD": "Ajouter un rôle",
     "EDIT": "Modifier le rôle",
     "DELETE": "Supprimer le rôle",
-    "NAME": "Nom",
+    "NAME": "Nom du rôle",
+    "NAME_REQUIRED": "Le nom du rôle est requis",
+    "NO_ROLES": "Aucun rôle trouvé",
+    "CONFIRM_DELETE_TITLE": "Supprimer le rôle",
+    "CONFIRM_DELETE_MESSAGE": "Êtes-vous sûr de vouloir supprimer ce rôle ? Cette action est irréversible.",
     "PERMISSIONS": "Permissions"
   },
   "DB": {

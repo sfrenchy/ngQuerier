@@ -8,22 +8,21 @@ export const routes: Routes = [
   },
   {
     path: '',
-    canActivate: [authGuard],
     loadComponent: () => import('./pages/home/home.component').then(m => m.HomeComponent),
+    canActivate: [authGuard],
     children: [
       {
-        path: 'home',
-        redirectTo: 'services',
-        pathMatch: 'full'
-      },
-      {
-        path: 'services',
-        loadComponent: () => import('./pages/settings/api-settings/api-settings.component').then(m => m.ApiSettingsComponent)
-      },
-      {
-        path: '',
-        redirectTo: 'home',
-        pathMatch: 'full'
+        path: 'settings',
+        children: [
+          {
+            path: 'api',
+            loadComponent: () => import('./pages/settings/api-settings/api-settings.component').then(m => m.ApiSettingsComponent)
+          },
+          {
+            path: 'roles',
+            loadComponent: () => import('./pages/settings/roles/roles.component').then(m => m.RolesComponent)
+          }
+        ]
       }
     ]
   }

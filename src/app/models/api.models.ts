@@ -8,8 +8,8 @@ export interface User {
 }
 
 export interface Role {
-  id: string;
-  name: string;
+  Id: string;
+  Name: string;
 }
 
 export interface DBConnection {

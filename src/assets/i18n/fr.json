@@ -93,6 +93,22 @@
       "PASSWORD_REQUIRE_UPPERCASE": "Le mot de passe doit contenir au moins une lettre majuscule",
       "PASSWORD_REQUIRE_NON_ALPHANUMERIC": "Le mot de passe doit contenir au moins un caractère spécial",
       "PASSWORD_REQUIRE_UNIQUE_CHARS": "Le mot de passe doit contenir au moins {{count}} caractères uniques"
+    },
+    "SAVE": "Enregistrer",
+    "CANCEL": "Annuler",
+    "DELETE": "Supprimer",
+    "EDIT": "Modifier",
+    "ADD": "Ajouter",
+    "SEARCH": "Rechercher",
+    "LOADING": "Chargement...",
+    "SELECT": "Sélectionner",
+    "CONFIRM_DELETE": "Confirmation de suppression",
+    "CONFIRM_DELETE_MESSAGE": "Êtes-vous sûr de vouloir supprimer cet élément ?",
+    "CONFIRMATION": {
+      "TITLE": "Confirmation",
+      "DELETE_ROLE": "Êtes-vous sûr de vouloir supprimer le rôle \"{{name}}\" ?",
+      "DELETE_USER": "Êtes-vous sûr de vouloir supprimer l'utilisateur \"{{name}}\" ?",
+      "DELETE_GENERIC": "Êtes-vous sûr de vouloir supprimer cet élément ?"
     }
   },
   "DASHBOARD": {
@@ -139,14 +155,19 @@
     "NAME": "Nom",
     "EMAIL": "Email",
     "ROLE": "Rôle",
-    "ACTIONS": "Actions"
+    "ACTIONS": "Actions",
+    "NO_USERS": "Aucun utilisateur trouvé"
   },
   "ROLES": {
-    "TITLE": "Rôles",
+    "TITLE": "Gestion des rôles",
     "ADD": "Ajouter un rôle",
     "EDIT": "Modifier le rôle",
     "DELETE": "Supprimer le rôle",
-    "NAME": "Nom",
+    "NAME": "Nom du rôle",
+    "NAME_REQUIRED": "Le nom du rôle est requis",
+    "NO_ROLES": "Aucun rôle trouvé",
+    "CONFIRM_DELETE_TITLE": "Supprimer le rôle",
+    "CONFIRM_DELETE_MESSAGE": "Êtes-vous sûr de vouloir supprimer ce rôle ? Cette action est irréversible.",
     "PERMISSIONS": "Permissions"
   },
   "DB": {
@@ -175,5 +196,39 @@
     "SQL": "SQL",
     "PARAMETERS": "Paramètres",
     "TEST": "Tester la requête"
+  },
+  "SETTINGS": {
+    "API_CONFIGURATION": "Configuration de l'API",
+    "PROTOCOL": "Protocole",
+    "HOST": "Hôte",
+    "PORT": "Port",
+    "CORS_CONFIGURATION": "Configuration CORS",
+    "ALLOWED_HOSTS": "Hôtes autorisés",
+    "ALLOWED_ORIGINS": "Origines autorisées",
+    "ALLOWED_METHODS": "Méthodes autorisées",
+    "ALLOWED_HEADERS": "En-têtes autorisés",
+    "TOKEN_CONFIGURATION": "Configuration des tokens",
+    "RESET_PASSWORD_TOKEN_VALIDITY": "Validité du token de réinitialisation (minutes)",
+    "EMAIL_CONFIRMATION_TOKEN_VALIDITY": "Validité du token de confirmation (minutes)",
+    "PASSWORD_RULES": "Règles de mot de passe",
+    "REQUIRE_DIGIT": "Exiger un chiffre",
+    "REQUIRE_LOWERCASE": "Exiger une minuscule",
+    "REQUIRE_UPPERCASE": "Exiger une majuscule",
+    "REQUIRE_NON_ALPHANUMERIC": "Exiger un caractère spécial",
+    "REQUIRED_LENGTH": "Longueur minimale",
+    "REQUIRED_UNIQUE_CHARS": "Caractères uniques requis",
+    "SMTP_CONFIGURATION": "Configuration SMTP",
+    "SMTP_HOST": "Serveur SMTP",
+    "SMTP_PORT": "Port SMTP",
+    "SMTP_USERNAME": "Nom d'utilisateur SMTP",
+    "SMTP_PASSWORD": "Mot de passe SMTP",
+    "SMTP_USE_SSL": "Utiliser SSL",
+    "SMTP_SENDER_EMAIL": "Email de l'expéditeur",
+    "SMTP_SENDER_NAME": "Nom de l'expéditeur",
+    "SMTP_REQUIRE_AUTH": "Authentification requise",
+    "REDIS_CONFIGURATION": "Configuration Redis",
+    "REDIS_ENABLED": "Activer Redis",
+    "REDIS_HOST": "Serveur Redis",
+    "REDIS_PORT": "Port Redis"
   }
 } 

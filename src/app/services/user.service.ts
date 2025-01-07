@@ -1,14 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  roles: string[];
-  fullName?: string;
-}
+import { User, Role } from '@models/api.models';
 
 @Injectable({
   providedIn: 'root'
@@ -18,9 +10,6 @@ export class UserService {
   currentUser$ = this.currentUserSubject.asObservable();
 
   setCurrentUser(user: User | null): void {
-    if (user) {
-      user.fullName = `${user.firstName} ${user.lastName}`.trim();
-    }
     this.currentUserSubject.next(user);
   }
 
@@ -28,13 +17,22 @@ export class UserService {
     return this.currentUserSubject.value;
   }
 
-  hasRole(role: string): boolean {
+  hasRole(roleName: string): boolean {
     const user = this.currentUserSubject.value;
-    return user?.roles?.includes(role) || false;
+    if (!user?.Roles) {
+      return false;
+    }
+    
+    return user.Roles.some(r => {
+      if (typeof r === 'string') {
+        return r === roleName;
+      }
+      return r.Name === roleName;
+    });
   }
 
-  hasAnyRole(roles: string[]): boolean {
-    return roles.some(role => this.hasRole(role));
+  hasAnyRole(roleNames: string[]): boolean {
+    return roleNames.some(roleName => this.hasRole(roleName));
   }
 
   isAdmin(): boolean {

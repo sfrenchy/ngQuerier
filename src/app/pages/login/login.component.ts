@@ -97,14 +97,14 @@ export class LoginComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid && this.selectedUrl) {
+    if (this.loginForm.valid) {
       this.isLoading = true;
       const { email, password } = this.loginForm.value;
-      
+
       this.authService.login(email, password).subscribe({
         next: (success: boolean) => {
           if (success) {
-            this.router.navigate(['/home']);
+            this.router.navigate(['/']);
           }
           this.isLoading = false;
         },

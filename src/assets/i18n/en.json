@@ -81,6 +81,12 @@
     "SAVE": "Save",
     "DELETE": "Delete",
     "TEST": "Test",
+    "EDIT": "Edit",
+    "ADD": "Add",
+    "SEARCH": "Search",
+    "LOADING": "Loading...",
+    "CONFIRM_DELETE": "Delete Confirmation",
+    "CONFIRM_DELETE_MESSAGE": "Are you sure you want to delete this item?",
     "VALIDATION": {
       "EMAIL_REQUIRED": "Email is required",
       "EMAIL_INVALID": "Please enter a valid email address",
@@ -93,7 +99,14 @@
       "PASSWORD_REQUIRE_UPPERCASE": "Password must contain at least one uppercase letter",
       "PASSWORD_REQUIRE_NON_ALPHANUMERIC": "Password must contain at least one special character",
       "PASSWORD_REQUIRE_UNIQUE_CHARS": "Password must contain at least {{count}} unique characters"
-    }
+    },
+    "CONFIRMATION": {
+      "TITLE": "Confirmation",
+      "DELETE_ROLE": "Are you sure you want to delete the role \"{{name}}\"?",
+      "DELETE_USER": "Are you sure you want to delete the user \"{{name}}\"?",
+      "DELETE_GENERIC": "Are you sure you want to delete this item?"
+    },
+    "SELECT": "Select"
   },
   "DASHBOARD": {
     "TITLE": "Dashboard",
@@ -139,14 +152,19 @@
     "NAME": "Name",
     "EMAIL": "Email",
     "ROLE": "Role",
-    "ACTIONS": "Actions"
+    "ACTIONS": "Actions",
+    "NO_USERS": "No users found"
   },
   "ROLES": {
-    "TITLE": "Roles",
+    "TITLE": "Role Management",
     "ADD": "Add Role",
     "EDIT": "Edit Role",
     "DELETE": "Delete Role",
-    "NAME": "Name",
+    "NAME": "Role Name",
+    "NAME_REQUIRED": "Role name is required",
+    "NO_ROLES": "No roles found",
+    "CONFIRM_DELETE_TITLE": "Delete Role",
+    "CONFIRM_DELETE_MESSAGE": "Are you sure you want to delete this role? This action cannot be undone.",
     "PERMISSIONS": "Permissions"
   },
   "DB": {
@@ -175,5 +193,42 @@
     "SQL": "SQL",
     "PARAMETERS": "Parameters",
     "TEST": "Test Query"
+  },
+  "SETTINGS": {
+    "API_CONFIGURATION": "API Configuration",
+    "PROTOCOL": "Protocol",
+    "HOST": "Host",
+    "PORT": "Port",
+    "CORS_CONFIGURATION": "CORS Configuration",
+    "ALLOWED_HOSTS": "Allowed Hosts",
+    "ALLOWED_ORIGINS": "Allowed Origins",
+    "ALLOWED_METHODS": "Allowed Methods",
+    "ALLOWED_HEADERS": "Allowed Headers",
+    "TOKEN_CONFIGURATION": "Token Configuration",
+    "RESET_PASSWORD_TOKEN_VALIDITY": "Reset Password Token Validity (minutes)",
+    "EMAIL_CONFIRMATION_TOKEN_VALIDITY": "Email Confirmation Token Validity (minutes)",
+    "PASSWORD_RULES": "Password Rules",
+    "REQUIRE_DIGIT": "Require digit",
+    "REQUIRE_LOWERCASE": "Require lowercase",
+    "REQUIRE_UPPERCASE": "Require uppercase",
+    "REQUIRE_NON_ALPHANUMERIC": "Require special character",
+    "REQUIRED_LENGTH": "Minimum length",
+    "REQUIRED_UNIQUE_CHARS": "Required unique characters",
+    "SMTP_CONFIGURATION": "SMTP Configuration",
+    "SMTP_HOST": "SMTP Server",
+    "SMTP_PORT": "SMTP Port",
+    "SMTP_USERNAME": "SMTP Username",
+    "SMTP_PASSWORD": "SMTP Password",
+    "SMTP_USE_SSL": "Use SSL",
+    "SMTP_SENDER_EMAIL": "Sender Email",
+    "SMTP_SENDER_NAME": "Sender Name",
+    "SMTP_REQUIRE_AUTH": "Authentication Required",
+    "REDIS_CONFIGURATION": "Redis Configuration",
+    "REDIS_ENABLED": "Enable Redis",
+    "REDIS_HOST": "Redis Server",
+    "REDIS_PORT": "Redis Port"
+  },
+  "COMMON": {
+    "SAVE": "Save"
   }
 } 

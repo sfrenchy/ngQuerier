@@ -1,15 +1,32 @@
 export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  userName: string;
-  roles: string[];
+  Id: string;
+  Email: string;
+  FirstName: string;
+  LastName: string;
+  Phone: string | null;
+  Roles: Role[];
+  LanguageCode: string | null;
+  Img: string | null;
+  Poste: string | null;
+  UserName: string;
+  DateFormat: string | null;
+  Currency: string | null;
+  AreaUnit: string | null;
+  IsEmailConfirmed: boolean;
+}
+
+export interface ApiUser {
+  Id: string;
+  Email: string;
+  FirstName: string;
+  LastName: string;
+  RoleId: string;
+  IsEmailValidated: boolean;
 }
 
 export interface Role {
-  id: string;
-  name: string;
+  Id: string;
+  Name: string;
 }
 
 export interface DBConnection {
@@ -25,7 +42,7 @@ export interface MenuCategory {
   icon: string;
   order: number;
   isVisible: boolean;
-  roles: string[];
+  roles: Role[];
 }
 
 export interface MenuPage {
@@ -34,7 +51,7 @@ export interface MenuPage {
   icon: string;
   order: number;
   isVisible: boolean;
-  roles: string[];
+  roles: Role[];
   route: string;
   menuCategoryId: number;
 }
@@ -102,7 +119,39 @@ export interface QueryAnalysis {
 }
 
 export interface ApiConfiguration {
-  baseUrl: string;
-  requireHttps: boolean;
-  corsOrigins: string[];
+  Scheme: string;
+  Host: string;
+  Port: number;
+  AllowedHosts: string;
+  AllowedOrigins: string;
+  AllowedMethods: string;
+  AllowedHeaders: string;
+  ResetPasswordTokenValidity: number;
+  EmailConfirmationTokenValidity: number;
+  RequireDigit: boolean;
+  RequireLowercase: boolean;
+  RequireNonAlphanumeric: boolean;
+  RequireUppercase: boolean;
+  RequiredLength: number;
+  RequiredUniqueChars: number;
+  SmtpHost: string;
+  SmtpPort: number;
+  SmtpUsername: string;
+  SmtpPassword: string;
+  SmtpUseSSL: boolean;
+  SmtpSenderEmail: string;
+  SmtpSenderName: string;
+  SmtpRequireAuth: boolean;
+  RedisEnabled: boolean;
+  RedisHost: string;
+  RedisPort: number;
+}
+
+export interface UserCreateUpdate {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  userName: string;
+  roles: string[];
 } 

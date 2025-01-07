@@ -21,7 +21,8 @@
     "paths": {
       "@components/*": ["app/components/*"],
       "@validators/*": ["app/validators/*"],
-      "@services/*": ["app/services/*"]
+      "@services/*": ["app/services/*"],
+      "@pages/*": ["app/pages/*"]
     }
   },
   "angularCompilerOptions": {

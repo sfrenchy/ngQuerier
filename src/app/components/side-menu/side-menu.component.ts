@@ -2,6 +2,9 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { UserService } from '@services/user.service';
+import { AuthService } from '@services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-side-menu',
@@ -11,16 +14,42 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class SideMenuComponent {
   isExpanded = false;
+  isSettingsExpanded = false;
+  isPinned = false;
   private collapseTimeout: any;
 
+  constructor(
+    public userService: UserService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
   onMouseEnter(): void {
-    clearTimeout(this.collapseTimeout);
-    this.isExpanded = true;
+    if (!this.isPinned) {
+      this.isExpanded = true;
+    }
   }
 
   onMouseLeave(): void {
-    this.collapseTimeout = setTimeout(() => {
+    if (!this.isPinned) {
       this.isExpanded = false;
-    }, 3000); // 3 secondes avant repli
+      this.isSettingsExpanded = false;
+    }
+  }
+
+  togglePin(): void {
+    this.isPinned = !this.isPinned;
+    if (this.isPinned) {
+      this.isExpanded = true;
+    }
+  }
+
+  toggleSettings(): void {
+    this.isSettingsExpanded = !this.isSettingsExpanded;
+  }
+
+  async onLogout(): Promise<void> {
+    this.authService.logout();
+    await this.router.navigate(['/login']);
   }
 } 

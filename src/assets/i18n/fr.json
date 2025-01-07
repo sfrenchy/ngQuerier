@@ -120,7 +120,16 @@
       "NAME_PLACEHOLDER": "Nom de la page",
       "DESCRIPTION": "Description",
       "DESCRIPTION_PLACEHOLDER": "Description de la page"
-    }
+    },
+    "HOME": "Accueil",
+    "DATABASES": "Bases de données",
+    "QUERIES": "Requêtes",
+    "CONTENTS": "Contenus",
+    "SETTINGS": "Paramètres",
+    "USERS": "Utilisateurs",
+    "ROLES": "Rôles",
+    "SERVICES": "Services",
+    "LOGOUT": "Déconnexion"
   },
   "USERS": {
     "TITLE": "Utilisateurs",

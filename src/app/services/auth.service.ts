@@ -1,28 +1,17 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map, tap, catchError } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
-
-interface AuthResponse {
-  token: string;
-  refreshToken: string;
-}
-
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
+import { UserService } from './user.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
-  currentUser$ = this.currentUserSubject.asObservable();
-
-  constructor(private apiService: ApiService) {
+  constructor(
+    private apiService: ApiService,
+    private userService: UserService
+  ) {
     this.checkAuth();
   }
 
@@ -32,19 +21,27 @@ export class AuthService {
         if (response && response.Token) {
           localStorage.setItem('access_token', response.Token);
           localStorage.setItem('refresh_token', response.RefreshToken);
-          this.checkAuth();
+          
+          // Mise à jour des informations utilisateur
+          this.userService.setCurrentUser({
+            id: response.Id,
+            email: response.Email,
+            firstName: response.FirstName,
+            lastName: response.LastName,
+            roles: response.Roles
+          });
+          
           return true;
         }
         return false;
-      }),
-      catchError(() => of(false))
+      })
     );
   }
 
   logout(): void {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    this.currentUserSubject.next(null);
+    this.userService.setCurrentUser(null);
     this.apiService.signOut().subscribe();
   }
 
@@ -56,14 +53,13 @@ export class AuthService {
 
     return this.apiService.refreshToken(refreshToken).pipe(
       map(response => {
-        if (response && response.token) {
-          localStorage.setItem('access_token', response.token);
-          localStorage.setItem('refresh_token', response.refreshToken);
+        if (response && response.Token) {
+          localStorage.setItem('access_token', response.Token);
+          localStorage.setItem('refresh_token', response.RefreshToken);
           return true;
         }
         return false;
-      }),
-      catchError(() => of(false))
+      })
     );
   }
 
@@ -71,15 +67,17 @@ export class AuthService {
     const token = localStorage.getItem('access_token');
     if (token) {
       this.apiService.getCurrentUser().subscribe({
-        next: (user: User) => this.currentUserSubject.next(user),
+        next: (user) => {
+          this.userService.setCurrentUser(user);
+        },
         error: () => {
-          this.currentUserSubject.next(null);
+          this.userService.setCurrentUser(null);
           localStorage.removeItem('access_token');
           localStorage.removeItem('refresh_token');
         }
       });
     } else {
-      this.currentUserSubject.next(null);
+      this.userService.setCurrentUser(null);
     }
   }
 

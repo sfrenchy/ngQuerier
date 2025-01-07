@@ -1,10 +1,9 @@
-<div class="group relative">
-  <div 
-    class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white cursor-pointer hover:bg-blue-700"
-    (click)="onClick()">
-    {{ getInitials() }}
-  </div>
-  <div class="absolute hidden group-hover:block bg-gray-800 text-white text-sm px-2 py-1 rounded -bottom-8 right-0 whitespace-nowrap">
-    {{ firstName }} {{ lastName }}
+<div class="relative group">
+  <button class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center text-sm font-medium hover:bg-blue-600 transition-colors duration-300">
+    {{ userInitials }}
+  </button>
+  <div class="absolute right-0 mt-1 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+       style="transform: translateY(4px)">
+    {{ userFullName }}
   </div>
 </div> 

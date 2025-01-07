@@ -118,7 +118,9 @@
     "VISIBILITY": "Visibilité",
     "ROLES": "Rôles",
     "ACTIONS": "Actions",
-    "TRANSLATIONS": "Traductions"
+    "TRANSLATIONS": "Traductions",
+    "VISIBLE": "Visible",
+    "HIDDEN": "Masqué"
   },
   "DASHBOARD": {
     "TITLE": "Tableau de bord",
@@ -144,7 +146,14 @@
       "NAME": "Nom",
       "NAME_PLACEHOLDER": "Nom de la page",
       "DESCRIPTION": "Description",
-      "DESCRIPTION_PLACEHOLDER": "Description de la page"
+      "DESCRIPTION_PLACEHOLDER": "Description de la page",
+      "SUBTITLE": "Gérer les pages du menu",
+      "CREATE": "Créer une page",
+      "LAYOUT": {
+        "TITLE": "Mise en page",
+        "COMING_SOON": "La mise en page sera bientôt disponible"
+      },
+      "NO_PAGES": "Aucune page trouvée"
     },
     "HOME": "Accueil",
     "DATABASES": "Bases de données",

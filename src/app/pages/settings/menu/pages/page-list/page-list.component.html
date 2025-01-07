@@ -2,13 +2,18 @@
   <div class="bg-gray-800 rounded-lg shadow-lg text-gray-100">
     <div class="p-6 border-b border-gray-700">
       <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-semibold">{{ 'MENU.CATEGORIES.TITLE' | translate }}</h2>
+        <div>
+          <h2 class="text-2xl font-semibold">{{ 'MENU.PAGES.TITLE' | translate }}</h2>
+          <p class="text-gray-400 mt-1" *ngIf="category">
+            {{ 'MENU.PAGES.SUBTITLE' | translate: { category: getLocalizedName(category) } }}
+          </p>
+        </div>
         <button
           (click)="onAddClick()"
           class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
         >
           <i class="fas fa-plus"></i>
-          {{ 'MENU.CATEGORIES.ADD' | translate }}
+          {{ 'MENU.PAGES.ADD' | translate }}
         </button>
       </div>
     </div>
@@ -47,30 +52,27 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-700">
-            <tr *ngFor="let category of menuCategories" class="hover:bg-gray-700">
+            <tr *ngFor="let page of pages" class="hover:bg-gray-700">
               <td class="px-6 py-4 whitespace-nowrap">
-                {{ getLocalizedName(category) }}
+                {{ getLocalizedName(page) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <i [class]="category.Icon"></i>
+                <i [class]="page.Icon"></i>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                {{ category.Order }}
+                {{ page.Order }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <label class="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    [checked]="category.IsVisible"
-                    (change)="handleVisibilityChange(category, $event)"
-                    class="sr-only peer"
-                  >
-                  <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
+                <span
+                  class="px-2 py-1 text-xs rounded"
+                  [ngClass]="page.IsVisible ? 'bg-green-600' : 'bg-red-600'"
+                >
+                  {{ (page.IsVisible ? 'COMMON.VISIBLE' : 'COMMON.HIDDEN') | translate }}
+                </span>
               </td>
               <td class="px-6 py-4">
                 <div class="flex flex-wrap gap-2">
-                  <span *ngFor="let role of category.Roles" class="px-2 py-1 text-xs rounded bg-blue-600">
+                  <span *ngFor="let role of page.Roles" class="px-2 py-1 text-xs rounded bg-blue-600">
                     {{ role }}
                   </span>
                 </div>
@@ -78,21 +80,21 @@
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex gap-3">
                   <button
-                    (click)="onEditClick(category)"
+                    (click)="onEditClick(page)"
                     class="text-blue-400 hover:text-blue-300 transition-colors"
                     [title]="'COMMON.EDIT' | translate"
                   >
                     <i class="fas fa-edit"></i>
                   </button>
                   <button
-                    (click)="onPagesClick(category)"
+                    (click)="onLayoutClick(page)"
                     class="text-purple-400 hover:text-purple-300 transition-colors"
-                    [title]="'MENU.CATEGORIES.MANAGE_PAGES' | translate"
+                    [title]="'MENU.PAGES.LAYOUT' | translate"
                   >
-                    <i class="fas fa-file-alt"></i>
+                    <i class="fas fa-th-large"></i>
                   </button>
                   <button
-                    (click)="onDeleteClick(category)"
+                    (click)="onDeleteClick(page)"
                     class="text-red-400 hover:text-red-300 transition-colors"
                     [title]="'COMMON.DELETE' | translate"
                   >
@@ -101,9 +103,9 @@
                 </div>
               </td>
             </tr>
-            <tr *ngIf="menuCategories.length === 0 && !isLoading">
+            <tr *ngIf="pages.length === 0 && !isLoading">
               <td colspan="6" class="px-6 py-4 text-center text-gray-400">
-                {{ 'MENU.CATEGORIES.NO_CATEGORIES' | translate }}
+                {{ 'MENU.PAGES.NO_PAGES' | translate }}
               </td>
             </tr>
           </tbody>
@@ -111,4 +113,4 @@
       </div>
     </div>
   </div>
-</div>
+</div> 

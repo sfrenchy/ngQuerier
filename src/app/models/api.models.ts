@@ -55,14 +55,14 @@ export interface MenuCategory {
 }
 
 export interface MenuPage {
-  id: number;
-  names: { [key: string]: string };
-  icon: string;
-  order: number;
-  isVisible: boolean;
-  roles: Role[];
-  route: string;
-  menuCategoryId: number;
+  Id: number;
+  Names: { [key: string]: string };
+  Icon: string;
+  Order: number;
+  IsVisible: boolean;
+  Roles: Role[];
+  Route: string;
+  MenuCategoryId: number;
 }
 
 export interface DynamicRow {

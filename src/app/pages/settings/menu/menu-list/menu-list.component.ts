@@ -54,6 +54,10 @@ export class MenuListComponent {
     this.router.navigate(['/settings/menu/edit', category.Id]);
   }
 
+  onPagesClick(category: MenuCategory): void {
+    this.router.navigate(['/settings/menu/category', category.Id, 'pages']);
+  }
+
   onDeleteClick(category: MenuCategory): void {
     if (confirm(this.translate.instant('COMMON.CONFIRMATION.DELETE_MENU_CATEGORY', { name: this.getLocalizedName(category) }))) {
       this.menuService.deleteMenuCategory(category.Id).subscribe({

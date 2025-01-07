@@ -107,7 +107,15 @@
       "DELETE_GENERIC": "Are you sure you want to delete this item?",
       "DELETE_DATABASE": "Are you sure you want to delete the database '{{name}}' ?"
     },
-    "SELECT": "Select"
+    "SELECT": "Select",
+    "NAME": "Name",
+    "ICON": "Icon",
+    "ORDER": "Order",
+    "ROLES": "Roles",
+    "VISIBILITY": "Visibility",
+    "ROUTE": "Route",
+    "VISIBLE": "Visible",
+    "HIDDEN": "Hidden"
   },
   "DASHBOARD": {
     "TITLE": "Dashboard",
@@ -133,7 +141,15 @@
       "NAME": "Name",
       "NAME_PLACEHOLDER": "Page name",
       "DESCRIPTION": "Description",
-      "DESCRIPTION_PLACEHOLDER": "Page description"
+      "DESCRIPTION_PLACEHOLDER": "Page description",
+      "SUBTITLE": "Manage menu pages",
+      "CREATE": "Create page",
+      "EDIT": "Edit page",
+      "LAYOUT": {
+        "TITLE": "Layout",
+        "COMING_SOON": "Layout will be available soon"
+      },
+      "NO_PAGES": "No pages found"
     },
     "HOME": "Home",
     "DATABASES": "Databases",

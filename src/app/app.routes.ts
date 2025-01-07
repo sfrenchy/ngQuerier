@@ -56,6 +56,31 @@ export const routes: Routes = [
                 path: 'edit/:id',
                 loadComponent: () => import('@pages/settings/menu/menu-form/menu-form.component').then(m => m.MenuFormComponent),
                 canActivate: [authGuard]
+              },
+              {
+                path: 'category/:categoryId/pages',
+                children: [
+                  {
+                    path: '',
+                    loadComponent: () => import('@pages/settings/menu/pages/page-list/page-list.component').then(m => m.PageListComponent),
+                    canActivate: [authGuard]
+                  },
+                  {
+                    path: 'new',
+                    loadComponent: () => import('@pages/settings/menu/pages/page-form/page-form.component').then(m => m.PageFormComponent),
+                    canActivate: [authGuard]
+                  },
+                  {
+                    path: 'edit/:id',
+                    loadComponent: () => import('@pages/settings/menu/pages/page-form/page-form.component').then(m => m.PageFormComponent),
+                    canActivate: [authGuard]
+                  },
+                  {
+                    path: 'layout/:id',
+                    loadComponent: () => import('@pages/settings/menu/pages/page-layout/page-layout.component').then(m => m.PageLayoutComponent),
+                    canActivate: [authGuard]
+                  }
+                ]
               }
             ]
           }

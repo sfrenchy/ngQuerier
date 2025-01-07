@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { MenuCategory } from '@models/api.models';
+import { MenuCategory, MenuPage, Layout } from '@models/api.models';
 import { ApiService } from '@services/api.service';
 import { ApiEndpoints } from '@services/api-endpoints';
 
@@ -36,5 +36,40 @@ export class MenuService {
   updateMenuCategoryVisibility(id: number, isVisible: boolean): Observable<MenuCategory> {
     const endpoint = ApiEndpoints.menuCategoryVisibility.replace('{id}', id.toString());
     return this.apiService.patch<MenuCategory>(endpoint, { isVisible });
+  }
+
+  // Pages methods
+  getPages(categoryId: number): Observable<MenuPage[]> {
+    const endpoint = ApiEndpoints.pagesByCategory.replace('{categoryId}', categoryId.toString());
+    return this.apiService.get<MenuPage[]>(endpoint);
+  }
+
+  getPage(id: number): Observable<MenuPage> {
+    const endpoint = ApiEndpoints.pageById.replace('{id}', id.toString());
+    return this.apiService.get<MenuPage>(endpoint);
+  }
+
+  createPage(page: Partial<MenuPage>): Observable<MenuPage> {
+    return this.apiService.post<MenuPage>(ApiEndpoints.pages, page);
+  }
+
+  updatePage(id: number, page: MenuPage): Observable<MenuPage> {
+    const endpoint = ApiEndpoints.pageById.replace('{id}', id.toString());
+    return this.apiService.put<MenuPage>(endpoint, page);
+  }
+
+  deletePage(id: number): Observable<void> {
+    const endpoint = ApiEndpoints.pageById.replace('{id}', id.toString());
+    return this.apiService.delete<void>(endpoint);
+  }
+
+  getPageLayout(id: number): Observable<Layout> {
+    const endpoint = ApiEndpoints.pageLayout.replace('{id}', id.toString());
+    return this.apiService.get<Layout>(endpoint);
+  }
+
+  updatePageLayout(id: number, layout: Layout): Observable<Layout> {
+    const endpoint = ApiEndpoints.pageLayout.replace('{id}', id.toString());
+    return this.apiService.put<Layout>(endpoint, layout);
   }
 }

@@ -104,7 +104,8 @@
       "TITLE": "Confirmation",
       "DELETE_ROLE": "Are you sure you want to delete the role \"{{name}}\"?",
       "DELETE_USER": "Are you sure you want to delete the user \"{{name}}\"?",
-      "DELETE_GENERIC": "Are you sure you want to delete this item?"
+      "DELETE_GENERIC": "Are you sure you want to delete this item?",
+      "DELETE_DATABASE": "Are you sure you want to delete the database '{{name}}' ?"
     },
     "SELECT": "Select"
   },
@@ -230,5 +231,19 @@
   },
   "COMMON": {
     "SAVE": "Save"
+  },
+  "DATABASES": {
+    "TITLE": "Databases",
+    "ADD": "Add database",
+    "NAME": "Name",
+    "NAME_PLACEHOLDER": "Database name",
+    "PROVIDER": "Provider",
+    "SELECT_PROVIDER": "Select a provider",
+    "CONNECTION_STRING": "Connection string",
+    "CONNECTION_STRING_PLACEHOLDER": "Database connection string",
+    "CONTEXT_API_ROUTE": "API Route",
+    "CONTEXT_API_ROUTE_PLACEHOLDER": "API route separator (e.g. api/v1)",
+    "GENERATE_PROCEDURES": "Generate controllers for stored procedures",
+    "NO_CONNECTIONS": "No database configured"
   }
 } 

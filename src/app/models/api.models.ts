@@ -30,10 +30,18 @@ export interface Role {
 }
 
 export interface DBConnection {
-  id: number;
-  name: string;
-  connectionString: string;
-  provider: string;
+  Id: number;
+  Name: string;
+  ConnectionType: QDBConnectionType;
+  ConnectionString: string;
+  ApiRoute: string;
+  GenerateProcedureControllersAndServices?: boolean;
+}
+
+export enum QDBConnectionType {
+  SqlServer = 0,
+  MySQL = 1,
+  PgSQL = 2
 }
 
 export interface MenuCategory {

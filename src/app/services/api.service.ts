@@ -27,10 +27,13 @@ import {
 export class ApiService {
   private baseUrl: string = '';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    this.baseUrl = localStorage.getItem('baseUrl') || '';
+  }
 
   setBaseUrl(url: string): void {
     this.baseUrl = url;
+    localStorage.setItem('baseUrl', url);
   }
 
   getBaseUrl(): string {
@@ -179,6 +182,32 @@ export class ApiService {
   getDBConnections(): Observable<DBConnection[]> {
     return this.http.get<DBConnection[]>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.dbConnections)
+    );
+  }
+
+  addDBConnection(connection: DBConnection): Observable<DBConnection> {
+    return this.http.post<DBConnection>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.addDbConnection),
+      connection
+    );
+  }
+
+  updateDBConnection(id: number, connection: DBConnection): Observable<DBConnection> {
+    return this.http.put<DBConnection>(
+      ApiEndpoints.buildUrl(
+        this.baseUrl,
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.updateDbConnection, { id: id.toString() })
+      ),
+      connection
+    );
+  }
+
+  deleteDBConnection(id: number): Observable<any> {
+    return this.http.delete(
+      ApiEndpoints.buildUrl(
+        this.baseUrl,
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteDbConnection, { id: id.toString() })
+      )
     );
   }
 

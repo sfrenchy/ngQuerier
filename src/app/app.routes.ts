@@ -12,6 +12,10 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
+        path: 'databases',
+        loadComponent: () => import('./pages/databases/databases.component').then(m => m.DatabasesComponent)
+      },
+      {
         path: 'settings',
         children: [
           {

@@ -108,7 +108,8 @@
       "TITLE": "Confirmation",
       "DELETE_ROLE": "Êtes-vous sûr de vouloir supprimer le rôle \"{{name}}\" ?",
       "DELETE_USER": "Êtes-vous sûr de vouloir supprimer l'utilisateur \"{{name}}\" ?",
-      "DELETE_GENERIC": "Êtes-vous sûr de vouloir supprimer cet élément ?"
+      "DELETE_GENERIC": "Êtes-vous sûr de vouloir supprimer cet élément ?",
+      "DELETE_DATABASE": "Êtes-vous sûr de vouloir supprimer la base de données '{{name}}' ?"
     }
   },
   "DASHBOARD": {
@@ -230,5 +231,19 @@
     "REDIS_ENABLED": "Activer Redis",
     "REDIS_HOST": "Serveur Redis",
     "REDIS_PORT": "Port Redis"
+  },
+  "DATABASES": {
+    "TITLE": "Bases de données",
+    "ADD": "Ajouter une base de données",
+    "NAME": "Nom",
+    "NAME_PLACEHOLDER": "Nom de la base de données",
+    "PROVIDER": "Fournisseur",
+    "SELECT_PROVIDER": "Sélectionner un fournisseur",
+    "CONNECTION_STRING": "Chaîne de connexion",
+    "CONNECTION_STRING_PLACEHOLDER": "Chaîne de connexion à la base de données",
+    "CONTEXT_API_ROUTE": "Route de l'API",
+    "CONTEXT_API_ROUTE_PLACEHOLDER": "Séparateur de route d'API (ex: api/v1)",
+    "GENERATE_PROCEDURES": "Générer les contrôleurs pour les procédures stockées",
+    "NO_CONNECTIONS": "Aucune base de données configurée"
   }
 } 

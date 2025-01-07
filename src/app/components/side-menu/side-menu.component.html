@@ -1,0 +1,179 @@
+<div 
+  class="h-full bg-gray-800 text-white transition-all duration-300 ease-in-out relative"
+  [class.w-64]="isExpanded"
+  [class.w-16]="!isExpanded"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()">
+  
+  <!-- Pin Button -->
+  <button (click)="togglePin()"
+          class="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-700 transition-all duration-300 z-10"
+          [class.bg-gray-700]="isPinned"
+          [class.opacity-0]="!isExpanded"
+          [class.invisible]="!isExpanded">
+    <i class="fas fa-thumbtack text-sm"
+       [class.text-blue-400]="isPinned"
+       [class.rotate-45]="!isPinned"></i>
+  </button>
+
+  <div class="p-4">
+    <!-- Logo -->
+    <div class="mb-8 transition-all duration-300" [class.px-2]="!isExpanded">
+      <img 
+        [class.w-32]="isExpanded"
+        [class.w-8]="!isExpanded"
+        src="assets/images/querier_logo_no_bg_big.png" 
+        alt="Querier Logo" 
+        class="mx-auto transition-all duration-300">
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+      <ul class="space-y-2">
+        <!-- Home -->
+        <li>
+          <a routerLink="/home" 
+             class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
+             [class.justify-center]="!isExpanded">
+            <i class="fas fa-home" [class.mr-2]="isExpanded"></i>
+            <span class="transition-all duration-300"
+                  [class.opacity-0]="!isExpanded"
+                  [class.w-0]="!isExpanded"
+                  [class.w-auto]="isExpanded">
+              {{ 'MENU.HOME' | translate }}
+            </span>
+            <div *ngIf="!isExpanded" 
+                 class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                 style="transform: translateX(10px)">
+              {{ 'MENU.HOME' | translate }}
+            </div>
+          </a>
+        </li>
+
+        <!-- Databases - visible pour Admin et Database Manager -->
+        <li *ngIf="userService.canManageDatabase()">
+          <a routerLink="/databases" 
+             class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
+             [class.justify-center]="!isExpanded">
+            <i class="fas fa-database" [class.mr-2]="isExpanded"></i>
+            <span class="transition-all duration-300"
+                  [class.opacity-0]="!isExpanded"
+                  [class.w-0]="!isExpanded"
+                  [class.w-auto]="isExpanded">
+              {{ 'MENU.DATABASES' | translate }}
+            </span>
+            <div *ngIf="!isExpanded" 
+                 class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                 style="transform: translateX(10px)">
+              {{ 'MENU.DATABASES' | translate }}
+            </div>
+          </a>
+        </li>
+
+        <!-- Queries - visible pour Admin et Database Manager -->
+        <li *ngIf="userService.canManageDatabase()">
+          <a routerLink="/queries" 
+             class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
+             [class.justify-center]="!isExpanded">
+            <i class="fas fa-table" [class.mr-2]="isExpanded"></i>
+            <span class="transition-all duration-300"
+                  [class.opacity-0]="!isExpanded"
+                  [class.w-0]="!isExpanded"
+                  [class.w-auto]="isExpanded">
+              {{ 'MENU.QUERIES' | translate }}
+            </span>
+            <div *ngIf="!isExpanded" 
+                 class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                 style="transform: translateX(10px)">
+              {{ 'MENU.QUERIES' | translate }}
+            </div>
+          </a>
+        </li>
+
+        <!-- Contents - visible pour Admin et Content Manager -->
+        <li *ngIf="userService.canManageContent()">
+          <a routerLink="/contents" 
+             class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
+             [class.justify-center]="!isExpanded">
+            <i class="fas fa-folder" [class.mr-2]="isExpanded"></i>
+            <span class="transition-all duration-300"
+                  [class.opacity-0]="!isExpanded"
+                  [class.w-0]="!isExpanded"
+                  [class.w-auto]="isExpanded">
+              {{ 'MENU.CONTENTS' | translate }}
+            </span>
+            <div *ngIf="!isExpanded" 
+                 class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                 style="transform: translateX(10px)">
+              {{ 'MENU.CONTENTS' | translate }}
+            </div>
+          </a>
+        </li>
+
+        <!-- Settings - visible pour Admin -->
+        <li *ngIf="userService.isAdmin()">
+          <div class="relative">
+            <button (click)="toggleSettings()"
+                    class="w-full flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
+                    [class.justify-center]="!isExpanded">
+              <i class="fas fa-cog" [class.mr-2]="isExpanded"></i>
+              <span class="transition-all duration-300"
+                    [class.opacity-0]="!isExpanded"
+                    [class.w-0]="!isExpanded"
+                    [class.w-auto]="isExpanded">
+                {{ 'MENU.SETTINGS' | translate }}
+              </span>
+              <i class="fas fa-chevron-right ml-2"
+                 [class.rotate-90]="isSettingsExpanded"></i>
+              <div *ngIf="!isExpanded" 
+                   class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                   style="transform: translateX(10px)">
+                {{ 'MENU.SETTINGS' | translate }}
+              </div>
+            </button>
+
+            <!-- Sous-menu Settings -->
+            <div *ngIf="isSettingsExpanded && isExpanded" 
+                 class="pl-4 mt-1 space-y-1 overflow-hidden transition-all duration-300">
+              <a routerLink="/users" 
+                 class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
+                <i class="fas fa-users mr-2"></i>
+                <span class="truncate">{{ 'MENU.USERS' | translate }}</span>
+              </a>
+              <a routerLink="/roles" 
+                 class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
+                <i class="fas fa-user-shield mr-2"></i>
+                <span class="truncate">{{ 'MENU.ROLES' | translate }}</span>
+              </a>
+              <a routerLink="/services" 
+                 class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
+                <i class="fas fa-wrench mr-2"></i>
+                <span class="truncate">{{ 'MENU.SERVICES' | translate }}</span>
+              </a>
+            </div>
+          </div>
+        </li>
+
+        <!-- Logout -->
+        <li>
+          <button (click)="onLogout()" 
+                  class="w-full flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
+                  [class.justify-center]="!isExpanded">
+            <i class="fas fa-sign-out-alt" [class.mr-2]="isExpanded"></i>
+            <span class="transition-all duration-300"
+                  [class.opacity-0]="!isExpanded"
+                  [class.w-0]="!isExpanded"
+                  [class.w-auto]="isExpanded">
+              {{ 'MENU.LOGOUT' | translate }}
+            </span>
+            <div *ngIf="!isExpanded" 
+                 class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                 style="transform: translateX(10px)">
+              {{ 'MENU.LOGOUT' | translate }}
+            </div>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div> 

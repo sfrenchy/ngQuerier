@@ -16,10 +16,8 @@ export class MenuStateService {
   }
 
   private loadMenuCategories() {
-    console.log('MenuStateService: Loading categories...');
     this.menuService.getMenuCategories().subscribe({
       next: (categories) => {
-        console.log('MenuStateService: Categories loaded:', categories);
         this.menuCategoriesSubject.next(categories);
         categories.forEach(category => this.loadPagesForCategory(category.Id));
       },
@@ -30,10 +28,8 @@ export class MenuStateService {
   }
 
   private loadPagesForCategory(categoryId: number) {
-    console.log(`MenuStateService: Loading pages for category ${categoryId}...`);
     this.menuService.getPages(categoryId).subscribe({
       next: (pages) => {
-        console.log(`MenuStateService: Pages loaded for category ${categoryId}:`, pages);
         const currentPages = this.menuPagesSubject.value;
         this.menuPagesSubject.next({
           ...currentPages,
@@ -47,20 +43,16 @@ export class MenuStateService {
   }
 
   getMenuCategories(): Observable<MenuCategory[]> {
-    return this.menuCategoriesSubject.asObservable().pipe(
-      tap(categories => console.log('MenuStateService: Getting categories:', categories))
-    );
+    return this.menuCategoriesSubject.asObservable();
   }
 
   getMenuPages(categoryId: number): Observable<MenuPage[]> {
     return this.menuPagesSubject.asObservable().pipe(
-      map(pagesMap => pagesMap[categoryId] || []),
-      tap(pages => console.log(`MenuStateService: Getting pages for category ${categoryId}:`, pages))
+      map(pagesMap => pagesMap[categoryId] || [])
     );
   }
 
   refreshMenus() {
-    console.log('MenuStateService: Refreshing menus...');
     this.loadMenuCategories();
   }
 } 

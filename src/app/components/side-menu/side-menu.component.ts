@@ -35,14 +35,10 @@ export class SideMenuComponent implements OnInit {
   }
 
   private loadMenus() {
-    console.log('Loading menus...');
     this.menuStateService.getMenuCategories().subscribe(categories => {
-      console.log('Categories loaded:', categories);
       this.menuCategories = categories;
       categories.forEach(category => {
-        console.log(`Loading pages for category ${category.Id}...`);
         this.menuStateService.getMenuPages(category.Id).subscribe(pages => {
-          console.log(`Pages loaded for category ${category.Id}:`, pages);
           this.menuPages[category.Id] = pages;
         });
       });
@@ -51,7 +47,6 @@ export class SideMenuComponent implements OnInit {
 
   getCategoryPages(categoryId: number): MenuPage[] {
     const pages = this.menuPages[categoryId] || [];
-    console.log(`Getting pages for category ${categoryId}:`, pages);
     return pages;
   }
 
@@ -80,9 +75,7 @@ export class SideMenuComponent implements OnInit {
   }
 
   toggleCategory(categoryId: number): void {
-    console.log(`Toggling category ${categoryId}`);
     this.expandedCategories[categoryId] = !this.expandedCategories[categoryId];
-    console.log('Expanded categories:', this.expandedCategories);
   }
 
   isCategoryExpanded(categoryId: number): boolean {
@@ -95,21 +88,17 @@ export class SideMenuComponent implements OnInit {
   }
 
   hasRequiredRole(roles: string[]): boolean {
-    console.log('Checking roles:', roles);
     const hasRole = roles.some(role => this.userService.hasRole(role));
-    console.log('Has required role:', hasRole);
     return hasRole;
   }
 
   getPageRoles(page: MenuPage): string[] {
-    console.log('Raw page roles:', page.Roles);
     // Si les rôles sont déjà des strings, les utiliser directement
     if (page.Roles && Array.isArray(page.Roles) && typeof page.Roles[0] === 'string') {
       return page.Roles as unknown as string[];
     }
     // Sinon, essayer d'extraire le nom du rôle
     const roles = page.Roles?.map(r => typeof r === 'object' && r !== null ? r.Name : r) || [];
-    console.log('Processed page roles:', roles);
     return roles.filter(r => r !== undefined && r !== null);
   }
 
@@ -117,7 +106,6 @@ export class SideMenuComponent implements OnInit {
     const isVisible = page.IsVisible;
     const roles = this.getPageRoles(page);
     const hasRole = this.hasRequiredRole(roles);
-    console.log('Should show page:', { isVisible, roles, hasRole });
     return isVisible && hasRole;
   }
 } 

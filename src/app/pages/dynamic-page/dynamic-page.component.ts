@@ -88,11 +88,9 @@ export class DynamicPageComponent implements OnInit {
   private loadPageLayout(pageId: number) {
     this.isLoading = true;
     this.error = null;
-    console.log('Loading layout for page:', pageId);
     
     this.apiService.getLayout(pageId).subscribe({
       next: (layout) => {
-        console.log('Layout loaded:', layout);
         this.layout = layout;
         this.isLoading = false;
       },

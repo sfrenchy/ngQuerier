@@ -29,6 +29,9 @@ export interface PlaceholderCard extends BaseCard {
   configuration: {
     showHeader: boolean;
     showFooter: boolean;
+    centerLabel: {
+      [key: string]: string;
+    };
   };
 }
 

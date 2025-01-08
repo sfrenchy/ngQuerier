@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { BaseCardComponent } from '@components/base-card/base-card.component';
@@ -36,11 +36,16 @@ import { CardHeaderComponent } from '@components/card-header/card-header.compone
   `]
 })
 export class PlaceholderCardComponent extends BaseCardComponent {
+  @Input() override isEditing: boolean = false;
+  @Input() override maxRowHeight: number = 0;
+  @Output() override onEdit = new EventEmitter<void>();
+  @Output() override onDelete = new EventEmitter<void>();
+
   override buildHeader(): boolean {
     return (this.card.configuration as any)?.showHeader ?? true;
   }
 
   override buildCardContent(): string {
-    return this.getLocalizedTitle('fr');
+    return this.card.configuration.centerLabel['fr'] || this.card.configuration.centerLabel['en'] || '';
   }
 } 

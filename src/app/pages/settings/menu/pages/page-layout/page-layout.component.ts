@@ -116,4 +116,26 @@ export class PageLayoutComponent implements OnInit {
   saveLayout() {
     this.pageLayoutService.saveLayout();
   }
+
+  onCardUpdate(card: DynamicCard) {
+    const layout = this.pageLayoutService.pageLayout$.value;
+    const rowIndex = layout.rows.findIndex(r => r.cards.some(c => c.id === card.id));
+    if (rowIndex === -1) return;
+
+    const updatedRows = layout.rows.map((row, index) => {
+      if (index === rowIndex) {
+        return {
+          ...row,
+          cards: row.cards.map(c => c.id === card.id ? card : c)
+        };
+      }
+      return row;
+    });
+
+    this.pageLayoutService.pageLayout$.next({
+      ...layout,
+      rows: updatedRows,
+      isDirty: true
+    });
+  }
 } 

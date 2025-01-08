@@ -158,7 +158,30 @@
         "ROW_SPACING": "Spacing",
         "ALIGNMENT_START": "Start",
         "ALIGNMENT_CENTER": "Center",
-        "ALIGNMENT_END": "End"
+        "ALIGNMENT_END": "End",
+        "CARD_CONFIG": {
+          "TITLE": "Card configuration",
+          "LABEL_FR": "Label (French)",
+          "LABEL_EN": "Label (English)",
+          "GRID_WIDTH": "Grid width",
+          "GRID_WIDTH_25": "25% (3 columns)",
+          "GRID_WIDTH_33": "33% (4 columns)",
+          "GRID_WIDTH_50": "50% (6 columns)",
+          "GRID_WIDTH_66": "66% (8 columns)",
+          "GRID_WIDTH_75": "75% (9 columns)",
+          "GRID_WIDTH_100": "100% (12 columns)",
+          "BACKGROUND_COLOR": "Background color",
+          "TEXT_COLOR": "Text color",
+          "HEADER_BACKGROUND_COLOR": "Header background color",
+          "HEADER_TEXT_COLOR": "Header text color",
+          "SHOW_HEADER": "Show header",
+          "SHOW_FOOTER": "Show footer",
+          "COMMON_CONFIG": "Common configuration",
+          "SPECIFIC_CONFIG": "Specific configuration",
+          "COLORS": "Colors",
+          "LAYOUT": "Layout",
+          "APPEARANCE": "Appearance"
+        }
       },
       "NO_PAGES": "No pages found"
     },

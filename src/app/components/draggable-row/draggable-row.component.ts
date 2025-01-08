@@ -1,10 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { DynamicRow, DynamicCard } from '@models/page-layout.models';
+import { DynamicRow, DynamicCard, PlaceholderCard } from '@models/page-layout.models';
 import { TranslateModule } from '@ngx-translate/core';
 import { RowResizerComponent } from '@components/row-resizer/row-resizer.component';
 import { PlaceholderCardComponent } from '@components/placeholder-card/placeholder-card.component';
+import { PlaceholderCardConfigComponent } from '@components/placeholder-card-config/placeholder-card-config.component';
 
 @Component({
   selector: 'app-draggable-row',
@@ -14,7 +15,8 @@ import { PlaceholderCardComponent } from '@components/placeholder-card/placehold
     DragDropModule,
     TranslateModule,
     RowResizerComponent,
-    PlaceholderCardComponent
+    PlaceholderCardComponent,
+    PlaceholderCardConfigComponent
   ],
   templateUrl: './draggable-row.component.html',
   styleUrls: ['./draggable-row.component.scss']
@@ -28,8 +30,10 @@ export class DraggableRowComponent {
   @Output() onHeightChange = new EventEmitter<{ rowId: number, height: number }>();
   @Output() onCardEdit = new EventEmitter<DynamicCard>();
   @Output() onCardDelete = new EventEmitter<DynamicCard>();
+  @Output() onCardUpdate = new EventEmitter<DynamicCard>();
 
   isResizing = false;
+  editingCard: PlaceholderCard | null = null;
 
   getDropListId(): string {
     return `row-${this.row.id}`;
@@ -48,6 +52,21 @@ export class DraggableRowComponent {
       const card = event.previousContainer.data[event.previousIndex];
       this.onCardDrop.emit({ card, rowId: this.row.id });
     }
+  }
+
+  handleCardEdit(card: DynamicCard) {
+    if (card.type === 'placeholder') {
+      this.editingCard = card as PlaceholderCard;
+    }
+  }
+
+  handleCardConfigSave(updatedCard: PlaceholderCard) {
+    this.editingCard = null;
+    this.onCardUpdate.emit(updatedCard);
+  }
+
+  handleCardConfigCancel() {
+    this.editingCard = null;
   }
 
   handleHeightChange(deltaY: number) {

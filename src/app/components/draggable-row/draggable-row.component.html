@@ -39,7 +39,7 @@
                                 [card]="card"
                                 [isEditing]="true"
                                 [maxRowHeight]="row.height"
-                                (onEdit)="onCardEdit.emit(card)"
+                                (onEdit)="handleCardEdit(card)"
                                 (onDelete)="onCardDelete.emit(card)">
               <div dragHandle class="cursor-move text-gray-400">
                 <i class="fas fa-grip-vertical"></i>
@@ -63,4 +63,11 @@
     (heightChange)="onHeightChange.emit({ rowId: row.id, height: $event })"
     (resizing)="isResizing = $event">
   </app-row-resizer>
+
+  <!-- Card configuration dialog -->
+  <app-placeholder-card-config *ngIf="editingCard"
+                             [card]="editingCard"
+                             (save)="handleCardConfigSave($event)"
+                             (cancel)="handleCardConfigCancel()">
+  </app-placeholder-card-config>
 </div> 

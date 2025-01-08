@@ -31,10 +31,18 @@ export class PageLayoutComponent implements OnInit {
       type: 'placeholder',
       id: 0,
       order: 0,
-      gridWidth: 4,
+      gridWidth: 12,
       titles: {
         fr: 'Carte placeholder',
         en: 'Placeholder card'
+      },
+      backgroundColor: '#1f2937',
+      textColor: '#ffffff',
+      headerBackgroundColor: '#111827',
+      headerTextColor: '#ffffff',
+      configuration: {
+        showHeader: true,
+        showFooter: false
       }
     } as PlaceholderCard
   ];
@@ -49,6 +57,10 @@ export class PageLayoutComponent implements OnInit {
     const layout = this.pageLayoutService.pageLayout$.value;
     if (!layout) return [];
     return layout.rows.map(row => `row-${row.id}`);
+  }
+
+  getConnectedDropLists(): string[] {
+    return ['card-palette', ...this.getRowDropListIds()];
   }
 
   onDrop(event: CdkDragDrop<any[]>) {

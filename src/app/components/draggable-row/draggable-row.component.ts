@@ -4,11 +4,18 @@ import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from 
 import { DynamicRow, DynamicCard } from '@models/page-layout.models';
 import { TranslateModule } from '@ngx-translate/core';
 import { RowResizerComponent } from '@components/row-resizer/row-resizer.component';
+import { PlaceholderCardComponent } from '@components/placeholder-card/placeholder-card.component';
 
 @Component({
   selector: 'app-draggable-row',
   standalone: true,
-  imports: [CommonModule, DragDropModule, TranslateModule, RowResizerComponent],
+  imports: [
+    CommonModule,
+    DragDropModule,
+    TranslateModule,
+    RowResizerComponent,
+    PlaceholderCardComponent
+  ],
   templateUrl: './draggable-row.component.html',
   styleUrls: ['./draggable-row.component.scss']
 })
@@ -19,8 +26,14 @@ export class DraggableRowComponent {
   @Output() onCardDrop = new EventEmitter<{ card: DynamicCard, rowId: number }>();
   @Output() onCardReorder = new EventEmitter<{ rowId: number, cards: DynamicCard[] }>();
   @Output() onHeightChange = new EventEmitter<{ rowId: number, height: number }>();
+  @Output() onCardEdit = new EventEmitter<DynamicCard>();
+  @Output() onCardDelete = new EventEmitter<DynamicCard>();
 
   isResizing = false;
+
+  getDropListId(): string {
+    return `row-${this.row.id}`;
+  }
 
   handleCardDrop(event: CdkDragDrop<DynamicCard[]>) {
     if (event.previousContainer === event.container) {

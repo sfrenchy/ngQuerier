@@ -37,7 +37,7 @@
                 {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.LABEL_FR' | translate }}
               </label>
               <input type="text"
-                     [(ngModel)]="editedCard.titles['fr']"
+                     [(ngModel)]="editedCard.configuration.titles['fr']"
                      class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
             </div>
             <div class="space-y-2">
@@ -45,7 +45,7 @@
                 {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.LABEL_EN' | translate }}
               </label>
               <input type="text"
-                     [(ngModel)]="editedCard.titles['en']"
+                     [(ngModel)]="editedCard.configuration.titles['en']"
                      class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
             </div>
           </div>
@@ -62,39 +62,37 @@
             </svg>
           </button>
           <div *ngIf="expandedPanels.colors" class="p-4 bg-gray-800 space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-300">
-                  {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.BACKGROUND_COLOR' | translate }}
-                </label>
-                <input type="color"
-                       [(ngModel)]="editedCard.backgroundColor"
-                       class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg px-2 cursor-pointer">
-              </div>
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-300">
-                  {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.TEXT_COLOR' | translate }}
-                </label>
-                <input type="color"
-                       [(ngModel)]="editedCard.textColor"
-                       class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg px-2 cursor-pointer">
-              </div>
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-300">
-                  {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.HEADER_BACKGROUND_COLOR' | translate }}
-                </label>
-                <input type="color"
-                       [(ngModel)]="editedCard.headerBackgroundColor"
-                       class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg px-2 cursor-pointer">
-              </div>
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-300">
-                  {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.HEADER_TEXT_COLOR' | translate }}
-                </label>
-                <input type="color"
-                       [(ngModel)]="editedCard.headerTextColor"
-                       class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg px-2 cursor-pointer">
-              </div>
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-300">
+                {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.BACKGROUND_COLOR' | translate }}
+              </label>
+              <input type="color"
+                     [(ngModel)]="editedCard.configuration.backgroundColor"
+                     class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg px-2 cursor-pointer">
+            </div>
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-300">
+                {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.TEXT_COLOR' | translate }}
+              </label>
+              <input type="color"
+                     [(ngModel)]="editedCard.configuration.textColor"
+                     class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg px-2 cursor-pointer">
+            </div>
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-300">
+                {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.HEADER_BACKGROUND_COLOR' | translate }}
+              </label>
+              <input type="color"
+                     [(ngModel)]="editedCard.configuration.headerBackgroundColor"
+                     class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg px-2 cursor-pointer">
+            </div>
+            <div class="space-y-2">
+              <label class="block text-sm font-medium text-gray-300">
+                {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.HEADER_TEXT_COLOR' | translate }}
+              </label>
+              <input type="color"
+                     [(ngModel)]="editedCard.configuration.headerTextColor"
+                     class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg px-2 cursor-pointer">
             </div>
           </div>
         </div>
@@ -114,7 +112,7 @@
               <label class="block text-sm font-medium text-gray-300">
                 {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.GRID_WIDTH' | translate }}
               </label>
-              <select [(ngModel)]="editedCard.gridWidth"
+              <select [(ngModel)]="editedCard.width"
                       class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
                 <option [value]="3">{{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.GRID_WIDTH_25' | translate }}</option>
                 <option [value]="4">{{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.GRID_WIDTH_33' | translate }}</option>
@@ -156,7 +154,7 @@
             </div>
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-300">
-                {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.LABEL_FR' | translate }}
+                {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.CENTER_LABEL_FR' | translate }}
               </label>
               <input type="text"
                      [(ngModel)]="editedCard.configuration.centerLabel['fr']"
@@ -164,7 +162,7 @@
             </div>
             <div class="space-y-2">
               <label class="block text-sm font-medium text-gray-300">
-                {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.LABEL_EN' | translate }}
+                {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.CENTER_LABEL_EN' | translate }}
               </label>
               <input type="text"
                      [(ngModel)]="editedCard.configuration.centerLabel['en']"

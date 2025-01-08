@@ -84,7 +84,18 @@ export interface DynamicCard {
 
 export interface Layout {
   pageId: number;
-  rows: DynamicRow[];
+  icon: string;
+  names: { [key: string]: string };
+  isVisible: boolean;
+  roles: string[];
+  route: string;
+  rows: {
+    order: number;
+    alignment: string;
+    crossAlignment: string;
+    spacing: number;
+    cards: DynamicCard[];
+  }[];
 }
 
 export interface EntitySchema {

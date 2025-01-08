@@ -7,26 +7,30 @@ export interface DynamicRow {
   spacing: number;
 }
 
-export interface BaseCard {
+export interface DynamicCard {
   id: number;
-  type: string;
+  rowId: number;
   order: number;
-  gridWidth: number;
-  titles: { [key: string]: string };
-  backgroundColor?: string;
-  textColor?: string;
-  headerBackgroundColor?: string;
-  headerTextColor?: string;
-  configuration?: any;
-}
-
-export interface DynamicCard extends BaseCard {
+  width: number;
   type: string;
+  configuration: {
+    titles: { [key: string]: string };
+    backgroundColor?: string;
+    textColor?: string;
+    headerBackgroundColor?: string;
+    headerTextColor?: string;
+    [key: string]: any;
+  };
 }
 
-export interface PlaceholderCard extends BaseCard {
+export interface PlaceholderCard extends DynamicCard {
   type: 'placeholder';
   configuration: {
+    titles: { [key: string]: string };
+    backgroundColor?: string;
+    textColor?: string;
+    headerBackgroundColor?: string;
+    headerTextColor?: string;
     showHeader: boolean;
     showFooter: boolean;
     centerLabel: {

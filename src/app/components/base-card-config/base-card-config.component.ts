@@ -2,7 +2,7 @@ import { Component, Directive, EventEmitter, Input, Output } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { BaseCard } from '@models/page-layout.models';
+import { DynamicCard } from '@models/page-layout.models';
 
 @Component({
   selector: 'app-base-card-config',
@@ -47,7 +47,7 @@ import { BaseCard } from '@models/page-layout.models';
                       {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.LABEL_FR' | translate }}
                     </label>
                     <input type="text"
-                           [(ngModel)]="editedCard.titles['fr']"
+                           [(ngModel)]="editedCard.configuration.titles['fr']"
                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
                   </div>
 
@@ -56,7 +56,7 @@ import { BaseCard } from '@models/page-layout.models';
                       {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.LABEL_EN' | translate }}
                     </label>
                     <input type="text"
-                           [(ngModel)]="editedCard.titles['en']"
+                           [(ngModel)]="editedCard.configuration.titles['en']"
                            class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
                   </div>
                 </div>
@@ -72,7 +72,7 @@ import { BaseCard } from '@models/page-layout.models';
                     <label class="block text-sm font-medium text-gray-300">
                       {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.GRID_WIDTH' | translate }}
                     </label>
-                    <select [(ngModel)]="editedCard.gridWidth"
+                    <select [(ngModel)]="editedCard.width"
                             class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
                       <option [value]="3">{{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.GRID_WIDTH_25' | translate }}</option>
                       <option [value]="4">{{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.GRID_WIDTH_33' | translate }}</option>
@@ -97,7 +97,7 @@ import { BaseCard } from '@models/page-layout.models';
                       {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.BACKGROUND_COLOR' | translate }}
                     </label>
                     <input type="color"
-                           [(ngModel)]="editedCard.backgroundColor"
+                           [(ngModel)]="editedCard.configuration.backgroundColor"
                            class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg px-2 cursor-pointer">
                   </div>
 
@@ -107,7 +107,7 @@ import { BaseCard } from '@models/page-layout.models';
                       {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.TEXT_COLOR' | translate }}
                     </label>
                     <input type="color"
-                           [(ngModel)]="editedCard.textColor"
+                           [(ngModel)]="editedCard.configuration.textColor"
                            class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg px-2 cursor-pointer">
                   </div>
 
@@ -117,7 +117,7 @@ import { BaseCard } from '@models/page-layout.models';
                       {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.HEADER_BACKGROUND_COLOR' | translate }}
                     </label>
                     <input type="color"
-                           [(ngModel)]="editedCard.headerBackgroundColor"
+                           [(ngModel)]="editedCard.configuration.headerBackgroundColor"
                            class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg px-2 cursor-pointer">
                   </div>
 
@@ -127,7 +127,7 @@ import { BaseCard } from '@models/page-layout.models';
                       {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.HEADER_TEXT_COLOR' | translate }}
                     </label>
                     <input type="color"
-                           [(ngModel)]="editedCard.headerTextColor"
+                           [(ngModel)]="editedCard.configuration.headerTextColor"
                            class="w-full h-10 bg-gray-700 border border-gray-600 rounded-lg px-2 cursor-pointer">
                   </div>
                 </div>
@@ -161,7 +161,7 @@ import { BaseCard } from '@models/page-layout.models';
     </div>
   `
 })
-export class BaseCardConfigComponent<T extends BaseCard> {
+export class BaseCardConfigComponent<T extends DynamicCard> {
   @Input() card!: T;
   @Output() save = new EventEmitter<T>();
   @Output() cancel = new EventEmitter<void>();
@@ -173,7 +173,7 @@ export class BaseCardConfigComponent<T extends BaseCard> {
     // Clone the card to avoid modifying the original
     this.editedCard = {
       ...this.card,
-      titles: { ...this.card.titles }
+      configuration: { ...this.card.configuration }
     };
   }
 

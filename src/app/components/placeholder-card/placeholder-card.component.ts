@@ -10,12 +10,12 @@ import { CardHeaderComponent } from '@components/card-header/card-header.compone
   imports: [CommonModule, TranslateModule, CardHeaderComponent],
   template: `
     <div class="flex flex-col h-full min-h-full"
-         [style.background-color]="card.backgroundColor"
-         [style.color]="card.textColor">
+         [style.background-color]="card.configuration['backgroundColor']"
+         [style.color]="card.configuration['textColor']">
       <app-card-header *ngIf="buildHeader()"
                       [title]="getLocalizedTitle('fr')"
-                      [backgroundColor]="card.headerBackgroundColor"
-                      [textColor]="card.headerTextColor"
+                      [backgroundColor]="card.configuration['headerBackgroundColor']"
+                      [textColor]="card.configuration['headerTextColor']"
                       (edit)="onEdit.emit()"
                       (delete)="onDelete.emit()">
         <ng-content dragHandle select="[dragHandle]"></ng-content>
@@ -42,10 +42,11 @@ export class PlaceholderCardComponent extends BaseCardComponent {
   @Output() override onDelete = new EventEmitter<void>();
 
   override buildHeader(): boolean {
-    return (this.card.configuration as any)?.showHeader ?? true;
+    return this.card.configuration['showHeader'] ?? true;
   }
 
   override buildCardContent(): string {
-    return this.card.configuration.centerLabel['fr'] || this.card.configuration.centerLabel['en'] || '';
+    const centerLabel = this.card.configuration['centerLabel'] as { [key: string]: string };
+    return centerLabel['fr'] || centerLabel['en'] || '';
   }
 } 

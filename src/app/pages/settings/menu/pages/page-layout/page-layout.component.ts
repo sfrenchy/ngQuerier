@@ -30,17 +30,18 @@ export class PageLayoutComponent implements OnInit {
     {
       type: 'placeholder',
       id: 0,
+      rowId: 0,
       order: 0,
-      gridWidth: 12,
-      titles: {
-        fr: 'Carte placeholder',
-        en: 'Placeholder card'
-      },
-      backgroundColor: '#1f2937',
-      textColor: '#ffffff',
-      headerBackgroundColor: '#111827',
-      headerTextColor: '#ffffff',
+      width: 12,
       configuration: {
+        titles: {
+          fr: 'Carte placeholder',
+          en: 'Placeholder card'
+        },
+        backgroundColor: '#1f2937',
+        textColor: '#ffffff',
+        headerBackgroundColor: '#111827',
+        headerTextColor: '#ffffff',
         showHeader: true,
         showFooter: false,
         centerLabel: {

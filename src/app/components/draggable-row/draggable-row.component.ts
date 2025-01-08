@@ -25,34 +25,41 @@ import { ConfirmationDialogComponent } from '@shared/components/confirmation-dia
 })
 export class DraggableRowComponent {
   @Input() row!: DynamicRow;
+  @Input() isEditing = false;
   @Output() onEdit = new EventEmitter<void>();
   @Output() onDelete = new EventEmitter<void>();
-  @Output() onCardDrop = new EventEmitter<{ card: DynamicCard, rowId: number }>();
-  @Output() onCardReorder = new EventEmitter<{ rowId: number, cards: DynamicCard[] }>();
-  @Output() onHeightChange = new EventEmitter<{ rowId: number, height: number }>();
-  @Output() onCardEdit = new EventEmitter<DynamicCard>();
-  @Output() onCardDelete = new EventEmitter<DynamicCard>();
+  @Output() onCardDrop = new EventEmitter<{ card: DynamicCard; rowId: number }>();
+  @Output() onCardReorder = new EventEmitter<{ rowId: number; cards: DynamicCard[] }>();
+  @Output() onHeightChange = new EventEmitter<{ rowId: number; height: number }>();
   @Output() onCardUpdate = new EventEmitter<DynamicCard>();
+  @Output() onCardDelete = new EventEmitter<DynamicCard>();
 
-  isResizing = false;
   editingCard: PlaceholderCard | null = null;
-  cardToDelete: DynamicCard | null = null;
   showDeleteConfirmation = false;
+  cardToDelete: DynamicCard | null = null;
+  isResizing = false;
+  isDragging = false;
 
   getDropListId(): string {
     return `row-${this.row.id}`;
   }
 
+  handleDragStart(event: any) {
+    this.isDragging = true;
+  }
+
+  handleDragEnd(event: any) {
+    this.isDragging = false;
+  }
+
   handleCardDrop(event: CdkDragDrop<DynamicCard[]>) {
     if (event.previousContainer === event.container) {
-      // Reordering within the same row
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
       this.onCardReorder.emit({
         rowId: this.row.id,
         cards: event.container.data
       });
     } else {
-      // Adding new card from palette
       const card = event.previousContainer.data[event.previousIndex];
       this.onCardDrop.emit({ card, rowId: this.row.id });
     }

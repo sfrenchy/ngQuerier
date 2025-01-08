@@ -30,21 +30,24 @@
            [style.min-height.px]="row.height">
         <!-- Cards -->
         <ng-container *ngFor="let card of row.cards">
-          <div class="card"
-               [style.flex]="'0 0 ' + (card.gridWidth / 12 * 100) + '%'"
-               [style.max-width.%]="(card.gridWidth / 12 * 100)"
-               cdkDrag
-               [cdkDragData]="card">
-            <app-placeholder-card *ngIf="card.type === 'placeholder'"
-                                [card]="card"
-                                [isEditing]="true"
-                                [maxRowHeight]="row.height"
-                                (onEdit)="handleCardEdit(card)"
-                                (onDelete)="handleCardDelete(card)">
-              <div dragHandle class="cursor-move text-gray-400">
-                <i class="fas fa-grip-vertical"></i>
-              </div>
-            </app-placeholder-card>
+          <div cdkDrag
+               [cdkDragData]="card"
+               class="card-wrapper"
+               [style.width]="(card.width / 12 * 100) + '%'"
+               (cdkDragStarted)="handleDragStart($event)"
+               (cdkDragEnded)="handleDragEnd($event)">
+            <div class="card-content"
+                 [class.dragging]="isDragging">
+              <app-placeholder-card [card]="card"
+                                  [isEditing]="isEditing"
+                                  [maxRowHeight]="row.height"
+                                  (onEdit)="handleCardEdit(card)"
+                                  (onDelete)="handleCardDelete(card)">
+                <div dragHandle class="drag-handle">
+                  <i class="fas fa-grip-vertical text-gray-400"></i>
+                </div>
+              </app-placeholder-card>
+            </div>
           </div>
         </ng-container>
 

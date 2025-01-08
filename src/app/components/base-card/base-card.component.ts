@@ -1,10 +1,10 @@
 import { Component, Input, Output, EventEmitter, Directive } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { BaseCard } from '@models/page-layout.models';
+import { DynamicCard } from '@models/page-layout.models';
 
 @Directive()
 export abstract class BaseCardComponent {
-  @Input() card!: BaseCard;
+  @Input() card!: DynamicCard;
   @Input() isEditing = false;
   @Input() maxRowHeight?: number;
   @Output() onEdit = new EventEmitter<void>();
@@ -23,6 +23,6 @@ export abstract class BaseCardComponent {
   abstract buildCardContent(): any;
 
   protected getLocalizedTitle(languageCode: string): string {
-    return this.card.titles[languageCode] || this.card.titles['en'] || '';
+    return this.card.configuration.titles[languageCode] || this.card.configuration.titles['en'] || '';
   }
 } 

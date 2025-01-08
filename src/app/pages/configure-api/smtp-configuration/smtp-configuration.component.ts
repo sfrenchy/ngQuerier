@@ -72,8 +72,6 @@ export class SmtpConfigurationComponent {
       const adminConfig = JSON.parse(localStorage.getItem('adminConfig') || '{}');
       const smtpConfig = this.smtpForm.value;
 
-      // Debug logs
-      console.log('Admin config from localStorage:', adminConfig);
       if (!adminConfig.password) {
         this.isLoading = false;
         this.errorMessage = 'Admin password is missing';
@@ -99,9 +97,6 @@ export class SmtpConfigurationComponent {
               senderEmail: smtpConfig.senderEmail,
               senderName: smtpConfig.senderName
             };
-            
-            // Debug log
-            console.log('Setup config being sent:', setupConfig);
 
             this.apiService.setup(setupConfig).subscribe({
               next: (setupSuccess: boolean) => {

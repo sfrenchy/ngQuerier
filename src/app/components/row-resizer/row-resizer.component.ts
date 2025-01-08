@@ -21,7 +21,6 @@ export class RowResizerComponent {
   constructor(private elementRef: ElementRef, private renderer: Renderer2) {}
 
   startResize(event: MouseEvent) {
-    console.log('Start resize', { currentHeight: this.currentHeight });
     event.preventDefault();
     event.stopPropagation();  // Empêche la propagation vers le système de drag'n'drop
     
@@ -51,12 +50,9 @@ export class RowResizerComponent {
     if (this.rowElement) {
       this.renderer.setStyle(this.rowElement, 'min-height', `${this.tempHeight}px`);
     }
-    
-    console.log('Mouse move', { deltaY, tempHeight: this.tempHeight });
   }
 
   private onMouseUp = () => {
-    console.log('Mouse up', { finalHeight: this.tempHeight });
     this.isResizing = false;
     this.resizing.emit(false);
     

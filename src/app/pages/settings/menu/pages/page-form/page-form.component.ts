@@ -56,12 +56,9 @@ export class PageFormComponent implements OnInit {
   }
 
   loadRoles(): void {
-    console.log('Loading roles...');
     this.userService.getRoles().subscribe({
       next: (roles) => {
-        console.log('Roles received:', roles);
         this.availableRoles = roles.map(role => role.Name);
-        console.log('Available roles:', this.availableRoles);
       },
       error: (error) => {
         console.error('Error loading roles:', error);
@@ -74,7 +71,6 @@ export class PageFormComponent implements OnInit {
     this.isLoading = true;
     this.menuService.getPage(id).subscribe({
       next: (page) => {
-        console.log('Page loaded:', page);
         this.pageForm.patchValue({
           Names: page.Names,
           Icon: page.Icon,
@@ -101,8 +97,6 @@ export class PageFormComponent implements OnInit {
       ...this.pageForm.value,
       MenuCategoryId: this.categoryId
     };
-
-    console.log('Submitting form data:', formData);
 
     const saveObservable = this.isEditMode && this.pageId
       ? this.menuService.updatePage(this.pageId, formData)
@@ -133,7 +127,6 @@ export class PageFormComponent implements OnInit {
     } else {
       this.pageForm.get('Roles')?.setValue(currentRoles.filter(r => r !== role));
     }
-    console.log('Roles after change:', this.pageForm.get('Roles')?.value);
   }
 
   isRoleSelected(role: string): boolean {

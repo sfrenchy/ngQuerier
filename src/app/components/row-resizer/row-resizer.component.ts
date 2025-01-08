@@ -5,22 +5,8 @@ import { CommonModule } from '@angular/common';
   selector: 'app-row-resizer',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="row-resizer group/resizer"
-         (mousedown)="startResize($event)">
-      <div class="h-1 w-full group-hover/resizer:bg-blue-500/50 cursor-row-resize transition-colors"></div>
-      <div class="absolute left-1/2 -translate-x-1/2 w-8 h-1 bg-gray-400 rounded group-hover/resizer:bg-blue-500"></div>
-    </div>
-  `,
-  styles: [`
-    .row-resizer {
-      position: relative;
-      height: 8px;
-      margin: -4px 0;
-      cursor: row-resize;
-      z-index: 10;
-    }
-  `]
+  templateUrl: './row-resizer.component.html',
+  styleUrls: ['./row-resizer.component.scss']
 })
 export class RowResizerComponent {
   @Input() currentHeight!: number;

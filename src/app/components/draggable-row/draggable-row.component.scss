@@ -10,6 +10,21 @@
 .cards-container {
   min-height: 100px;
   width: 100%;
+
+  .cards-wrapper {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    height: 100%;
+  }
+
+  .empty-drop-zone {
+    flex: 1;
+    min-height: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .card {

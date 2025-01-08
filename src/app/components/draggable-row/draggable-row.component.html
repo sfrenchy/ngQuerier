@@ -26,7 +26,7 @@
          [cdkDropListData]="row.cards"
          [cdkDropListConnectedTo]="['card-palette']"
          (cdkDropListDropped)="handleCardDrop($event)">
-      <div class="flex gap-4 flex-wrap"
+      <div class="cards-wrapper"
            [style.min-height.px]="row.height">
         <!-- Cards -->
         <ng-container *ngFor="let card of row.cards">
@@ -41,7 +41,7 @@
 
         <!-- Empty state / Drop zone -->
         <div *ngIf="row.cards.length === 0"
-             class="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-600 rounded">
+             class="empty-drop-zone border-2 border-dashed border-gray-600 rounded">
           <span class="text-gray-400">{{ 'MENU.PAGES.LAYOUT.DROP_CARD_HERE' | translate }}</span>
         </div>
       </div>

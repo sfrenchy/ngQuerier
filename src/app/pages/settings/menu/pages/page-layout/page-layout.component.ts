@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { DragDropModule } from '@angular/cdk/drag-drop';
+import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { DynamicRow, DynamicCard, PlaceholderCard } from '@models/page-layout.models';
 import { PageLayoutService } from '@services/page-layout.service';
 import { DraggableRowComponent } from '@components/draggable-row/draggable-row.component';
@@ -51,10 +51,17 @@ export class PageLayoutComponent implements OnInit {
     return layout.rows.map(row => `row-${row.id}`);
   }
 
-  onDrop(event: any) {
-    if (event.previousContainer.id === 'componentList' && event.container.id === 'layoutList') {
-      const dropPoint = event.currentIndex;
-      this.pageLayoutService.addRow(dropPoint);
+  onDrop(event: CdkDragDrop<any[]>) {
+    if (event.previousContainer.id === 'componentList') {
+      const layout = this.pageLayoutService.pageLayout$.value;
+      let dropIndex = layout.rows.length;  // Par défaut, ajouter à la fin
+
+      // Si c'est la zone vide initiale, ajouter en première position
+      if (event.container.id === 'emptyDropZone') {
+        dropIndex = 0;
+      }
+
+      this.pageLayoutService.addRow(dropIndex);
     }
   }
 

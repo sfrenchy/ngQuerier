@@ -9,7 +9,7 @@
     <div cdkDropList
          id="componentList"
          #componentList="cdkDropList"
-         [cdkDropListConnectedTo]="['layoutList']"
+         [cdkDropListConnectedTo]="['bottomDropZone', 'emptyDropZone']"
          [cdkDropListData]="[{type: 'row'}]"
          class="mb-4">
       <div cdkDrag
@@ -55,16 +55,14 @@
     </div>
 
     <!-- Layout area -->
-    <div class="layout-area"
-         cdkDropList
-         id="layoutList"
-         #layoutList="cdkDropList"
-         [cdkDropListConnectedTo]="['componentList']"
-         [cdkDropListData]="(pageLayout$ | async)?.rows || []"
-         (cdkDropListDropped)="onDrop($event)">
+    <div class="layout-area">
       <ng-container *ngIf="pageLayout$ | async as layout">
         <!-- Initial drop zone -->
         <div *ngIf="layout.rows.length === 0"
+             cdkDropList
+             id="emptyDropZone"
+             [cdkDropListConnectedTo]="['componentList']"
+             (cdkDropListDropped)="onDrop($event)"
              class="min-h-[200px] border-2 border-dashed border-gray-700 rounded-lg p-8 text-center flex items-center justify-center">
           <p class="text-gray-400">
             {{ 'MENU.PAGES.LAYOUT.DRAG_ROW_HERE' | translate }}
@@ -73,16 +71,9 @@
 
         <!-- Rows list -->
         <div class="flex flex-col gap-4 w-full">
-          <!-- Drop zone at the top -->
-          <div class="h-16 border-2 border-dashed border-transparent hover:border-gray-700 rounded-lg flex items-center justify-center transition-colors duration-200">
-            <p class="text-gray-400 opacity-0 hover:opacity-100 transition-opacity duration-200">
-              {{ 'MENU.PAGES.LAYOUT.DRAG_ROW_HERE' | translate }}
-            </p>
-          </div>
-
-          <ng-container *ngFor="let row of layout.rows; let i = index">
-            <!-- Row -->
-            <div class="w-full" cdkDrag [cdkDragData]="row">
+          <!-- Rows -->
+          <div class="flex flex-col gap-4">
+            <ng-container *ngFor="let row of layout.rows">
               <app-draggable-row [row]="row"
                                (onEdit)="editRow(row)"
                                (onDelete)="deleteRow(row)"
@@ -90,15 +81,20 @@
                                (onCardReorder)="onCardReordered($event)"
                                (onHeightChange)="onRowHeightChange($event)">
               </app-draggable-row>
-            </div>
+            </ng-container>
+          </div>
 
-            <!-- Drop zone after each row -->
-            <div class="h-16 border-2 border-dashed border-transparent hover:border-gray-700 rounded-lg flex items-center justify-center transition-colors duration-200">
-              <p class="text-gray-400 opacity-0 hover:opacity-100 transition-opacity duration-200">
-                {{ 'MENU.PAGES.LAYOUT.DRAG_ROW_HERE' | translate }}
-              </p>
-            </div>
-          </ng-container>
+          <!-- Drop zone after the last row -->
+          <div *ngIf="layout.rows.length > 0"
+               cdkDropList
+               id="bottomDropZone"
+               [cdkDropListConnectedTo]="['componentList']"
+               (cdkDropListDropped)="onDrop($event)"
+               class="h-16 border-2 border-dashed border-transparent hover:border-gray-700 rounded-lg flex items-center justify-center transition-colors duration-200">
+            <p class="text-gray-400 opacity-0 hover:opacity-100 transition-opacity duration-200">
+              {{ 'MENU.PAGES.LAYOUT.DRAG_ROW_HERE' | translate }}
+            </p>
+          </div>
         </div>
       </ng-container>
     </div>

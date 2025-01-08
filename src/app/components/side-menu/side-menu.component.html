@@ -50,6 +50,48 @@
           </a>
         </li>
 
+        <!-- Dynamic Menu Categories -->
+        <li *ngFor="let category of menuCategories">
+          <ng-container *ngIf="category.IsVisible && hasRequiredRole(category.Roles)">
+            <div class="relative">
+              <button (click)="toggleCategory(category.Id)"
+                      class="w-full flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
+                      [class.justify-center]="!isExpanded">
+                <i [class]="category.Icon" [class.mr-2]="isExpanded"></i>
+                <span class="transition-all duration-300"
+                      [class.opacity-0]="!isExpanded"
+                      [class.w-0]="!isExpanded"
+                      [class.w-auto]="isExpanded">
+                  {{ category.Names[userService.getCurrentLanguage()] || Object.values(category.Names)[0] }}
+                </span>
+                <i *ngIf="isExpanded && getCategoryPages(category.Id).length > 0" 
+                   class="fas fa-chevron-right ml-2"
+                   [class.rotate-90]="isCategoryExpanded(category.Id)"></i>
+                <div *ngIf="!isExpanded" 
+                     class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                     style="transform: translateX(10px)">
+                  {{ category.Names[userService.getCurrentLanguage()] || Object.values(category.Names)[0] }}
+                </div>
+              </button>
+
+              <!-- Dynamic Pages -->
+              <div *ngIf="isCategoryExpanded(category.Id) && isExpanded" 
+                   class="pl-4 mt-1 space-y-1 overflow-hidden transition-all duration-300">
+                <ng-container *ngFor="let page of getCategoryPages(category.Id)">
+                  <a *ngIf="shouldShowPage(page)"
+                     [routerLink]="['/home/layout', page.Id]"
+                     class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
+                    <i [class]="page.Icon + ' mr-2'"></i>
+                    <span class="truncate">
+                      {{ page.Names[userService.getCurrentLanguage()] || Object.values(page.Names)[0] || 'Dashboard' }}
+                    </span>
+                  </a>
+                </ng-container>
+              </div>
+            </div>
+          </ng-container>
+        </li>
+
         <!-- Databases - visible pour Admin et Database Manager -->
         <li *ngIf="userService.canManageDatabase()">
           <a routerLink="/databases" 

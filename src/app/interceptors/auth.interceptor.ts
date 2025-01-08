@@ -7,16 +7,16 @@ import {
   HttpErrorResponse
 } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
-import { AuthService } from '../services/auth.service';
-
-let isRefreshing = false;
+import { catchError, switchMap, take } from 'rxjs/operators';
+import { AuthStateService } from '../services/auth-state.service';
+import { ApiService } from '../services/api.service';
 
 export const AuthInterceptor: HttpInterceptorFn = (
   request: HttpRequest<unknown>,
   next: HttpHandlerFn
 ): Observable<HttpEvent<unknown>> => {
-  const authService = inject(AuthService);
+  const authStateService = inject(AuthStateService);
+  const apiService = inject(ApiService);
 
   // Skip auth header for certain endpoints
   if (shouldSkipAuth(request.url)) {
@@ -24,7 +24,7 @@ export const AuthInterceptor: HttpInterceptorFn = (
   }
 
   // Add auth header
-  const token = localStorage.getItem('access_token');
+  const token = authStateService.getAccessToken();
   if (token) {
     request = addToken(request, token);
   }
@@ -32,7 +32,7 @@ export const AuthInterceptor: HttpInterceptorFn = (
   return next(request).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        return handle401Error(request, next, authService);
+        return handle401Error(request, next, authStateService, apiService);
       }
       return throwError(() => error);
     })
@@ -50,31 +50,41 @@ function addToken(request: HttpRequest<unknown>, token: string): HttpRequest<unk
 function handle401Error(
   request: HttpRequest<unknown>,
   next: HttpHandlerFn,
-  authService: AuthService
+  authStateService: AuthStateService,
+  apiService: ApiService
 ): Observable<HttpEvent<unknown>> {
-  if (!isRefreshing) {
-    isRefreshing = true;
+  return authStateService.isRefreshing$.pipe(
+    take(1),
+    switchMap(isRefreshing => {
+      if (!isRefreshing) {
+        authStateService.setRefreshing(true);
+        const refreshToken = authStateService.getRefreshToken();
 
-    return authService.refreshToken().pipe(
-      switchMap(success => {
-        isRefreshing = false;
-        if (success) {
-          const token = localStorage.getItem('access_token');
-          if (token) {
-            return next(addToken(request, token));
-          }
+        if (!refreshToken) {
+          authStateService.clearTokens();
+          return throwError(() => new Error('No refresh token'));
         }
-        authService.logout();
-        return throwError(() => new Error('Session expired'));
-      }),
-      catchError(error => {
-        isRefreshing = false;
-        authService.logout();
-        return throwError(() => error);
-      })
-    );
-  }
-  return next(request);
+
+        return apiService.refreshToken(refreshToken).pipe(
+          switchMap(response => {
+            authStateService.setRefreshing(false);
+            if (response && response.Token) {
+              authStateService.setTokens(response.Token, response.RefreshToken);
+              return next(addToken(request, response.Token));
+            }
+            authStateService.clearTokens();
+            return throwError(() => new Error('Token refresh failed'));
+          }),
+          catchError(error => {
+            authStateService.setRefreshing(false);
+            authStateService.clearTokens();
+            return throwError(() => error);
+          })
+        );
+      }
+      return next(request);
+    })
+  );
 }
 
 function shouldSkipAuth(url: string): boolean {

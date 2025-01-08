@@ -98,9 +98,6 @@ export class PageLayoutService {
     const availableWidth = this.getAvailableWidth(row);
     if (availableWidth <= 0) return;
 
-    console.log('Adding card with width:', card.width);
-    console.log('Available width:', availableWidth);
-
     // Créer une nouvelle carte avec un nouvel ID et ajuster la largeur
     const newCard: DynamicCard = {
       ...card,
@@ -109,8 +106,6 @@ export class PageLayoutService {
       order: row.cards.length,
       width: Math.min(card.width, availableWidth)
     };
-
-    console.log('New card width:', newCard.width);
 
     const updatedRows = layout.rows.map((r, index) => {
       if (index === rowIndex) {

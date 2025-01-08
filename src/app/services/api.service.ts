@@ -309,7 +309,14 @@ export class ApiService {
 
   // Layout Methods
   getLayout(id: number): Observable<ApiLayout> {
-    return this.http.get<ApiLayout>(`${this.baseUrl}/Layout/${id}`);
+    return this.http.get<ApiLayout>(
+      ApiEndpoints.buildUrl(
+        this.baseUrl,
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.getLayout, {
+          pageId: id.toString()
+        })
+      )
+    );
   }
 
   updateLayout(pageId: number, layout: Layout): Observable<Layout> {

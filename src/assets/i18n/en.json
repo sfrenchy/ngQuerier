@@ -107,7 +107,15 @@
       "DELETE_GENERIC": "Are you sure you want to delete this item?",
       "DELETE_DATABASE": "Are you sure you want to delete the database '{{name}}' ?"
     },
-    "SELECT": "Select"
+    "SELECT": "Select",
+    "NAME": "Name",
+    "ICON": "Icon",
+    "ORDER": "Order",
+    "ROLES": "Roles",
+    "VISIBILITY": "Visibility",
+    "ROUTE": "Route",
+    "VISIBLE": "Visible",
+    "HIDDEN": "Hidden"
   },
   "DASHBOARD": {
     "TITLE": "Dashboard",
@@ -116,14 +124,14 @@
   },
   "MENU": {
     "CATEGORIES": {
-      "TITLE": "Categories",
+      "TITLE": "Menu Categories",
       "ADD": "Add Category",
       "EDIT": "Edit Category",
-      "DELETE": "Delete Category",
-      "NAME": "Name",
-      "NAME_PLACEHOLDER": "Category name",
-      "ICON": "Icon",
-      "ICON_PLACEHOLDER": "Icon class"
+      "CREATE": "Create Category",
+      "NO_CATEGORIES": "No menu categories found",
+      "NAME_PLACEHOLDER": "Enter category name",
+      "ICON_PLACEHOLDER": "Enter icon class (e.g. fas fa-home)",
+      "ROUTE_PLACEHOLDER": "Enter route path"
     },
     "PAGES": {
       "TITLE": "Pages",
@@ -133,7 +141,50 @@
       "NAME": "Name",
       "NAME_PLACEHOLDER": "Page name",
       "DESCRIPTION": "Description",
-      "DESCRIPTION_PLACEHOLDER": "Page description"
+      "DESCRIPTION_PLACEHOLDER": "Page description",
+      "SUBTITLE": "Manage menu pages",
+      "CREATE": "Create page",
+      "EDIT": "Edit page",
+      "LAYOUT": {
+        "TITLE": "Layout",
+        "COMPONENTS": "Components",
+        "NEW_ROW": "New row",
+        "PLACEHOLDER_CARD": "Placeholder card",
+        "DROP_CARD_HERE": "Drop a card here",
+        "DRAG_ROW_HERE": "Drop a row here",
+        "EDIT_ROW": "Edit row",
+        "ROW_HEIGHT": "Height",
+        "ROW_ALIGNMENT": "Alignment",
+        "ROW_SPACING": "Spacing",
+        "ALIGNMENT_START": "Start",
+        "ALIGNMENT_CENTER": "Center",
+        "ALIGNMENT_END": "End",
+        "CARD_CONFIG": {
+          "TITLE": "Card configuration",
+          "LABEL_FR": "Label (French)",
+          "LABEL_EN": "Label (English)",
+          "GRID_WIDTH": "Grid width",
+          "GRID_WIDTH_25": "25% (3 columns)",
+          "GRID_WIDTH_33": "33% (4 columns)",
+          "GRID_WIDTH_50": "50% (6 columns)",
+          "GRID_WIDTH_66": "66% (8 columns)",
+          "GRID_WIDTH_75": "75% (9 columns)",
+          "GRID_WIDTH_100": "100% (12 columns)",
+          "BACKGROUND_COLOR": "Background color",
+          "TEXT_COLOR": "Text color",
+          "HEADER_BACKGROUND_COLOR": "Header background color",
+          "HEADER_TEXT_COLOR": "Header text color",
+          "SHOW_HEADER": "Show header",
+          "SHOW_FOOTER": "Show footer",
+          "COMMON_CONFIG": "Common configuration",
+          "SPECIFIC_CONFIG": "Specific configuration",
+          "COLORS": "Colors",
+          "LAYOUT": "Layout",
+          "APPEARANCE": "Appearance"
+        },
+        "CONFIRM_DELETE_CARD": "Are you sure you want to delete this card?"
+      },
+      "NO_PAGES": "No pages found"
     },
     "HOME": "Home",
     "DATABASES": "Databases",
@@ -230,7 +281,8 @@
     "REDIS_PORT": "Redis Port"
   },
   "COMMON": {
-    "SAVE": "Save"
+    "SAVE": "Save",
+    "CANCEL": "Cancel"
   },
   "DATABASES": {
     "TITLE": "Databases",
@@ -245,5 +297,9 @@
     "CONTEXT_API_ROUTE_PLACEHOLDER": "API route separator (e.g. api/v1)",
     "GENERATE_PROCEDURES": "Generate controllers for stored procedures",
     "NO_CONNECTIONS": "No database configured"
+  },
+  "LANGUAGES": {
+    "EN": "English",
+    "FR": "French"
   }
 } 

@@ -1,0 +1,84 @@
+<div class="row-wrapper">
+  <div class="row-container p-4 bg-gray-800 rounded-lg shadow relative group"
+       cdkDrag
+       [cdkDragDisabled]="isResizing">
+    <!-- Row header -->
+    <div class="flex justify-between items-center mb-4">
+      <div class="flex items-center gap-2">
+        <button class="text-gray-400 hover:text-white"
+                (click)="onEdit.emit()">
+          <i class="fas fa-cog"></i>
+        </button>
+        <button class="text-gray-400 hover:text-white"
+                (click)="onDelete.emit()">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+      <div class="text-gray-400">
+        {{ row.height }}px
+      </div>
+    </div>
+
+    <!-- Cards container -->
+    <div class="cards-container"
+         cdkDropList
+         [id]="getDropListId()"
+         [cdkDropListData]="row.cards"
+         [cdkDropListConnectedTo]="['card-palette']"
+         (cdkDropListDropped)="handleCardDrop($event)">
+      <div class="cards-wrapper"
+           [style.min-height.px]="row.height">
+        <!-- Cards -->
+        <ng-container *ngFor="let card of row.cards">
+          <div cdkDrag
+               [cdkDragData]="card"
+               class="card-wrapper"
+               [style.width]="(card.width / 12 * 100) + '%'"
+               (cdkDragStarted)="handleDragStart($event)"
+               (cdkDragEnded)="handleDragEnd($event)">
+            <div class="card-content"
+                 [class.dragging]="isDragging">
+              <app-placeholder-card [card]="card"
+                                  [isEditing]="isEditing"
+                                  [maxRowHeight]="row.height"
+                                  (onEdit)="handleCardEdit(card)"
+                                  (onDelete)="handleCardDelete(card)">
+                <div dragHandle class="drag-handle">
+                  <i class="fas fa-grip-vertical text-gray-400"></i>
+                </div>
+              </app-placeholder-card>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Empty state / Drop zone -->
+        <div *ngIf="row.cards.length === 0"
+             class="empty-drop-zone border-2 border-dashed border-gray-600 rounded">
+          <span class="text-gray-400">{{ 'MENU.PAGES.LAYOUT.DROP_CARD_HERE' | translate }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row resizer -->
+  <app-row-resizer 
+    [currentHeight]="row.height"
+    (heightChange)="onHeightChange.emit({ rowId: row.id, height: $event })"
+    (resizing)="isResizing = $event">
+  </app-row-resizer>
+
+  <!-- Card configuration dialog -->
+  <app-placeholder-card-config *ngIf="editingCard"
+                             [card]="editingCard"
+                             (save)="handleCardConfigSave($event)"
+                             (cancel)="handleCardConfigCancel()">
+  </app-placeholder-card-config>
+
+  <!-- Confirmation Dialog -->
+  <app-confirmation-dialog
+    *ngIf="showDeleteConfirmation"
+    [messageKey]="'MENU.PAGES.LAYOUT.CONFIRM_DELETE_CARD'"
+    (confirm)="onConfirmDelete()"
+    (cancel)="onCancelDelete()">
+  </app-confirmation-dialog>
+</div> 

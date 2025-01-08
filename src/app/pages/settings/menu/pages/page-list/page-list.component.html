@@ -1,0 +1,116 @@
+<div class="p-6">
+  <div class="bg-gray-800 rounded-lg shadow-lg text-gray-100">
+    <div class="p-6 border-b border-gray-700">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-2xl font-semibold">{{ 'MENU.PAGES.TITLE' | translate }}</h2>
+          <p class="text-gray-400 mt-1" *ngIf="category">
+            {{ 'MENU.PAGES.SUBTITLE' | translate: { category: getLocalizedName(category) } }}
+          </p>
+        </div>
+        <button
+          (click)="onAddClick()"
+          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
+        >
+          <i class="fas fa-plus"></i>
+          {{ 'MENU.PAGES.ADD' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <div class="p-6">
+      <div *ngIf="isLoading" class="flex justify-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+      </div>
+
+      <div *ngIf="error" class="bg-red-500 text-white p-4 rounded mb-4">
+        {{ error }}
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-700">
+          <thead>
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                {{ 'COMMON.NAME' | translate }}
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                {{ 'COMMON.ICON' | translate }}
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                {{ 'COMMON.ORDER' | translate }}
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                {{ 'COMMON.VISIBILITY' | translate }}
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                {{ 'COMMON.ROLES' | translate }}
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+                {{ 'COMMON.ACTIONS' | translate }}
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr *ngFor="let page of pages" class="hover:bg-gray-700">
+              <td class="px-6 py-4 whitespace-nowrap">
+                {{ getLocalizedName(page) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <i [class]="page.Icon"></i>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                {{ page.Order }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span
+                  class="px-2 py-1 text-xs rounded"
+                  [ngClass]="page.IsVisible ? 'bg-green-600' : 'bg-red-600'"
+                >
+                  {{ (page.IsVisible ? 'COMMON.VISIBLE' : 'COMMON.HIDDEN') | translate }}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex flex-wrap gap-2">
+                  <span *ngFor="let role of page.Roles" class="px-2 py-1 text-xs rounded bg-blue-600">
+                    {{ role }}
+                  </span>
+                </div>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap">
+                <div class="flex gap-3">
+                  <button
+                    (click)="onEditClick(page)"
+                    class="text-blue-400 hover:text-blue-300 transition-colors"
+                    [title]="'COMMON.EDIT' | translate"
+                  >
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button
+                    (click)="onLayoutClick(page)"
+                    class="text-purple-400 hover:text-purple-300 transition-colors"
+                    [title]="'MENU.PAGES.LAYOUT' | translate"
+                  >
+                    <i class="fas fa-th-large"></i>
+                  </button>
+                  <button
+                    (click)="onDeleteClick(page)"
+                    class="text-red-400 hover:text-red-300 transition-colors"
+                    [title]="'COMMON.DELETE' | translate"
+                  >
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="pages.length === 0 && !isLoading">
+              <td colspan="6" class="px-6 py-4 text-center text-gray-400">
+                {{ 'MENU.PAGES.NO_PAGES' | translate }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div> 

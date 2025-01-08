@@ -25,7 +25,8 @@
       "@pages/*": ["app/pages/*"],
       "@shared/*": ["app/shared/*"],
       "@environments/*": ["environments/*"],
-      "@validators/*": ["app/validators/*"]
+      "@validators/*": ["app/validators/*"],
+      "@guards/*": ["app/guards/*"]
     }
   },
   "angularCompilerOptions": {

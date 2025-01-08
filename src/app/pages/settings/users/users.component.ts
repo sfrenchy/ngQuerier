@@ -189,8 +189,6 @@ export class UsersComponent implements OnInit {
   onResendConfirmation(user: User): void {
     this.apiService.resendConfirmationEmail(user.Id).subscribe({
       next: () => {
-        // Vous pouvez ajouter ici une notification de succès si vous le souhaitez
-        console.log('Confirmation email sent successfully');
       },
       error: (error: any) => {
         console.error('Error sending confirmation email:', error);

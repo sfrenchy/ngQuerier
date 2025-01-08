@@ -109,8 +109,19 @@
       "DELETE_ROLE": "Êtes-vous sûr de vouloir supprimer le rôle \"{{name}}\" ?",
       "DELETE_USER": "Êtes-vous sûr de vouloir supprimer l'utilisateur \"{{name}}\" ?",
       "DELETE_GENERIC": "Êtes-vous sûr de vouloir supprimer cet élément ?",
-      "DELETE_DATABASE": "Êtes-vous sûr de vouloir supprimer la base de données '{{name}}' ?"
-    }
+      "DELETE_DATABASE": "Êtes-vous sûr de vouloir supprimer la base de données '{{name}}' ?",
+      "DELETE_CARD": "Êtes-vous sûr de vouloir supprimer cette carte ?"
+    },
+    "NAME": "Nom",
+    "ICON": "Icône",
+    "ORDER": "Ordre",
+    "ROUTE": "Route",
+    "VISIBILITY": "Visibilité",
+    "ROLES": "Rôles",
+    "ACTIONS": "Actions",
+    "TRANSLATIONS": "Traductions",
+    "VISIBLE": "Visible",
+    "HIDDEN": "Masqué"
   },
   "DASHBOARD": {
     "TITLE": "Tableau de bord",
@@ -119,14 +130,14 @@
   },
   "MENU": {
     "CATEGORIES": {
-      "TITLE": "Catégories",
-      "ADD": "Ajouter une catégorie",
-      "EDIT": "Modifier la catégorie",
-      "DELETE": "Supprimer la catégorie",
-      "NAME": "Nom",
-      "NAME_PLACEHOLDER": "Nom de la catégorie",
-      "ICON": "Icône",
-      "ICON_PLACEHOLDER": "Classe d'icône"
+      "TITLE": "Catégories de Menu",
+      "ADD": "Ajouter une Catégorie",
+      "EDIT": "Modifier la Catégorie",
+      "CREATE": "Créer une Catégorie",
+      "NO_CATEGORIES": "Aucune catégorie de menu trouvée",
+      "NAME_PLACEHOLDER": "Entrez le nom de la catégorie",
+      "ICON_PLACEHOLDER": "Entrez la classe d'icône (ex: fas fa-home)",
+      "ROUTE_PLACEHOLDER": "Entrez le chemin de la route"
     },
     "PAGES": {
       "TITLE": "Pages",
@@ -136,7 +147,49 @@
       "NAME": "Nom",
       "NAME_PLACEHOLDER": "Nom de la page",
       "DESCRIPTION": "Description",
-      "DESCRIPTION_PLACEHOLDER": "Description de la page"
+      "DESCRIPTION_PLACEHOLDER": "Description de la page",
+      "SUBTITLE": "Gérer les pages du menu",
+      "CREATE": "Créer une page",
+      "LAYOUT": {
+        "TITLE": "Mise en page",
+        "COMPONENTS": "Composants",
+        "NEW_ROW": "Nouvelle ligne",
+        "PLACEHOLDER_CARD": "Carte placeholder",
+        "DROP_CARD_HERE": "Déposez une carte ici",
+        "DRAG_ROW_HERE": "Déposez une ligne ici",
+        "EDIT_ROW": "Modifier la ligne",
+        "ROW_HEIGHT": "Hauteur",
+        "ROW_ALIGNMENT": "Alignement",
+        "ROW_SPACING": "Espacement",
+        "ALIGNMENT_START": "Début",
+        "ALIGNMENT_CENTER": "Centre",
+        "ALIGNMENT_END": "Fin",
+        "CARD_CONFIG": {
+          "TITLE": "Configuration de la carte",
+          "LABEL_FR": "Libellé (Français)",
+          "LABEL_EN": "Libellé (Anglais)",
+          "GRID_WIDTH": "Largeur de la grille",
+          "GRID_WIDTH_25": "25% (3 colonnes)",
+          "GRID_WIDTH_33": "33% (4 colonnes)",
+          "GRID_WIDTH_50": "50% (6 colonnes)",
+          "GRID_WIDTH_66": "66% (8 colonnes)",
+          "GRID_WIDTH_75": "75% (9 colonnes)",
+          "GRID_WIDTH_100": "100% (12 colonnes)",
+          "BACKGROUND_COLOR": "Couleur de fond",
+          "TEXT_COLOR": "Couleur du texte",
+          "HEADER_BACKGROUND_COLOR": "Couleur de fond de l'en-tête",
+          "HEADER_TEXT_COLOR": "Couleur du texte de l'en-tête",
+          "SHOW_HEADER": "Afficher l'en-tête",
+          "SHOW_FOOTER": "Afficher le pied de page",
+          "COMMON_CONFIG": "Configuration commune",
+          "SPECIFIC_CONFIG": "Configuration spécifique",
+          "COLORS": "Couleurs",
+          "LAYOUT": "Mise en page",
+          "APPEARANCE": "Apparence"
+        },
+        "CONFIRM_DELETE_CARD": "Êtes-vous sûr de vouloir supprimer cette carte ?"
+      },
+      "NO_PAGES": "Aucune page trouvée"
     },
     "HOME": "Accueil",
     "DATABASES": "Bases de données",
@@ -247,5 +300,9 @@
     "CONTEXT_API_ROUTE_PLACEHOLDER": "Séparateur de route d'API (ex: api/v1)",
     "GENERATE_PROCEDURES": "Générer les contrôleurs pour les procédures stockées",
     "NO_CONNECTIONS": "Aucune base de données configurée"
+  },
+  "LANGUAGES": {
+    "EN": "Anglais",
+    "FR": "Français"
   }
 } 

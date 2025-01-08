@@ -45,23 +45,24 @@ export enum QDBConnectionType {
 }
 
 export interface MenuCategory {
-  id: number;
-  names: { [key: string]: string };
-  icon: string;
-  order: number;
-  isVisible: boolean;
-  roles: Role[];
+  Id: number;
+  Names: { [key: string]: string };
+  Icon: string;
+  Order: number;
+  IsVisible: boolean;
+  Roles: string[];
+  Route: string;
 }
 
 export interface MenuPage {
-  id: number;
-  names: { [key: string]: string };
-  icon: string;
-  order: number;
-  isVisible: boolean;
-  roles: Role[];
-  route: string;
-  menuCategoryId: number;
+  Id: number;
+  Names: { [key: string]: string };
+  Icon: string;
+  Order: number;
+  IsVisible: boolean;
+  Roles: Role[];
+  Route: string;
+  MenuCategoryId: number;
 }
 
 export interface DynamicRow {
@@ -78,12 +79,26 @@ export interface DynamicCard {
   order: number;
   width: number;
   type: string;
+  titles: { [key: string]: string };
   configuration: any;
 }
 
 export interface Layout {
   pageId: number;
-  rows: DynamicRow[];
+  icon: string;
+  names: { [key: string]: string };
+  isVisible: boolean;
+  roles: string[];
+  route: string;
+  rows: {
+    id: number;
+    order: number;
+    height: number;
+    alignment: string;
+    crossAlignment: string;
+    spacing: number;
+    cards: DynamicCard[];
+  }[];
 }
 
 export interface EntitySchema {
@@ -168,4 +183,32 @@ export interface UserCreateUpdate {
   lastName: string;
   userName: string;
   roles: string[];
+}
+
+export interface ApiDynamicCard {
+  Id: number;
+  Titles: { [key: string]: string };
+  Order: number;
+  Type: string;
+  GridWidth: number;
+  Configuration: any;
+  BackgroundColor: string | null;
+  TextColor: string | null;
+  HeaderBackgroundColor: string | null;
+  HeaderTextColor: string | null;
+}
+
+export interface ApiLayout {
+  PageId: number;
+  Icon: string;
+  Names: { [key: string]: string };
+  IsVisible: boolean;
+  Roles: string[];
+  Route: string;
+  Rows: {
+    Id: number;
+    Order: number;
+    Height: number;
+    Cards: ApiDynamicCard[];
+  }[];
 } 

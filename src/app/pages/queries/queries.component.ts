@@ -10,7 +10,6 @@ import { forkJoin } from 'rxjs';
 
 const monacoConfig = {
   onMonacoLoad: () => {
-    console.log('Monaco Editor loaded');
   }
 };
 

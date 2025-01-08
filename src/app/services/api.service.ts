@@ -18,7 +18,8 @@ import {
   SQLQueryRequest,
   QueryAnalysis,
   ApiConfiguration,
-  UserCreateUpdate
+  UserCreateUpdate,
+  ApiLayout
 } from '../models/api.models';
 
 @Injectable({
@@ -56,9 +57,12 @@ export class ApiService {
     return this.http.put<T>(url, body);
   }
 
+  patch<T>(endpoint: string, data: any): Observable<T> {
+    return this.http.patch<T>(`${this.baseUrl}/${endpoint}`, data);
+  }
+
   delete<T>(endpoint: string): Observable<T> {
-    const url = ApiEndpoints.buildUrl(this.baseUrl, endpoint);
-    return this.http.delete<T>(url);
+    return this.http.delete<T>(`${this.baseUrl}/${endpoint}`);
   }
 
   // Auth Methods
@@ -304,15 +308,8 @@ export class ApiService {
   }
 
   // Layout Methods
-  getLayout(pageId: number): Observable<Layout> {
-    return this.http.get<Layout>(
-      ApiEndpoints.buildUrl(
-        this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.getLayout, {
-          pageId: pageId.toString()
-        })
-      )
-    );
+  getLayout(id: number): Observable<ApiLayout> {
+    return this.http.get<ApiLayout>(`${this.baseUrl}/Layout/${id}`);
   }
 
   updateLayout(pageId: number, layout: Layout): Observable<Layout> {

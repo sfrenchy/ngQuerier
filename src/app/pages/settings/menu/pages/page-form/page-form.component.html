@@ -1,0 +1,122 @@
+<div class="p-6">
+  <div class="bg-gray-800 rounded-lg shadow-lg text-gray-100">
+    <div class="p-6 border-b border-gray-700">
+      <h2 class="text-2xl font-semibold">
+        {{ (isEditMode ? 'MENU.PAGES.EDIT' : 'MENU.PAGES.CREATE') | translate }}
+      </h2>
+    </div>
+
+    <div class="p-6">
+      <div *ngIf="error" class="bg-red-500 text-white p-4 rounded mb-4">
+        {{ error }}
+      </div>
+
+      <form [formGroup]="pageForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Names -->
+        <div formGroupName="Names">
+          <label class="block mb-4">
+            <span class="text-sm font-medium">{{ 'COMMON.NAME' | translate }}</span>
+            <div class="mt-2 space-y-4">
+              <div *ngFor="let lang of supportedLanguages">
+                <label [for]="'name-' + lang" class="block text-sm font-medium mb-1">
+                  {{ 'LANGUAGES.' + lang.toUpperCase() | translate }}
+                </label>
+                <input
+                  [id]="'name-' + lang"
+                  type="text"
+                  [formControlName]="lang"
+                  class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+              </div>
+            </div>
+          </label>
+        </div>
+
+        <!-- Icon -->
+        <div>
+          <label class="block">
+            <span class="text-sm font-medium">{{ 'COMMON.ICON' | translate }}</span>
+            <input
+              type="text"
+              formControlName="Icon"
+              class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+          </label>
+        </div>
+
+        <!-- Route -->
+        <div>
+          <label class="block">
+            <span class="text-sm font-medium">{{ 'COMMON.ROUTE' | translate }}</span>
+            <input
+              type="text"
+              formControlName="Route"
+              class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+          </label>
+        </div>
+
+        <!-- Order -->
+        <div>
+          <label class="block">
+            <span class="text-sm font-medium">{{ 'COMMON.ORDER' | translate }}</span>
+            <input
+              type="number"
+              formControlName="Order"
+              class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+          </label>
+        </div>
+
+        <!-- Roles -->
+        <div>
+          <span class="block text-sm font-medium mb-2">{{ 'COMMON.ROLES' | translate }}</span>
+          <div class="space-y-2">
+            <div *ngFor="let role of availableRoles" class="flex items-center">
+              <input
+                type="checkbox"
+                [id]="'role-' + role"
+                [checked]="isRoleSelected(role)"
+                (change)="onRoleChange(role, $event)"
+                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded"
+              >
+              <label [for]="'role-' + role" class="ml-2 text-sm">
+                {{ role }}
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Visibility -->
+        <div>
+          <label class="inline-flex items-center">
+            <input
+              type="checkbox"
+              formControlName="IsVisible"
+              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded"
+            >
+            <span class="ml-2 text-sm font-medium">{{ 'COMMON.VISIBILITY' | translate }}</span>
+          </label>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end space-x-4">
+          <button
+            type="button"
+            (click)="onCancel()"
+            class="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+          >
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button
+            type="submit"
+            [disabled]="pageForm.invalid || isLoading"
+            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> 

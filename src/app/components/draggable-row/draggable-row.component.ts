@@ -3,60 +3,76 @@ import { CommonModule } from '@angular/common';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { DynamicRow, DynamicCard } from '../../models/page-layout.models';
 import { TranslateModule } from '@ngx-translate/core';
+import { RowResizerComponent } from '../row-resizer/row-resizer.component';
 
 @Component({
   selector: 'app-draggable-row',
   standalone: true,
-  imports: [CommonModule, DragDropModule, TranslateModule],
+  imports: [CommonModule, DragDropModule, TranslateModule, RowResizerComponent],
   template: `
-    <div class="row-container p-4 my-2 bg-gray-800 rounded-lg shadow">
-      <!-- Row header -->
-      <div class="flex justify-between items-center mb-4">
-        <div class="flex items-center gap-2">
-          <button class="text-gray-400 hover:text-white"
-                  (click)="onEdit.emit()">
-            <i class="fas fa-cog"></i>
-          </button>
-          <button class="text-gray-400 hover:text-white"
-                  (click)="onDelete.emit()">
-            <i class="fas fa-trash"></i>
-          </button>
+    <div class="row-wrapper">
+      <div class="row-container p-4 bg-gray-800 rounded-lg shadow relative group"
+           cdkDrag
+           [cdkDragDisabled]="isResizing">
+        <!-- Row header -->
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center gap-2">
+            <button class="text-gray-400 hover:text-white"
+                    (click)="onEdit.emit()">
+              <i class="fas fa-cog"></i>
+            </button>
+            <button class="text-gray-400 hover:text-white"
+                    (click)="onDelete.emit()">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+          <div class="text-gray-400">
+            {{ row.height }}px
+          </div>
         </div>
-        <div class="text-gray-400">
-          {{ row.height }}px
-        </div>
-      </div>
 
-      <!-- Cards container -->
-      <div class="cards-container"
-           cdkDropList
-           [id]="'row-' + row.id"
-           [cdkDropListData]="row.cards"
-           [cdkDropListConnectedTo]="['card-palette']"
-           (cdkDropListDropped)="handleCardDrop($event)">
-        <div class="flex gap-4 flex-wrap"
-             [style.min-height.px]="row.height">
-          <!-- Cards -->
-          <ng-container *ngFor="let card of row.cards">
-            <div class="card bg-gray-700 p-4 rounded"
-                 [style.flex]="'0 0 ' + (card.gridWidth / 12 * 100) + '%'"
-                 [style.max-width.%]="(card.gridWidth / 12 * 100)"
-                 cdkDrag
-                 [cdkDragData]="card">
-              <div class="text-gray-200">{{ card.titles['fr'] || 'MENU.PAGES.LAYOUT.PLACEHOLDER_CARD' | translate }}</div>
+        <!-- Cards container -->
+        <div class="cards-container"
+             cdkDropList
+             [id]="'row-' + row.id"
+             [cdkDropListData]="row.cards"
+             [cdkDropListConnectedTo]="['card-palette']"
+             (cdkDropListDropped)="handleCardDrop($event)">
+          <div class="flex gap-4 flex-wrap"
+               [style.min-height.px]="row.height">
+            <!-- Cards -->
+            <ng-container *ngFor="let card of row.cards">
+              <div class="card bg-gray-700 p-4 rounded"
+                   [style.flex]="'0 0 ' + (card.gridWidth / 12 * 100) + '%'"
+                   [style.max-width.%]="(card.gridWidth / 12 * 100)"
+                   cdkDrag
+                   [cdkDragData]="card">
+                <div class="text-gray-200">{{ card.titles['fr'] || 'MENU.PAGES.LAYOUT.PLACEHOLDER_CARD' | translate }}</div>
+              </div>
+            </ng-container>
+
+            <!-- Empty state / Drop zone -->
+            <div *ngIf="row.cards.length === 0"
+                 class="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-600 rounded">
+              <span class="text-gray-400">{{ 'MENU.PAGES.LAYOUT.DROP_CARD_HERE' | translate }}</span>
             </div>
-          </ng-container>
-
-          <!-- Empty state / Drop zone -->
-          <div *ngIf="row.cards.length === 0"
-               class="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-600 rounded">
-            <span class="text-gray-400">{{ 'MENU.PAGES.LAYOUT.DROP_CARD_HERE' | translate }}</span>
           </div>
         </div>
       </div>
+
+      <!-- Row resizer -->
+      <app-row-resizer 
+        [currentHeight]="row.height"
+        (heightChange)="onHeightChange.emit({ rowId: row.id, height: $event })"
+        (resizing)="isResizing = $event">
+      </app-row-resizer>
     </div>
   `,
   styles: [`
+    .row-wrapper {
+      width: 100%;
+    }
+
     .row-container {
       width: 100%;
       background-color: theme('colors.gray.800');
@@ -98,10 +114,11 @@ export class DraggableRowComponent {
   @Output() onDelete = new EventEmitter<void>();
   @Output() onCardDrop = new EventEmitter<{ card: DynamicCard, rowId: number }>();
   @Output() onCardReorder = new EventEmitter<{ rowId: number, cards: DynamicCard[] }>();
+  @Output() onHeightChange = new EventEmitter<{ rowId: number, height: number }>();
+
+  isResizing = false;
 
   handleCardDrop(event: CdkDragDrop<DynamicCard[]>) {
-    console.log('Card drop event:', event);
-    
     if (event.previousContainer === event.container) {
       // Reordering within the same row
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
@@ -114,5 +131,10 @@ export class DraggableRowComponent {
       const card = event.previousContainer.data[event.previousIndex];
       this.onCardDrop.emit({ card, rowId: this.row.id });
     }
+  }
+
+  handleHeightChange(deltaY: number) {
+    const newHeight = Math.max(100, this.row.height + deltaY);
+    this.onHeightChange.emit({ rowId: this.row.id, height: newHeight });
   }
 } 

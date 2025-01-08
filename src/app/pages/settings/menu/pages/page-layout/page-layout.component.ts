@@ -5,11 +5,18 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { DynamicRow, DynamicCard, PlaceholderCard } from '../../../../../models/page-layout.models';
 import { PageLayoutService } from '../../../../../services/page-layout.service';
 import { DraggableRowComponent } from '../../../../../components/draggable-row/draggable-row.component';
+import { RowEditDialogComponent } from '../../../../../components/row-edit-dialog/row-edit-dialog.component';
 
 @Component({
   selector: 'app-page-layout',
   standalone: true,
-  imports: [CommonModule, TranslateModule, DragDropModule, DraggableRowComponent],
+  imports: [
+    CommonModule,
+    TranslateModule,
+    DragDropModule,
+    DraggableRowComponent,
+    RowEditDialogComponent
+  ],
   templateUrl: './page-layout.component.html',
   styleUrls: ['./page-layout.component.scss']
 })
@@ -31,6 +38,8 @@ export class PageLayoutComponent implements OnInit {
       }
     } as PlaceholderCard
   ];
+
+  editingRow: DynamicRow | null = null;
 
   ngOnInit() {
     this.pageLayoutService.loadPageLayout(1); // TODO: Get page ID from route
@@ -57,9 +66,28 @@ export class PageLayoutComponent implements OnInit {
     this.pageLayoutService.updateRowCards(event.rowId, event.cards);
   }
 
+  onRowHeightChange(event: { rowId: number; height: number }) {
+    const layout = this.pageLayoutService.pageLayout$.value;
+    const row = layout.rows.find(r => r.id === event.rowId);
+    if (!row) return;
+
+    this.pageLayoutService.updateRow({
+      ...row,
+      height: event.height
+    });
+  }
+
   editRow(row: DynamicRow) {
-    // TODO: Implement row editing dialog
-    console.log('Edit row:', row);
+    this.editingRow = row;
+  }
+
+  onRowEditSave(updatedRow: DynamicRow) {
+    this.pageLayoutService.updateRow(updatedRow);
+    this.editingRow = null;
+  }
+
+  onRowEditCancel() {
+    this.editingRow = null;
   }
 
   deleteRow(row: DynamicRow) {

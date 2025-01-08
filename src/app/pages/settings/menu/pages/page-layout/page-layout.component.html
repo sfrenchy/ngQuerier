@@ -87,7 +87,8 @@
                                (onEdit)="editRow(row)"
                                (onDelete)="deleteRow(row)"
                                (onCardDrop)="onCardDropped($event)"
-                               (onCardReorder)="onCardReordered($event)">
+                               (onCardReorder)="onCardReordered($event)"
+                               (onHeightChange)="onRowHeightChange($event)">
               </app-draggable-row>
             </div>
 
@@ -102,4 +103,11 @@
       </ng-container>
     </div>
   </div>
-</div> 
+</div>
+
+<!-- Edit dialog -->
+<app-row-edit-dialog *ngIf="editingRow"
+                     [row]="editingRow"
+                     (onSave)="onRowEditSave($event)"
+                     (onCancel)="onRowEditCancel()">
+</app-row-edit-dialog> 

@@ -50,6 +50,19 @@ export class PageLayoutService {
     });
   }
 
+  updateRow(updatedRow: DynamicRow) {
+    const layout = this.pageLayout$.value;
+    const updatedRows = layout.rows.map(row => 
+      row.id === updatedRow.id ? { ...updatedRow } : row
+    );
+
+    this.pageLayout$.next({
+      ...layout,
+      rows: updatedRows,
+      isDirty: true
+    });
+  }
+
   addCardToRow(card: DynamicCard, rowId: number) {
     const layout = this.pageLayout$.value;
     const rowIndex = layout.rows.findIndex(r => r.id === rowId);

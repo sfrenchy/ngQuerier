@@ -4,39 +4,31 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { BaseCard } from '@models/page-layout.models';
 
-@Directive()
-export abstract class BaseCardConfigComponent<T extends BaseCard> {
-  @Input() card!: T;
-  @Output() save = new EventEmitter<T>();
-  @Output() cancel = new EventEmitter<void>();
+@Component({
+  selector: 'app-base-card-config',
+  standalone: true,
+  imports: [CommonModule, FormsModule, TranslateModule],
+  template: `
+    <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div [class]="isFullscreen ? 'fixed inset-4 bg-gray-800 rounded-lg shadow-xl flex flex-col' : 'bg-gray-800 rounded-lg shadow-xl w-full max-w-lg'">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-gray-700 flex justify-between items-center">
+          <h2 class="text-xl font-semibold text-gray-200">
+            {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.TITLE' | translate }}
+          </h2>
+          <button (click)="toggleFullscreen()"
+                  class="p-2 text-gray-400 hover:text-gray-200 rounded-lg hover:bg-gray-700 focus:outline-none">
+            <svg *ngIf="!isFullscreen" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+            <svg *ngIf="isFullscreen" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 16V6m0 0h4M6 6l5 5m7-5h-4m4 0v4m0-4l-5 5m0 6l5-5m-5 5v-4m0 4h4m-4 0l-5-5M6 16h4m-4 0v-4" />
+            </svg>
+          </button>
+        </div>
 
-  editedCard!: T;
-
-  ngOnInit() {
-    // Clone the card to avoid modifying the original
-    this.editedCard = {
-      ...this.card,
-      titles: { ...this.card.titles }
-    };
-  }
-
-  // Template sections that can be overridden by child classes
-  protected buildSpecificConfig(): string {
-    return '';
-  }
-
-  protected getTemplate(): string {
-    return `
-      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-lg">
-          <!-- Header -->
-          <div class="px-6 py-4 border-b border-gray-700">
-            <h2 class="text-xl font-semibold text-gray-200">
-              {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.TITLE' | translate }}
-            </h2>
-          </div>
-
-          <!-- Content -->
+        <!-- Content -->
+        <div class="flex-1 overflow-y-auto">
           <div class="p-6 space-y-6">
             <!-- Common configuration -->
             <div class="space-y-6">
@@ -148,24 +140,48 @@ export abstract class BaseCardConfigComponent<T extends BaseCard> {
                 {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.SPECIFIC_CONFIG' | translate }}
               </h3>
               <div class="pl-4">
-                <ng-container *ngTemplateOutlet="specificConfig"></ng-container>
+                <ng-content></ng-content>
               </div>
             </div>
           </div>
+        </div>
 
-          <!-- Footer -->
-          <div class="px-6 py-4 bg-gray-900 rounded-b-lg flex justify-end gap-3">
-            <button (click)="cancel.emit()"
-                    class="px-4 py-2 text-gray-300 hover:text-white">
-              {{ 'COMMON.CANCEL' | translate }}
-            </button>
-            <button (click)="save.emit(editedCard)"
-                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-              {{ 'COMMON.SAVE' | translate }}
-            </button>
-          </div>
+        <!-- Footer -->
+        <div class="px-6 py-4 bg-gray-900 rounded-b-lg flex justify-end gap-3">
+          <button (click)="cancel.emit()"
+                  class="px-4 py-2 text-gray-300 hover:text-white">
+            {{ 'COMMON.CANCEL' | translate }}
+          </button>
+          <button (click)="save.emit(editedCard)"
+                  class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+            {{ 'COMMON.SAVE' | translate }}
+          </button>
         </div>
       </div>
-    `;
+    </div>
+  `
+})
+export class BaseCardConfigComponent<T extends BaseCard> {
+  @Input() card!: T;
+  @Output() save = new EventEmitter<T>();
+  @Output() cancel = new EventEmitter<void>();
+
+  editedCard!: T;
+  isFullscreen = false;
+
+  ngOnInit() {
+    // Clone the card to avoid modifying the original
+    this.editedCard = {
+      ...this.card,
+      titles: { ...this.card.titles }
+    };
+  }
+
+  toggleFullscreen() {
+    this.isFullscreen = !this.isFullscreen;
+  }
+
+  protected buildSpecificConfig(): boolean {
+    return false;
   }
 } 

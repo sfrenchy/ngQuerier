@@ -11,12 +11,21 @@ import { BaseCardConfigComponent } from '@components/base-card-config/base-card-
   imports: [CommonModule, FormsModule, TranslateModule],
   template: `
     <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-lg">
+      <div [class]="isFullscreen ? 'fixed inset-4 bg-gray-800 rounded-lg shadow-xl flex flex-col' : 'bg-gray-800 rounded-lg shadow-xl w-full max-w-lg'">
         <!-- Header -->
-        <div class="px-6 py-4 border-b border-gray-700">
+        <div class="px-6 py-4 border-b border-gray-700 flex justify-between items-center">
           <h2 class="text-xl font-semibold text-gray-200">
             {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.TITLE' | translate }}
           </h2>
+          <button (click)="toggleFullscreen()"
+                  class="p-2 text-gray-400 hover:text-gray-200 rounded-lg hover:bg-gray-700 focus:outline-none">
+            <svg *ngIf="!isFullscreen" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+            <svg *ngIf="isFullscreen" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 16V6m0 0h4M6 6l5 5m7-5h-4m4 0v4m0-4l-5 5m0 6l5-5m-5 5v-4m0 4h4m-4 0l-5-5M6 16h4m-4 0v-4" />
+            </svg>
+          </button>
         </div>
 
         <!-- Content -->
@@ -140,39 +149,39 @@ import { BaseCardConfigComponent } from '@components/base-card-config/base-card-
               </svg>
             </button>
             <div *ngIf="expandedPanels.specific" class="p-4 bg-gray-800 space-y-4">
-              <div class="flex items-center gap-2">
-                <input type="checkbox"
-                       [(ngModel)]="editedCard.configuration.showHeader"
-                       class="w-4 h-4 bg-gray-700 border-gray-600 rounded focus:ring-blue-600">
-                <label class="text-sm font-medium text-gray-300">
-                  {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.SHOW_HEADER' | translate }}
-                </label>
-              </div>
-              <div class="flex items-center gap-2">
-                <input type="checkbox"
-                       [(ngModel)]="editedCard.configuration.showFooter"
-                       class="w-4 h-4 bg-gray-700 border-gray-600 rounded focus:ring-blue-600">
-                <label class="text-sm font-medium text-gray-300">
-                  {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.SHOW_FOOTER' | translate }}
-                </label>
-              </div>
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-300">
-                  {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.LABEL_FR' | translate }}
-                </label>
-                <input type="text"
-                       [(ngModel)]="editedCard.configuration.centerLabel['fr']"
-                       class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
-              </div>
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-300">
-                  {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.LABEL_EN' | translate }}
-                </label>
-                <input type="text"
-                       [(ngModel)]="editedCard.configuration.centerLabel['en']"
-                       class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
-              </div>
-            </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox"
+                 [(ngModel)]="editedCard.configuration.showHeader"
+                 class="w-4 h-4 bg-gray-700 border-gray-600 rounded focus:ring-blue-600">
+          <label class="text-sm font-medium text-gray-300">
+            {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.SHOW_HEADER' | translate }}
+          </label>
+        </div>
+        <div class="flex items-center gap-2">
+          <input type="checkbox"
+                 [(ngModel)]="editedCard.configuration.showFooter"
+                 class="w-4 h-4 bg-gray-700 border-gray-600 rounded focus:ring-blue-600">
+          <label class="text-sm font-medium text-gray-300">
+            {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.SHOW_FOOTER' | translate }}
+          </label>
+        </div>
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-300">
+            {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.LABEL_FR' | translate }}
+          </label>
+          <input type="text"
+                 [(ngModel)]="editedCard.configuration.centerLabel['fr']"
+                 class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
+        </div>
+        <div class="space-y-2">
+          <label class="block text-sm font-medium text-gray-300">
+            {{ 'MENU.PAGES.LAYOUT.CARD_CONFIG.LABEL_EN' | translate }}
+          </label>
+          <input type="text"
+                 [(ngModel)]="editedCard.configuration.centerLabel['en']"
+                 class="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-gray-200 focus:outline-none focus:border-blue-500">
+        </div>
+      </div>
           </div>
         </div>
 
@@ -198,4 +207,10 @@ export class PlaceholderCardConfigComponent extends BaseCardConfigComponent<Plac
     layout: false,
     specific: false
   };
+
+  override isFullscreen = false;
+
+  override toggleFullscreen() {
+    this.isFullscreen = !this.isFullscreen;
+  }
 } 

@@ -72,7 +72,8 @@ export class PageLayoutService {
     const newCard: DynamicCard = {
       ...card,
       id: Date.now(),
-      order: layout.rows[rowIndex].cards.length
+      order: layout.rows[rowIndex].cards.length,
+      gridWidth: 12
     };
 
     const updatedRows = layout.rows.map((row, index) => {

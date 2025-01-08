@@ -30,12 +30,14 @@
            [style.min-height.px]="row.height">
         <!-- Cards -->
         <ng-container *ngFor="let card of row.cards">
-          <div class="card bg-gray-700 p-4 rounded"
+          <div class="card bg-gray-700 p-4 rounded h-full"
                [style.flex]="'0 0 ' + (card.gridWidth / 12 * 100) + '%'"
                [style.max-width.%]="(card.gridWidth / 12 * 100)"
                cdkDrag
                [cdkDragData]="card">
-            <div class="text-gray-200">{{ card.titles['fr'] || 'MENU.PAGES.LAYOUT.PLACEHOLDER_CARD' | translate }}</div>
+            <div class="text-gray-200 h-full flex items-center justify-center">
+              {{ card.titles['fr'] || 'MENU.PAGES.LAYOUT.PLACEHOLDER_CARD' | translate }}
+            </div>
           </div>
         </ng-container>
 

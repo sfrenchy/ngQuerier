@@ -147,7 +147,33 @@
       "EDIT": "Edit page",
       "LAYOUT": {
         "TITLE": "Layout",
-        "COMING_SOON": "Layout will be available soon"
+        "COMPONENTS": "Components",
+        "NEW_ROW": "New row",
+        "PLACEHOLDER_CARD": "Simple card",
+        "DROP_CARD_HERE": "Drop a card here",
+        "DRAG_ROW_HERE": "Drop a row here",
+        "ROW": {
+          "EDIT": "Edit row",
+          "DELETE": "Delete row",
+          "HEIGHT": "Height",
+          "ALIGNMENT": {
+            "LABEL": "Horizontal alignment",
+            "START": "Start",
+            "CENTER": "Center",
+            "END": "End",
+            "SPACE_BETWEEN": "Space between",
+            "SPACE_AROUND": "Space around"
+          },
+          "CROSS_ALIGNMENT": {
+            "LABEL": "Vertical alignment",
+            "START": "Top",
+            "CENTER": "Center",
+            "END": "Bottom",
+            "STRETCH": "Stretch"
+          },
+          "SPACING": "Spacing",
+          "CONFIRM_DELETE": "Are you sure you want to delete this row?"
+        }
       },
       "NO_PAGES": "No pages found"
     },

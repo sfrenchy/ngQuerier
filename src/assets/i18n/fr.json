@@ -151,7 +151,33 @@
       "CREATE": "Créer une page",
       "LAYOUT": {
         "TITLE": "Mise en page",
-        "COMING_SOON": "La mise en page sera bientôt disponible"
+        "COMPONENTS": "Composants",
+        "NEW_ROW": "Nouvelle ligne",
+        "PLACEHOLDER_CARD": "Carte simple",
+        "DROP_CARD_HERE": "Déposez une carte ici",
+        "DRAG_ROW_HERE": "Déposez une ligne ici",
+        "ROW": {
+          "EDIT": "Modifier la ligne",
+          "DELETE": "Supprimer la ligne",
+          "HEIGHT": "Hauteur",
+          "ALIGNMENT": {
+            "LABEL": "Alignement horizontal",
+            "START": "Début",
+            "CENTER": "Centre",
+            "END": "Fin",
+            "SPACE_BETWEEN": "Espace entre",
+            "SPACE_AROUND": "Espace autour"
+          },
+          "CROSS_ALIGNMENT": {
+            "LABEL": "Alignement vertical",
+            "START": "Haut",
+            "CENTER": "Centre",
+            "END": "Bas",
+            "STRETCH": "Étirer"
+          },
+          "SPACING": "Espacement",
+          "CONFIRM_DELETE": "Êtes-vous sûr de vouloir supprimer cette ligne ?"
+        }
       },
       "NO_PAGES": "Aucune page trouvée"
     },

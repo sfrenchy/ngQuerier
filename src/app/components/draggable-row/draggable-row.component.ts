@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { RowResizerComponent } from '@components/row-resizer/row-resizer.component';
 import { PlaceholderCardComponent } from '@components/placeholder-card/placeholder-card.component';
 import { PlaceholderCardConfigComponent } from '@components/placeholder-card-config/placeholder-card-config.component';
+import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-draggable-row',
@@ -16,7 +17,8 @@ import { PlaceholderCardConfigComponent } from '@components/placeholder-card-con
     TranslateModule,
     RowResizerComponent,
     PlaceholderCardComponent,
-    PlaceholderCardConfigComponent
+    PlaceholderCardConfigComponent,
+    ConfirmationDialogComponent
   ],
   templateUrl: './draggable-row.component.html',
   styleUrls: ['./draggable-row.component.scss']
@@ -34,6 +36,8 @@ export class DraggableRowComponent {
 
   isResizing = false;
   editingCard: PlaceholderCard | null = null;
+  cardToDelete: DynamicCard | null = null;
+  showDeleteConfirmation = false;
 
   getDropListId(): string {
     return `row-${this.row.id}`;
@@ -72,5 +76,26 @@ export class DraggableRowComponent {
   handleHeightChange(deltaY: number) {
     const newHeight = Math.max(100, this.row.height + deltaY);
     this.onHeightChange.emit({ rowId: this.row.id, height: newHeight });
+  }
+
+  handleCardDelete(card: DynamicCard) {
+    this.cardToDelete = card;
+    this.showDeleteConfirmation = true;
+  }
+
+  onConfirmDelete() {
+    if (this.cardToDelete) {
+      this.onCardDelete.emit(this.cardToDelete);
+      this.resetDeleteState();
+    }
+  }
+
+  onCancelDelete() {
+    this.resetDeleteState();
+  }
+
+  private resetDeleteState() {
+    this.showDeleteConfirmation = false;
+    this.cardToDelete = null;
   }
 } 

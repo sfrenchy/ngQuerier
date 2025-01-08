@@ -109,7 +109,8 @@
       "DELETE_ROLE": "Êtes-vous sûr de vouloir supprimer le rôle \"{{name}}\" ?",
       "DELETE_USER": "Êtes-vous sûr de vouloir supprimer l'utilisateur \"{{name}}\" ?",
       "DELETE_GENERIC": "Êtes-vous sûr de vouloir supprimer cet élément ?",
-      "DELETE_DATABASE": "Êtes-vous sûr de vouloir supprimer la base de données '{{name}}' ?"
+      "DELETE_DATABASE": "Êtes-vous sûr de vouloir supprimer la base de données '{{name}}' ?",
+      "DELETE_CARD": "Êtes-vous sûr de vouloir supprimer cette carte ?"
     },
     "NAME": "Nom",
     "ICON": "Icône",
@@ -185,7 +186,8 @@
           "COLORS": "Couleurs",
           "LAYOUT": "Mise en page",
           "APPEARANCE": "Apparence"
-        }
+        },
+        "CONFIRM_DELETE_CARD": "Êtes-vous sûr de vouloir supprimer cette carte ?"
       },
       "NO_PAGES": "Aucune page trouvée"
     },

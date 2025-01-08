@@ -40,7 +40,7 @@
                                 [isEditing]="true"
                                 [maxRowHeight]="row.height"
                                 (onEdit)="handleCardEdit(card)"
-                                (onDelete)="onCardDelete.emit(card)">
+                                (onDelete)="handleCardDelete(card)">
               <div dragHandle class="cursor-move text-gray-400">
                 <i class="fas fa-grip-vertical"></i>
               </div>
@@ -70,4 +70,12 @@
                              (save)="handleCardConfigSave($event)"
                              (cancel)="handleCardConfigCancel()">
   </app-placeholder-card-config>
+
+  <!-- Confirmation Dialog -->
+  <app-confirmation-dialog
+    *ngIf="showDeleteConfirmation"
+    [messageKey]="'MENU.PAGES.LAYOUT.CONFIRM_DELETE_CARD'"
+    (confirm)="onConfirmDelete()"
+    (cancel)="onCancelDelete()">
+  </app-confirmation-dialog>
 </div> 

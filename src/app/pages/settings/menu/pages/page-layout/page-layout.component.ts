@@ -155,4 +155,26 @@ export class PageLayoutComponent implements OnInit {
       isDirty: true
     });
   }
+
+  onCardDelete(card: DynamicCard) {
+    const layout = this.pageLayoutService.pageLayout$.value;
+    const rowIndex = layout.rows.findIndex(r => r.cards.some(c => c.id === card.id));
+    if (rowIndex === -1) return;
+
+    const updatedRows = layout.rows.map((row, index) => {
+      if (index === rowIndex) {
+        return {
+          ...row,
+          cards: row.cards.filter(c => c.id !== card.id)
+        };
+      }
+      return row;
+    });
+
+    this.pageLayoutService.pageLayout$.next({
+      ...layout,
+      rows: updatedRows,
+      isDirty: true
+    });
+  }
 } 

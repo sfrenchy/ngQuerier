@@ -181,7 +181,8 @@
           "COLORS": "Colors",
           "LAYOUT": "Layout",
           "APPEARANCE": "Appearance"
-        }
+        },
+        "CONFIRM_DELETE_CARD": "Are you sure you want to delete this card?"
       },
       "NO_PAGES": "No pages found"
     },

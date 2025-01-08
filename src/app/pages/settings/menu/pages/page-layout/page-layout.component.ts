@@ -2,10 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { DynamicRow, DynamicCard, PlaceholderCard } from '../../../../../models/page-layout.models';
-import { PageLayoutService } from '../../../../../services/page-layout.service';
-import { DraggableRowComponent } from '../../../../../components/draggable-row/draggable-row.component';
-import { RowEditDialogComponent } from '../../../../../components/row-edit-dialog/row-edit-dialog.component';
+import { DynamicRow, DynamicCard, PlaceholderCard } from '@models/page-layout.models';
+import { PageLayoutService } from '@services/page-layout.service';
+import { DraggableRowComponent } from '@components/draggable-row/draggable-row.component';
+import { RowEditDialogComponent } from '@components/row-edit-dialog/row-edit-dialog.component';
 
 @Component({
   selector: 'app-page-layout',

@@ -64,7 +64,20 @@ export class PageLayoutComponent implements OnInit {
   }
 
   getConnectedDropLists(): string[] {
-    return ['card-palette', ...this.getRowDropListIds()];
+    const layout = this.pageLayoutService.pageLayout$.value;
+    if (!layout) return ['emptyDropZone'];
+    
+    // Si nous n'avons pas de lignes, connecter uniquement à la zone vide
+    if (layout.rows.length === 0) {
+      return ['emptyDropZone'];
+    }
+    
+    // Sinon, connecter à toutes les zones de dépôt possibles
+    return ['emptyDropZone', 'bottomDropZone', ...this.getRowDropListIds()];
+  }
+
+  getCardDropListConnections(): string[] {
+    return this.getRowDropListIds();
   }
 
   onDrop(event: CdkDragDrop<any[]>) {

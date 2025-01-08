@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { DynamicRow, DynamicCard, PageLayout } from '../models/page-layout.models';
+import { DynamicRow, DynamicCard, PageLayout } from '@models/page-layout.models';
 
 @Injectable({
   providedIn: 'root'

@@ -3,6 +3,7 @@ import { Observable, of } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { UserService } from './user.service';
+import { AuthStateService } from './auth-state.service';
 import { User } from '@models/api.models';
 
 @Injectable({
@@ -11,7 +12,8 @@ import { User } from '@models/api.models';
 export class AuthService {
   constructor(
     private apiService: ApiService,
-    private userService: UserService
+    private userService: UserService,
+    private authStateService: AuthStateService
   ) {
     this.checkAuth();
   }
@@ -20,8 +22,7 @@ export class AuthService {
     return this.apiService.signIn(email, password).pipe(
       map(response => {
         if (response && response.Token) {
-          localStorage.setItem('access_token', response.Token);
-          localStorage.setItem('refresh_token', response.RefreshToken);
+          this.authStateService.setTokens(response.Token, response.RefreshToken);
           
           // Mise à jour des informations utilisateur
           this.userService.setCurrentUser({
@@ -49,32 +50,13 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
+    this.authStateService.clearTokens();
     this.userService.setCurrentUser(null);
     this.apiService.signOut().subscribe();
   }
 
-  refreshToken(): Observable<boolean> {
-    const refreshToken = localStorage.getItem('refresh_token');
-    if (!refreshToken) {
-      return of(false);
-    }
-
-    return this.apiService.refreshToken(refreshToken).pipe(
-      map(response => {
-        if (response && response.Token) {
-          localStorage.setItem('access_token', response.Token);
-          localStorage.setItem('refresh_token', response.RefreshToken);
-          return true;
-        }
-        return false;
-      })
-    );
-  }
-
   private checkAuth(): void {
-    const token = localStorage.getItem('access_token');
+    const token = this.authStateService.getAccessToken();
     if (token) {
       this.apiService.getCurrentUser().subscribe({
         next: (user) => {
@@ -82,8 +64,7 @@ export class AuthService {
         },
         error: () => {
           this.userService.setCurrentUser(null);
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
+          this.authStateService.clearTokens();
         }
       });
     } else {
@@ -92,6 +73,6 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return !!localStorage.getItem('access_token');
+    return !!this.authStateService.getAccessToken();
   }
 } 

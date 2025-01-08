@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User, Role } from '@models/api.models';
 import { ApiService } from '@services/api.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
@@ -10,14 +11,25 @@ export class UserService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
-  constructor(private apiService: ApiService) { }
+  constructor(
+    private apiService: ApiService,
+    private translateService: TranslateService
+  ) { }
 
   setCurrentUser(user: User | null): void {
     this.currentUserSubject.next(user);
+    if (user?.LanguageCode) {
+      this.translateService.use(user.LanguageCode);
+    }
   }
 
   getCurrentUser(): User | null {
     return this.currentUserSubject.value;
+  }
+
+  getCurrentLanguage(): string {
+    const user = this.getCurrentUser();
+    return user?.LanguageCode || this.translateService.currentLang || this.translateService.defaultLang || 'fr';
   }
 
   hasRole(roleName: string): boolean {

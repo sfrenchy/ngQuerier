@@ -12,6 +12,19 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
+        path: 'home',
+        children: [
+          {
+            path: 'layout/:id',
+            loadComponent: () => import('./pages/dynamic-page/dynamic-page.component').then(m => m.DynamicPageComponent)
+          }
+        ]
+      },
+      {
+        path: 'home/:id',
+        loadComponent: () => import('@pages/dynamic-page/dynamic-page.component').then(m => m.DynamicPageComponent)
+      },
+      {
         path: 'databases',
         loadComponent: () => import('@pages/databases/databases.component').then(m => m.DatabasesComponent)
       },

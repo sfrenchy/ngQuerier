@@ -16,7 +16,7 @@
   .cards-wrapper {
     display: flex;
     gap: 1rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     height: 100%;
     min-height: inherit;
 

@@ -72,8 +72,8 @@ export class PageLayoutComponent implements OnInit {
       return ['emptyDropZone'];
     }
     
-    // Sinon, connecter à toutes les zones de dépôt possibles
-    return ['emptyDropZone', 'bottomDropZone', ...this.getRowDropListIds()];
+    // Pour les lignes, on ne connecte qu'avec les zones de dépôt principales
+    return ['emptyDropZone', 'bottomDropZone'];
   }
 
   getCardDropListConnections(): string[] {

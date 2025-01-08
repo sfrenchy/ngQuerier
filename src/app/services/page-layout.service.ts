@@ -6,18 +6,19 @@ import { DynamicRow, DynamicCard, PageLayout } from '@models/page-layout.models'
   providedIn: 'root'
 })
 export class PageLayoutService {
-  private currentPageId: number | null = null;
   pageLayout$ = new BehaviorSubject<PageLayout>({
-    id: 0,
+    id: 1,
     rows: [],
     isDirty: false
   });
 
-  loadPageLayout(pageId: number) {
-    // TODO: Load from API
-    this.currentPageId = pageId;
+  private nextRowId = 1;
+  private nextCardId = 1;
+
+  loadPageLayout(id: number) {
+    // TODO: Load from backend
     this.pageLayout$.next({
-      id: pageId,
+      id,
       rows: [],
       isDirty: false
     });
@@ -26,7 +27,7 @@ export class PageLayoutService {
   addRow(index: number) {
     const layout = this.pageLayout$.value;
     const newRow: DynamicRow = {
-      id: Date.now(),
+      id: this.nextRowId++,
       order: index,
       height: 200,
       cards: [],
@@ -34,14 +35,8 @@ export class PageLayoutService {
       spacing: 4
     };
 
-    const rows = [...layout.rows];
-    rows.splice(index, 0, newRow);
-    
-    // Update order property for all rows
-    const updatedRows = rows.map((row, idx) => ({
-      ...row,
-      order: idx
-    }));
+    const updatedRows = [...layout.rows];
+    updatedRows.splice(index, 0, newRow);
 
     this.pageLayout$.next({
       ...layout,
@@ -50,37 +45,52 @@ export class PageLayoutService {
     });
   }
 
-  updateRow(updatedRow: DynamicRow) {
-    const layout = this.pageLayout$.value;
-    const updatedRows = layout.rows.map(row => 
-      row.id === updatedRow.id ? { ...updatedRow } : row
-    );
-
-    this.pageLayout$.next({
-      ...layout,
-      rows: updatedRows,
-      isDirty: true
-    });
+  private getAvailableGridWidth(row: DynamicRow): number {
+    const usedWidth = row.cards.reduce((total, card) => total + card.gridWidth, 0);
+    return 12 - usedWidth;
   }
 
   addCardToRow(card: DynamicCard, rowId: number) {
     const layout = this.pageLayout$.value;
     const rowIndex = layout.rows.findIndex(r => r.id === rowId);
-    
     if (rowIndex === -1) return;
 
+    const row = layout.rows[rowIndex];
+    const availableWidth = this.getAvailableGridWidth(row);
+    if (availableWidth <= 0) return;
+
+    // Créer une nouvelle carte avec un nouvel ID et ajuster la largeur
     const newCard: DynamicCard = {
       ...card,
-      id: Date.now(),
-      order: layout.rows[rowIndex].cards.length,
-      gridWidth: 12
+      id: this.nextCardId++,
+      order: row.cards.length,
+      gridWidth: Math.min(card.gridWidth, availableWidth)
     };
 
-    const updatedRows = layout.rows.map((row, index) => {
+    const updatedRows = layout.rows.map((r, index) => {
       if (index === rowIndex) {
         return {
+          ...r,
+          cards: [...r.cards, newCard]
+        };
+      }
+      return r;
+    });
+
+    this.pageLayout$.next({
+      ...layout,
+      rows: updatedRows,
+      isDirty: true
+    });
+  }
+
+  updateRowCards(rowId: number, cards: DynamicCard[]) {
+    const layout = this.pageLayout$.value;
+    const updatedRows = layout.rows.map(row => {
+      if (row.id === rowId) {
+        return {
           ...row,
-          cards: [...row.cards, newCard]
+          cards
         };
       }
       return row;
@@ -93,21 +103,11 @@ export class PageLayoutService {
     });
   }
 
-  updateRowCards(rowId: number, cards: DynamicCard[]) {
+  updateRow(updatedRow: DynamicRow) {
     const layout = this.pageLayout$.value;
-    const rowIndex = layout.rows.findIndex(r => r.id === rowId);
-    
-    if (rowIndex === -1) return;
-
-    const updatedRows = layout.rows.map((row, index) => {
-      if (index === rowIndex) {
-        return {
-          ...row,
-          cards: cards.map((card, idx) => ({
-            ...card,
-            order: idx
-          }))
-        };
+    const updatedRows = layout.rows.map(row => {
+      if (row.id === updatedRow.id) {
+        return updatedRow;
       }
       return row;
     });
@@ -121,12 +121,7 @@ export class PageLayoutService {
 
   deleteRow(rowId: number) {
     const layout = this.pageLayout$.value;
-    const updatedRows = layout.rows
-      .filter(row => row.id !== rowId)
-      .map((row, index) => ({
-        ...row,
-        order: index
-      }));
+    const updatedRows = layout.rows.filter(row => row.id !== rowId);
 
     this.pageLayout$.next({
       ...layout,
@@ -136,12 +131,8 @@ export class PageLayoutService {
   }
 
   saveLayout() {
-    if (!this.currentPageId) return;
-    
-    // TODO: Save to API
+    // TODO: Save to backend
     const layout = this.pageLayout$.value;
-    console.log('Saving layout:', layout);
-    
     this.pageLayout$.next({
       ...layout,
       isDirty: false

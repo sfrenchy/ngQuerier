@@ -3,15 +3,17 @@ export interface DynamicRow {
   order: number;
   height: number;
   cards: DynamicCard[];
+  alignment: 'start' | 'center' | 'end';
+  spacing: number;
 }
 
 export interface DynamicCard {
   id: number;
-  titles: { [key: string]: string };
-  order: number;
   type: string;
+  order: number;
   gridWidth: number;
-  configuration: string;
+  titles: { [key: string]: string };
+  configuration?: string;
   backgroundColor?: number;
   textColor?: number;
   headerBackgroundColor?: number;
@@ -23,12 +25,12 @@ export interface PlaceholderCard extends DynamicCard {
 }
 
 export interface PageLayout {
-  pageId: number;
-  icon?: string;
-  names: { [key: string]: string };
-  isVisible: boolean;
-  roles: string[];
-  route: string;
+  id: number;
   rows: DynamicRow[];
-  isDirty?: boolean;
+  isDirty: boolean;
+  icon?: string;
+  names?: { [key: string]: string };
+  isVisible?: boolean;
+  roles?: string[];
+  route?: string;
 } 

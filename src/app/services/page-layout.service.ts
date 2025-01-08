@@ -1,123 +1,135 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { DynamicRow, DynamicCard, PageLayout } from '../models/page-layout.models';
-import { ApiService } from './api.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PageLayoutService {
-  private pageLayoutSubject = new BehaviorSubject<PageLayout | null>(null);
-  pageLayout$ = this.pageLayoutSubject.asObservable();
+  private currentPageId: number | null = null;
+  pageLayout$ = new BehaviorSubject<PageLayout>({
+    id: 0,
+    rows: [],
+    isDirty: false
+  });
 
-  constructor(private apiService: ApiService) {}
-
-  loadPageLayout(pageId: number): void {
-    // TODO: Replace with actual API call
-    const mockLayout: PageLayout = {
-      pageId,
-      icon: 'fas fa-columns',
-      names: {},
-      isVisible: true,
-      roles: [],
-      route: '',
+  loadPageLayout(pageId: number) {
+    // TODO: Load from API
+    this.currentPageId = pageId;
+    this.pageLayout$.next({
+      id: pageId,
       rows: [],
       isDirty: false
-    };
-    console.log('Initial layout loaded:', JSON.stringify(mockLayout, null, 2));
-    this.pageLayoutSubject.next(mockLayout);
+    });
   }
 
-  addRow(pageId: number, height: number = 500): void {
-    const currentLayout = this.pageLayoutSubject.value;
-    if (!currentLayout) return;
-
+  addRow(index: number) {
+    const layout = this.pageLayout$.value;
     const newRow: DynamicRow = {
       id: Date.now(),
-      order: currentLayout.rows.length,
-      height,
-      cards: []
+      order: index,
+      height: 200,
+      cards: [],
+      alignment: 'start',
+      spacing: 4
     };
 
-    const updatedLayout: PageLayout = {
-      ...currentLayout,
-      rows: [...currentLayout.rows, newRow],
-      isDirty: true
-    };
+    const rows = [...layout.rows];
+    rows.splice(index, 0, newRow);
+    
+    // Update order property for all rows
+    const updatedRows = rows.map((row, idx) => ({
+      ...row,
+      order: idx
+    }));
 
-    console.log('Adding row:', JSON.stringify(newRow, null, 2));
-    console.log('Updated layout:', JSON.stringify(updatedLayout, null, 2));
-    this.pageLayoutSubject.next(updatedLayout);
-  }
-
-  updateRows(pageId: number, rows: DynamicRow[]): void {
-    console.log('Updating rows:', JSON.stringify(rows, null, 2));
-    const currentLayout = this.pageLayoutSubject.value;
-    if (!currentLayout) {
-      console.warn('No current layout found');
-      return;
-    }
-
-    const updatedLayout: PageLayout = {
-      ...currentLayout,
-      rows: rows,
-      isDirty: true
-    };
-
-    console.log('Service - Updated layout:', JSON.stringify(updatedLayout, null, 2));
-    this.pageLayoutSubject.next(updatedLayout);
-
-    // Verify the update
-    setTimeout(() => {
-      console.log('Current state after update:', JSON.stringify(this.pageLayoutSubject.value, null, 2));
-    }, 0);
-  }
-
-  addCardToRow(rowId: number, card: DynamicCard): void {
-    const currentLayout = this.pageLayoutSubject.value;
-    if (!currentLayout) return;
-
-    const updatedRows = currentLayout.rows.map(row => {
-      if (row.id === rowId) {
-        return {
-          ...row,
-          cards: [...row.cards, { ...card, id: Date.now() }]
-        };
-      }
-      return row;
-    });
-
-    this.pageLayoutSubject.next({
-      ...currentLayout,
+    this.pageLayout$.next({
+      ...layout,
       rows: updatedRows,
       isDirty: true
     });
   }
 
-  reorderRows(pageId: number, rowIds: number[]): void {
-    const currentLayout = this.pageLayoutSubject.value;
-    if (!currentLayout) return;
+  addCardToRow(card: DynamicCard, rowId: number) {
+    const layout = this.pageLayout$.value;
+    const rowIndex = layout.rows.findIndex(r => r.id === rowId);
+    
+    if (rowIndex === -1) return;
 
-    const reorderedRows = rowIds.map((id, index) => {
-      const row = currentLayout.rows.find(r => r.id === id);
-      if (!row) throw new Error(`Row with id ${id} not found`);
-      return { ...row, order: index };
+    const newCard: DynamicCard = {
+      ...card,
+      id: Date.now(),
+      order: layout.rows[rowIndex].cards.length
+    };
+
+    const updatedRows = layout.rows.map((row, index) => {
+      if (index === rowIndex) {
+        return {
+          ...row,
+          cards: [...row.cards, newCard]
+        };
+      }
+      return row;
     });
 
-    this.pageLayoutSubject.next({
-      ...currentLayout,
-      rows: reorderedRows,
+    this.pageLayout$.next({
+      ...layout,
+      rows: updatedRows,
       isDirty: true
     });
   }
 
-  saveLayout(pageId: number): void {
-    // TODO: Implement API call to save layout
-    const currentLayout = this.pageLayoutSubject.value;
-    if (!currentLayout) return;
+  updateRowCards(rowId: number, cards: DynamicCard[]) {
+    const layout = this.pageLayout$.value;
+    const rowIndex = layout.rows.findIndex(r => r.id === rowId);
+    
+    if (rowIndex === -1) return;
 
-    this.pageLayoutSubject.next({
-      ...currentLayout,
+    const updatedRows = layout.rows.map((row, index) => {
+      if (index === rowIndex) {
+        return {
+          ...row,
+          cards: cards.map((card, idx) => ({
+            ...card,
+            order: idx
+          }))
+        };
+      }
+      return row;
+    });
+
+    this.pageLayout$.next({
+      ...layout,
+      rows: updatedRows,
+      isDirty: true
+    });
+  }
+
+  deleteRow(rowId: number) {
+    const layout = this.pageLayout$.value;
+    const updatedRows = layout.rows
+      .filter(row => row.id !== rowId)
+      .map((row, index) => ({
+        ...row,
+        order: index
+      }));
+
+    this.pageLayout$.next({
+      ...layout,
+      rows: updatedRows,
+      isDirty: true
+    });
+  }
+
+  saveLayout() {
+    if (!this.currentPageId) return;
+    
+    // TODO: Save to API
+    const layout = this.pageLayout$.value;
+    console.log('Saving layout:', layout);
+    
+    this.pageLayout$.next({
+      ...layout,
       isDirty: false
     });
   }

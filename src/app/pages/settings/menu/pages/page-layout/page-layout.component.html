@@ -23,10 +23,12 @@
     </div>
 
     <!-- Card components -->
-    <div id="card-palette"
-         cdkDropList
+    <div cdkDropList
+         id="card-palette"
          #cardPalette="cdkDropList"
-         [cdkDropListData]="availableCards">
+         [cdkDropListData]="availableCards"
+         [cdkDropListConnectedTo]="getRowDropListIds()"
+         class="card-palette">
       <div class="bg-gray-800 p-3 rounded cursor-move hover:bg-gray-700 mb-2"
            *ngFor="let card of availableCards"
            cdkDrag
@@ -53,7 +55,7 @@
     </div>
 
     <!-- Layout area -->
-    <div class="layout-area min-h-[200px]"
+    <div class="layout-area"
          cdkDropList
          id="layoutList"
          #layoutList="cdkDropList"
@@ -84,7 +86,8 @@
               <app-draggable-row [row]="row"
                                (onEdit)="editRow(row)"
                                (onDelete)="deleteRow(row)"
-                               (onCardDrop)="onCardDropped($event)">
+                               (onCardDrop)="onCardDropped($event)"
+                               (onCardReorder)="onCardReordered($event)">
               </app-draggable-row>
             </div>
 

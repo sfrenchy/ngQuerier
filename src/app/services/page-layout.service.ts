@@ -20,11 +20,46 @@ export class PageLayoutService {
   constructor(private apiService: ApiService) {}
 
   loadPageLayout(id: number) {
-    // TODO: Load from backend
-    this.pageLayout$.next({
-      id,
-      rows: [],
-      isDirty: false
+    this.apiService.getLayout(id).subscribe({
+      next: (apiLayout) => {
+        const layout: PageLayout = {
+          id: apiLayout.PageId,
+          icon: apiLayout.Icon,
+          names: apiLayout.Names,
+          isVisible: apiLayout.IsVisible,
+          roles: apiLayout.Roles,
+          route: apiLayout.Route,
+          rows: apiLayout.Rows.map(row => ({
+            id: row.Id,
+            order: row.Order,
+            height: row.Height,
+            alignment: 'start',
+            spacing: 4,
+            cards: row.Cards.map(card => ({
+              id: card.Id,
+              rowId: row.Id,
+              order: card.Order,
+              width: card.GridWidth || 12,
+              type: card.Type,
+              configuration: {
+                titles: card.Titles,
+                backgroundColor: card.Configuration.backgroundColor || card.BackgroundColor,
+                textColor: card.Configuration.textColor || card.TextColor,
+                headerBackgroundColor: card.Configuration.headerBackgroundColor || card.HeaderBackgroundColor,
+                headerTextColor: card.Configuration.headerTextColor || card.HeaderTextColor,
+                ...card.Configuration
+              }
+            }))
+          })),
+          isDirty: false
+        };
+
+        this.pageLayout$.next(layout);
+      },
+      error: (error) => {
+        console.error('Error loading layout:', error);
+        // TODO: Handle error (show notification, etc.)
+      }
     });
   }
 

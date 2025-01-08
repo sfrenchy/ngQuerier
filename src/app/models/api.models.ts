@@ -79,6 +79,7 @@ export interface DynamicCard {
   order: number;
   width: number;
   type: string;
+  titles: { [key: string]: string };
   configuration: any;
 }
 
@@ -90,7 +91,9 @@ export interface Layout {
   roles: string[];
   route: string;
   rows: {
+    id: number;
     order: number;
+    height: number;
     alignment: string;
     crossAlignment: string;
     spacing: number;
@@ -180,4 +183,32 @@ export interface UserCreateUpdate {
   lastName: string;
   userName: string;
   roles: string[];
+}
+
+export interface ApiDynamicCard {
+  Id: number;
+  Titles: { [key: string]: string };
+  Order: number;
+  Type: string;
+  GridWidth: number;
+  Configuration: any;
+  BackgroundColor: string | null;
+  TextColor: string | null;
+  HeaderBackgroundColor: string | null;
+  HeaderTextColor: string | null;
+}
+
+export interface ApiLayout {
+  PageId: number;
+  Icon: string;
+  Names: { [key: string]: string };
+  IsVisible: boolean;
+  Roles: string[];
+  Route: string;
+  Rows: {
+    Id: number;
+    Order: number;
+    Height: number;
+    Cards: ApiDynamicCard[];
+  }[];
 } 

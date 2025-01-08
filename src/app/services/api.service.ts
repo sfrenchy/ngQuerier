@@ -18,7 +18,8 @@ import {
   SQLQueryRequest,
   QueryAnalysis,
   ApiConfiguration,
-  UserCreateUpdate
+  UserCreateUpdate,
+  ApiLayout
 } from '../models/api.models';
 
 @Injectable({
@@ -307,15 +308,8 @@ export class ApiService {
   }
 
   // Layout Methods
-  getLayout(pageId: number): Observable<Layout> {
-    return this.http.get<Layout>(
-      ApiEndpoints.buildUrl(
-        this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.getLayout, {
-          pageId: pageId.toString()
-        })
-      )
-    );
+  getLayout(id: number): Observable<ApiLayout> {
+    return this.http.get<ApiLayout>(`${this.baseUrl}/Layout/${id}`);
   }
 
   updateLayout(pageId: number, layout: Layout): Observable<Layout> {

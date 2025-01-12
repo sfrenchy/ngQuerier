@@ -87,11 +87,6 @@ export const routes: Routes = [
                     path: 'edit/:id',
                     loadComponent: () => import('@pages/settings/menu/pages/page-form/page-form.component').then(m => m.PageFormComponent),
                     canActivate: [authGuard]
-                  },
-                  {
-                    path: 'layout/:id',
-                    loadComponent: () => import('@pages/settings/menu/pages/page-layout/page-layout.component').then(m => m.PageLayoutComponent),
-                    canActivate: [authGuard]
                   }
                 ]
               }

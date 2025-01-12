@@ -45,7 +45,7 @@ export interface SettingDto {
 }
 
 
-export interface User {
+export interface UserDto {
   id: string;
   email: string;
   firstName: string;
@@ -68,7 +68,7 @@ export interface ApiUser {
 }
 
 export interface RoleDto {
-  id: string;
+  id: number;
   name: string;
 }
 
@@ -175,24 +175,6 @@ export interface PageCreateDto {
   menuId: number;
 }
 
-export interface DynamicRow {
-  id: number;
-  pageId: number;
-  order: number;
-  height: number;
-  cards: DynamicCard[];
-}
-
-export interface DynamicCard {
-  id: number;
-  rowId: number;
-  order: number;
-  width: number;
-  type: string;
-  titles: { [key: string]: string };
-  configuration: any;
-}
-
 export interface Layout {
   pageId: number;
   icon: string;
@@ -207,7 +189,7 @@ export interface Layout {
     alignment: string;
     crossAlignment: string;
     spacing: number;
-    cards: DynamicCard[];
+    cards: CardDto[];
   }[];
 }
 
@@ -229,17 +211,22 @@ export interface PropertyItemDefinitionDto {
   label: string;
 }
 
+export interface SQLQueryCreateDto {
+   query: SQLQueryDto;
+   parameters: { [key: string]: string };
+}
 export interface SQLQueryDto {
   id: number;
   name: string;
   description: string;
   query: string;
-  connectionId: number;
+  dbConnectionId: number;
   isPublic: boolean;
   parameters?: { [key: string]: any };
   createdAt?: Date;
   lastModifiedAt?: Date;
   createdBy?: string;
+  createdByEmail?: string;
   outputDescription?: string;
 }
 
@@ -295,7 +282,7 @@ export interface ApiUserCreateDto {
   email: string;
   firstName: string;
   lastName: string;
-  roles: string[];
+  roles: RoleDto[];
 }
 
 export interface ApiUserUpdateDto {
@@ -303,20 +290,7 @@ export interface ApiUserUpdateDto {
   email: string;
   firstName: string;
   lastName: string;
-  roles: string[];
-}
-
-export interface ApiDynamicCard {
-  Id: number;
-  Titles: { [key: string]: string };
-  Order: number;
-  Type: string;
-  GridWidth: number;
-  Configuration: any;
-  BackgroundColor: string | null;
-  TextColor: string | null;
-  HeaderBackgroundColor: string | null;
-  HeaderTextColor: string | null;
+  roles: RoleDto[];
 }
 
 export interface LayoutDto {

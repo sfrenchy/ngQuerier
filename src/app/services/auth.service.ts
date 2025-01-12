@@ -4,7 +4,7 @@ import { map, tap, switchMap, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { UserService } from './user.service';
 import { AuthStateService } from './auth-state.service';
-import { SignInDto, User } from '@models/api.models';
+import { SignInDto, UserDto } from '@models/api.models';
 
 @Injectable({
   providedIn: 'root'

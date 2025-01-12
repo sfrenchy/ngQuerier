@@ -1,10 +1,10 @@
 import { Component, Input, Output, EventEmitter, Directive } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { DynamicCard } from '@models/page-layout.models';
+import { CardDto } from '@models/api.models';
 
 @Directive()
 export abstract class BaseCardComponent {
-  @Input() card!: DynamicCard;
+  @Input() card!: CardDto;
   @Input() isEditing = false;
   @Input() maxRowHeight?: number;
   @Output() onEdit = new EventEmitter<void>();

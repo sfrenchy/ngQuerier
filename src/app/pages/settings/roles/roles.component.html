@@ -1,93 +1,113 @@
 <div class="p-6">
   <div class="bg-gray-800 rounded-lg shadow-lg text-gray-100">
-    <div class="p-6 border-b border-gray-700 flex justify-between items-center">
-      <h2 class="text-2xl font-semibold">{{ 'ROLES.TITLE' | translate }}</h2>
-      <button 
-        *ngIf="!showAddForm"
-        (click)="onAddClick()"
-        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800">
-        {{ 'ROLES.ADD' | translate }}
-      </button>
+    <div class="p-6 border-b border-gray-700">
+      <div class="flex justify-between items-center">
+        <h2 class="text-2xl font-semibold">{{ 'ROLES.TITLE' | translate }}</h2>
+        <div class="flex gap-4">
+          <button
+            *ngIf="selectedRoles.length > 0"
+            (click)="onDeleteSelectedClick()"
+            class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors flex items-center gap-2"
+          >
+            <i class="fas fa-trash"></i>
+            {{ 'COMMON.DELETE_SELECTED' | translate }} ({{selectedRoles.length}})
+          </button>
+          <button
+            (click)="onAddClick()"
+            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <i class="fas fa-plus"></i>
+            {{ 'ROLES.ADD' | translate }}
+          </button>
+        </div>
+      </div>
     </div>
-
+    
     <div class="p-6">
-      <!-- Loading Spinner -->
-      <div *ngIf="isLoading" class="flex justify-center">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-      </div>
-
-      <!-- Add/Edit Form -->
-      <div *ngIf="showAddForm" class="mb-8 bg-gray-700 p-6 rounded-lg">
-        <h3 class="text-xl font-medium mb-6">
-          {{ (editingRole ? 'ROLES.EDIT' : 'ROLES.ADD') | translate }}
-        </h3>
-        
-        <form [formGroup]="roleForm" (ngSubmit)="onSubmit()" class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium mb-2">{{ 'ROLES.NAME' | translate }}</label>
-            <input 
-              type="text" 
-              formControlName="name"
-              class="w-full bg-gray-800 border border-gray-600 rounded-md p-2 text-gray-100">
-            <div *ngIf="roleForm.get('name')?.invalid && roleForm.get('name')?.touched" class="text-red-500 text-sm mt-1">
-              {{ 'ROLES.NAME_REQUIRED' | translate }}
+      <div class="space-y-4">
+        <div *ngIf="showAddForm" class="bg-gray-700 rounded-lg p-6 mb-4">
+          <form [formGroup]="roleForm" (ngSubmit)="onSubmit()" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-2">
+                {{ 'ROLES.NAME' | translate }}
+              </label>
+              <input
+                type="text"
+                formControlName="name"
+                class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                [placeholder]="'ROLES.NAME' | translate"
+              />
             </div>
-          </div>
+            
+            <div class="flex justify-end gap-4">
+              <button
+                type="button"
+                (click)="onCancelClick()"
+                class="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+              >
+                {{ 'COMMON.CANCEL' | translate }}
+              </button>
+              <button
+                type="submit"
+                [disabled]="!roleForm.valid"
+                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {{ 'COMMON.SAVE' | translate }}
+              </button>
+            </div>
+          </form>
+        </div>
 
-          <div class="flex justify-end space-x-4">
-            <button 
-              type="button"
-              (click)="onCancelClick()"
-              class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800">
-              {{ 'COMMON.CANCEL' | translate }}
-            </button>
-            <button 
-              type="submit"
-              [disabled]="!roleForm.valid || isLoading"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50">
-              {{ 'COMMON.SAVE' | translate }}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div class="flex items-center gap-2 mb-4">
+          <input
+            type="checkbox"
+            [checked]="isAllSelected()"
+            (change)="toggleSelectAll()"
+            class="w-4 h-4 text-blue-600 bg-gray-900 border-gray-600 rounded focus:ring-blue-500"
+          />
+          <span class="text-sm text-gray-300">{{ 'COMMON.SELECT_ALL' | translate }}</span>
+        </div>
 
-      <!-- Roles List -->
-      <div class="grid gap-4">
-        <div *ngFor="let role of roles" class="bg-gray-700 p-4 rounded-lg flex justify-between items-center">
-          <span class="text-lg">{{ role.Name }}</span>
-          <div class="flex space-x-2">
-            <button 
+        <div *ngFor="let role of roles" class="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <input
+              type="checkbox"
+              [checked]="isSelected(role)"
+              (change)="toggleSelection(role)"
+              class="w-4 h-4 text-blue-600 bg-gray-900 border-gray-600 rounded focus:ring-blue-500"
+            />
+            <span class="text-lg">{{ role.name }}</span>
+          </div>
+          <div class="flex items-center gap-3">
+            <button
               (click)="onEditClick(role)"
-              class="p-2 text-blue-400 hover:text-blue-300 focus:outline-none">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-              </svg>
+              class="text-blue-400 hover:text-blue-300 transition-colors"
+              title="{{ 'COMMON.EDIT' | translate }}"
+            >
+              <i class="fas fa-edit"></i>
             </button>
-            <button 
+            <button
               (click)="onDeleteClick(role)"
-              class="p-2 text-red-400 hover:text-red-300 focus:outline-none">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-              </svg>
+              class="text-red-400 hover:text-red-300 transition-colors"
+              title="{{ 'COMMON.DELETE' | translate }}"
+            >
+              <i class="fas fa-trash"></i>
             </button>
           </div>
         </div>
-      </div>
-
-      <!-- Empty State -->
-      <div *ngIf="!isLoading && roles.length === 0" class="text-center py-8">
-        <p class="text-gray-400">{{ 'ROLES.NO_ROLES' | translate }}</p>
+        
+        <div *ngIf="roles.length === 0" class="text-center text-gray-400 py-8">
+          {{ 'ROLES.NO_ROLES' | translate }}
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Confirmation Dialog -->
 <app-confirmation-dialog
   *ngIf="showDeleteConfirmation"
-  [title]="'ROLES.CONFIRM_DELETE_TITLE'"
-  [message]="'ROLES.CONFIRM_DELETE_MESSAGE'"
-  [confirmText]="'COMMON.DELETE'"
+  [messageKey]="deleteConfirmationMessage"
+  [messageParams]="deleteConfirmationParams"
   (confirm)="onConfirmDelete()"
-  (cancel)="onCancelDelete()">
-</app-confirmation-dialog> 
+  (cancel)="onCancelDelete()"
+></app-confirmation-dialog>

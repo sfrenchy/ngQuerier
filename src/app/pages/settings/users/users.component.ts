@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '@services/api.service';
-import { User, RoleDto, ApiUserCreateDto, ApiUserUpdateDto } from '@models/api.models';
+import { UserDto, RoleDto, ApiUserCreateDto, ApiUserUpdateDto } from '@models/api.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
@@ -13,13 +13,16 @@ import { ConfirmationDialogComponent } from '@shared/components/confirmation-dia
   templateUrl: './users.component.html'
 })
 export class UsersComponent implements OnInit {
-  users: User[] = [];
+  users: UserDto[] = [];
   roles: RoleDto[] = [];
   showDeleteConfirmation = false;
-  userToDelete: User | null = null;
+  userToDelete: UserDto | null = null;
   showAddForm = false;
-  editingUser: User | null = null;
+  editingUser: UserDto | null = null;
   userForm: FormGroup;
+  selectedUsers: UserDto[] = [];
+  deleteConfirmationMessage = '';
+  deleteConfirmationParams: { name?: string; count?: number } = {};
 
   constructor(
     private apiService: ApiService,
@@ -40,8 +43,9 @@ export class UsersComponent implements OnInit {
 
   private loadUsers(): void {
     this.apiService.getAllUsers().subscribe({
-      next: (users: User[]) => {
+      next: (users: UserDto[]) => {
         this.users = users;
+        this.selectedUsers = [];
       },
       error: (error: any) => {
         console.error('Error loading users:', error);
@@ -60,25 +64,59 @@ export class UsersComponent implements OnInit {
     });
   }
 
+  isSelected(user: UserDto): boolean {
+    return this.selectedUsers.some(u => u.id === user.id);
+  }
+
+  toggleSelection(user: UserDto): void {
+    const index = this.selectedUsers.findIndex(u => u.id === user.id);
+    if (index === -1) {
+      this.selectedUsers.push(user);
+    } else {
+      this.selectedUsers.splice(index, 1);
+    }
+  }
+
+  isAllSelected(): boolean {
+    return this.users.length > 0 && this.selectedUsers.length === this.users.length;
+  }
+
+  toggleSelectAll(): void {
+    if (this.isAllSelected()) {
+      this.selectedUsers = [];
+    } else {
+      this.selectedUsers = [...this.users];
+    }
+  }
+
+  onDeleteSelectedClick(): void {
+    this.userToDelete = null;
+    this.deleteConfirmationMessage = 'COMMON.CONFIRMATION.DELETE_MULTIPLE_USERS';
+    this.deleteConfirmationParams = { count: this.selectedUsers.length };
+    this.showDeleteConfirmation = true;
+  }
+
   onAddClick(): void {
     this.showAddForm = true;
     this.editingUser = null;
     this.userForm.reset();
   }
 
-  onEditClick(user: User): void {
+  onEditClick(user: UserDto): void {
     this.editingUser = user;
     this.showAddForm = true;
     this.userForm.patchValue({
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      roleIds: user.roles.map(r => typeof r === 'string' ? r : r.id)
+      roleIds: user.roles.map((r: RoleDto) => r.id)
     });
   }
 
-  onDeleteClick(user: User): void {
+  onDeleteClick(user: UserDto): void {
     this.userToDelete = user;
+    this.deleteConfirmationMessage = 'COMMON.CONFIRMATION.DELETE_USER';
+    this.deleteConfirmationParams = { name: user.firstName + ' ' + user.lastName };
     this.showDeleteConfirmation = true;
   }
 
@@ -94,6 +132,21 @@ export class UsersComponent implements OnInit {
           this.resetDeleteState();
         }
       });
+    } else if (this.selectedUsers.length > 0) {
+      // Delete multiple users
+      const deletePromises = this.selectedUsers.map(user =>
+        this.apiService.deleteUser(user.id).toPromise()
+      );
+
+      Promise.all(deletePromises)
+        .then(() => {
+          this.loadUsers();
+          this.resetDeleteState();
+        })
+        .catch(error => {
+          console.error('Error deleting users:', error);
+          this.resetDeleteState();
+        });
     }
   }
 
@@ -104,30 +157,40 @@ export class UsersComponent implements OnInit {
   private resetDeleteState(): void {
     this.showDeleteConfirmation = false;
     this.userToDelete = null;
+    this.deleteConfirmationMessage = '';
+    this.deleteConfirmationParams = {};
   }
 
-  private getRoleNameById(roleId: string): string | undefined {
+  private getRoleNameById(roleId: number): string {
     const role = this.roles.find(r => r.id === roleId);
-    return role?.name;
+    return role?.name || '';
   }
 
   onSubmit(): void {
     if (this.userForm.valid) {
       const email = this.userForm.get('email')?.value;
-      const roleIds = this.userForm.get('roleIds')?.value as string[];
-      const roleNames = roleIds.map(id => this.getRoleNameById(id)).filter((name): name is string => name !== undefined);
+      const roleIds = this.userForm.get('roleIds')?.value as number[];
+      const roles: RoleDto[] = roleIds.map((id) => {return {id:id, name: this.getRoleNameById(id)}});
 
-      const userData: ApiUserUpdateDto = {
+      const userUpdateData: ApiUserUpdateDto = {
         id: this.editingUser?.id || '',
         email: email,
         firstName: this.userForm.get('firstName')?.value,
         lastName: this.userForm.get('lastName')?.value,
-        roles: roleNames
+        roles: roles
       };
+
+      const userCreateData: ApiUserCreateDto = {
+        email: email,
+        firstName: this.userForm.get('firstName')?.value,
+        lastName: this.userForm.get('lastName')?.value,
+        roles: roles
+      };
+
 
       if (this.editingUser) {
         // Update existing user
-        this.apiService.updateUser(this.editingUser.id, userData).subscribe({
+        this.apiService.updateUser(this.editingUser.id, userUpdateData).subscribe({
           next: () => {
             this.loadUsers();
             this.resetForm();
@@ -138,7 +201,7 @@ export class UsersComponent implements OnInit {
         });
       } else {
         // Create new user
-        this.apiService.addUser(userData).subscribe({
+        this.apiService.addUser(userCreateData).subscribe({
           next: () => {
             this.loadUsers();
             this.resetForm();
@@ -161,9 +224,9 @@ export class UsersComponent implements OnInit {
     this.userForm.reset();
   }
 
-  onRoleChange(event: Event, roleId: string): void {
+  onRoleChange(event: Event, roleId: number): void {
     const checkbox = event.target as HTMLInputElement;
-    const currentRoles = this.userForm.get('roleIds')?.value as string[] || [];
+    const currentRoles = this.userForm.get('roleIds')?.value as number[] || [];
     
     if (checkbox.checked) {
       // Ajouter le rôle s'il n'existe pas déjà
@@ -180,13 +243,13 @@ export class UsersComponent implements OnInit {
     }
   }
 
-  isRoleSelected(roleId: string): boolean {
-    const currentRoles = this.userForm.get('roleIds')?.value as string[] || [];
+  isRoleSelected(roleId: number): boolean {
+    const currentRoles = this.userForm.get('roleIds')?.value as number[] || [];
     return currentRoles.includes(roleId);
   }
 
-  onResendConfirmation(user: User): void {
-    this.apiService.resendConfirmationEmail(user.id).subscribe({
+  onResendConfirmation(user: UserDto): void {
+    this.apiService.resendConfirmationEmail(user.email).subscribe({
       next: () => {
       },
       error: (error: any) => {

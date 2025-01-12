@@ -2,7 +2,7 @@ import { Component, Directive, EventEmitter, Input, Output } from '@angular/core
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DynamicCard } from '@models/page-layout.models';
+import { CardDto } from '@models/api.models';
 
 @Component({
   selector: 'app-base-card-config',
@@ -161,7 +161,7 @@ import { DynamicCard } from '@models/page-layout.models';
     </div>
   `
 })
-export class BaseCardConfigComponent<T extends DynamicCard> {
+export class BaseCardConfigComponent<T extends CardDto> {
   @Input() card!: T;
   @Output() save = new EventEmitter<T>();
   @Output() cancel = new EventEmitter<void>();

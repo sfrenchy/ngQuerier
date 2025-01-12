@@ -1,29 +1,6 @@
-export interface DynamicRow {
-  id: number;
-  order: number;
-  height: number;
-  cards: DynamicCard[];
-  alignment: 'start' | 'center' | 'end';
-  spacing: number;
-}
+import { CardDto } from "./api.models";
 
-export interface DynamicCard {
-  id: number;
-  rowId: number;
-  order: number;
-  width: number;
-  type: string;
-  configuration: {
-    titles: { [key: string]: string };
-    backgroundColor?: string;
-    textColor?: string;
-    headerBackgroundColor?: string;
-    headerTextColor?: string;
-    [key: string]: any;
-  };
-}
-
-export interface PlaceholderCard extends DynamicCard {
+export interface PlaceholderCard extends CardDto {
   type: 'placeholder';
   configuration: {
     titles: { [key: string]: string };

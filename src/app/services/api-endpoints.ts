@@ -14,13 +14,13 @@ export class ApiEndpoints {
 
   // User Management Controller
   static readonly users = 'user';
-  static readonly addUser = 'user/add';
-  static readonly updateUser = 'user/update';
+  static readonly addUser = 'user';
+  static readonly updateUser = 'user/{id}';
   static readonly currentUser = 'user/me';
   static readonly userById = 'user/{id}';
-  static readonly deleteUser = 'user/delete/{id}';
+  static readonly deleteUser = 'user/{id}';
   static readonly userProfile = 'user/view/{id}';
-  static readonly resendConfirmationEmail = 'user/resend-confirmation';
+  static readonly resendConfirmationEmail = 'user/resend-confirmation?email={email}';
 
   // Role Controller
   static readonly roles = 'role';
@@ -52,15 +52,6 @@ export class ApiEndpoints {
   static readonly updatePage = 'page/{id}';
   static readonly deletePage = 'page/{id}';
 
-  // Dynamic Row Controller
-  static readonly dynamicRows = 'dynamicrow';
-  static readonly dynamicRowsByPage = 'dynamicrow/page/{pageId}';
-  static readonly dynamicRowReorder = 'dynamicrow/page/{pageId}/reorder';
-
-  // Dynamic Card Controller
-  static readonly dynamicCards = 'dynamiccard';
-  static readonly dynamicCardsByRow = 'dynamiccard/row/{rowId}';
-  static readonly dynamicCardReorder = 'dynamiccard/row/{rowId}/reorder';
 
   // Query Analytics Controller
   static readonly recentQueries = 'queries/recent';

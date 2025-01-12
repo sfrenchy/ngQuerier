@@ -5,7 +5,7 @@ import { catchError, map, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { ApiEndpoints } from './api-endpoints';
 import {
-  User,
+  UserDto,
   RoleDto,
   DBConnectionDto,
   PageDto,
@@ -30,7 +30,8 @@ import {
   EntityDefinitionDto,
   PaginationParametersDto,
   PaginatedResultDto,
-  SQLQueryDto
+  SQLQueryDto,
+  SQLQueryCreateDto
 } from '@models/api.models';
 
 @Injectable({
@@ -124,29 +125,38 @@ export class ApiService {
   }
 
   // User Management Methods
-  getCurrentUser(): Observable<User> {
-    return this.http.get<User>(
+  getCurrentUser(): Observable<UserDto> {
+    return this.http.get<UserDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.currentUser)
     );
   }
 
-  getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(
+  getAllUsers(): Observable<UserDto[]> {
+    return this.http.get<UserDto[]>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.users)
     );
   }
 
-  addUser(user: ApiUserCreateDto): Observable<User> {
-    return this.http.post<User>(
+  getUserById(id: string): Observable<UserDto> {
+    return this.http.get<UserDto>(
+      ApiEndpoints.buildUrl(
+        this.baseUrl,
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.userById, { id })
+      )
+    );
+  }
+
+  addUser(user: ApiUserCreateDto): Observable<UserDto> {
+    return this.http.post<UserDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.addUser),
       user
     );
   }
 
-  updateUser(id: string, user: ApiUserUpdateDto): Observable<User> {
-    return this.http.put<User>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.updateUser),
-      { ...user, id }
+  updateUser(id: string, user: ApiUserUpdateDto): Observable<UserDto> {
+    return this.http.put<UserDto>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.updateUser, { id })),
+      user
     );
   }
 
@@ -161,8 +171,8 @@ export class ApiService {
 
   resendConfirmationEmail(userEmail: string): Observable<any> {
     return this.http.post(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.resendConfirmationEmail),
-      { userEmail }
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.resendConfirmationEmail, { email: userEmail })),
+      {}
     );
   }
 
@@ -187,11 +197,11 @@ export class ApiService {
     );
   }
 
-  deleteRole(id: string): Observable<void> {
+  deleteRole(id: number): Observable<void> {
     return this.http.delete<void>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteRole, { id })
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteRole, { id: id.toString() })
       )
     );
   }
@@ -427,17 +437,12 @@ export class ApiService {
   }
 
   createSQLQuery(
-    query: SQLQueryDto,
-    sampleParameters?: { [key: string]: any }
+    SQLQueryCreate: SQLQueryCreateDto
   ): Observable<SQLQueryDto> {
-    const request: SQLQueryRequest = {
-      query,
-      sampleParameters
-    };
 
     return this.http.post<SQLQueryDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.sqlQueries),
-      request
+      SQLQueryCreate
     );
   }
 

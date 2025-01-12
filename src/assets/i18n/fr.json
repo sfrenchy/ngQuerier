@@ -108,6 +108,8 @@
       "TITLE": "Confirmation",
       "DELETE_ROLE": "Êtes-vous sûr de vouloir supprimer le rôle \"{{name}}\" ?",
       "DELETE_USER": "Êtes-vous sûr de vouloir supprimer l'utilisateur \"{{name}}\" ?",
+      "DELETE_MULTIPLE_ROLES": "Êtes-vous sûr de vouloir supprimer les {{count}} rôles sélectionnés ?",
+      "DELETE_MULTIPLE_USERS": "Êtes-vous sûr de vouloir supprimer les {{count}} utilisateurs sélectionnés ?",
       "DELETE_GENERIC": "Êtes-vous sûr de vouloir supprimer cet élément ?",
       "DELETE_DATABASE": "Êtes-vous sûr de vouloir supprimer la base de données '{{name}}' ?",
       "DELETE_CARD": "Êtes-vous sûr de vouloir supprimer cette carte ?"
@@ -121,7 +123,9 @@
     "ACTIONS": "Actions",
     "TRANSLATIONS": "Traductions",
     "VISIBLE": "Visible",
-    "HIDDEN": "Masqué"
+    "HIDDEN": "Masqué",
+    "SELECT_ALL": "Tout sélectionner",
+    "DELETE_SELECTED": "Supprimer la sélection"
   },
   "DASHBOARD": {
     "TITLE": "Tableau de bord",
@@ -209,8 +213,12 @@
     "NAME": "Nom",
     "EMAIL": "Email",
     "ROLE": "Rôle",
+    "ROLES": "Rôles",
+    "FIRST_NAME": "Prénom",
+    "LAST_NAME": "Nom",
     "ACTIONS": "Actions",
-    "NO_USERS": "Aucun utilisateur trouvé"
+    "NO_USERS": "Aucun utilisateur trouvé",
+    "RESEND_CONFIRMATION": "Renvoyer l'email de confirmation"
   },
   "ROLES": {
     "TITLE": "Gestion des rôles",

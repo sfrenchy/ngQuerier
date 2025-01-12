@@ -1,12 +1,13 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DragDropModule, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { DynamicRow, DynamicCard, PlaceholderCard } from '@models/page-layout.models';
+import { PlaceholderCard } from '@models/page-layout.models';
 import { TranslateModule } from '@ngx-translate/core';
 import { RowResizerComponent } from '@components/row-resizer/row-resizer.component';
 import { PlaceholderCardComponent } from '@components/placeholder-card/placeholder-card.component';
 import { PlaceholderCardConfigComponent } from '@components/placeholder-card-config/placeholder-card-config.component';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import { CardDto, RowDto } from '@models/api.models';
 
 @Component({
   selector: 'app-draggable-row',
@@ -24,19 +25,19 @@ import { ConfirmationDialogComponent } from '@shared/components/confirmation-dia
   styleUrls: ['./draggable-row.component.scss']
 })
 export class DraggableRowComponent {
-  @Input() row!: DynamicRow;
+  @Input() row!: RowDto;
   @Input() isEditing = false;
   @Output() onEdit = new EventEmitter<void>();
   @Output() onDelete = new EventEmitter<void>();
-  @Output() onCardDrop = new EventEmitter<{ card: DynamicCard; rowId: number }>();
-  @Output() onCardReorder = new EventEmitter<{ rowId: number; cards: DynamicCard[] }>();
+  @Output() onCardDrop = new EventEmitter<{ card: CardDto; rowId: number }>();
+  @Output() onCardReorder = new EventEmitter<{ rowId: number; cards: CardDto[] }>();
   @Output() onHeightChange = new EventEmitter<{ rowId: number; height: number }>();
-  @Output() onCardUpdate = new EventEmitter<DynamicCard>();
-  @Output() onCardDelete = new EventEmitter<DynamicCard>();
+  @Output() onCardUpdate = new EventEmitter<CardDto>();
+  @Output() onCardDelete = new EventEmitter<CardDto>();
 
   editingCard: PlaceholderCard | null = null;
   showDeleteConfirmation = false;
-  cardToDelete: DynamicCard | null = null;
+  cardToDelete: CardDto | null = null;
   isResizing = false;
   isDragging = false;
 
@@ -52,7 +53,7 @@ export class DraggableRowComponent {
     this.isDragging = false;
   }
 
-  handleCardDrop(event: CdkDragDrop<DynamicCard[]>) {
+  handleCardDrop(event: CdkDragDrop<CardDto[]>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
       this.onCardReorder.emit({
@@ -65,7 +66,7 @@ export class DraggableRowComponent {
     }
   }
 
-  handleCardEdit(card: DynamicCard) {
+  handleCardEdit(card: CardDto) {
     if (card.type === 'placeholder') {
       this.editingCard = card as PlaceholderCard;
     }
@@ -85,7 +86,7 @@ export class DraggableRowComponent {
     this.onHeightChange.emit({ rowId: this.row.id, height: newHeight });
   }
 
-  handleCardDelete(card: DynamicCard) {
+  handleCardDelete(card: CardDto) {
     this.cardToDelete = card;
     this.showDeleteConfirmation = true;
   }

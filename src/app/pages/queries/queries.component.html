@@ -102,11 +102,17 @@
             <div class="flex flex-col gap-2">
               <span class="text-lg">{{ query.name }}</span>
               <div class="flex gap-2">
-                <span class="text-sm text-gray-400">{{ query.description }}</span>
                 <span class="px-2 py-1 text-xs rounded bg-blue-600 text-white">
-                  {{ getConnectionName(query.connectionId) }}
+                  {{ getConnectionName(query.dbConnectionId) }}
+                </span>
+                <span class="px-2 py-1 text-xs rounded bg-purple-600">
+                  {{ query.createdByEmail || 'Unknown' }}
+                </span>
+                <span *ngIf="query.isPublic" class="px-2 py-1 text-xs rounded bg-green-600">
+                  Public
                 </span>
               </div>
+              <span class="text-sm text-gray-400">{{ query.description }}</span>
             </div>
           </div>
           <div class="flex items-center gap-3">

@@ -58,46 +58,48 @@
           </form>
         </div>
 
-        <div class="flex items-center gap-2 mb-4">
-          <input
-            type="checkbox"
-            [checked]="isAllSelected()"
-            (change)="toggleSelectAll()"
-            class="w-4 h-4 text-blue-600 bg-gray-900 border-gray-600 rounded focus:ring-blue-500"
-          />
-          <span class="text-sm text-gray-300">{{ 'COMMON.SELECT_ALL' | translate }}</span>
-        </div>
-
-        <div *ngFor="let role of roles" class="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
-          <div class="flex items-center gap-4">
+        <div *ngIf="!showAddForm">
+          <div class="flex items-center gap-2 mb-4">
             <input
               type="checkbox"
-              [checked]="isSelected(role)"
-              (change)="toggleSelection(role)"
+              [checked]="isAllSelected()"
+              (change)="toggleSelectAll()"
               class="w-4 h-4 text-blue-600 bg-gray-900 border-gray-600 rounded focus:ring-blue-500"
             />
-            <span class="text-lg">{{ role.name }}</span>
+            <span class="text-sm text-gray-300">{{ 'COMMON.SELECT_ALL' | translate }}</span>
           </div>
-          <div class="flex items-center gap-3">
-            <button
-              (click)="onEditClick(role)"
-              class="text-blue-400 hover:text-blue-300 transition-colors"
-              title="{{ 'COMMON.EDIT' | translate }}"
-            >
-              <i class="fas fa-edit"></i>
-            </button>
-            <button
-              (click)="onDeleteClick(role)"
-              class="text-red-400 hover:text-red-300 transition-colors"
-              title="{{ 'COMMON.DELETE' | translate }}"
-            >
-              <i class="fas fa-trash"></i>
-            </button>
+
+          <div *ngFor="let role of roles" class="bg-gray-700 rounded-lg p-4 mb-4 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <input
+                type="checkbox"
+                [checked]="isSelected(role)"
+                (change)="toggleSelection(role)"
+                class="w-4 h-4 text-blue-600 bg-gray-900 border-gray-600 rounded focus:ring-blue-500"
+              />
+              <span class="text-lg">{{ role.name }}</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <button
+                (click)="onEditClick(role)"
+                class="text-blue-400 hover:text-blue-300 transition-colors"
+                title="{{ 'COMMON.EDIT' | translate }}"
+              >
+                <i class="fas fa-edit"></i>
+              </button>
+              <button
+                (click)="onDeleteClick(role)"
+                class="text-red-400 hover:text-red-300 transition-colors"
+                title="{{ 'COMMON.DELETE' | translate }}"
+              >
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
           </div>
-        </div>
-        
-        <div *ngIf="roles.length === 0" class="text-center text-gray-400 py-8">
-          {{ 'ROLES.NO_ROLES' | translate }}
+          
+          <div *ngIf="roles.length === 0" class="text-center text-gray-400 py-8">
+            {{ 'ROLES.NO_ROLES' | translate }}
+          </div>
         </div>
       </div>
     </div>

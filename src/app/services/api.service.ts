@@ -192,7 +192,7 @@ export class ApiService {
 
   updateRole(dto: RoleDto): Observable<RoleDto> {
     return this.http.put<RoleDto>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.updateRole),
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.updateRole, { id: dto.id.toString() })),
       dto
     );
   }

@@ -211,12 +211,13 @@ export class ApiService {
   }
 
   deleteDBConnection(id: number): Observable<void> {
-    return this.http.delete<void>(
-      ApiEndpoints.buildUrl(
-        this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteDbConnection, { id: id.toString() })
-      )
+    console.log('API Service - Deleting connection with ID:', id);
+    const url = ApiEndpoints.buildUrl(
+      this.baseUrl,
+      ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteDbConnection, { id: id.toString() })
     );
+    console.log('Delete URL:', url);
+    return this.http.delete<void>(url);
   }
 
   getDatabaseSchema(id: number): Observable<DBConnectionDatabaseSchemaDto> {

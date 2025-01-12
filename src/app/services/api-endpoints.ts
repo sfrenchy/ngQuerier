@@ -31,7 +31,7 @@ export class ApiEndpoints {
 
   // DB Connection Controller
   static readonly dbConnections = 'dbconnection';
-  static readonly deleteDbConnection = 'dbconnection/{id]';
+  static readonly deleteDbConnection = 'dbconnection/{id}';
   static readonly addDbConnection = 'dbconnection';
   static readonly dbConnectionSchema = 'dbconnection/{id}/schema';
   static readonly dbConnectionControllers = 'dbconnection/{id}/controllers';

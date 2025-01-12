@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApiService } from '@services/api.service';
-import { SQLQuery, DBConnection } from '@models/api.models';
+import { SQLQueryDto, DBConnectionDto } from '@models/api.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import { MonacoEditorModule, NGX_MONACO_EDITOR_CONFIG } from 'ngx-monaco-editor-v2';
 import { forkJoin } from 'rxjs';
@@ -26,10 +26,10 @@ const monacoConfig = {
   ]
 })
 export class QueriesComponent implements OnInit {
-  queries: SQLQuery[] = [];
-  connections: DBConnection[] = [];
+  queries: SQLQueryDto[] = [];
+  connections: DBConnectionDto[] = [];
   showDeleteConfirmation = false;
-  queryToDelete: SQLQuery | null = null;
+  queryToDelete: SQLQueryDto | null = null;
   showAddForm = false;
   queryForm: FormGroup;
   editorOptions = {
@@ -74,7 +74,7 @@ export class QueriesComponent implements OnInit {
 
   private loadQueries(): void {
     this.apiService.getSQLQueries().subscribe({
-      next: (queries: SQLQuery[]) => {
+      next: (queries: SQLQueryDto[]) => {
         this.queries = queries;
       },
       error: (error: any) => {
@@ -84,8 +84,8 @@ export class QueriesComponent implements OnInit {
   }
 
   getConnectionName(connectionId: number): string {
-    const connection = this.connections.find(c => c.Id === connectionId);
-    return connection ? connection.Name : 'Unknown';
+    const connection = this.connections.find(c => c.id === connectionId);
+    return connection ? connection.name : 'Unknown';
   }
 
   onAddClick(): void {
@@ -96,27 +96,27 @@ export class QueriesComponent implements OnInit {
     });
   }
 
-  onEditClick(query: SQLQuery): void {
+  onEditClick(query: SQLQueryDto): void {
     this.showAddForm = true;
     this.queryForm.patchValue({
-      name: query.Name,
-      description: query.Description,
-      connectionId: query.ConnectionId,
-      query: query.Query,
-      isPublic: query.IsPublic,
-      parameters: query.Parameters || {}
+      name: query.name,
+      description: query.description,
+      connectionId: query.connectionId,
+      query: query.query,
+      isPublic: query.isPublic,
+      parameters: query.parameters || {}
     });
     this.queryToDelete = query;
   }
 
-  onDeleteClick(query: SQLQuery): void {
+  onDeleteClick(query: SQLQueryDto): void {
     this.queryToDelete = query;
     this.showDeleteConfirmation = true;
   }
 
   onConfirmDelete(): void {
     if (this.queryToDelete) {
-      this.apiService.deleteSQLQuery(this.queryToDelete.Id).subscribe({
+      this.apiService.deleteSQLQuery(this.queryToDelete.id).subscribe({
         next: () => {
           this.loadQueries();
           this.resetDeleteState();
@@ -141,19 +141,19 @@ export class QueriesComponent implements OnInit {
   onSubmit(): void {
     if (this.queryForm.valid) {
       const formValue = this.queryForm.value;
-      const query: SQLQuery = {
-        Id: this.queryToDelete?.Id || 0,
-        Name: formValue.name,
-        Description: formValue.description,
-        ConnectionId: formValue.connectionId,
-        Query: formValue.query,
-        IsPublic: formValue.isPublic,
-        Parameters: formValue.parameters
+      const query: SQLQueryDto = {
+        id: this.queryToDelete?.id || 0,
+        name: formValue.name,
+        description: formValue.description,
+        connectionId: formValue.connectionId,
+        query: formValue.query,
+        isPublic: formValue.isPublic,
+        parameters: formValue.parameters
       };
 
       if (this.queryToDelete) {
         // Update existing query
-        this.apiService.updateSQLQuery(this.queryToDelete.Id, query).subscribe({
+        this.apiService.updateSQLQuery(this.queryToDelete.id, query).subscribe({
           next: () => {
             this.loadQueries();
             this.resetForm();

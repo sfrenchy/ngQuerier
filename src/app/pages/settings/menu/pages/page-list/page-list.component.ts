@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { MenuService } from '@services/menu.service';
-import { MenuCategory, MenuPage } from '@models/api.models';
+import { MenuDto, PageDto } from '@models/api.models';
+import { ApiService } from '@services/api.service';
 
 @Component({
   selector: 'app-page-list',
@@ -12,13 +12,13 @@ import { MenuCategory, MenuPage } from '@models/api.models';
   imports: [CommonModule, TranslateModule]
 })
 export class PageListComponent implements OnInit {
-  pages: MenuPage[] = [];
-  category?: MenuCategory;
+  pages: PageDto[] = [];
+  menu?: MenuDto;
   isLoading = false;
   error: string | null = null;
 
   constructor(
-    private menuService: MenuService,
+    private apiService: ApiService,
     private router: Router,
     private route: ActivatedRoute,
     private translate: TranslateService
@@ -27,15 +27,15 @@ export class PageListComponent implements OnInit {
   ngOnInit(): void {
     const categoryId = this.route.snapshot.paramMap.get('categoryId');
     if (categoryId) {
-      this.loadCategory(+categoryId);
+      this.loadMenu(+categoryId);
       this.loadPages(+categoryId);
     }
   }
 
-  loadCategory(categoryId: number): void {
-    this.menuService.getMenuCategory(categoryId).subscribe({
-      next: (category) => {
-        this.category = category;
+  loadMenu(id: number): void {
+    this.apiService.getMenu(id).subscribe({
+      next: (menu) => {
+        this.menu = menu;
       },
       error: (error) => {
         this.error = error.message;
@@ -43,10 +43,10 @@ export class PageListComponent implements OnInit {
     });
   }
 
-  loadPages(categoryId: number): void {
+  loadPages(menuId: number): void {
     this.isLoading = true;
     this.error = null;
-    this.menuService.getPages(categoryId).subscribe({
+    this.apiService.getMenuPages(menuId).subscribe({
       next: (pages) => {
         this.pages = pages;
         this.isLoading = false;
@@ -59,25 +59,25 @@ export class PageListComponent implements OnInit {
   }
 
   onAddClick(): void {
-    if (this.category) {
+    if (this.menu) {
       this.router.navigate(['new'], { relativeTo: this.route });
     }
   }
 
-  onEditClick(page: MenuPage): void {
-    this.router.navigate(['edit', page.Id], { relativeTo: this.route });
+  onEditClick(page: PageDto): void {
+    this.router.navigate(['edit', page.id], { relativeTo: this.route });
   }
 
-  onLayoutClick(page: MenuPage): void {
-    this.router.navigate(['layout', page.Id], { relativeTo: this.route });
+  onLayoutClick(page: PageDto): void {
+    this.router.navigate(['layout', page.id], { relativeTo: this.route });
   }
 
-  onDeleteClick(page: MenuPage): void {
+  onDeleteClick(page: PageDto): void {
     if (confirm(this.translate.instant('COMMON.CONFIRMATION.DELETE_PAGE', { name: this.getLocalizedName(page) }))) {
-      this.menuService.deletePage(page.Id).subscribe({
+      this.apiService.deletePage(page.id).subscribe({
         next: () => {
-          if (this.category) {
-            this.loadPages(this.category.Id);
+          if (this.menu) {
+            this.loadPages(this.menu.id);
           }
         },
         error: (error) => {
@@ -87,11 +87,11 @@ export class PageListComponent implements OnInit {
     }
   }
 
-  getLocalizedName(item: MenuPage | MenuCategory): string {
-    if (!item || !item.Names) {
+  getLocalizedName(item: PageDto | MenuDto): string {
+    if (!item || !item.names) {
       return '';
     }
     const currentLang = this.translate.currentLang || this.translate.defaultLang || 'fr';
-    return item.Names[currentLang] || Object.values(item.Names)[0] || '';
+    return item.names[currentLang] || Object.values(item.names)[0] || '';
   }
 } 

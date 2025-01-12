@@ -4,8 +4,8 @@
       <div class="flex justify-between items-center">
         <div>
           <h2 class="text-2xl font-semibold">{{ 'MENU.PAGES.TITLE' | translate }}</h2>
-          <p class="text-gray-400 mt-1" *ngIf="category">
-            {{ 'MENU.PAGES.SUBTITLE' | translate: { category: getLocalizedName(category) } }}
+          <p class="text-gray-400 mt-1" *ngIf="menu">
+            {{ 'MENU.PAGES.SUBTITLE' | translate: { menu: getLocalizedName(menu) } }}
           </p>
         </div>
         <button
@@ -57,22 +57,22 @@
                 {{ getLocalizedName(page) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <i [class]="page.Icon"></i>
+                <i [class]="page.icon"></i>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                {{ page.Order }}
+                {{ page.order }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   class="px-2 py-1 text-xs rounded"
-                  [ngClass]="page.IsVisible ? 'bg-green-600' : 'bg-red-600'"
+                  [ngClass]="page.isVisible ? 'bg-green-600' : 'bg-red-600'"
                 >
-                  {{ (page.IsVisible ? 'COMMON.VISIBLE' : 'COMMON.HIDDEN') | translate }}
+                  {{ (page.isVisible ? 'COMMON.VISIBLE' : 'COMMON.HIDDEN') | translate }}
                 </span>
               </td>
               <td class="px-6 py-4">
                 <div class="flex flex-wrap gap-2">
-                  <span *ngFor="let role of page.Roles" class="px-2 py-1 text-xs rounded bg-blue-600">
+                  <span *ngFor="let role of page.roles" class="px-2 py-1 text-xs rounded bg-blue-600">
                     {{ role }}
                   </span>
                 </div>

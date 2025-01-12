@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { DragDropModule, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { DynamicRow, DynamicCard, PlaceholderCard } from '@models/page-layout.models';
+import { CardDto, RowDto, LayoutDto } from '@models/api.models';
 import { PageLayoutService } from '@services/page-layout.service';
 import { DraggableRowComponent } from '@components/draggable-row/draggable-row.component';
 import { RowEditDialogComponent } from '@components/row-edit-dialog/row-edit-dialog.component';
@@ -21,59 +21,58 @@ import { RowEditDialogComponent } from '@components/row-edit-dialog/row-edit-dia
   styleUrls: ['./page-layout.component.scss']
 })
 export class PageLayoutComponent implements OnInit {
-  constructor(private pageLayoutService: PageLayoutService) {
-    this.pageLayout$ = this.pageLayoutService.pageLayout$;
+  constructor(private pageLayoutService: PageLayoutService) {}
+
+  get pageLayout() {
+    return this.pageLayoutService.pageLayout;
   }
 
-  pageLayout$;
-  availableCards: DynamicCard[] = [
+  availableCards: CardDto[] = [
     {
       type: 'placeholder',
       id: 0,
       rowId: 0,
       order: 0,
-      width: 12,
+      gridwidth: 12,
+      titles: {
+        fr: 'Carte placeholder',
+        en: 'Placeholder card'
+      },
       configuration: {
-        titles: {
-          fr: 'Carte placeholder',
-          en: 'Placeholder card'
-        },
-        backgroundColor: '#1f2937',
-        textColor: '#ffffff',
-        headerBackgroundColor: '#111827',
-        headerTextColor: '#ffffff',
         showHeader: true,
         showFooter: false,
         centerLabel: {
           fr: 'Texte placeholder',
           en: 'Placeholder text'
         }
-      }
-    } as PlaceholderCard
+      },
+      backgroundColor: '#1f2937',
+      textColor: '#ffffff',
+      headerBackgroundColor: '#111827',
+      headerTextColor: '#ffffff'
+    }
   ];
 
-  editingRow: DynamicRow | null = null;
+  editingRow: RowDto | null = null;
 
   ngOnInit() {
     this.pageLayoutService.loadPageLayout(1); // TODO: Get page ID from route
   }
 
   getRowDropListIds(): string[] {
-    const layout = this.pageLayoutService.pageLayout$.value;
-    if (!layout) return [];
-    return layout.rows.map(row => `row-${row.id}`);
+    const state = this.pageLayout.value;
+    if (!state) return [];
+    return state.layout.rows.map((row: RowDto) => `row-${row.id}`);
   }
 
   getConnectedDropLists(): string[] {
-    const layout = this.pageLayoutService.pageLayout$.value;
-    if (!layout) return ['emptyDropZone'];
+    const state = this.pageLayout.value;
+    if (!state) return ['emptyDropZone'];
     
-    // Si nous n'avons pas de lignes, connecter uniquement à la zone vide
-    if (layout.rows.length === 0) {
+    if (state.layout.rows.length === 0) {
       return ['emptyDropZone'];
     }
     
-    // Pour les lignes, on ne connecte qu'avec les zones de dépôt principales
     return ['emptyDropZone', 'bottomDropZone'];
   }
 
@@ -83,10 +82,9 @@ export class PageLayoutComponent implements OnInit {
 
   onDrop(event: CdkDragDrop<any[]>) {
     if (event.previousContainer.id === 'componentList') {
-      const layout = this.pageLayoutService.pageLayout$.value;
-      let dropIndex = layout.rows.length;  // Par défaut, ajouter à la fin
+      const state = this.pageLayout.value;
+      let dropIndex = state.layout.rows.length;
 
-      // Si c'est la zone vide initiale, ajouter en première position
       if (event.container.id === 'emptyDropZone') {
         dropIndex = 0;
       }
@@ -95,17 +93,17 @@ export class PageLayoutComponent implements OnInit {
     }
   }
 
-  onCardDropped(event: { card: DynamicCard; rowId: number }) {
+  onCardDropped(event: { card: CardDto; rowId: number }) {
     this.pageLayoutService.addCardToRow(event.card, event.rowId);
   }
 
-  onCardReordered(event: { rowId: number; cards: DynamicCard[] }) {
+  onCardReordered(event: { rowId: number; cards: CardDto[] }) {
     this.pageLayoutService.updateRowCards(event.rowId, event.cards);
   }
 
   onRowHeightChange(event: { rowId: number; height: number }) {
-    const layout = this.pageLayoutService.pageLayout$.value;
-    const row = layout.rows.find(r => r.id === event.rowId);
+    const state = this.pageLayout.value;
+    const row = state.layout.rows.find((r: RowDto) => r.id === event.rowId);
     if (!row) return;
 
     this.pageLayoutService.updateRow({
@@ -114,11 +112,11 @@ export class PageLayoutComponent implements OnInit {
     });
   }
 
-  editRow(row: DynamicRow) {
+  editRow(row: RowDto) {
     this.editingRow = row;
   }
 
-  onRowEditSave(updatedRow: DynamicRow) {
+  onRowEditSave(updatedRow: RowDto) {
     this.pageLayoutService.updateRow(updatedRow);
     this.editingRow = null;
   }
@@ -127,7 +125,7 @@ export class PageLayoutComponent implements OnInit {
     this.editingRow = null;
   }
 
-  deleteRow(row: DynamicRow) {
+  deleteRow(row: RowDto) {
     this.pageLayoutService.deleteRow(row.id);
   }
 
@@ -135,46 +133,50 @@ export class PageLayoutComponent implements OnInit {
     this.pageLayoutService.saveLayout();
   }
 
-  onCardUpdate(card: DynamicCard) {
-    const layout = this.pageLayoutService.pageLayout$.value;
-    const rowIndex = layout.rows.findIndex(r => r.cards.some(c => c.id === card.id));
+  onCardUpdate(card: CardDto) {
+    const state = this.pageLayout.value;
+    const rowIndex = state.layout.rows.findIndex((r: RowDto) => r.cards.some((c: CardDto) => c.id === card.id));
     if (rowIndex === -1) return;
 
-    const updatedRows = layout.rows.map((row, index) => {
-      if (index === rowIndex) {
+    const updatedRows = state.layout.rows.map((row: RowDto) => {
+      if (row.id === state.layout.rows[rowIndex].id) {
         return {
           ...row,
-          cards: row.cards.map(c => c.id === card.id ? card : c)
+          cards: row.cards.map((c: CardDto) => c.id === card.id ? card : c)
         };
       }
       return row;
     });
 
-    this.pageLayoutService.pageLayout$.next({
-      ...layout,
-      rows: updatedRows,
+    this.pageLayout.next({
+      layout: {
+        ...state.layout,
+        rows: updatedRows
+      },
       isDirty: true
     });
   }
 
-  onCardDelete(card: DynamicCard) {
-    const layout = this.pageLayoutService.pageLayout$.value;
-    const rowIndex = layout.rows.findIndex(r => r.cards.some(c => c.id === card.id));
+  onCardDelete(card: CardDto) {
+    const state = this.pageLayout.value;
+    const rowIndex = state.layout.rows.findIndex((r: RowDto) => r.cards.some((c: CardDto) => c.id === card.id));
     if (rowIndex === -1) return;
 
-    const updatedRows = layout.rows.map((row, index) => {
-      if (index === rowIndex) {
+    const updatedRows = state.layout.rows.map((row: RowDto) => {
+      if (row.id === state.layout.rows[rowIndex].id) {
         return {
           ...row,
-          cards: row.cards.filter(c => c.id !== card.id)
+          cards: row.cards.filter((c: CardDto) => c.id !== card.id)
         };
       }
       return row;
     });
 
-    this.pageLayoutService.pageLayout$.next({
-      ...layout,
-      rows: updatedRows,
+    this.pageLayout.next({
+      layout: {
+        ...state.layout,
+        rows: updatedRows
+      },
       isDirty: true
     });
   }

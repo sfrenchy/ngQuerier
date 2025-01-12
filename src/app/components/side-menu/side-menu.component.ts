@@ -5,8 +5,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import { UserService } from '@services/user.service';
 import { AuthService } from '@services/auth.service';
 import { Router } from '@angular/router';
-import { MenuStateService } from '@services/menu-state.service';
-import { MenuCategory, MenuPage } from '@models/api.models';
+import { MenuDto, PageDto } from '@models/api.models';
+import { ApiService } from '@services/api.service';
+import { catchError, switchMap } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 
 @Component({
   selector: 'app-side-menu',
@@ -20,32 +22,72 @@ export class SideMenuComponent implements OnInit {
   isSettingsExpanded = false;
   isPinned = false;
   expandedCategories: { [key: number]: boolean } = {};
-  menuCategories: MenuCategory[] = [];
-  menuPages: { [categoryId: number]: MenuPage[] } = {};
+  menus: MenuDto[] = [];
+  menuPages: { [menuId: number]: PageDto[] } = {};
+  error: string | null = null;
 
   constructor(
     public userService: UserService,
     private authService: AuthService,
     private router: Router,
-    private menuStateService: MenuStateService
+    private apiService: ApiService
   ) {}
 
   ngOnInit() {
-    this.loadMenus();
+    if (this.authService.isAuthenticated()) {
+      this.loadMenus();
+    } else {
+      this.router.navigate(['/login']);
+    }
   }
 
   private loadMenus() {
-    this.menuStateService.getMenuCategories().subscribe(categories => {
-      this.menuCategories = categories;
-      categories.forEach(category => {
-        this.menuStateService.getMenuPages(category.Id).subscribe(pages => {
-          this.menuPages[category.Id] = pages;
+    this.apiService.getMenus().pipe(
+      catchError(error => {
+        console.error('Failed to load menus:', error);
+        this.error = 'Failed to load menus';
+        return of([]);
+      }),
+      switchMap(menus => {
+        this.menus = menus;
+        
+        // Create an array of observables for each menu's pages
+        const pageRequests = menus.map(menu => 
+          this.apiService.getMenuPages(menu.id).pipe(
+            catchError(error => {
+              console.error(`Failed to load pages for menu ${menu.id}:`, error);
+              return of([]);
+            })
+          )
+        );
+
+        // Execute all page requests in parallel
+        return forkJoin(
+          pageRequests.map((request, index) => 
+            request.pipe(
+              catchError(error => {
+                console.error(`Failed to load pages for menu ${menus[index].id}:`, error);
+                return of([]);
+              })
+            )
+          )
+        );
+      })
+    ).subscribe(
+      pagesArrays => {
+        // Assign pages to their respective menus
+        this.menus.forEach((menu, index) => {
+          this.menuPages[menu.id] = pagesArrays[index];
         });
-      });
-    });
+      },
+      error => {
+        console.error('Error in menu loading process:', error);
+        this.error = 'Failed to load menu structure';
+      }
+    );
   }
 
-  getCategoryPages(categoryId: number): MenuPage[] {
+  getCategoryPages(categoryId: number): PageDto[] {
     const pages = this.menuPages[categoryId] || [];
     return pages;
   }
@@ -83,8 +125,19 @@ export class SideMenuComponent implements OnInit {
   }
 
   async onLogout(): Promise<void> {
-    this.authService.logout();
-    await this.router.navigate(['/login']);
+    try {
+      const success = await this.authService.logout().toPromise();
+      if (success) {
+        await this.router.navigate(['/login']);
+      } else {
+        console.error('Failed to sign out properly');
+        // Still redirect to login page even if the API call failed
+        await this.router.navigate(['/login']);
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      await this.router.navigate(['/login']);
+    }
   }
 
   hasRequiredRole(roles: string[]): boolean {
@@ -92,18 +145,18 @@ export class SideMenuComponent implements OnInit {
     return hasRole;
   }
 
-  getPageRoles(page: MenuPage): string[] {
+  getPageRoles(page: PageDto): string[] {
     // Si les rôles sont déjà des strings, les utiliser directement
-    if (page.Roles && Array.isArray(page.Roles) && typeof page.Roles[0] === 'string') {
-      return page.Roles as unknown as string[];
+    if (page.roles && Array.isArray(page.roles) && typeof page.roles[0] === 'string') {
+      return page.roles as unknown as string[];
     }
     // Sinon, essayer d'extraire le nom du rôle
-    const roles = page.Roles?.map(r => typeof r === 'object' && r !== null ? r.Name : r) || [];
+    const roles = page.roles?.map(r => typeof r === 'object' && r !== null ? r.name : r) || [];
     return roles.filter(r => r !== undefined && r !== null);
   }
 
-  shouldShowPage(page: MenuPage): boolean {
-    const isVisible = page.IsVisible;
+  shouldShowPage(page: PageDto): boolean {
+    const isVisible = page.isVisible;
     const roles = this.getPageRoles(page);
     const hasRole = this.hasRequiredRole(roles);
     return isVisible && hasRole;

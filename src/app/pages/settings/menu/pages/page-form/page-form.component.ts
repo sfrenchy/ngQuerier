@@ -3,10 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuService } from '@services/menu.service';
-import { MenuPage } from '@models/api.models';
 import { UserService } from '@services/user.service';
-
+import { ApiService } from '@services/api.service';
 @Component({
   selector: 'app-page-form',
   templateUrl: './page-form.component.html',
@@ -25,7 +23,7 @@ export class PageFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private menuService: MenuService,
+    private apiService: ApiService,
     private userService: UserService,
     private router: Router,
     private route: ActivatedRoute,
@@ -58,7 +56,7 @@ export class PageFormComponent implements OnInit {
   loadRoles(): void {
     this.userService.getRoles().subscribe({
       next: (roles) => {
-        this.availableRoles = roles.map(role => role.Name);
+        this.availableRoles = roles.map(role => role.name);
       },
       error: (error) => {
         console.error('Error loading roles:', error);
@@ -69,15 +67,15 @@ export class PageFormComponent implements OnInit {
 
   loadPage(id: number): void {
     this.isLoading = true;
-    this.menuService.getPage(id).subscribe({
+    this.apiService.getPage(id).subscribe({
       next: (page) => {
         this.pageForm.patchValue({
-          Names: page.Names,
-          Icon: page.Icon,
-          Order: page.Order,
-          IsVisible: page.IsVisible,
-          Roles: page.Roles.map(r => r.Name),
-          Route: page.Route
+          names: page.names,
+          icon: page.icon,
+          order: page.order,
+          isVisible: page.isVisible,
+          roles: page.roles.map(r => r.name),
+          route: page.route
         });
         this.isLoading = false;
       },
@@ -99,8 +97,8 @@ export class PageFormComponent implements OnInit {
     };
 
     const saveObservable = this.isEditMode && this.pageId
-      ? this.menuService.updatePage(this.pageId, formData)
-      : this.menuService.createPage(formData);
+      ? this.apiService.updatePage(this.pageId, formData)
+      : this.apiService.createPage(formData);
 
     saveObservable.subscribe({
       next: () => {

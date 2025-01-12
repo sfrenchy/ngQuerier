@@ -6,27 +6,32 @@ import { environment } from '../../environments/environment';
 import { ApiEndpoints } from './api-endpoints';
 import {
   User,
-  Role,
-  DBConnection,
-  MenuCategory,
-  MenuPage,
-  DynamicRow,
-  DynamicCard,
-  Layout,
-  EntitySchema,
-  SQLQuery,
+  RoleDto,
+  DBConnectionDto,
+  PageDto,
   SQLQueryRequest,
-  QueryAnalysis,
   ApiConfiguration,
-  UserCreateUpdate,
-  ApiLayout,
   SignUpDto,
   RefreshTokenDto,
   AuthResultDto,
   SignUpResultDto,
   SignInDto,
-  SettingDto
-} from '../models/api.models';
+  SettingDto,
+  DBConnectionDatabaseSchemaDto,
+  DBConnectionQueryAnalysisDto,
+  ApiUserCreateDto,
+  ApiUserUpdateDto,
+  DBConnectionCreateDto,
+  DBConnectionAnalyzeQueryDto,
+  MenuDto,
+  MenuCreateDto,
+  PageCreateDto,
+  LayoutDto,
+  EntityDefinitionDto,
+  PaginationParametersDto,
+  PaginatedResultDto,
+  SQLQueryDto
+} from '@models/api.models';
 
 @Injectable({
   providedIn: 'root'
@@ -93,6 +98,13 @@ export class ApiService {
     );
   }
 
+  signOut(refreshToken: string): Observable<AuthResultDto> {
+    return this.http.post<AuthResultDto>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.signOut),
+      { refreshToken }
+    );
+  }
+
   // Settings Methods
   getSettings(): Observable<SettingDto[]> {
     return this.http.get<SettingDto[]>(
@@ -105,10 +117,6 @@ export class ApiService {
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.updateSettings),
       settings
     );
-  }
-
-  checkApiStatus(): Observable<void> {
-    return this.http.get<void>(`${this.baseUrl}/health`);
   }
 
   checkConfiguration(): Observable<boolean> {
@@ -128,22 +136,22 @@ export class ApiService {
     );
   }
 
-  addUser(user: UserCreateUpdate): Observable<User> {
-    return this.http.put<User>(
+  addUser(user: ApiUserCreateDto): Observable<User> {
+    return this.http.post<User>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.addUser),
       user
     );
   }
 
-  updateUser(id: string, user: UserCreateUpdate): Observable<User> {
+  updateUser(id: string, user: ApiUserUpdateDto): Observable<User> {
     return this.http.put<User>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.updateUser),
       { ...user, id }
     );
   }
 
-  deleteUser(id: string): Observable<any> {
-    return this.http.delete(
+  deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
         ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteUser, { id })
@@ -151,36 +159,36 @@ export class ApiService {
     );
   }
 
-  resendConfirmationEmail(userId: string): Observable<any> {
+  resendConfirmationEmail(userEmail: string): Observable<any> {
     return this.http.post(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.resendConfirmationEmail),
-      { userId }
+      { userEmail }
     );
   }
 
   // Role Methods
-  getAllRoles(): Observable<Role[]> {
-    return this.http.get<Role[]>(
+  getAllRoles(): Observable<RoleDto[]> {
+    return this.http.get<RoleDto[]>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.roles)
     );
   }
 
-  addRole(name: string): Observable<Role> {
-    return this.http.post<Role>(
+  addRole(name: string): Observable<RoleDto> {
+    return this.http.post<RoleDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.addRole),
       { id: '', name }
     );
   }
 
-  updateRole(id: string, name: string): Observable<Role> {
-    return this.http.post<Role>(
+  updateRole(dto: RoleDto): Observable<RoleDto> {
+    return this.http.put<RoleDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.updateRole),
-      { id, name }
+      dto
     );
   }
 
-  deleteRole(id: string): Observable<any> {
-    return this.http.delete(
+  deleteRole(id: string): Observable<void> {
+    return this.http.delete<void>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
         ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteRole, { id })
@@ -189,31 +197,21 @@ export class ApiService {
   }
 
   // DB Connection Methods
-  getDBConnections(): Observable<DBConnection[]> {
-    return this.http.get<DBConnection[]>(
+  getDBConnections(): Observable<DBConnectionDto[]> {
+    return this.http.get<DBConnectionDto[]>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.dbConnections)
     );
   }
 
-  addDBConnection(connection: DBConnection): Observable<DBConnection> {
-    return this.http.post<DBConnection>(
+  addDBConnection(connection: DBConnectionCreateDto): Observable<DBConnectionDto> {
+    return this.http.post<DBConnectionDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.addDbConnection),
       connection
     );
   }
 
-  updateDBConnection(id: number, connection: DBConnection): Observable<DBConnection> {
-    return this.http.put<DBConnection>(
-      ApiEndpoints.buildUrl(
-        this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.updateDbConnection, { id: id.toString() })
-      ),
-      connection
-    );
-  }
-
-  deleteDBConnection(id: number): Observable<any> {
-    return this.http.delete(
+  deleteDBConnection(id: number): Observable<void> {
+    return this.http.delete<void>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
         ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteDbConnection, { id: id.toString() })
@@ -221,80 +219,96 @@ export class ApiService {
     );
   }
 
-  getDatabaseSchema(connectionId: number): Observable<any> {
-    return this.http.get(
+  getDatabaseSchema(id: number): Observable<DBConnectionDatabaseSchemaDto> {
+    return this.http.get<DBConnectionDatabaseSchemaDto>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
         ApiEndpoints.replaceUrlParams(ApiEndpoints.dbConnectionSchema, {
-          connectionId: connectionId.toString()
+          id: id.toString()
         })
       )
     );
   }
 
-  analyzeQuery(connectionId: number, query: string): Observable<QueryAnalysis> {
-    return this.http.post<QueryAnalysis>(
+  analyzeQuery(id: number, dto: DBConnectionAnalyzeQueryDto): Observable<DBConnectionQueryAnalysisDto> {
+    return this.http.post<DBConnectionQueryAnalysisDto>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
         ApiEndpoints.replaceUrlParams(ApiEndpoints.analyzeQuery, {
-          connectionId: connectionId.toString()
+          connectionId: id.toString()
         })
       ),
-      { query }
+      { dto }
     );
   }
 
   // Menu Category Methods
-  getMenuCategories(): Observable<MenuCategory[]> {
-    return this.http.get<MenuCategory[]>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.menuCategories)
+  getMenus(): Observable<MenuDto[]> {
+    return this.http.get<MenuDto[]>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.menus)
     );
   }
 
-  createMenuCategory(category: Partial<MenuCategory>): Observable<MenuCategory> {
-    return this.http.post<MenuCategory>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.menuCategories),
+  getMenu(id: number): Observable<MenuDto> {
+    return this.http.get<MenuDto>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.menuById, { id: id.toString() }))
+    );
+  }
+
+  createMenu(category: MenuCreateDto): Observable<MenuDto> {
+    return this.http.post<MenuDto>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.addMenu),
       category
     );
   }
 
-  updateMenuCategory(id: number, category: Partial<MenuCategory>): Observable<MenuCategory> {
-    return this.http.put<MenuCategory>(
-      `${ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.menuCategories)}/${id}`,
-      category
+  updateMenu(id: number, menu: MenuDto): Observable<MenuDto> {
+    return this.http.put<MenuDto>(
+      `${ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.updateMenu)}/${id}`,
+      menu
     );
   }
 
   deleteMenuCategory(id: number): Observable<any> {
     return this.http.delete(
-      `${ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.menuCategories)}/${id}`
+      `${ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.deleteMenu)}/${id}`
     );
   }
 
   // Page Methods
-  getPages(categoryId: number): Observable<MenuPage[]> {
-    return this.http.get<MenuPage[]>(
+  getPages(): Observable<PageDto[]> {
+    return this.http.get<PageDto[]>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.pagesByCategory, {
-          categoryId: categoryId.toString()
-        })
+        ApiEndpoints.pages
       )
     );
   }
 
-  createPage(page: Partial<MenuPage>): Observable<MenuPage> {
-    return this.http.post<MenuPage>(
+  getMenuPages(menuId: number): Observable<PageDto[]> {
+    return this.http.get<PageDto[]>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.pagesByMenuId, { menuId: menuId.toString() }))
+    );
+  }
+
+  getPage(id: number): Observable<PageDto> {
+    return this.http.get<PageDto>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.pageById, { id: id.toString() }))
+    );
+  }
+
+  createPage(page: Partial<PageCreateDto>): Observable<PageDto> {
+    return this.http.post<PageDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.pages),
       page
     );
   }
 
-  updatePage(id: number, page: Partial<MenuPage>): Observable<MenuPage> {
-    return this.http.put<MenuPage>(
+  updatePage(id: number, page: PageDto): Observable<PageDto> {
+    return this.http.put<PageDto>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.pageById, {
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.updatePage, {
           id: id.toString()
         })
       ),
@@ -302,11 +316,11 @@ export class ApiService {
     );
   }
 
-  deletePage(id: number): Observable<any> {
-    return this.http.delete(
+  deletePage(id: number): Observable<void> {
+    return this.http.delete<void>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.pageById, {
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.deletePage, {
           id: id.toString()
         })
       )
@@ -314,8 +328,8 @@ export class ApiService {
   }
 
   // Layout Methods
-  getLayout(id: number): Observable<ApiLayout> {
-    return this.http.get<ApiLayout>(
+  getLayout(id: number): Observable<LayoutDto> {
+    return this.http.get<LayoutDto>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
         ApiEndpoints.replaceUrlParams(ApiEndpoints.getLayout, {
@@ -325,8 +339,8 @@ export class ApiService {
     );
   }
 
-  updateLayout(pageId: number, layout: Layout): Observable<Layout> {
-    return this.http.put<Layout>(
+  updateLayout(pageId: number, layout: LayoutDto): Observable<LayoutDto> {
+    return this.http.put<LayoutDto>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
         ApiEndpoints.replaceUrlParams(ApiEndpoints.updateLayout, {
@@ -337,57 +351,71 @@ export class ApiService {
     );
   }
 
-  // Entity CRUD Methods
-  getEntityContexts(): Observable<string[]> {
-    return this.http.get<string[]>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.entityCRUD)
+  deleteLayout(pageId: number): Observable<void> {
+    return this.http.delete<void>(
+      ApiEndpoints.buildUrl(
+        this.baseUrl,
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteLayout, { pageId: pageId.toString() })
+      )
     );
   }
 
-  getEntities(contextTypeName: string): Observable<EntitySchema[]> {
-    return this.http.get<EntitySchema[]>(
+  // Datasources Methods
+  getDatasourceContexts(): Observable<string[]> {
+    return this.http.get<string[]>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.datasourcesContexts)
+    );
+  }
+
+  getDatasourceContextEntities(contextName: string): Observable<EntityDefinitionDto[]> {
+    return this.http.get<EntityDefinitionDto[]>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.entityCRUDEntities, {
-          contextTypeName
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.datasourceContextEntities, {
+          contextName: contextName
         })
       )
     );
   }
 
-  getEntityData(
-    contextTypeName: string,
-    entityTypeName: string,
-    pageNumber: number = 1,
-    pageSize: number = 10,
+  getDatasourceContextEntity(
+    contextName: string,
+    entityName: string
+  ): Observable<EntityDefinitionDto> {
+    return this.http.get<EntityDefinitionDto>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.datasourceContextEntity, {
+          contextName: contextName,
+          entityName: entityName
+        })
+      )
+    );
+  }
+
+  getEntityRecords(
+    contextName: string,
+    entityName: string,
+    paginationParameters: PaginationParametersDto,
     orderBy: string = ''
   ): Observable<{ items: any[]; total: number }> {
-    const params = new HttpParams()
-      .set('pageNumber', pageNumber.toString())
-      .set('pageSize', pageSize.toString())
-      .set('orderBy', orderBy);
 
-    return this.http.get<{ items: any[]; total: number }>(
-      ApiEndpoints.buildUrl(
-        this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.entityCRUDGetAll, {
-          contextTypeName,
-          entityTypeName
-        })
-      ),
-      { params }
+    return this.http.post<PaginatedResultDto<any>>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.datasourceContextEntityRecords, {
+        contextName: contextName,
+        entityName: entityName
+      })), 
+      paginationParameters
     );
   }
 
   // SQL Query Methods
-  getSQLQueries(): Observable<SQLQuery[]> {
-    return this.http.get<SQLQuery[]>(
+  getSQLQueries(): Observable<SQLQueryDto[]> {
+    return this.http.get<SQLQueryDto[]>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.sqlQueries)
     );
   }
 
-  getSQLQuery(id: number): Observable<SQLQuery> {
-    return this.http.get<SQLQuery>(
+  getSQLQuery(id: number): Observable<SQLQueryDto> {
+    return this.http.get<SQLQueryDto>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
         ApiEndpoints.replaceUrlParams(ApiEndpoints.sqlQuery, {
@@ -398,15 +426,15 @@ export class ApiService {
   }
 
   createSQLQuery(
-    query: SQLQuery,
+    query: SQLQueryDto,
     sampleParameters?: { [key: string]: any }
-  ): Observable<SQLQuery> {
+  ): Observable<SQLQueryDto> {
     const request: SQLQueryRequest = {
       query,
       sampleParameters
     };
 
-    return this.http.post<SQLQuery>(
+    return this.http.post<SQLQueryDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.sqlQueries),
       request
     );
@@ -414,15 +442,15 @@ export class ApiService {
 
   updateSQLQuery(
     id: number,
-    query: SQLQuery,
+    query: SQLQueryDto,
     sampleParameters?: { [key: string]: any }
-  ): Observable<SQLQuery> {
+  ): Observable<SQLQueryDto> {
     const request: SQLQueryRequest = {
       query,
       sampleParameters
     };
 
-    return this.http.put<SQLQuery>(
+    return this.http.put<SQLQueryDto>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
         ApiEndpoints.replaceUrlParams(ApiEndpoints.sqlQuery, {
@@ -451,7 +479,7 @@ export class ApiService {
   ): Observable<{ items: any[]; total: number }> {
     return this.getSQLQueries().pipe(
       map(queries => {
-        const query = queries.find(q => q.Name === queryName);
+        const query = queries.find(q => q.name === queryName);
         if (!query) {
           throw new Error(`Query not found: ${queryName}`);
         }
@@ -466,7 +494,7 @@ export class ApiService {
           ApiEndpoints.buildUrl(
             this.baseUrl,
             ApiEndpoints.replaceUrlParams(ApiEndpoints.executeSqlQuery, {
-              id: query.Id.toString()
+              id: query.id.toString()
             })
           ),
           {},
@@ -538,20 +566,20 @@ export class ApiService {
   }
 
   // SQL Queries
-  getQueries(): Observable<SQLQuery[]> {
-    return this.http.get<SQLQuery[]>(`${this.baseUrl}/SQLQuery`);
+  getQueries(): Observable<SQLQueryDto[]> {
+    return this.http.get<SQLQueryDto[]>(`${this.baseUrl}/SQLQuery`);
   }
 
-  getQuery(id: number): Observable<SQLQuery> {
-    return this.http.get<SQLQuery>(`${this.baseUrl}/SQLQuery/${id}`);
+  getQuery(id: number): Observable<SQLQueryDto> {
+    return this.http.get<SQLQueryDto>(`${this.baseUrl}/SQLQuery/${id}`);
   }
 
-  createQuery(query: SQLQuery): Observable<SQLQuery> {
-    return this.http.post<SQLQuery>(`${this.baseUrl}/SQLQuery`, query);
+  createQuery(query: SQLQueryDto): Observable<SQLQueryDto> {
+    return this.http.post<SQLQueryDto>(`${this.baseUrl}/SQLQuery`, query);
   }
 
-  updateQuery(id: number, query: SQLQuery): Observable<SQLQuery> {
-    return this.http.put<SQLQuery>(`${this.baseUrl}/SQLQuery/${id}`, query);
+  updateQuery(id: number, query: SQLQueryDto): Observable<SQLQueryDto> {
+    return this.http.put<SQLQueryDto>(`${this.baseUrl}/SQLQuery/${id}`, query);
   }
 
   deleteQuery(id: number): Observable<void> {

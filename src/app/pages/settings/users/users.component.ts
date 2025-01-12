@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '@services/api.service';
-import { User, Role, UserCreateUpdate } from '@models/api.models';
+import { User, RoleDto, ApiUserCreateDto, ApiUserUpdateDto } from '@models/api.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
@@ -14,7 +14,7 @@ import { ConfirmationDialogComponent } from '@shared/components/confirmation-dia
 })
 export class UsersComponent implements OnInit {
   users: User[] = [];
-  roles: Role[] = [];
+  roles: RoleDto[] = [];
   showDeleteConfirmation = false;
   userToDelete: User | null = null;
   showAddForm = false;
@@ -51,7 +51,7 @@ export class UsersComponent implements OnInit {
 
   private loadRoles(): void {
     this.apiService.getAllRoles().subscribe({
-      next: (roles: Role[]) => {
+      next: (roles: RoleDto[]) => {
         this.roles = roles;
       },
       error: (error: any) => {
@@ -70,10 +70,10 @@ export class UsersComponent implements OnInit {
     this.editingUser = user;
     this.showAddForm = true;
     this.userForm.patchValue({
-      firstName: user.FirstName,
-      lastName: user.LastName,
-      email: user.Email,
-      roleIds: user.Roles.map(r => typeof r === 'string' ? r : r.Id)
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      roleIds: user.roles.map(r => typeof r === 'string' ? r : r.id)
     });
   }
 
@@ -84,7 +84,7 @@ export class UsersComponent implements OnInit {
 
   onConfirmDelete(): void {
     if (this.userToDelete) {
-      this.apiService.deleteUser(this.userToDelete.Id).subscribe({
+      this.apiService.deleteUser(this.userToDelete.id).subscribe({
         next: () => {
           this.loadUsers();
           this.resetDeleteState();
@@ -107,8 +107,8 @@ export class UsersComponent implements OnInit {
   }
 
   private getRoleNameById(roleId: string): string | undefined {
-    const role = this.roles.find(r => r.Id === roleId);
-    return role?.Name;
+    const role = this.roles.find(r => r.id === roleId);
+    return role?.name;
   }
 
   onSubmit(): void {
@@ -117,18 +117,17 @@ export class UsersComponent implements OnInit {
       const roleIds = this.userForm.get('roleIds')?.value as string[];
       const roleNames = roleIds.map(id => this.getRoleNameById(id)).filter((name): name is string => name !== undefined);
 
-      const userData: UserCreateUpdate = {
-        id: this.editingUser?.Id || '',
+      const userData: ApiUserUpdateDto = {
+        id: this.editingUser?.id || '',
         email: email,
         firstName: this.userForm.get('firstName')?.value,
         lastName: this.userForm.get('lastName')?.value,
-        userName: email,
         roles: roleNames
       };
 
       if (this.editingUser) {
         // Update existing user
-        this.apiService.updateUser(this.editingUser.Id, userData).subscribe({
+        this.apiService.updateUser(this.editingUser.id, userData).subscribe({
           next: () => {
             this.loadUsers();
             this.resetForm();
@@ -187,7 +186,7 @@ export class UsersComponent implements OnInit {
   }
 
   onResendConfirmation(user: User): void {
-    this.apiService.resendConfirmationEmail(user.Id).subscribe({
+    this.apiService.resendConfirmationEmail(user.id).subscribe({
       next: () => {
       },
       error: (error: any) => {

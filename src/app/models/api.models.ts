@@ -46,20 +46,16 @@ export interface SettingDto {
 
 
 export interface User {
-  Id: string;
-  Email: string;
-  FirstName: string;
-  LastName: string;
-  Phone: string | null;
-  Roles: Role[];
-  LanguageCode: string | null;
-  Img: string | null;
-  Poste: string | null;
-  UserName: string;
-  DateFormat: string | null;
-  Currency: string | null;
-  AreaUnit: string | null;
-  IsEmailConfirmed: boolean;
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string | null;
+  roles: RoleDto[];
+  img: string | null;
+  poste: string | null;
+  userName: string;
+  isEmailConfirmed: boolean;
 }
 
 export interface ApiUser {
@@ -71,45 +67,112 @@ export interface ApiUser {
   IsEmailValidated: boolean;
 }
 
-export interface Role {
-  Id: string;
-  Name: string;
+export interface RoleDto {
+  id: string;
+  name: string;
 }
 
-export interface DBConnection {
-  Id: number;
-  Name: string;
-  ConnectionType: QDBConnectionType;
-  ConnectionString: string;
-  ApiRoute: string;
-  GenerateProcedureControllersAndServices?: boolean;
+export interface DBConnectionCreateDto {
+  name: string;
+  connectionType: DBConnectionType;
+  connectionString: string;
+  contextApiRoute: string;
+  generateProcedureControllersAndServices: boolean;
 }
 
-export enum QDBConnectionType {
+export interface DBConnectionDto {
+  id: number;
+  name: string;
+  connectionType: DBConnectionType;
+  connectionString: string;
+  apiRoute: string;
+  contextName: string;
+  description: string;
+}
+
+export enum DBConnectionType {
   SqlServer = 0,
   MySQL = 1,
   PgSQL = 2
 }
 
-export interface MenuCategory {
-  Id: number;
-  Names: { [key: string]: string };
-  Icon: string;
-  Order: number;
-  IsVisible: boolean;
-  Roles: string[];
-  Route: string;
+export interface DBConnectionDatabaseSchemaDto {
+  tables: DBConnectionTableDescriptionDto[];
+  views: DBConnectionTableDescriptionDto[];
+  storedProcedures: DBConnectionProcedureDescriptionDto[];
 }
 
-export interface MenuPage {
-  Id: number;
-  Names: { [key: string]: string };
-  Icon: string;
-  Order: number;
-  IsVisible: boolean;
-  Roles: Role[];
-  Route: string;
-  MenuCategoryId: number;
+export interface DBConnectionProcedureDescriptionDto {
+  name: string;
+  schema: string;
+  parameters: DBConnectionParameterDescriptionDto[];
+}
+
+export interface DBConnectionParameterDescriptionDto {
+  name: string;
+  dataType: string;
+  mode: string;
+}
+
+export interface DBConnectionTableDescriptionDto{
+  name: string,
+  schema: string,
+  columns: DBConnectionColumnDescriptionDto[]
+}
+
+export interface DBConnectionColumnDescriptionDto {
+  name: string;
+  dataType: string;
+  isNullable: boolean;
+  isPrimaryKey: boolean;
+  isForeignKey: boolean;
+  foreignKeyTable: string;
+  foreignKeyColumn: string;
+}
+
+export interface DBConnectionAnalyzeQueryDto {
+  query: string;
+  parameters: { [key: string]: string };
+}
+
+export interface MenuDto {
+  id: number;
+  names: { [key: string]: string };
+  icon: string;
+  order: number;
+  isVisible: boolean;
+  roles: string[];
+  route: string;
+}
+
+export interface MenuCreateDto {
+  names: { [key: string]: string };
+  icon: string;
+  order: number;
+  isVisible: boolean;
+  roles: string[];
+  route: string;
+}
+
+export interface PageDto {
+  id: number;
+  names: { [key: string]: string };
+  icon: string;
+  order: number;
+  isVisible: boolean;
+  roles: RoleDto[];
+  route: string;
+  menuId: number;
+}
+
+export interface PageCreateDto {
+  names: { [key: string]: string };
+  icon: string;
+  order: number;
+  isVisible: boolean;
+  roles: RoleDto[];
+  route: string;
+  menuId: number;
 }
 
 export interface DynamicRow {
@@ -148,31 +211,36 @@ export interface Layout {
   }[];
 }
 
-export interface EntitySchema {
+export interface EntityDefinitionDto {
   name: string;
   displayName: string;
-  properties: EntityProperty[];
+  properties: EntityPropertyDto[];
 }
 
-export interface EntityProperty {
+export interface EntityPropertyDto {
   name: string;
   type: string;
-  isKey: boolean;
-  isNullable: boolean;
+  options: ["IsReadOnly" | "IsForeignKey" | "IsKey" | "IsNullable"];
+  availableItems: PropertyItemDefinitionDto[];
 }
 
-export interface SQLQuery {
-  Id: number;
-  Name: string;
-  Description: string;
-  Query: string;
-  ConnectionId: number;
-  IsPublic: boolean;
-  Parameters?: { [key: string]: any };
-  CreatedAt?: Date;
-  LastModifiedAt?: Date;
-  CreatedBy?: string;
-  OutputDescription?: string;
+export interface PropertyItemDefinitionDto {
+  key: string;
+  label: string;
+}
+
+export interface SQLQueryDto {
+  id: number;
+  name: string;
+  description: string;
+  query: string;
+  connectionId: number;
+  isPublic: boolean;
+  parameters?: { [key: string]: any };
+  createdAt?: Date;
+  lastModifiedAt?: Date;
+  createdBy?: string;
+  outputDescription?: string;
 }
 
 export interface SQLQueryParameter {
@@ -182,11 +250,11 @@ export interface SQLQueryParameter {
 }
 
 export interface SQLQueryRequest {
-  query: SQLQuery;
+  query: SQLQueryDto;
   sampleParameters?: { [key: string]: any };
 }
 
-export interface QueryAnalysis {
+export interface DBConnectionQueryAnalysisDto {
   tables: string[];
   columns: string[];
   parameters: string[];
@@ -223,12 +291,18 @@ export interface ApiConfiguration {
   RedisPort: number;
 }
 
-export interface UserCreateUpdate {
+export interface ApiUserCreateDto {
+  email: string;
+  firstName: string;
+  lastName: string;
+  roles: string[];
+}
+
+export interface ApiUserUpdateDto {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  userName: string;
   roles: string[];
 }
 
@@ -245,17 +319,43 @@ export interface ApiDynamicCard {
   HeaderTextColor: string | null;
 }
 
-export interface ApiLayout {
-  PageId: number;
-  Icon: string;
-  Names: { [key: string]: string };
-  IsVisible: boolean;
-  Roles: string[];
-  Route: string;
-  Rows: {
-    Id: number;
-    Order: number;
-    Height: number;
-    Cards: ApiDynamicCard[];
-  }[];
+export interface LayoutDto {
+  pageId: number;
+  icon: string;
+  names: { [key: string]: string };
+  isVisible: boolean;
+  roles: string[];
+  route: string;
+  rows: RowDto[];
 } 
+
+export interface RowDto {
+  id: number;
+  order: number;
+  height: number;
+  cards: CardDto[];
+}
+
+export interface CardDto {
+  id: number;
+  titles: { [key: string]: string };
+  order: number;
+  type: string;
+  gridwidth: number;
+  configuration: any;
+  backgroundColor: string;
+  textColor: string;
+  headerBackgroundColor: string;
+  headerTextColor: string;
+  rowId: number;
+}
+
+export interface PaginationParametersDto {
+  pageNumber: number;
+  pageSize: number;
+}
+
+export interface PaginatedResultDto<T> {
+  items: T[];
+  total: number;
+}

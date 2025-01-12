@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ApiService } from '@services/api.service';
-import { Role } from '@models/api.models';
+import { RoleDto } from '@models/api.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
@@ -62,7 +62,7 @@ import { ConfirmationDialogComponent } from '@shared/components/confirmation-dia
             </div>
 
             <div *ngFor="let role of roles" class="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
-              <span class="text-lg">{{ role.Name }}</span>
+              <span class="text-lg">{{ role.name }}</span>
               <div class="flex items-center gap-3">
                 <button
                   (click)="onEditClick(role)"
@@ -92,18 +92,18 @@ import { ConfirmationDialogComponent } from '@shared/components/confirmation-dia
     <app-confirmation-dialog
       *ngIf="showDeleteConfirmation"
       [messageKey]="'COMMON.CONFIRMATION.DELETE_ROLE'"
-      [messageParams]="{ name: roleToDelete?.Name }"
+      [messageParams]="{ name: roleToDelete?.name }"
       (confirm)="onConfirmDelete()"
       (cancel)="onCancelDelete()"
     ></app-confirmation-dialog>
   `
 })
 export class RolesComponent implements OnInit {
-  roles: Role[] = [];
+  roles: RoleDto[] = [];
   showDeleteConfirmation = false;
-  roleToDelete: Role | null = null;
+  roleToDelete: RoleDto | null = null;
   showAddForm = false;
-  editingRole: Role | null = null;
+  editingRole: RoleDto | null = null;
   roleForm: FormGroup;
 
   constructor(
@@ -121,7 +121,7 @@ export class RolesComponent implements OnInit {
 
   private loadRoles(): void {
     this.apiService.getAllRoles().subscribe({
-      next: (roles: Role[]) => {
+      next: (roles: RoleDto[]) => {
         this.roles = roles;
       },
       error: (error: any) => {
@@ -136,22 +136,22 @@ export class RolesComponent implements OnInit {
     this.roleForm.reset();
   }
 
-  onEditClick(role: Role): void {
+  onEditClick(role: RoleDto): void {
     this.editingRole = role;
     this.showAddForm = true;
     this.roleForm.patchValue({
-      name: role.Name
+      name: role.name
     });
   }
 
-  onDeleteClick(role: Role): void {
+  onDeleteClick(role: RoleDto): void {
     this.roleToDelete = role;
     this.showDeleteConfirmation = true;
   }
 
   onConfirmDelete(): void {
     if (this.roleToDelete) {
-      this.apiService.deleteRole(this.roleToDelete.Id).subscribe({
+      this.apiService.deleteRole(this.roleToDelete.id).subscribe({
         next: () => {
           this.loadRoles();
           this.resetDeleteState();
@@ -179,7 +179,7 @@ export class RolesComponent implements OnInit {
 
       if (this.editingRole) {
         // Update existing role
-        this.apiService.updateRole(this.editingRole.Id, roleName).subscribe({
+        this.apiService.updateRole({ id: this.editingRole.id, name: roleName }).subscribe({
           next: () => {
             this.loadRoles();
             this.resetForm();

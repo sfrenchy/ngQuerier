@@ -3,9 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { MenuService } from '@services/menu.service';
-import { MenuCategory } from '@models/api.models';
 import { UserService } from '@services/user.service';
+import { ApiService } from '@services/api.service';
 
 @Component({
   selector: 'app-menu-form',
@@ -24,22 +23,22 @@ export class MenuFormComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private menuService: MenuService,
+    private apiService: ApiService,
     private userService: UserService,
     private router: Router,
     private route: ActivatedRoute,
     private translate: TranslateService
   ) {
     this.menuForm = this.fb.group({
-      Names: this.fb.group({
+      names: this.fb.group({
         fr: ['', Validators.required],
         en: ['', Validators.required]
       }),
-      Icon: ['', Validators.required],
-      Order: [0, Validators.required],
-      IsVisible: [true],
-      Roles: [[]],
-      Route: ['', Validators.required]
+      icon: ['', Validators.required],
+      order: [0, Validators.required],
+      isVisible: [true],
+      roles: [[]],
+      route: ['', Validators.required]
     });
   }
 
@@ -56,7 +55,7 @@ export class MenuFormComponent implements OnInit {
   loadRoles(): void {
     this.userService.getRoles().subscribe({
       next: (roles) => {
-        this.availableRoles = roles.map(role => role.Name);
+        this.availableRoles = roles.map(role => role.name);
       },
       error: (error) => {
         this.error = error.message;
@@ -66,15 +65,15 @@ export class MenuFormComponent implements OnInit {
 
   loadCategory(id: number): void {
     this.isLoading = true;
-    this.menuService.getMenuCategory(id).subscribe({
-      next: (category) => {
+    this.apiService.getMenu(id).subscribe({
+      next: (menu) => {
         this.menuForm.patchValue({
-          Names: category.Names,
-          Icon: category.Icon,
-          Order: category.Order,
-          IsVisible: category.IsVisible,
-          Roles: category.Roles,
-          Route: category.Route
+          names: menu.names,
+          icon: menu.icon,
+          order: menu.order,
+          isVisible: menu.isVisible,
+          roles: menu.roles,
+          route: menu.route
         });
         this.isLoading = false;
       },
@@ -92,8 +91,8 @@ export class MenuFormComponent implements OnInit {
     const formData = this.menuForm.value;
 
     const saveObservable = this.isEditMode && this.categoryId
-      ? this.menuService.updateMenuCategory(this.categoryId, formData)
-      : this.menuService.createMenuCategory(formData);
+      ? this.apiService.updateMenu(this.categoryId, formData)
+      : this.apiService.createMenu(formData);
 
     saveObservable.subscribe({
       next: () => {

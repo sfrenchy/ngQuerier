@@ -38,14 +38,3 @@ export interface PlaceholderCard extends DynamicCard {
     };
   };
 }
-
-export interface PageLayout {
-  id: number;
-  rows: DynamicRow[];
-  isDirty: boolean;
-  icon?: string;
-  names?: { [key: string]: string };
-  isVisible?: boolean;
-  roles?: string[];
-  route?: string;
-} 

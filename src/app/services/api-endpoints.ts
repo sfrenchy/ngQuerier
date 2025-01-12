@@ -3,6 +3,7 @@ export class ApiEndpoints {
   static readonly signIn = 'Authentication/SignIn';
   static readonly signUp = 'Authentication/SignUp';
   static readonly refreshToken = 'Authentication/RefreshToken';
+  static readonly signOut = 'Authentication/SignOut';
 
   // Settings Controller
   static readonly getSettings = 'Settings';
@@ -12,7 +13,7 @@ export class ApiEndpoints {
   static readonly updateApiConfiguration = 'Settings/api-configuration';
 
   // User Management Controller
-  static readonly users = 'user/getall';
+  static readonly users = 'user';
   static readonly addUser = 'user/add';
   static readonly updateUser = 'user/update';
   static readonly currentUser = 'user/me';
@@ -22,31 +23,34 @@ export class ApiEndpoints {
   static readonly resendConfirmationEmail = 'user/resend-confirmation';
 
   // Role Controller
-  static readonly roles = 'role/getall';
+  static readonly roles = 'role';
   static readonly roleById = 'role/{id}';
-  static readonly addRole = 'role/addrole';
-  static readonly updateRole = 'role/updaterole';
-  static readonly deleteRole = 'role/deleterole/{id}';
+  static readonly addRole = 'role';
+  static readonly updateRole = 'role/{id}';
+  static readonly deleteRole = 'role/{id}';
 
   // DB Connection Controller
   static readonly dbConnections = 'dbconnection';
-  static readonly deleteDbConnection = 'dbconnection/deletedbconnection';
-  static readonly addDbConnection = 'dbconnection/adddbconnection';
-  static readonly updateDbConnection = 'dbconnection/{id}';
-  static readonly dbConnectionSchema = 'dbconnection/{connectionId}/schema';
+  static readonly deleteDbConnection = 'dbconnection/{id]';
+  static readonly addDbConnection = 'dbconnection';
+  static readonly dbConnectionSchema = 'dbconnection/{id}/schema';
   static readonly dbConnectionControllers = 'dbconnection/{id}/controllers';
   static readonly analyzeQuery = 'dbconnection/{connectionId}/analyze-query';
 
-  // Menu Category Controller
-  static readonly menuCategories = 'dynamicmenucategory';
-  static readonly menuCategoryById = 'dynamicmenucategory/{id}';
-  static readonly menuCategoryVisibility = 'dynamicmenucategory/{id}/visibility';
+  // Menu Controller
+  static readonly menus = 'menu';
+  static readonly menuById = 'menu/{id}';
+  static readonly addMenu = 'menu';
+  static readonly updateMenu = 'menu/{id}';
+  static readonly deleteMenu = 'menu/{id}';
 
-  // DynamicPage Controller
-  static readonly pages = 'dynamicpage';
-  static readonly pageById = 'dynamicpage/{id}';
-  static readonly pagesByCategory = 'dynamicpage?categoryId={categoryId}';
-  static readonly pageLayout = 'dynamicpage/{id}/layout';
+  // Page Controller
+  static readonly pages = 'page';
+  static readonly pagesByMenuId = 'page/menu/{menuId}';
+  static readonly pageById = 'page/{id}';
+  static readonly addPage = 'page';
+  static readonly updatePage = 'page/{id}';
+  static readonly deletePage = 'page/{id}';
 
   // Dynamic Row Controller
   static readonly dynamicRows = 'dynamicrow';
@@ -71,16 +75,16 @@ export class ApiEndpoints {
   static readonly updateLayout = 'layout/{pageId}';
   static readonly deleteLayout = 'layout/{pageId}';
 
-  // Entity CRUD endpoints
-  static readonly entityCRUD = 'EntityCRUD/GetContexts';
-  static readonly entityCRUDEntities = 'EntityCRUD/GetEntities?contextTypeName={contextTypeName}';
-  static readonly entityCRUDGetAll = 'EntityCRUD/GetAll?contextTypeName={contextTypeName}&entityTypeName={entityTypeName}';
-  static readonly entityCRUDGetEntity = 'EntityCRUD/GetEntity?contextTypeName={contextTypeName}&entityName={entityName}';
+  // Datasources endpoints
+  static readonly datasourcesContexts = 'datasources/contexts';
+  static readonly datasourceContextEntities = 'datasources/contexts/{contextName}/entities';
+  static readonly datasourceContextEntity = 'datasources/contexts/{contextName}/entities/{entityName}';
+  static readonly datasourceContextEntityRecords = 'datasources/contexts/{contextName}/entities/{entityName}/records';
 
   // SQL Query endpoints
-  static readonly sqlQueries = 'SQLQuery';
-  static readonly sqlQuery = 'SQLQuery/{id}';
-  static readonly executeSqlQuery = 'SQLQuery/{id}/execute';
+  static readonly sqlQueries = 'SqlQuery';
+  static readonly sqlQuery = 'SqlQuery/{id}';
+  static readonly executeSqlQuery = 'SqlQuery/{id}/execute';
 
   // SMTP Controller
   static readonly smtpTest = 'smtp/test';

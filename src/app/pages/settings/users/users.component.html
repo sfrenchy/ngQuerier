@@ -62,14 +62,14 @@
                 <div *ngFor="let role of roles" class="flex items-center">
                   <input
                     type="checkbox"
-                    [id]="'role-' + role.Id"
-                    [value]="role.Id"
-                    (change)="onRoleChange($event, role.Id)"
-                    [checked]="isRoleSelected(role.Id)"
+                    [id]="'role-' + role.id"
+                    [value]="role.id"
+                    (change)="onRoleChange($event, role.id)"
+                    [checked]="isRoleSelected(role.id)"
                     class="w-4 h-4 text-blue-600 bg-gray-900 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
                   >
-                  <label [for]="'role-' + role.Id" class="ml-2 text-sm cursor-pointer hover:text-blue-400">
-                    {{ role.Name }}
+                  <label [for]="'role-' + role.id" class="ml-2 text-sm cursor-pointer hover:text-blue-400">
+                    {{ role.name }}
                   </label>
                 </div>
               </div>
@@ -97,21 +97,21 @@
         <div *ngFor="let user of users" class="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
           <div class="flex items-center gap-4">
             <div class="flex flex-col">
-              <span class="text-lg">{{ user.FirstName }} {{ user.LastName }}</span>
-              <span class="text-sm text-gray-400">{{ user.Email }}</span>
+              <span class="text-lg">{{ user.firstName }} {{ user.lastName }}</span>
+              <span class="text-sm text-gray-400">{{ user.email }}</span>
             </div>
             <div class="flex gap-2">
-              <span *ngFor="let role of user.Roles" class="px-2 py-1 bg-gray-600 rounded text-xs">{{ role.Name }}</span>
+              <span *ngFor="let role of user.roles" class="px-2 py-1 bg-gray-600 rounded text-xs">{{ role.name }}</span>
             </div>
           </div>
           <div class="flex items-center gap-3">
             <i class="fas fa-envelope" 
-               [class.text-orange-400]="!user.IsEmailConfirmed" 
-               [class.text-green-400]="user.IsEmailConfirmed" 
-               [class.cursor-pointer]="!user.IsEmailConfirmed"
-               [class.hover:text-orange-300]="!user.IsEmailConfirmed"
-               (click)="!user.IsEmailConfirmed && onResendConfirmation(user)"
-               [title]="(user.IsEmailConfirmed ? 'USERS.EMAIL_VALIDATED' : 'USERS.EMAIL_NOT_VALIDATED') | translate">
+               [class.text-orange-400]="!user.isEmailConfirmed" 
+               [class.text-green-400]="user.isEmailConfirmed" 
+               [class.cursor-pointer]="!user.isEmailConfirmed"
+               [class.hover:text-orange-300]="!user.isEmailConfirmed"
+               (click)="!user.isEmailConfirmed && onResendConfirmation(user)"
+               [title]="(user.isEmailConfirmed ? 'USERS.EMAIL_VALIDATED' : 'USERS.EMAIL_NOT_VALIDATED') | translate">
             </i>
             <button
               (click)="onEditClick(user)"
@@ -141,7 +141,7 @@
 <app-confirmation-dialog
   *ngIf="showDeleteConfirmation"
   [messageKey]="'COMMON.CONFIRMATION.DELETE_USER'"
-  [messageParams]="{ name: userToDelete?.FirstName + ' ' + userToDelete?.LastName }"
+  [messageParams]="{ name: userToDelete?.firstName + ' ' + userToDelete?.lastName }"
   (confirm)="onConfirmDelete()"
   (cancel)="onCancelDelete()"
 ></app-confirmation-dialog> 

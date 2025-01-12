@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, switchMap, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { UserService } from './user.service';
 import { AuthStateService } from './auth-state.service';
@@ -31,32 +31,65 @@ export class AuthService {
         }
         return false;
       }),
-      tap(success => {
+      switchMap(success => {
         if (success) {
-          this.apiService.getCurrentUser().subscribe(user => {
-            this.userService.setCurrentUser(user);
-          });
+          return this.apiService.getCurrentUser().pipe(
+            tap(user => {
+              this.userService.setCurrentUser(user);
+            }),
+            map(() => true),
+            catchError(error => {
+              console.error('Failed to load user data:', error);
+              return of(false);
+            })
+          );
         }
+        return of(false);
       })
     );
   }
 
-  logout(): void {
+  logout(): Observable<boolean> {
+    const refreshToken = this.authStateService.getRefreshToken();
+    if (refreshToken) {
+      return this.apiService.signOut(refreshToken).pipe(
+        map(response => {
+          if (response.success) {
+            this.authStateService.clearTokens();
+            this.userService.setCurrentUser(null);
+            return true;
+          }
+          return false;
+        }),
+        catchError(error => {
+          console.error('Failed to sign out:', error);
+          // Even if the API call fails, we clear the local state
+          this.authStateService.clearTokens();
+          this.userService.setCurrentUser(null);
+          return of(false);
+        })
+      );
+    }
+    
+    // If no refresh token, just clear local state
     this.authStateService.clearTokens();
     this.userService.setCurrentUser(null);
-    // this.apiService.signOut().subscribe();
+    return of(true);
   }
 
   private checkAuth(): void {
     const token = this.authStateService.getAccessToken();
     if (token) {
-      this.apiService.getCurrentUser().subscribe({
-        next: (user) => {
-          this.userService.setCurrentUser(user);
-        },
-        error: () => {
+      this.apiService.getCurrentUser().pipe(
+        catchError(error => {
+          console.error('Failed to load user data during auth check:', error);
           this.userService.setCurrentUser(null);
           this.authStateService.clearTokens();
+          return of(null);
+        })
+      ).subscribe(user => {
+        if (user) {
+          this.userService.setCurrentUser(user);
         }
       });
     } else {

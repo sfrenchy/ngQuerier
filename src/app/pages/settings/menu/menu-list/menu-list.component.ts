@@ -2,8 +2,8 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
-import { MenuService } from '@services/menu.service';
-import { MenuCategory } from '@models/api.models';
+import { ApiService } from '@services/api.service';
+import { MenuDto } from '@models/api.models';
 
 @Component({
   selector: 'app-menu-list',
@@ -12,12 +12,12 @@ import { MenuCategory } from '@models/api.models';
   imports: [CommonModule, TranslateModule]
 })
 export class MenuListComponent {
-  menuCategories: MenuCategory[] = [];
+  menus: MenuDto[] = [];
   isLoading = false;
   error: string | null = null;
 
   constructor(
-    private menuService: MenuService,
+    private apiService: ApiService,
     private router: Router,
     private translate: TranslateService
   ) { }
@@ -26,17 +26,17 @@ export class MenuListComponent {
     this.loadMenuCategories();
   }
 
-  handleVisibilityChange(category: MenuCategory, event: Event): void {
+  handleVisibilityChange(menu: MenuDto, event: Event): void {
     const checkbox = event.target as HTMLInputElement;
-    this.onVisibilityChange(category, checkbox.checked);
+    this.onVisibilityChange(menu, checkbox.checked);
   }
 
   loadMenuCategories(): void {
     this.isLoading = true;
     this.error = null;
-    this.menuService.getMenuCategories().subscribe({
-      next: (categories) => {
-        this.menuCategories = categories;
+    this.apiService.getMenus().subscribe({
+      next: (menus) => {
+        this.menus = menus;
         this.isLoading = false;
       },
       error: (error) => {
@@ -50,17 +50,17 @@ export class MenuListComponent {
     this.router.navigate(['/settings/menu/new']);
   }
 
-  onEditClick(category: MenuCategory): void {
-    this.router.navigate(['/settings/menu/edit', category.Id]);
+  onEditClick(menu: MenuDto): void {
+    this.router.navigate(['/settings/menu/edit', menu.id]);
   }
 
-  onPagesClick(category: MenuCategory): void {
-    this.router.navigate(['/settings/menu/category', category.Id, 'pages']);
+  onPagesClick(menu: MenuDto): void {
+    this.router.navigate(['/settings/menu/category', menu.id, 'pages']);
   }
 
-  onDeleteClick(category: MenuCategory): void {
-    if (confirm(this.translate.instant('COMMON.CONFIRMATION.DELETE_MENU_CATEGORY', { name: this.getLocalizedName(category) }))) {
-      this.menuService.deleteMenuCategory(category.Id).subscribe({
+  onDeleteClick(menu: MenuDto): void {
+    if (confirm(this.translate.instant('COMMON.CONFIRMATION.DELETE_MENU_CATEGORY', { name: this.getLocalizedName(menu) }))) {
+      this.apiService.deleteMenuCategory(menu.id).subscribe({
         next: () => {
           this.loadMenuCategories();
         },
@@ -71,12 +71,13 @@ export class MenuListComponent {
     }
   }
 
-  onVisibilityChange(category: MenuCategory, isVisible: boolean): void {
-    this.menuService.updateMenuCategoryVisibility(category.Id, isVisible).subscribe({
-      next: (updatedCategory) => {
-        const index = this.menuCategories.findIndex(c => c.Id === updatedCategory.Id);
+  onVisibilityChange(menu: MenuDto, isVisible: boolean): void {
+    menu.isVisible = isVisible;
+    this.apiService.updateMenu(menu.id, menu).subscribe({
+      next: (updatedMenu) => {
+        const index = this.menus.findIndex(c => c.id === updatedMenu.id);
         if (index !== -1) {
-          this.menuCategories[index] = updatedCategory;
+          this.menus[index] = updatedMenu;
         }
       },
       error: (error) => {
@@ -85,11 +86,11 @@ export class MenuListComponent {
     });
   }
 
-  getLocalizedName(category: MenuCategory): string {
-    if (!category || !category.Names) {
+  getLocalizedName(menu: MenuDto): string {
+    if (!menu || !menu.names) {
       return '';
     }
     const currentLang = this.translate.currentLang || this.translate.defaultLang || 'fr';
-    return category.Names[currentLang] || Object.values(category.Names)[0] || '';
+    return menu.names[currentLang] || Object.values(menu.names)[0] || '';
   }
 }

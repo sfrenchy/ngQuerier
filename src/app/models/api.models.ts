@@ -250,32 +250,32 @@ export interface DBConnectionQueryAnalysisDto {
 }
 
 export interface ApiConfiguration {
-  Scheme: string;
-  Host: string;
-  Port: number;
-  AllowedHosts: string;
-  AllowedOrigins: string;
-  AllowedMethods: string;
-  AllowedHeaders: string;
-  ResetPasswordTokenValidity: number;
-  EmailConfirmationTokenValidity: number;
-  RequireDigit: boolean;
-  RequireLowercase: boolean;
-  RequireNonAlphanumeric: boolean;
-  RequireUppercase: boolean;
-  RequiredLength: number;
-  RequiredUniqueChars: number;
-  SmtpHost: string;
-  SmtpPort: number;
-  SmtpUsername: string;
-  SmtpPassword: string;
-  SmtpUseSSL: boolean;
-  SmtpSenderEmail: string;
-  SmtpSenderName: string;
-  SmtpRequireAuth: boolean;
-  RedisEnabled: boolean;
-  RedisHost: string;
-  RedisPort: number;
+  scheme: string;
+  host: string;
+  port: number;
+  allowedHosts: string;
+  allowedOrigins: string;
+  allowedMethods: string;
+  allowedHeaders: string;
+  resetPasswordTokenValidity: number;
+  emailConfirmationTokenValidity: number;
+  requireDigit: boolean;
+  requireLowercase: boolean;
+  requireNonAlphanumeric: boolean;
+  requireUppercase: boolean;
+  requiredLength: number;
+  requiredUniqueChars: number;
+  smtpHost: string;
+  smtpPort: number;
+  smtpUsername: string;
+  smtpPassword: string;
+  smtpUseSSL: boolean;
+  smtpSenderEmail: string;
+  smtpSenderName: string;
+  smtpRequireAuth: boolean;
+  redisEnabled: boolean;
+  redisHost: string;
+  redisPort: number;
 }
 
 export interface ApiUserCreateDto {

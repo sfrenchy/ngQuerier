@@ -74,37 +74,37 @@ export class ApiSettingsComponent implements OnInit {
       next: (config) => {
         // Patch form values with API response
         this.apiForm.patchValue({
-          scheme: config.Scheme?.toLowerCase(),
-          host: config.Host,
-          port: config.Port,
-          allowedHosts: config.AllowedHosts,
-          allowedOrigins: config.AllowedOrigins,
-          allowedMethods: config.AllowedMethods,
-          allowedHeaders: config.AllowedHeaders,
-          resetPasswordTokenValidity: config.ResetPasswordTokenValidity,
-          emailConfirmationTokenValidity: config.EmailConfirmationTokenValidity,
+          scheme: config.scheme?.toLowerCase(),
+          host: config.host,
+          port: config.port,
+          allowedHosts: config.allowedHosts,
+          allowedOrigins: config.allowedOrigins,
+          allowedMethods: config.allowedMethods,
+          allowedHeaders: config.allowedHeaders,
+          resetPasswordTokenValidity: config.resetPasswordTokenValidity,
+          emailConfirmationTokenValidity: config.emailConfirmationTokenValidity,
           passwordRules: {
-            requireDigit: config.RequireDigit,
-            requireLowercase: config.RequireLowercase,
-            requireUppercase: config.RequireUppercase,
-            requireNonAlphanumeric: config.RequireNonAlphanumeric,
-            requiredLength: config.RequiredLength,
-            requiredUniqueChars: config.RequiredUniqueChars
+            requireDigit: config.requireDigit,
+            requireLowercase: config.requireLowercase,
+            requireUppercase: config.requireUppercase,
+            requireNonAlphanumeric: config.requireNonAlphanumeric,
+            requiredLength: config.requiredLength,
+            requiredUniqueChars: config.requiredUniqueChars
           },
           smtp: {
-            host: config.SmtpHost,
-            port: config.SmtpPort,
-            username: config.SmtpUsername,
-            password: config.SmtpPassword,
-            useSSL: config.SmtpUseSSL,
-            senderEmail: config.SmtpSenderEmail,
-            senderName: config.SmtpSenderName,
-            requireAuth: config.SmtpRequireAuth
+            host: config.smtpHost,
+            port: config.smtpPort,
+            username: config.smtpUsername,
+            password: config.smtpPassword,
+            useSSL: config.smtpUseSSL,
+            senderEmail: config.smtpSenderEmail,
+            senderName: config.smtpSenderName,
+            requireAuth: config.smtpRequireAuth
           },
           redis: {
-            enabled: config.RedisEnabled,
-            host: config.RedisHost,
-            port: config.RedisPort
+            enabled: config.redisEnabled,
+            host: config.redisHost,
+            port: config.redisPort
           }
         });
         this.isLoading = false;
@@ -123,32 +123,32 @@ export class ApiSettingsComponent implements OnInit {
       
       // Transform form value to match API expectations
       const config: ApiConfiguration = {
-        Scheme: formValue.scheme?.toUpperCase(),
-        Host: formValue.host,
-        Port: formValue.port,
-        AllowedHosts: formValue.allowedHosts,
-        AllowedOrigins: formValue.allowedOrigins,
-        AllowedMethods: formValue.allowedMethods,
-        AllowedHeaders: formValue.allowedHeaders,
-        ResetPasswordTokenValidity: formValue.resetPasswordTokenValidity,
-        EmailConfirmationTokenValidity: formValue.emailConfirmationTokenValidity,
-        RequireDigit: formValue.passwordRules.requireDigit,
-        RequireLowercase: formValue.passwordRules.requireLowercase,
-        RequireUppercase: formValue.passwordRules.requireUppercase,
-        RequireNonAlphanumeric: formValue.passwordRules.requireNonAlphanumeric,
-        RequiredLength: formValue.passwordRules.requiredLength,
-        RequiredUniqueChars: formValue.passwordRules.requiredUniqueChars,
-        SmtpHost: formValue.smtp.host,
-        SmtpPort: formValue.smtp.port,
-        SmtpUsername: formValue.smtp.username,
-        SmtpPassword: formValue.smtp.password,
-        SmtpUseSSL: formValue.smtp.useSSL,
-        SmtpSenderEmail: formValue.smtp.senderEmail,
-        SmtpSenderName: formValue.smtp.senderName,
-        SmtpRequireAuth: formValue.smtp.requireAuth,
-        RedisEnabled: formValue.redis.enabled,
-        RedisHost: formValue.redis.host,
-        RedisPort: formValue.redis.port
+        scheme: formValue.scheme?.toUpperCase(),
+        host: formValue.host,
+        port: formValue.port,
+        allowedHosts: formValue.allowedHosts,
+        allowedOrigins: formValue.allowedOrigins,
+        allowedMethods: formValue.allowedMethods,
+        allowedHeaders: formValue.allowedHeaders,
+        resetPasswordTokenValidity: formValue.resetPasswordTokenValidity,
+        emailConfirmationTokenValidity: formValue.emailConfirmationTokenValidity,
+        requireDigit: formValue.passwordRules.requireDigit,
+        requireLowercase: formValue.passwordRules.requireLowercase,
+        requireUppercase: formValue.passwordRules.requireUppercase,
+        requireNonAlphanumeric: formValue.passwordRules.requireNonAlphanumeric,
+        requiredLength: formValue.passwordRules.requiredLength,
+        requiredUniqueChars: formValue.passwordRules.requiredUniqueChars,
+        smtpHost: formValue.smtp.host,
+        smtpPort: formValue.smtp.port,
+        smtpUsername: formValue.smtp.username,
+        smtpPassword: formValue.smtp.password,
+        smtpUseSSL: formValue.smtp.useSSL,
+        smtpSenderEmail: formValue.smtp.senderEmail,
+        smtpSenderName: formValue.smtp.senderName,
+        smtpRequireAuth: formValue.smtp.requireAuth,
+        redisEnabled: formValue.redis.enabled,
+        redisHost: formValue.redis.host,
+        redisPort: formValue.redis.port
       };
 
       this.apiService.updateApiConfiguration(config).subscribe({

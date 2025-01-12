@@ -19,7 +19,13 @@ import {
   QueryAnalysis,
   ApiConfiguration,
   UserCreateUpdate,
-  ApiLayout
+  ApiLayout,
+  SignUpDto,
+  RefreshTokenDto,
+  AuthResultDto,
+  SignUpResultDto,
+  SignInDto,
+  SettingDto
 } from '../models/api.models';
 
 @Injectable({
@@ -66,36 +72,36 @@ export class ApiService {
   }
 
   // Auth Methods
-  signIn(email: string, password: string): Observable<any> {
-    return this.http.post(
+  signIn(dto: SignInDto): Observable<SignUpResultDto> {
+    return this.http.post<SignUpResultDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.signIn),
-      { email, password }
+      dto
     );
   }
 
-  signOut(): Observable<any> {
-    return this.http.post(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.signOut),
+  signUp(dto: SignUpDto): Observable<SignUpResultDto> {
+    return this.http.post<SignUpResultDto>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.signUp),
       {}
     );
   }
 
-  refreshToken(refreshToken: string): Observable<any> {
-    return this.http.post(
+  refreshToken(refreshToken: RefreshTokenDto): Observable<AuthResultDto> {
+    return this.http.post<AuthResultDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.refreshToken),
       { refreshToken }
     );
   }
 
   // Settings Methods
-  getSettings(): Observable<any> {
-    return this.http.get(
+  getSettings(): Observable<SettingDto[]> {
+    return this.http.get<SettingDto[]>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.getSettings)
     );
   }
 
-  updateSettings(settings: any): Observable<any> {
-    return this.http.post(
+  updateSettings(settings: SettingDto): Observable<SettingDto> {
+    return this.http.post<SettingDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.updateSettings),
       settings
     );
@@ -528,7 +534,7 @@ export class ApiService {
   }
 
   updateApiConfiguration(config: ApiConfiguration): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/settings/api-configuration`, config);
+    return this.http.put<void>(`${this.baseUrl}/settings/api-configuration`, config);
   }
 
   // SQL Queries

@@ -1,3 +1,50 @@
+export interface SignInDto {
+  email: string;
+  password: string;
+}
+
+export interface SignUpResultDto {
+  token: string;
+  refreshToken: string;
+  success: boolean;
+  errors: string[];
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  roles: string[];
+}
+
+export interface SignUpDto {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  roles: string[];
+}
+
+export interface RefreshTokenDto {
+  token: string;
+  refreshToken: string;
+}
+
+export interface AuthResultDto {
+  token: string;
+  refreshToken: string;
+  success: boolean;
+  errors: string[];
+}
+
+export interface SettingDto {
+  id: string;
+  name: string;
+  value: string;
+  description: string;
+  type: string;
+}
+
+
 export interface User {
   Id: string;
   Email: string;

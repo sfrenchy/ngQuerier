@@ -4,7 +4,7 @@ import { map, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { UserService } from './user.service';
 import { AuthStateService } from './auth-state.service';
-import { User } from '@models/api.models';
+import { SignInDto, User } from '@models/api.models';
 
 @Injectable({
   providedIn: 'root'
@@ -19,32 +19,24 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<boolean> {
-    return this.apiService.signIn(email, password).pipe(
+    const dto: SignInDto = { 
+      email: email,
+      password: password
+    };
+    return this.apiService.signIn(dto).pipe(
       map(response => {
-        if (response && response.Token) {
-          this.authStateService.setTokens(response.Token, response.RefreshToken);
-          
-          // Mise à jour des informations utilisateur
-          this.userService.setCurrentUser({
-            Id: response.Id,
-            Email: response.Email,
-            FirstName: response.FirstName,
-            LastName: response.LastName,
-            Phone: null,
-            Roles: response.Roles,
-            LanguageCode: null,
-            Img: null,
-            Poste: null,
-            UserName: response.Email,
-            DateFormat: null,
-            Currency: null,
-            AreaUnit: null,
-            IsEmailConfirmed: response.IsEmailConfirmed
-          });
-          
+        if (response && response.token) {
+          this.authStateService.setTokens(response.token, response.refreshToken);
           return true;
         }
         return false;
+      }),
+      tap(success => {
+        if (success) {
+          this.apiService.getCurrentUser().subscribe(user => {
+            this.userService.setCurrentUser(user);
+          });
+        }
       })
     );
   }
@@ -52,7 +44,7 @@ export class AuthService {
   logout(): void {
     this.authStateService.clearTokens();
     this.userService.setCurrentUser(null);
-    this.apiService.signOut().subscribe();
+    // this.apiService.signOut().subscribe();
   }
 
   private checkAuth(): void {

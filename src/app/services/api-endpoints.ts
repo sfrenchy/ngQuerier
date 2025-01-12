@@ -1,26 +1,25 @@
 export class ApiEndpoints {
   // Auth Management Controller
-  static readonly signIn = 'authmanagement/signin';
-  static readonly signOut = 'authmanagement/signout';
-  static readonly refreshToken = 'authmanagement/refreshtoken';
+  static readonly signIn = 'Authentication/SignIn';
+  static readonly signUp = 'Authentication/SignUp';
+  static readonly refreshToken = 'Authentication/RefreshToken';
 
   // Settings Controller
-  static readonly getSettings = 'settings';
-  static readonly updateSettings = 'settings';
-  static readonly isConfigured = 'settings/configured';
-  static readonly configure = 'settings/configure';
-  static readonly apiConfiguration = 'settings/api-configuration';
-  static readonly updateApiConfiguration = 'settings/api-configuration';
+  static readonly getSettings = 'Settings';
+  static readonly updateSettings = 'Settings';
+  static readonly isConfigured = 'PublicSettings/configured';
+  static readonly apiConfiguration = 'Settings/api-configuration';
+  static readonly updateApiConfiguration = 'Settings/api-configuration';
 
   // User Management Controller
-  static readonly users = 'usermanagement/getall';
-  static readonly addUser = 'usermanagement/add';
-  static readonly updateUser = 'usermanagement/update';
-  static readonly currentUser = 'usermanagement/me';
-  static readonly userById = 'users/{id}';
-  static readonly deleteUser = 'usermanagement/delete/{id}';
-  static readonly userProfile = 'usermanagement/view/{id}';
-  static readonly resendConfirmationEmail = 'usermanagement/resend-confirmation';
+  static readonly users = 'user/getall';
+  static readonly addUser = 'user/add';
+  static readonly updateUser = 'user/update';
+  static readonly currentUser = 'user/me';
+  static readonly userById = 'user/{id}';
+  static readonly deleteUser = 'user/delete/{id}';
+  static readonly userProfile = 'user/view/{id}';
+  static readonly resendConfirmationEmail = 'user/resend-confirmation';
 
   // Role Controller
   static readonly roles = 'role/getall';

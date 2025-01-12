@@ -10,6 +10,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, switchMap, take } from 'rxjs/operators';
 import { AuthStateService } from '../services/auth-state.service';
 import { ApiService } from '../services/api.service';
+import { RefreshTokenDto } from '@models/api.models';
 
 export const AuthInterceptor: HttpInterceptorFn = (
   request: HttpRequest<unknown>,
@@ -58,19 +59,21 @@ function handle401Error(
     switchMap(isRefreshing => {
       if (!isRefreshing) {
         authStateService.setRefreshing(true);
-        const refreshToken = authStateService.getRefreshToken();
-
-        if (!refreshToken) {
+        const refreshTokenDto: RefreshTokenDto = {
+          token: authStateService.getAccessToken()!,
+          refreshToken: authStateService.getRefreshToken()!
+        };
+        if (!refreshTokenDto.token || !refreshTokenDto.refreshToken) {
           authStateService.clearTokens();
           return throwError(() => new Error('No refresh token'));
         }
 
-        return apiService.refreshToken(refreshToken).pipe(
+        return apiService.refreshToken(refreshTokenDto).pipe(
           switchMap(response => {
             authStateService.setRefreshing(false);
-            if (response && response.Token) {
-              authStateService.setTokens(response.Token, response.RefreshToken);
-              return next(addToken(request, response.Token));
+            if (response && response.token) {
+              authStateService.setTokens(response.token, response.refreshToken);
+              return next(addToken(request, response.token));
             }
             authStateService.clearTokens();
             return throwError(() => new Error('Token refresh failed'));

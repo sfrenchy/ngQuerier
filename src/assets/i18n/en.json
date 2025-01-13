@@ -81,6 +81,7 @@
     "SAVE": "Save",
     "DELETE": "Delete",
     "TEST": "Test",
+    "CREATE": "Create",
     "EDIT": "Edit",
     "ADD": "Add",
     "SEARCH": "Search",
@@ -132,19 +133,18 @@
   },
   "MENU": {
     "CATEGORIES": {
-      "TITLE": "Menu Categories",
-      "ADD": "Add Category",
-      "EDIT": "Edit Category",
-      "CREATE": "Create Category",
-      "NO_CATEGORIES": "No menu categories found",
-      "NAME_PLACEHOLDER": "Enter category name",
+      "TITLE": "Menus",
+      "ADD": "Add menu",
+      "EDIT": "Edit menu",
+      "CREATE": "Create menu",
+      "NO_CATEGORIES": "No menu found",
+      "NAME_PLACEHOLDER": "Enter menu name",
       "ICON_PLACEHOLDER": "Enter icon class (e.g. fas fa-home)",
       "ROUTE_PLACEHOLDER": "Enter route path"
     },
     "PAGES": {
       "TITLE": "Pages",
       "ADD": "Add Page",
-      "EDIT": "Edit Page",
       "DELETE": "Delete Page",
       "NAME": "Name",
       "NAME_PLACEHOLDER": "Page name",
@@ -292,10 +292,6 @@
     "REDIS_HOST": "Redis Server",
     "REDIS_PORT": "Redis Port"
   },
-  "COMMON": {
-    "SAVE": "Save",
-    "CANCEL": "Cancel"
-  },
   "DATABASES": {
     "TITLE": "Databases",
     "ADD": "Add database",
@@ -323,5 +319,11 @@
     "PREVIOUS": "Previous",
     "NEXT": "Next",
     "PAGE": "Page"
+  },
+  "ERRORS": {
+    "LOAD_ROLES": "Error loading roles",
+    "LOAD_MENU": "Error loading menu",
+    "CREATE_MENU": "Error creating menu",
+    "UPDATE_MENU": "Error updating menu"
   }
 } 

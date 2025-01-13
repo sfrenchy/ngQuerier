@@ -81,6 +81,7 @@
     "SAVE": "Enregistrer",
     "DELETE": "Supprimer",
     "TEST": "Tester",
+    "CREATE": "Créer",
     "VALIDATION": {
       "EMAIL_REQUIRED": "L'email est requis",
       "EMAIL_INVALID": "Veuillez entrer une adresse email valide",
@@ -94,9 +95,6 @@
       "PASSWORD_REQUIRE_NON_ALPHANUMERIC": "Le mot de passe doit contenir au moins un caractère spécial",
       "PASSWORD_REQUIRE_UNIQUE_CHARS": "Le mot de passe doit contenir au moins {{count}} caractères uniques"
     },
-    "SAVE": "Enregistrer",
-    "CANCEL": "Annuler",
-    "DELETE": "Supprimer",
     "EDIT": "Modifier",
     "ADD": "Ajouter",
     "SEARCH": "Rechercher",
@@ -137,12 +135,12 @@
   },
   "MENU": {
     "CATEGORIES": {
-      "TITLE": "Catégories de Menu",
-      "ADD": "Ajouter une Catégorie",
-      "EDIT": "Modifier la Catégorie",
-      "CREATE": "Créer une Catégorie",
-      "NO_CATEGORIES": "Aucune catégorie de menu trouvée",
-      "NAME_PLACEHOLDER": "Entrez le nom de la catégorie",
+      "TITLE": "Gestion des menus",
+      "ADD": "Ajouter un menu",
+      "EDIT": "Modifier un menu",
+      "CREATE": "Créer un menu",
+      "NO_CATEGORIES": "Aucun menu trouvé",
+      "NAME_PLACEHOLDER": "Entrez le nom du menu",
       "ICON_PLACEHOLDER": "Entrez la classe d'icône (ex: fas fa-home)",
       "ROUTE_PLACEHOLDER": "Entrez le chemin de la route"
     },
@@ -325,5 +323,11 @@
     "PREVIOUS": "Précédent",
     "NEXT": "Suivant",
     "PAGE": "Page"
+  },
+  "ERRORS": {
+    "LOAD_ROLES": "Erreur lors du chargement des rôles",
+    "LOAD_MENU": "Erreur lors du chargement du menu",
+    "CREATE_MENU": "Erreur lors de la création du menu",
+    "UPDATE_MENU": "Erreur lors de la mise à jour du menu"
   }
 } 

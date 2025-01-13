@@ -64,7 +64,7 @@ export class MenuFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading roles:', error);
-        this.error = 'Error loading roles';
+        this.error = this.translate.instant('ERRORS.LOAD_ROLES');
       }
     });
   }
@@ -90,7 +90,7 @@ export class MenuFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading menu:', error);
-        this.error = 'Error loading menu';
+        this.error = this.translate.instant('ERRORS.LOAD_MENU');
         this.isLoading = false;
       }
     });
@@ -150,7 +150,7 @@ export class MenuFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error creating menu:', error);
-        this.error = 'Error creating menu';
+        this.error = this.translate.instant('ERRORS.CREATE_MENU');
         this.isLoading = false;
       }
     });
@@ -164,7 +164,7 @@ export class MenuFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error updating menu:', error);
-        this.error = 'Error updating menu';
+        this.error = this.translate.instant('ERRORS.UPDATE_MENU');
         this.isLoading = false;
       }
     });

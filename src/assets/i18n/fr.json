@@ -126,7 +126,9 @@
     "DELETE_SELECTED": "Supprimer la sélection",
     "ENTER_TRANSLATION": "Entrez la traduction",
     "REMOVE_TRANSLATION": "Supprimer la traduction",
-    "ADD_TRANSLATION": "Ajouter une traduction"
+    "ADD_TRANSLATION": "Ajouter une traduction",
+    "FULLSCREEN": "Plein écran",
+    "EXIT_FULLSCREEN": "Quitter le plein écran"
   },
   "DASHBOARD": {
     "TITLE": "Tableau de bord",
@@ -194,7 +196,24 @@
         },
         "CONFIRM_DELETE_CARD": "Êtes-vous sûr de vouloir supprimer cette carte ?"
       },
-      "NO_PAGES": "Aucune page trouvée"
+      "NO_PAGES": "Aucune page trouvée",
+      "LAYOUT_EDITOR": "Éditeur de mise en page",
+      "LAYOUT_SUBTITLE": "Éditer la mise en page de la page \"{{page}}\"",
+      "LAYOUT": {
+        "TITLE": "Mise en page",
+        "COMPONENTS": "Composants",
+        "NEW_ROW": "Nouvelle ligne",
+        "PLACEHOLDER_CARD": "Carte placeholder",
+        "DROP_CARD_HERE": "Déposez une carte ici",
+        "DRAG_ROW_HERE": "Déposez une ligne ici",
+        "EDIT_ROW": "Modifier la ligne",
+        "ROW_HEIGHT": "Hauteur",
+        "ROW_ALIGNMENT": "Alignement",
+        "ROW_SPACING": "Espacement",
+        "ALIGNMENT_START": "Début",
+        "ALIGNMENT_CENTER": "Centre",
+        "ALIGNMENT_END": "Fin"
+      }
     },
     "HOME": "Accueil",
     "DATABASES": "Bases de données",

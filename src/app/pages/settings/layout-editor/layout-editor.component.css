@@ -1,0 +1,16 @@
+/* Styles pour le drag & drop */
+.cdk-drag-preview {
+  @apply box-border rounded-lg shadow-lg;
+}
+
+.cdk-drag-placeholder {
+  @apply opacity-0;
+}
+
+.cdk-drag-animating {
+  @apply transition-transform duration-250 ease-out;
+}
+
+.editor-area.cdk-drop-list-dragging .row:not(.cdk-drag-placeholder) {
+  @apply transition-transform duration-250 ease-out;
+}

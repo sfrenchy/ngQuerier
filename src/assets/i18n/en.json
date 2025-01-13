@@ -124,7 +124,9 @@
     "DELETE_SELECTED": "Delete selection",
     "ENTER_TRANSLATION": "Enter translation",
     "REMOVE_TRANSLATION": "Remove translation",
-    "ADD_TRANSLATION": "Add translation"
+    "ADD_TRANSLATION": "Add translation",
+    "FULLSCREEN": "Fullscreen",
+    "EXIT_FULLSCREEN": "Exit fullscreen"
   },
   "DASHBOARD": {
     "TITLE": "Dashboard",
@@ -192,7 +194,24 @@
         },
         "CONFIRM_DELETE_CARD": "Are you sure you want to delete this card?"
       },
-      "NO_PAGES": "No pages found"
+      "NO_PAGES": "No pages found",
+      "LAYOUT_EDITOR": "Layout Editor",
+      "LAYOUT_SUBTITLE": "Edit layout of page \"{{page}}\"",
+      "LAYOUT": {
+        "TITLE": "Layout",
+        "COMPONENTS": "Components",
+        "NEW_ROW": "New Row",
+        "PLACEHOLDER_CARD": "Placeholder Card",
+        "DROP_CARD_HERE": "Drop a card here",
+        "DRAG_ROW_HERE": "Drop a row here",
+        "EDIT_ROW": "Edit Row",
+        "ROW_HEIGHT": "Height",
+        "ROW_ALIGNMENT": "Alignment",
+        "ROW_SPACING": "Spacing",
+        "ALIGNMENT_START": "Start",
+        "ALIGNMENT_CENTER": "Center",
+        "ALIGNMENT_END": "End"
+      }
     },
     "HOME": "Home",
     "DATABASES": "Databases",

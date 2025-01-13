@@ -180,24 +180,6 @@ export interface PageCreateDto {
   menuId: number;
 }
 
-export interface Layout {
-  pageId: number;
-  icon: string;
-  names: { [key: string]: string };
-  isVisible: boolean;
-  roles: string[];
-  route: string;
-  rows: {
-    id: number;
-    order: number;
-    height: number;
-    alignment: string;
-    crossAlignment: string;
-    spacing: number;
-    cards: CardDto[];
-  }[];
-}
-
 export interface EntityDefinitionDto {
   name: string;
   displayName: string;
@@ -300,11 +282,6 @@ export interface ApiUserUpdateDto {
 
 export interface LayoutDto {
   pageId: number;
-  icon: string;
-  names: { [key: string]: string };
-  isVisible: boolean;
-  roles: string[];
-  route: string;
   rows: RowDto[];
 } 
 

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { MenuDto, PageDto } from '@models/api.models';
 import { ApiService } from '@services/api.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
@@ -13,7 +13,7 @@ import { CdkDragDrop, moveItemInArray, DragDropModule } from '@angular/cdk/drag-
   selector: 'app-page-list',
   templateUrl: './page-list.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FontAwesomeModule, DragDropModule]
+  imports: [CommonModule, TranslateModule, FontAwesomeModule, DragDropModule, RouterModule]
 })
 export class PageListComponent implements OnInit {
   pages: PageDto[] = [];

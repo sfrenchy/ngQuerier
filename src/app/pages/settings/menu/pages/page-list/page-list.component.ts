@@ -7,12 +7,13 @@ import { ApiService } from '@services/api.service';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { fas } from '@fortawesome/free-solid-svg-icons';
+import { CdkDragDrop, moveItemInArray, DragDropModule } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-page-list',
   templateUrl: './page-list.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FontAwesomeModule]
+  imports: [CommonModule, TranslateModule, FontAwesomeModule, DragDropModule]
 })
 export class PageListComponent implements OnInit {
   pages: PageDto[] = [];
@@ -54,7 +55,7 @@ export class PageListComponent implements OnInit {
     this.error = null;
     this.apiService.getMenuPages(menuId).subscribe({
       next: (pages) => {
-        this.pages = pages;
+        this.pages = pages.sort((a, b) => a.order - b.order);
         this.isLoading = false;
       },
       error: (error) => {
@@ -99,5 +100,51 @@ export class PageListComponent implements OnInit {
     }
     const currentLang = this.translate.currentLang || this.translate.defaultLang || 'fr';
     return item.title.find(t => t.languageCode === currentLang)?.value || '';
+  }
+
+  drop(event: CdkDragDrop<PageDto[]>) {
+    if (event.previousIndex === event.currentIndex) return;
+
+    // Garder une copie de l'ordre original au cas où
+    const originalPages = [...this.pages];
+    
+    // Mettre à jour l'ordre localement
+    moveItemInArray(this.pages, event.previousIndex, event.currentIndex);
+    
+    // Mettre à jour l'ordre de toutes les pages
+    this.pages.forEach((page, index) => {
+      page.order = index + 1;
+    });
+
+    // Sauvegarder le nouvel ordre sur le serveur
+    if (this.menu) {
+      // Convertir les Observables en Promises
+      const updates = this.pages.map(page => {
+        const updatedPage: PageDto = {
+          ...page,
+          order: page.order
+        };
+        
+        // Convertir l'Observable en Promise
+        return new Promise((resolve, reject) => {
+          this.apiService.updatePage(page.id, updatedPage).subscribe({
+            next: (result) => resolve(result),
+            error: (error) => reject(error)
+          });
+        });
+      });
+
+      // Attendre que toutes les mises à jour soient terminées
+      Promise.all(updates).then(
+        () => {
+          // Ne pas recharger les pages car l'ordre local est déjà correct
+        },
+        (error) => {
+          // En cas d'erreur, restaurer l'ordre original et afficher l'erreur
+          this.pages = originalPages;
+          this.error = error.message;
+        }
+      );
+    }
   }
 } 

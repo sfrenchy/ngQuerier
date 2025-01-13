@@ -7,7 +7,7 @@ import { AuthService } from '@services/auth.service';
 import { Router } from '@angular/router';
 import { MenuDto, PageDto, TranslatableString, RoleDto } from '@models/api.models';
 import { ApiService } from '@services/api.service';
-import { catchError, switchMap } from 'rxjs/operators';
+import { catchError, switchMap, map } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 
 @Component({
@@ -83,6 +83,7 @@ export class SideMenuComponent implements OnInit, OnDestroy {
         return forkJoin(
           pageRequests.map((request, index) => 
             request.pipe(
+              map(pages => pages.sort((a, b) => a.order - b.order)), // Trier les pages par ordre
               catchError(error => {
                 console.error(`Failed to load pages for menu ${this.menus[index].id}:`, error);
                 return of([]);

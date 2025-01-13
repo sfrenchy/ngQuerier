@@ -31,14 +31,12 @@
         <table class="min-w-full divide-y divide-gray-700">
           <thead>
             <tr>
+              <th class="w-8"></th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 {{ 'COMMON.NAME' | translate }}
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 {{ 'COMMON.ICON' | translate }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                {{ 'COMMON.ORDER' | translate }}
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 {{ 'COMMON.VISIBILITY' | translate }}
@@ -51,8 +49,11 @@
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-700">
-            <tr *ngFor="let page of pages" class="hover:bg-gray-700">
+          <tbody cdkDropList (cdkDropListDropped)="drop($event)" class="divide-y divide-gray-700">
+            <tr *ngFor="let page of pages" class="hover:bg-gray-700" cdkDrag>
+              <td class="px-2 cursor-move" cdkDragHandle>
+                <i class="fas fa-grip-vertical text-gray-500"></i>
+              </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                   {{ getLocalizedName(page) }}
@@ -60,9 +61,6 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <i [class]="page.icon"><fa-icon [icon]="['fas', page.icon]"></fa-icon></i>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                {{ page.order }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span

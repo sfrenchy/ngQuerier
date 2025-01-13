@@ -18,7 +18,6 @@ import { TranslateModule } from '@ngx-translate/core';
 export class TranslatableStringFormComponent implements OnInit {
   @Input() set translations(value: TranslatableString[]) {
     if (JSON.stringify(this._translations) !== JSON.stringify(value)) {
-      console.log('Translations input received:', value);
       this._translations = value;
       if (this.form) {
         this.initForm();
@@ -48,10 +47,8 @@ export class TranslatableStringFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('Component initialized with translations:', this.translations);
     this.initForm();
 
-    // Utiliser debounceTime pour éviter trop de mises à jour
     this.form.valueChanges.subscribe(() => {
       const translations = this.form.value.translations as TranslatableString[];
       if (JSON.stringify(translations) !== JSON.stringify(this._translations)) {
@@ -65,13 +62,10 @@ export class TranslatableStringFormComponent implements OnInit {
   }
 
   private initForm() {
-    console.log('Initializing form with translations:', this.translations);
-    // Clear existing translations
     while (this.translationsArray.length) {
       this.translationsArray.removeAt(0);
     }
 
-    // Add existing translations
     this.translations.forEach(translation => {
       this.translationsArray.push(
         this.fb.group({
@@ -104,7 +98,6 @@ export class TranslatableStringFormComponent implements OnInit {
 
   private emitChanges() {
     const translations = this.form.value.translations as TranslatableString[];
-    console.log('Emitting translations:', translations);
     this._translations = [...translations];
     this.translationsChange.emit(translations);
   }

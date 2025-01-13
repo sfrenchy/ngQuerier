@@ -324,6 +324,7 @@
     "LOAD_ROLES": "Error loading roles",
     "LOAD_MENU": "Error loading menu",
     "CREATE_MENU": "Error creating menu",
-    "UPDATE_MENU": "Error updating menu"
+    "UPDATE_MENU": "Error updating menu",
+    "SAVE_PAGE": "Error saving page"
   }
 } 

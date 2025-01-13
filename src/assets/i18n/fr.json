@@ -328,6 +328,7 @@
     "LOAD_ROLES": "Erreur lors du chargement des rôles",
     "LOAD_MENU": "Erreur lors du chargement du menu",
     "CREATE_MENU": "Erreur lors de la création du menu",
-    "UPDATE_MENU": "Erreur lors de la mise à jour du menu"
+    "UPDATE_MENU": "Erreur lors de la mise à jour du menu",
+    "SAVE_PAGE": "Erreur lors de la sauvegarde de la page"
   }
 } 

@@ -35,7 +35,6 @@ export class PageFormComponent implements OnInit {
   ) {
     this.pageForm = this.fb.group({
       icon: ['', Validators.required],
-      order: [0, Validators.required],
       isVisible: [true],
       roles: [[]],
       route: ['', Validators.required]
@@ -79,7 +78,6 @@ export class PageFormComponent implements OnInit {
         console.log('Page loaded:', page);
         this.pageForm.patchValue({
           icon: page.icon,
-          order: page.order,
           isVisible: page.isVisible,
           roles: page.roles.map(r => r.id),
           route: page.route
@@ -107,7 +105,8 @@ export class PageFormComponent implements OnInit {
         ...formValue,
         title: this.pageTitles,
         menuId: this.menuId,
-        roles: this.availableRoles.filter(role => formValue.roles.includes(role.id))
+        roles: this.availableRoles.filter(role => formValue.roles.includes(role.id)),
+        order: this.isEditMode ? undefined : 9999
       };
 
       this.isLoading = true;
@@ -121,7 +120,7 @@ export class PageFormComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error saving page:', error);
-          this.error = 'Error saving page';
+          this.error = this.translate.instant('ERRORS.SAVE_PAGE');
           this.isLoading = false;
         }
       });

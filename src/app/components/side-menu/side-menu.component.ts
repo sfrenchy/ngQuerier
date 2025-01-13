@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -16,7 +16,7 @@ import { forkJoin, of } from 'rxjs';
   imports: [CommonModule, RouterModule, TranslateModule],
   templateUrl: './side-menu.component.html'
 })
-export class SideMenuComponent implements OnInit {
+export class SideMenuComponent implements OnInit, OnDestroy {
   protected readonly Object = Object;
   isExpanded = false;
   isSettingsExpanded = false;
@@ -25,6 +25,7 @@ export class SideMenuComponent implements OnInit {
   menus: MenuDto[] = [];
   menuPages: { [menuId: number]: PageDto[] } = {};
   error: string | null = null;
+  private subscription: any;
 
   constructor(
     public userService: UserService,
@@ -36,8 +37,17 @@ export class SideMenuComponent implements OnInit {
   ngOnInit() {
     if (this.authService.isAuthenticated()) {
       this.loadMenus();
+      this.subscription = this.apiService.menuUpdated$.subscribe(() => {
+        this.loadMenus();
+      });
     } else {
       this.router.navigate(['/login']);
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.subscription) {
+      this.subscription.unsubscribe();
     }
   }
 

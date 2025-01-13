@@ -60,7 +60,7 @@ export class MenuListComponent {
 
   onDeleteClick(menu: MenuDto): void {
     if (confirm(this.translate.instant('COMMON.CONFIRMATION.DELETE_MENU_CATEGORY', { name: this.getLocalizedName(menu) }))) {
-      this.apiService.deleteMenuCategory(menu.id).subscribe({
+      this.apiService.deleteMenu(menu.id).subscribe({
         next: () => {
           this.loadMenuCategories();
         },

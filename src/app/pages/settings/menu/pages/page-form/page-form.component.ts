@@ -17,7 +17,7 @@ export class PageFormComponent implements OnInit {
   error: string | null = null;
   isEditMode = false;
   pageId: number | null = null;
-  categoryId: number | null = null;
+  menuId: number | null = null;
   supportedLanguages = ['fr', 'en'];
   availableRoles: string[] = [];
 
@@ -30,21 +30,21 @@ export class PageFormComponent implements OnInit {
     private translate: TranslateService
   ) {
     this.pageForm = this.fb.group({
-      Names: this.fb.group({
+      names: this.fb.group({
         fr: ['', Validators.required],
         en: ['', Validators.required]
       }),
-      Icon: ['', Validators.required],
-      Order: [0, Validators.required],
-      IsVisible: [true],
-      Roles: [[]],
-      Route: ['', Validators.required]
+      icon: ['', Validators.required],
+      order: [0, Validators.required],
+      isVisible: [true],
+      roles: [[]],
+      route: ['', Validators.required]
     });
   }
 
   ngOnInit(): void {
     this.loadRoles();
-    this.categoryId = Number(this.route.snapshot.paramMap.get('categoryId'));
+    this.menuId = Number(this.route.snapshot.paramMap.get('categoryId'));
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
@@ -88,12 +88,12 @@ export class PageFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.pageForm.invalid || !this.categoryId) return;
+    if (this.pageForm.invalid || !this.menuId) return;
 
     this.isLoading = true;
     const formData = {
       ...this.pageForm.value,
-      MenuCategoryId: this.categoryId
+      menuId: this.menuId
     };
 
     const saveObservable = this.isEditMode && this.pageId
@@ -118,17 +118,17 @@ export class PageFormComponent implements OnInit {
 
   onRoleChange(role: string, event: Event): void {
     const checkbox = event.target as HTMLInputElement;
-    const currentRoles = this.pageForm.get('Roles')?.value as string[] || [];
+    const currentRoles = this.pageForm.get('roles')?.value as string[] || [];
     
     if (checkbox.checked) {
-      this.pageForm.get('Roles')?.setValue([...currentRoles, role]);
+      this.pageForm.get('roles')?.setValue([...currentRoles, role]);
     } else {
-      this.pageForm.get('Roles')?.setValue(currentRoles.filter(r => r !== role));
+      this.pageForm.get('roles')?.setValue(currentRoles.filter(r => r !== role));
     }
   }
 
   isRoleSelected(role: string): boolean {
-    const roles = this.pageForm.get('Roles')?.value as string[] || [];
+    const roles = this.pageForm.get('roles')?.value as string[] || [];
     return roles.includes(role);
   }
 } 

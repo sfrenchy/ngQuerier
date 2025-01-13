@@ -30,15 +30,15 @@ export class MenuFormComponent implements OnInit {
     private translate: TranslateService
   ) {
     this.menuForm = this.fb.group({
-      names: this.fb.group({
+      Names: this.fb.group({
         fr: ['', Validators.required],
         en: ['', Validators.required]
       }),
-      icon: ['', Validators.required],
-      order: [0, Validators.required],
-      isVisible: [true],
-      roles: [[]],
-      route: ['', Validators.required]
+      Icon: ['', Validators.required],
+      Order: [0, Validators.required],
+      IsVisible: [true],
+      Roles: [[]],
+      Route: ['', Validators.required]
     });
   }
 
@@ -68,12 +68,12 @@ export class MenuFormComponent implements OnInit {
     this.apiService.getMenu(id).subscribe({
       next: (menu) => {
         this.menuForm.patchValue({
-          names: menu.names,
-          icon: menu.icon,
-          order: menu.order,
-          isVisible: menu.isVisible,
-          roles: menu.roles,
-          route: menu.route
+          Names: menu.names,
+          Icon: menu.icon,
+          Order: menu.order,
+          IsVisible: menu.isVisible,
+          Roles: menu.roles,
+          Route: menu.route
         });
         this.isLoading = false;
       },

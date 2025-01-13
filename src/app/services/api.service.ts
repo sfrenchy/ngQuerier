@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, throwError, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { Observable, throwError, of, Subject } from 'rxjs';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { ApiEndpoints } from './api-endpoints';
 import {
@@ -39,6 +39,9 @@ import {
 })
 export class ApiService {
   private baseUrl: string = '';
+  private menuUpdated = new Subject<void>();
+
+  menuUpdated$ = this.menuUpdated.asObservable();
 
   constructor(private http: HttpClient) {
     this.baseUrl = localStorage.getItem('baseUrl') || '';
@@ -270,6 +273,8 @@ export class ApiService {
     return this.http.post<MenuDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.addMenu),
       category
+    ).pipe(
+      tap(() => this.menuUpdated.next())
     );
   }
 
@@ -277,12 +282,19 @@ export class ApiService {
     return this.http.put<MenuDto>(
       `${ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.updateMenu)}/${id}`,
       menu
+    ).pipe(
+      tap(() => this.menuUpdated.next())
     );
   }
 
-  deleteMenuCategory(id: number): Observable<any> {
-    return this.http.delete(
-      `${ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.deleteMenu)}/${id}`
+  deleteMenu(id: number): Observable<void> {
+    return this.http.delete<void>(
+      ApiEndpoints.buildUrl(
+        this.baseUrl,
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteMenu, { id: id.toString() })
+      )
+    ).pipe(
+      tap(() => this.menuUpdated.next())
     );
   }
 
@@ -312,6 +324,8 @@ export class ApiService {
     return this.http.post<PageDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.pages),
       page
+    ).pipe(
+      tap(() => this.menuUpdated.next())
     );
   }
 
@@ -324,6 +338,8 @@ export class ApiService {
         })
       ),
       page
+    ).pipe(
+      tap(() => this.menuUpdated.next())
     );
   }
 
@@ -335,6 +351,8 @@ export class ApiService {
           id: id.toString()
         })
       )
+    ).pipe(
+      tap(() => this.menuUpdated.next())
     );
   }
 

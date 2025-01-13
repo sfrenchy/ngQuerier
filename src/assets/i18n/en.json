@@ -120,7 +120,10 @@
     "VISIBLE": "Visible",
     "HIDDEN": "Hidden",
     "SELECT_ALL": "Select all",
-    "DELETE_SELECTED": "Delete selection"
+    "DELETE_SELECTED": "Delete selection",
+    "ENTER_TRANSLATION": "Enter translation",
+    "REMOVE_TRANSLATION": "Remove translation",
+    "ADD_TRANSLATION": "Add translation"
   },
   "DASHBOARD": {
     "TITLE": "Dashboard",
@@ -309,7 +312,10 @@
   },
   "LANGUAGES": {
     "EN": "English",
-    "FR": "French"
+    "FR": "French",
+    "DE": "German",
+    "ES": "Spanish",
+    "IT": "Italian"
   },
   "ICON_PICKER": {
     "SEARCH_PLACEHOLDER": "Search icons...",

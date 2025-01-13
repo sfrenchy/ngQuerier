@@ -125,7 +125,10 @@
     "VISIBLE": "Visible",
     "HIDDEN": "Masqué",
     "SELECT_ALL": "Tout sélectionner",
-    "DELETE_SELECTED": "Supprimer la sélection"
+    "DELETE_SELECTED": "Supprimer la sélection",
+    "ENTER_TRANSLATION": "Entrez la traduction",
+    "REMOVE_TRANSLATION": "Supprimer la traduction",
+    "ADD_TRANSLATION": "Ajouter une traduction"
   },
   "DASHBOARD": {
     "TITLE": "Tableau de bord",
@@ -311,7 +314,10 @@
   },
   "LANGUAGES": {
     "EN": "Anglais",
-    "FR": "Français"
+    "FR": "Français",
+    "DE": "Deutsch",
+    "ES": "Español",
+    "IT": "Italiano"
   },
   "ICON_PICKER": {
     "SEARCH_PLACEHOLDER": "Rechercher des icônes...",

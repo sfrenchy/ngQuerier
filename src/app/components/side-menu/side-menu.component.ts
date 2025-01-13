@@ -5,7 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { UserService } from '@services/user.service';
 import { AuthService } from '@services/auth.service';
 import { Router } from '@angular/router';
-import { MenuDto, PageDto } from '@models/api.models';
+import { MenuDto, PageDto, TranslatableString, RoleDto } from '@models/api.models';
 import { ApiService } from '@services/api.service';
 import { catchError, switchMap } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
@@ -49,6 +49,13 @@ export class SideMenuComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+  }
+
+  getTranslatedTitle(translations: TranslatableString[]): string {
+    if (!translations || translations.length === 0) return '';
+    const currentLang = this.userService.getCurrentLanguage();
+    const translation = translations.find(t => t.languageCode === currentLang);
+    return translation?.value || translations[0]?.value || '';
   }
 
   private loadMenus() {
@@ -150,25 +157,21 @@ export class SideMenuComponent implements OnInit, OnDestroy {
     }
   }
 
-  hasRequiredRole(roles: string[]): boolean {
-    const hasRole = roles.some(role => this.userService.hasRole(role));
-    return hasRole;
-  }
-
-  getPageRoles(page: PageDto): string[] {
-    // Si les rôles sont déjà des strings, les utiliser directement
-    if (page.roles && Array.isArray(page.roles) && typeof page.roles[0] === 'string') {
-      return page.roles as unknown as string[];
+  hasRequiredRole(roles: RoleDto[]): boolean {
+    // Si l'utilisateur est admin, il a accès à tout
+    if (this.userService.isAdmin()) {
+      return true;
     }
-    // Sinon, essayer d'extraire le nom du rôle
-    const roles = page.roles?.map(r => typeof r === 'object' && r !== null ? r.name : r) || [];
-    return roles.filter(r => r !== undefined && r !== null);
+    // Sinon, vérifier les rôles spécifiques
+    return roles.some(role => this.userService.hasRole(role.name));
   }
 
   shouldShowPage(page: PageDto): boolean {
-    const isVisible = page.isVisible;
-    const roles = this.getPageRoles(page);
-    const hasRole = this.hasRequiredRole(roles);
-    return isVisible && hasRole;
+    // Si l'utilisateur est admin, il voit toutes les pages
+    if (this.userService.isAdmin()) {
+      return page.isVisible;
+    }
+    // Sinon, vérifier la visibilité et les rôles
+    return page.isVisible && this.hasRequiredRole(page.roles);
   }
 } 

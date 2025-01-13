@@ -52,7 +52,7 @@
                 {{ getLocalizedName(menu) }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <i [class]="menu.icon"></i>
+                <i [class]="getIconClass(menu)"></i>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 {{ menu.order }}
@@ -71,7 +71,7 @@
               <td class="px-6 py-4">
                 <div class="flex flex-wrap gap-2">
                   <span *ngFor="let role of menu.roles" class="px-2 py-1 text-xs rounded bg-blue-600">
-                    {{ role }}
+                    {{ role.name }}
                   </span>
                 </div>
               </td>

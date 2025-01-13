@@ -4,12 +4,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { ApiService } from '@services/api.service';
 import { MenuDto } from '@models/api.models';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 @Component({
   selector: 'app-menu-list',
   templateUrl: './menu-list.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule]
+  imports: [CommonModule, TranslateModule, FontAwesomeModule]
 })
 export class MenuListComponent {
   menus: MenuDto[] = [];
@@ -87,10 +88,18 @@ export class MenuListComponent {
   }
 
   getLocalizedName(menu: MenuDto): string {
-    if (!menu || !menu.title || Array.isArray(menu.title)) {
+    if (!menu || !menu.title || !Array.isArray(menu.title)) {
       return '';
     }
     const currentLang = this.translate.currentLang || this.translate.defaultLang || 'fr';
-    return menu.title[currentLang] || Object.values(menu.title)[0] || '';
+    const translation = menu.title.find(t => t.languageCode === currentLang);
+    return translation?.value || menu.title[0]?.value || '';
+  }
+
+  getIconClass(menu: MenuDto): string {
+    if (!menu.icon) {
+      return 'fas fa-folder';
+    }
+    return menu.icon.startsWith('fas fa-') ? menu.icon : `fas fa-${menu.icon}`;
   }
 }

@@ -280,7 +280,7 @@ export class ApiService {
 
   updateMenu(id: number, menu: MenuDto): Observable<MenuDto> {
     return this.http.put<MenuDto>(
-      `${ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.updateMenu)}/${id}`,
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.updateMenu, { id: id.toString() })),
       menu
     ).pipe(
       tap(() => this.menuUpdated.next())

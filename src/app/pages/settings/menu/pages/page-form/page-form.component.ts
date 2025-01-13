@@ -5,14 +5,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UserService } from '@services/user.service';
 import { ApiService } from '@services/api.service';
-import { RoleDto } from '@models/api.models';
+import { RoleDto, TranslatableString } from '@models/api.models';
 import { IconPickerComponent } from '@shared/components/icon-picker/icon-picker.component';
+import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
 
 @Component({
   selector: 'app-page-form',
   templateUrl: './page-form.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, IconPickerComponent]
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, IconPickerComponent, TranslatableStringFormComponent]
 })
 export class PageFormComponent implements OnInit {
   pageForm: FormGroup;
@@ -21,8 +22,8 @@ export class PageFormComponent implements OnInit {
   isEditMode = false;
   pageId: number | null = null;
   menuId: number | null = null;
-  supportedLanguages = ['fr', 'en'];
   availableRoles: RoleDto[] = [];
+  pageTitles: TranslatableString[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -33,10 +34,6 @@ export class PageFormComponent implements OnInit {
     private translate: TranslateService
   ) {
     this.pageForm = this.fb.group({
-      title: this.fb.group({
-        fr: ['', Validators.required],
-        en: ['', Validators.required]
-      }),
       icon: ['', Validators.required],
       order: [0, Validators.required],
       isVisible: [true],
@@ -48,11 +45,18 @@ export class PageFormComponent implements OnInit {
   ngOnInit(): void {
     this.loadRoles();
     this.menuId = Number(this.route.snapshot.paramMap.get('categoryId'));
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEditMode = true;
-      this.pageId = +id;
+      this.pageId = Number(id);
       this.loadPage(this.pageId);
+    } else {
+      // Initialiser avec les langues par défaut
+      this.pageTitles = [
+        { languageCode: 'fr', value: '' },
+        { languageCode: 'en', value: '' }
+      ];
     }
   }
 
@@ -63,7 +67,7 @@ export class PageFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading roles:', error);
-        this.error = error.message;
+        this.error = 'Error loading roles';
       }
     });
   }
@@ -72,80 +76,79 @@ export class PageFormComponent implements OnInit {
     this.isLoading = true;
     this.apiService.getPage(id).subscribe({
       next: (page) => {
+        console.log('Page loaded:', page);
         this.pageForm.patchValue({
-          title: page.title,
           icon: page.icon,
           order: page.order,
           isVisible: page.isVisible,
-          roles: page.roles,
+          roles: page.roles.map(r => r.id),
           route: page.route
         });
+        
+        // Forcer la détection de changement en créant un nouveau tableau
+        this.pageTitles = [...page.title];
+        console.log('Page titles set:', this.pageTitles);
+        
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error loading page:', error);
-        this.error = error.message;
+        this.error = 'Error loading page';
         this.isLoading = false;
       }
     });
   }
 
   onSubmit(): void {
-    if (this.pageForm.invalid || !this.menuId) return;
+    if (this.pageForm.valid && this.pageTitles.length > 0) {
+      const formValue = this.pageForm.value;
+      console.log('Submitting with titles:', this.pageTitles);
+      const pageData = {
+        ...formValue,
+        title: this.pageTitles,
+        menuId: this.menuId,
+        roles: this.availableRoles.filter(role => formValue.roles.includes(role.id))
+      };
 
-    this.isLoading = true;
-    const formValue = this.pageForm.value;
-    
-    // Transformer l'objet names en tableau de traductions
-    const titles = Object.entries(formValue.title).map(([lang, text]) => ({
-      languageCode: lang,
-      value: text as string
-    }));
+      this.isLoading = true;
+      const request = this.isEditMode
+        ? this.apiService.updatePage(this.pageId!, pageData)
+        : this.apiService.createPage(pageData);
 
-    const formData = {
-      ...formValue,
-      title: titles,
-      roles: formValue.roles.filter((role: any) => 
-        typeof role === 'object' && role !== null && 'id' in role && 'name' in role
-      ),
-      menuId: this.menuId
-    };
-
-    const saveObservable = this.isEditMode && this.pageId
-      ? this.apiService.updatePage(this.pageId, formData)
-      : this.apiService.createPage(formData);
-
-    saveObservable.subscribe({
-      next: () => {
-        this.router.navigate(['..'], { relativeTo: this.route });
-      },
-      error: (error) => {
-        console.error('Error saving page:', error);
-        this.error = error.message;
-        this.isLoading = false;
-      }
-    });
+      request.subscribe({
+        next: () => {
+          this.router.navigate(['/settings', 'menu', 'category', this.menuId, 'pages']);
+        },
+        error: (error) => {
+          console.error('Error saving page:', error);
+          this.error = 'Error saving page';
+          this.isLoading = false;
+        }
+      });
+    }
   }
 
   onCancel(): void {
-    this.router.navigate(['..'], { relativeTo: this.route });
+    this.router.navigate(['/settings', 'menu', 'category', this.menuId, 'pages']);
   }
 
   onRoleChange(role: RoleDto, event: Event): void {
     const checkbox = event.target as HTMLInputElement;
-    const currentRoles = this.pageForm.get('roles')?.value as RoleDto[] || [];
-    
+    const currentRoles = this.pageForm.get('roles')?.value as number[] || [];
+
     if (checkbox.checked) {
-      if (!currentRoles.some(r => r.id === role.id)) {
-        this.pageForm.get('roles')?.setValue([...currentRoles, role]);
-      }
+      this.pageForm.patchValue({
+        roles: [...currentRoles, role.id]
+      });
     } else {
-      this.pageForm.get('roles')?.setValue(currentRoles.filter(r => r.id !== role.id));
+      this.pageForm.patchValue({
+        roles: currentRoles.filter(id => id !== role.id)
+      });
     }
   }
 
   isRoleSelected(role: RoleDto): boolean {
-    const roles = this.pageForm.get('roles')?.value as RoleDto[] || [];
-    return roles.some(r => r.id === role.id);
+    const currentRoles = this.pageForm.get('roles')?.value as number[] || [];
+    return currentRoles.includes(role.id);
   }
 } 

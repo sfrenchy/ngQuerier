@@ -47,7 +47,7 @@
                       [class.opacity-0]="!isExpanded"
                       [class.w-0]="!isExpanded"
                       [class.w-auto]="isExpanded">
-                  {{ menu.names[userService.getCurrentLanguage()] || Object.values(menu.names)[0] }}
+                  {{ getTranslatedTitle(menu.title) }}
                 </span>
                 <i *ngIf="isExpanded && getCategoryPages(menu.id).length > 0" 
                    class="fas fa-chevron-right ml-2"
@@ -55,7 +55,7 @@
                 <div *ngIf="!isExpanded" 
                      class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                      style="transform: translateX(10px)">
-                  {{ menu.names[userService.getCurrentLanguage()] || Object.values(menu.names)[0] }}
+                  {{ getTranslatedTitle(menu.title) }}
                 </div>
               </button>
 
@@ -68,7 +68,7 @@
                      class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
                     <i [class]="page.icon + ' mr-2'"></i>
                     <span class="truncate">
-                      {{ page.names[userService.getCurrentLanguage()] || Object.values(page.names)[0] || 'Dashboard' }}
+                      {{ getTranslatedTitle(page.title) || 'Dashboard' }}
                     </span>
                   </a>
                 </ng-container>

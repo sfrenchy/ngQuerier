@@ -12,22 +12,14 @@
       </div>
 
       <form [formGroup]="pageForm" (ngSubmit)="onSubmit()" class="space-y-6">
-        <!-- Names -->
-        <div formGroupName="title">
+        <!-- Titles -->
+        <div>
           <label class="block mb-4">
             <span class="text-sm font-medium">{{ 'COMMON.NAME' | translate }}</span>
-            <div class="mt-2 space-y-4">
-              <div *ngFor="let lang of supportedLanguages">
-                <label [for]="'title-' + lang" class="block text-sm font-medium mb-1">
-                  {{ 'LANGUAGES.' + lang.toUpperCase() | translate }}
-                </label>
-                <input
-                  [id]="'title-' + lang"
-                  type="text"
-                  [formControlName]="lang"
-                  class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-              </div>
+            <div class="mt-2">
+              <app-translatable-string-form
+                [(translations)]="pageTitles"
+              ></app-translatable-string-form>
             </div>
           </label>
         </div>
@@ -67,52 +59,50 @@
           </label>
         </div>
 
+        <!-- Visibility -->
+        <div>
+          <label class="flex items-center space-x-3">
+            <input
+              type="checkbox"
+              formControlName="isVisible"
+              class="h-4 w-4 rounded border-gray-600 text-blue-600 focus:ring-blue-500 bg-gray-700"
+            >
+            <span class="text-sm font-medium">{{ 'COMMON.VISIBLE' | translate }}</span>
+          </label>
+        </div>
+
         <!-- Roles -->
         <div>
           <span class="block text-sm font-medium mb-2">{{ 'COMMON.ROLES' | translate }}</span>
           <div class="space-y-2">
-            <div *ngFor="let role of availableRoles" class="flex items-center">
+            <div *ngFor="let role of availableRoles" class="flex items-center space-x-3">
               <input
                 type="checkbox"
                 [id]="'role-' + role.id"
                 [checked]="isRoleSelected(role)"
                 (change)="onRoleChange(role, $event)"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded"
+                class="h-4 w-4 rounded border-gray-600 text-blue-600 focus:ring-blue-500 bg-gray-700"
               >
-              <label [for]="'role-' + role.id" class="ml-2 text-sm">
-                {{ role.name }}
-              </label>
+              <label [for]="'role-' + role.id" class="text-sm">{{ role.name }}</label>
             </div>
           </div>
         </div>
 
-        <!-- Visibility -->
-        <div>
-          <label class="inline-flex items-center">
-            <input
-              type="checkbox"
-              formControlName="isVisible"
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded"
-            >
-            <span class="ml-2 text-sm font-medium">{{ 'COMMON.VISIBILITY' | translate }}</span>
-          </label>
-        </div>
-
         <!-- Actions -->
-        <div class="flex justify-end space-x-4">
+        <div class="flex justify-end space-x-4 pt-4">
           <button
             type="button"
             (click)="onCancel()"
-            class="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+            class="px-4 py-2 border border-gray-600 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
           >
             {{ 'COMMON.CANCEL' | translate }}
           </button>
           <button
             type="submit"
             [disabled]="pageForm.invalid || isLoading"
-            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {{ 'COMMON.SAVE' | translate }}
+            {{ (isEditMode ? 'COMMON.SAVE' : 'COMMON.CREATE') | translate }}
           </button>
         </div>
       </form>

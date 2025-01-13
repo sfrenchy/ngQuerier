@@ -6,11 +6,14 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UserService } from '@services/user.service';
 import { ApiService } from '@services/api.service';
 import { IconPickerComponent } from '@shared/components/icon-picker/icon-picker.component';
+import { TranslatableString, RoleDto, MenuCreateDto, MenuDto } from '@models/api.models';
+import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
+
 @Component({
   selector: 'app-menu-form',
   templateUrl: './menu-form.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, IconPickerComponent]
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, IconPickerComponent, TranslatableStringFormComponent]
 })
 export class MenuFormComponent implements OnInit {
   menuForm: FormGroup;
@@ -18,8 +21,9 @@ export class MenuFormComponent implements OnInit {
   error: string | null = null;
   isEditMode = false;
   categoryId: number | null = null;
-  supportedLanguages = ['fr', 'en'];
-  availableRoles: string[] = [];
+  availableRoles: RoleDto[] = [];
+  menuTitles: TranslatableString[] = [];
+  currentMenu: MenuDto | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -30,15 +34,11 @@ export class MenuFormComponent implements OnInit {
     private translate: TranslateService
   ) {
     this.menuForm = this.fb.group({
-      Names: this.fb.group({
-        fr: ['', Validators.required],
-        en: ['', Validators.required]
-      }),
-      Icon: ['', Validators.required],
-      Order: [0, Validators.required],
-      IsVisible: [true],
-      Roles: [[]],
-      Route: ['', Validators.required]
+      icon: ['', Validators.required],
+      order: [0, Validators.required],
+      isVisible: [true],
+      roles: [[]],
+      route: ['', Validators.required]
     });
   }
 
@@ -49,16 +49,23 @@ export class MenuFormComponent implements OnInit {
       this.isEditMode = true;
       this.categoryId = +id;
       this.loadCategory(this.categoryId);
+    } else {
+      // Initialiser avec les langues par défaut seulement pour un nouveau menu
+      this.menuTitles = [
+        { languageCode: 'fr', value: '' },
+        { languageCode: 'en', value: '' }
+      ];
     }
   }
 
   loadRoles(): void {
     this.userService.getRoles().subscribe({
       next: (roles) => {
-        this.availableRoles = roles.map(role => role.name);
+        this.availableRoles = roles;
       },
       error: (error) => {
-        this.error = error.message;
+        console.error('Error loading roles:', error);
+        this.error = 'Error loading roles';
       }
     });
   }
@@ -67,39 +74,100 @@ export class MenuFormComponent implements OnInit {
     this.isLoading = true;
     this.apiService.getMenu(id).subscribe({
       next: (menu) => {
-        this.menuForm.patchValue({
-          title: menu.title,
-          Icon: menu.icon,
-          Order: menu.order,
-          IsVisible: menu.isVisible,
-          Roles: menu.roles,
-          Route: menu.route
+        this.currentMenu = menu;
+        // Copie profonde des traductions pour éviter les références partagées
+        this.menuTitles = JSON.parse(JSON.stringify(menu.title));
+        
+        // Mise à jour du formulaire après l'affectation des traductions
+        setTimeout(() => {
+          this.menuForm.patchValue({
+            icon: menu.icon,
+            order: menu.order,
+            isVisible: menu.isVisible,
+            roles: menu.roles.map(r => r.name),
+            route: menu.route
+          });
+          this.isLoading = false;
         });
-        this.isLoading = false;
       },
       error: (error) => {
-        this.error = error.message;
+        console.error('Error loading menu:', error);
+        this.error = 'Error loading menu';
         this.isLoading = false;
       }
     });
   }
 
+  isFormValid(): boolean {
+    if (!this.menuForm.valid) {
+      return false;
+    }
+    
+    // Vérifier que les titres sont valides
+    return this.menuTitles.some(title => 
+      title && 
+      title.languageCode && 
+      title.value && 
+      title.value.trim() !== ''
+    );
+  }
+
   onSubmit(): void {
-    if (this.menuForm.invalid) return;
+    if (this.isFormValid()) {
+      const formValue = { ...this.menuForm.value };
+      const selectedRoleNames = formValue.roles as string[];
+      const selectedRoles = this.availableRoles.filter(role => selectedRoleNames.includes(role.name));
 
+      if (this.isEditMode && this.currentMenu) {
+        // Pour la mise à jour, on utilise MenuDto
+        const menuData: MenuDto = {
+          ...this.currentMenu,
+          icon: formValue.icon,
+          order: formValue.order,
+          isVisible: formValue.isVisible,
+          route: formValue.route,
+          title: this.menuTitles,
+          roles: selectedRoles
+        };
+        this.updateMenu(menuData);
+      } else {
+        // Pour la création, on utilise MenuCreateDto
+        const menuData: MenuCreateDto = {
+          icon: formValue.icon,
+          order: formValue.order,
+          isVisible: formValue.isVisible,
+          route: formValue.route,
+          title: this.menuTitles,
+          roles: selectedRoles
+        };
+        this.createMenu(menuData);
+      }
+    }
+  }
+
+  private createMenu(menuData: MenuCreateDto): void {
     this.isLoading = true;
-    const formData = this.menuForm.value;
-
-    const saveObservable = this.isEditMode && this.categoryId
-      ? this.apiService.updateMenu(this.categoryId, formData)
-      : this.apiService.createMenu(formData);
-
-    saveObservable.subscribe({
+    this.apiService.createMenu(menuData).subscribe({
       next: () => {
         this.router.navigate(['/settings/menu']);
       },
       error: (error) => {
-        this.error = error.message;
+        console.error('Error creating menu:', error);
+        this.error = 'Error creating menu';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private updateMenu(menuData: MenuDto): void {
+    this.isLoading = true;
+    this.apiService.updateMenu(this.categoryId!, menuData).subscribe({
+      next: () => {
+        this.router.navigate(['/settings/menu']);
+      },
+      error: (error) => {
+        console.error('Error updating menu:', error);
+        this.error = 'Error updating menu';
         this.isLoading = false;
       }
     });
@@ -109,19 +177,23 @@ export class MenuFormComponent implements OnInit {
     this.router.navigate(['/settings/menu']);
   }
 
-  handleRoleChange(role: string, event: Event): void {
+  handleRoleChange(role: RoleDto, event: Event): void {
     const checkbox = event.target as HTMLInputElement;
-    const currentRoles = this.menuForm.get('Roles')?.value as string[] || [];
-    
+    const currentRoles = this.menuForm.get('roles')?.value as string[] || [];
+
     if (checkbox.checked) {
-      this.menuForm.get('Roles')?.setValue([...currentRoles, role]);
+      this.menuForm.patchValue({
+        roles: [...currentRoles, role.name]
+      });
     } else {
-      this.menuForm.get('Roles')?.setValue(currentRoles.filter(r => r !== role));
+      this.menuForm.patchValue({
+        roles: currentRoles.filter(r => r !== role.name)
+      });
     }
   }
 
-  isRoleSelected(role: string): boolean {
-    const roles = this.menuForm.get('Roles')?.value as string[] || [];
-    return roles.includes(role);
+  isRoleSelected(role: RoleDto): boolean {
+    const roles = this.menuForm.get('roles')?.value as string[] || [];
+    return roles.includes(role.name);
   }
 }

@@ -141,16 +141,16 @@ export interface MenuDto {
   icon: string;
   order: number;
   isVisible: boolean;
-  roles: string[];
+  roles: RoleDto[];
   route: string;
 }
 
 export interface MenuCreateDto {
-  names: { [key: string]: string };
+  title: TranslatableString[];
   icon: string;
   order: number;
   isVisible: boolean;
-  roles: string[];
+  roles: RoleDto[];
   route: string;
 }
 

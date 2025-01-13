@@ -5,11 +5,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UserService } from '@services/user.service';
 import { ApiService } from '@services/api.service';
+import { IconPickerComponent } from '@shared/components/icon-picker/icon-picker.component';
+
 @Component({
   selector: 'app-page-form',
   templateUrl: './page-form.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule]
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, IconPickerComponent]
 })
 export class PageFormComponent implements OnInit {
   pageForm: FormGroup;

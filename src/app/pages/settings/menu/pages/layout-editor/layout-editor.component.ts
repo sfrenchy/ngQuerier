@@ -1,7 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import 'reflect-metadata';
+import { Component, OnInit, OnDestroy, Type, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CdkDragDrop, moveItemInArray, DragDropModule, transferArrayItem, CdkDrag, CdkDropList } from '@angular/cdk/drag-drop';
-import { LayoutDto, RowDto } from '../../../../../models/api.models';
+import { LayoutDto, RowDto, CardDto } from '@models/api.models';
+import { BaseCardComponent } from './cards/base-card.component';
+import { CardService, CardType } from './cards/card.service';
 
 @Component({
   selector: 'app-layout-editor',
@@ -16,17 +19,25 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     rows: []
   };
 
+  availableCards: CardType[] = [];
+
   nextRowId = 1;
+  nextCardId = 1;
   private resizing = false;
   private currentRowId: number | null = null;
   private startY = 0;
   private startHeight = 0;
 
-  constructor() { }
+  constructor(
+    private injector: Injector,
+    private cardService: CardService
+  ) {}
 
-  ngOnInit(): void {
+  async ngOnInit() {
     document.addEventListener('mousemove', this.onMouseMove.bind(this));
     document.addEventListener('mouseup', this.onMouseUp.bind(this));
+    
+    this.availableCards = await this.cardService.discoverCards();
   }
 
   ngOnDestroy(): void {
@@ -34,34 +45,56 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     document.removeEventListener('mouseup', this.onMouseUp.bind(this));
   }
 
+  getCardComponent(type: string): Type<BaseCardComponent> | null {
+    return this.cardService.getCardComponent(type);
+  }
+
   canDrop = (drag: CdkDrag, drop: CdkDropList) => {
-    // Autoriser le drop uniquement si on déplace une ligne depuis la toolbox
-    return drag.data === 'row';
+    return drag.data === 'row' || this.availableCards.some(card => card.type === drag.data);
   };
 
-  onRowDrop(event: CdkDragDrop<any>) {
+  onDrop(event: CdkDragDrop<any>) {
     if (event.previousContainer === event.container) {
       moveItemInArray(this.layout.rows, event.previousIndex, event.currentIndex);
       // Mettre à jour l'ordre des lignes
       this.layout.rows.forEach((row: RowDto, index: number) => {
         row.order = index + 1;
       });
-    } else if (event.previousContainer.data === 'row') {
-      // Ajouter une nouvelle ligne
-      const newRow: RowDto = {
-        id: this.nextRowId++,
-        order: this.layout.rows.length + 1,
-        height: 100,
-        cards: []
-      };
-      
-      // Insérer la nouvelle ligne à la position du drop
-      this.layout.rows.splice(event.currentIndex, 0, newRow);
-      
-      // Mettre à jour l'ordre des lignes
-      this.layout.rows.forEach((row: RowDto, index: number) => {
-        row.order = index + 1;
-      });
+    } else {
+      const dragData = event.item.data;
+      if (dragData === 'row') {
+        // Ajouter une nouvelle ligne
+        const newRow: RowDto = {
+          id: this.nextRowId++,
+          order: this.layout.rows.length + 1,
+          height: 100,
+          cards: []
+        };
+        
+        // Insérer la nouvelle ligne à la position du drop
+        this.layout.rows.splice(event.currentIndex, 0, newRow);
+        
+        // Mettre à jour l'ordre des lignes
+        this.layout.rows.forEach((row: RowDto, index: number) => {
+          row.order = index + 1;
+        });
+      } else {
+        // Ajouter une nouvelle carte
+        const cardConfig = this.availableCards.find(c => c.type === dragData);
+        if (cardConfig) {
+          const newCard: CardDto = {
+            id: this.nextCardId++,
+            type: dragData,
+            title: cardConfig.title,
+            gridWidth: 4,
+            backgroundColor: '#ffffff',
+            config: {}
+          };
+          
+          const rowIndex = event.currentIndex;
+          this.layout.rows[rowIndex].cards.push(newCard);
+        }
+      }
     }
   }
 
@@ -100,5 +133,20 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   private onMouseUp(): void {
     this.resizing = false;
     this.currentRowId = null;
+  }
+
+  onConfigureCard(card: CardDto): void {
+    // TODO: Ouvrir le dialogue de configuration
+    console.log('Configure card:', card);
+  }
+
+  onDeleteCard(rowId: number, card: CardDto): void {
+    const row = this.layout.rows.find(r => r.id === rowId);
+    if (row) {
+      const cardIndex = row.cards.findIndex(c => c.id === card.id);
+      if (cardIndex !== -1) {
+        row.cards.splice(cardIndex, 1);
+      }
+    }
   }
 }

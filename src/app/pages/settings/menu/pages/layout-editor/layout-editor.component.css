@@ -1,4 +1,8 @@
 /* Styles pour le drag & drop */
+.editor-area.cdk-drop-list-dragging-over {
+  @apply border-2 border-dashed border-blue-500 bg-blue-50;
+}
+
 .cdk-drag-preview {
   @apply box-border rounded-lg shadow-lg;
 }

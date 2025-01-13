@@ -26,6 +26,7 @@
     "@ngx-translate/http-loader": "^16.0.1",
     "monaco-editor": "^0.52.2",
     "ngx-monaco-editor-v2": "^19.0.2",
+    "reflect-metadata": "^0.2.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

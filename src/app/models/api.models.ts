@@ -280,10 +280,14 @@ export interface ApiUserUpdateDto {
   roles: RoleDto[];
 }
 
-export interface LayoutDto {
-  pageId: number;
-  rows: RowDto[];
-} 
+export interface CardDto {
+  id: number;
+  type: string;
+  title: string;
+  gridWidth: number;
+  backgroundColor?: string;
+  config?: { [key: string]: any };
+}
 
 export interface RowDto {
   id: number;
@@ -292,18 +296,9 @@ export interface RowDto {
   cards: CardDto[];
 }
 
-export interface CardDto {
-  id: number;
-  titles: { [key: string]: string };
-  order: number;
-  type: string;
-  gridwidth: number;
-  configuration: any;
-  backgroundColor: string;
-  textColor: string;
-  headerBackgroundColor: string;
-  headerTextColor: string;
-  rowId: number;
+export interface LayoutDto {
+  pageId: number;
+  rows: RowDto[];
 }
 
 export interface PaginationParametersDto {

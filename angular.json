@@ -41,7 +41,10 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "reflect-metadata"
+            ]
           },
           "configurations": {
             "production": {

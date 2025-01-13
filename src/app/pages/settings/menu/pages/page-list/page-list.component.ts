@@ -4,12 +4,15 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MenuDto, PageDto } from '@models/api.models';
 import { ApiService } from '@services/api.service';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
+import { fas } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-page-list',
   templateUrl: './page-list.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule]
+  imports: [CommonModule, TranslateModule, FontAwesomeModule]
 })
 export class PageListComponent implements OnInit {
   pages: PageDto[] = [];
@@ -21,8 +24,11 @@ export class PageListComponent implements OnInit {
     private apiService: ApiService,
     private router: Router,
     private route: ActivatedRoute,
-    private translate: TranslateService
-  ) { }
+    private translate: TranslateService,
+    private library: FaIconLibrary
+  ) {
+    library.addIconPacks(fas);
+  }
 
   ngOnInit(): void {
     const categoryId = this.route.snapshot.paramMap.get('categoryId');
@@ -88,10 +94,10 @@ export class PageListComponent implements OnInit {
   }
 
   getLocalizedName(item: PageDto | MenuDto): string {
-    if (!item || !item.names) {
+    if (!item || !item.title) {
       return '';
     }
     const currentLang = this.translate.currentLang || this.translate.defaultLang || 'fr';
-    return item.names[currentLang] || Object.values(item.names)[0] || '';
+    return item.title.find(t => t.languageCode === currentLang)?.value || '';
   }
 } 

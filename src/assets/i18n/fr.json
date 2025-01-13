@@ -312,5 +312,12 @@
   "LANGUAGES": {
     "EN": "Anglais",
     "FR": "Français"
+  },
+  "ICON_PICKER": {
+    "SEARCH_PLACEHOLDER": "Rechercher des icônes...",
+    "CLOSE": "Fermer",
+    "PREVIOUS": "Précédent",
+    "NEXT": "Suivant",
+    "PAGE": "Page"
   }
 } 

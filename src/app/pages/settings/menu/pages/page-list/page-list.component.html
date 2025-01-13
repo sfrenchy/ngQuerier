@@ -54,10 +54,12 @@
           <tbody class="divide-y divide-gray-700">
             <tr *ngFor="let page of pages" class="hover:bg-gray-700">
               <td class="px-6 py-4 whitespace-nowrap">
-                {{ getLocalizedName(page) }}
+                <div class="flex items-center">
+                  {{ getLocalizedName(page) }}
+                </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <i [class]="page.icon"></i>
+                <i [class]="page.icon"><fa-icon [icon]="['fas', page.icon]"></fa-icon></i>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 {{ page.order }}
@@ -73,7 +75,7 @@
               <td class="px-6 py-4">
                 <div class="flex flex-wrap gap-2">
                   <span *ngFor="let role of page.roles" class="px-2 py-1 text-xs rounded bg-blue-600">
-                    {{ role }}
+                    {{ role.name }}
                   </span>
                 </div>
               </td>

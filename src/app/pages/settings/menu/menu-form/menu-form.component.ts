@@ -6,7 +6,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UserService } from '@services/user.service';
 import { ApiService } from '@services/api.service';
 import { IconPickerComponent } from '@shared/components/icon-picker/icon-picker.component';
-
 @Component({
   selector: 'app-menu-form',
   templateUrl: './menu-form.component.html',
@@ -69,7 +68,7 @@ export class MenuFormComponent implements OnInit {
     this.apiService.getMenu(id).subscribe({
       next: (menu) => {
         this.menuForm.patchValue({
-          Names: menu.names,
+          title: menu.title,
           Icon: menu.icon,
           Order: menu.order,
           IsVisible: menu.isVisible,

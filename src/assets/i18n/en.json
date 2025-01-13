@@ -310,5 +310,12 @@
   "LANGUAGES": {
     "EN": "English",
     "FR": "French"
+  },
+  "ICON_PICKER": {
+    "SEARCH_PLACEHOLDER": "Search icons...",
+    "CLOSE": "Close",
+    "PREVIOUS": "Previous",
+    "NEXT": "Next",
+    "PAGE": "Page"
   }
 } 

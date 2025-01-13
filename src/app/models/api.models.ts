@@ -137,7 +137,7 @@ export interface DBConnectionAnalyzeQueryDto {
 
 export interface MenuDto {
   id: number;
-  names: { [key: string]: string };
+  title: TranslatableString[];
   icon: string;
   order: number;
   isVisible: boolean;
@@ -154,9 +154,14 @@ export interface MenuCreateDto {
   route: string;
 }
 
+export interface TranslatableString {
+  languageCode: string;
+  value: string;
+}
+
 export interface PageDto {
   id: number;
-  names: { [key: string]: string };
+  title: TranslatableString[];
   icon: string;
   order: number;
   isVisible: boolean;
@@ -166,7 +171,7 @@ export interface PageDto {
 }
 
 export interface PageCreateDto {
-  names: { [key: string]: string };
+  title: TranslatableString[];
   icon: string;
   order: number;
   isVisible: boolean;

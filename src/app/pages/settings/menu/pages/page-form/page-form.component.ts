@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { UserService } from '@services/user.service';
 import { ApiService } from '@services/api.service';
+import { RoleDto } from '@models/api.models';
 import { IconPickerComponent } from '@shared/components/icon-picker/icon-picker.component';
 
 @Component({
@@ -21,7 +22,7 @@ export class PageFormComponent implements OnInit {
   pageId: number | null = null;
   menuId: number | null = null;
   supportedLanguages = ['fr', 'en'];
-  availableRoles: string[] = [];
+  availableRoles: RoleDto[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -32,7 +33,7 @@ export class PageFormComponent implements OnInit {
     private translate: TranslateService
   ) {
     this.pageForm = this.fb.group({
-      names: this.fb.group({
+      title: this.fb.group({
         fr: ['', Validators.required],
         en: ['', Validators.required]
       }),
@@ -58,7 +59,7 @@ export class PageFormComponent implements OnInit {
   loadRoles(): void {
     this.userService.getRoles().subscribe({
       next: (roles) => {
-        this.availableRoles = roles.map(role => role.name);
+        this.availableRoles = roles;
       },
       error: (error) => {
         console.error('Error loading roles:', error);
@@ -72,11 +73,11 @@ export class PageFormComponent implements OnInit {
     this.apiService.getPage(id).subscribe({
       next: (page) => {
         this.pageForm.patchValue({
-          names: page.names,
+          title: page.title,
           icon: page.icon,
           order: page.order,
           isVisible: page.isVisible,
-          roles: page.roles.map(r => r.name),
+          roles: page.roles,
           route: page.route
         });
         this.isLoading = false;
@@ -93,8 +94,20 @@ export class PageFormComponent implements OnInit {
     if (this.pageForm.invalid || !this.menuId) return;
 
     this.isLoading = true;
+    const formValue = this.pageForm.value;
+    
+    // Transformer l'objet names en tableau de traductions
+    const titles = Object.entries(formValue.title).map(([lang, text]) => ({
+      languageCode: lang,
+      value: text as string
+    }));
+
     const formData = {
-      ...this.pageForm.value,
+      ...formValue,
+      title: titles,
+      roles: formValue.roles.filter((role: any) => 
+        typeof role === 'object' && role !== null && 'id' in role && 'name' in role
+      ),
       menuId: this.menuId
     };
 
@@ -118,19 +131,21 @@ export class PageFormComponent implements OnInit {
     this.router.navigate(['..'], { relativeTo: this.route });
   }
 
-  onRoleChange(role: string, event: Event): void {
+  onRoleChange(role: RoleDto, event: Event): void {
     const checkbox = event.target as HTMLInputElement;
-    const currentRoles = this.pageForm.get('roles')?.value as string[] || [];
+    const currentRoles = this.pageForm.get('roles')?.value as RoleDto[] || [];
     
     if (checkbox.checked) {
-      this.pageForm.get('roles')?.setValue([...currentRoles, role]);
+      if (!currentRoles.some(r => r.id === role.id)) {
+        this.pageForm.get('roles')?.setValue([...currentRoles, role]);
+      }
     } else {
-      this.pageForm.get('roles')?.setValue(currentRoles.filter(r => r !== role));
+      this.pageForm.get('roles')?.setValue(currentRoles.filter(r => r.id !== role.id));
     }
   }
 
-  isRoleSelected(role: string): boolean {
-    const roles = this.pageForm.get('roles')?.value as string[] || [];
-    return roles.includes(role);
+  isRoleSelected(role: RoleDto): boolean {
+    const roles = this.pageForm.get('roles')?.value as RoleDto[] || [];
+    return roles.some(r => r.id === role.id);
   }
 } 

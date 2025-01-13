@@ -87,10 +87,10 @@ export class MenuListComponent {
   }
 
   getLocalizedName(menu: MenuDto): string {
-    if (!menu || !menu.names) {
+    if (!menu || !menu.title || Array.isArray(menu.title)) {
       return '';
     }
     const currentLang = this.translate.currentLang || this.translate.defaultLang || 'fr';
-    return menu.names[currentLang] || Object.values(menu.names)[0] || '';
+    return menu.title[currentLang] || Object.values(menu.title)[0] || '';
   }
 }

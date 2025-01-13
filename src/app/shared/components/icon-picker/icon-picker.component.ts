@@ -1,16 +1,17 @@
 import { Component, forwardRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-icon-picker',
   templateUrl: './icon-picker.component.html',
   standalone: true,
-  imports: [CommonModule, FontAwesomeModule],
+  imports: [CommonModule, FontAwesomeModule, FormsModule, TranslateModule],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -26,6 +27,8 @@ export class IconPickerComponent implements ControlValueAccessor {
   currentPage = 1;
   pageSize = 64; // 8x8 grid
   private iconKeys: string[] = [];
+  searchTerm = '';
+  private allIconKeys: string[] = [];
 
   constructor(library: FaIconLibrary) {
     library.addIconPacks(fas);
@@ -39,7 +42,8 @@ export class IconPickerComponent implements ControlValueAccessor {
         uniqueIcons.add(value.iconName);
       }
     });
-    this.iconKeys = Array.from(uniqueIcons).sort();
+    this.allIconKeys = Array.from(uniqueIcons).sort();
+    this.iconKeys = [...this.allIconKeys];
   }
 
   private isIconDefinition(value: any): value is IconDefinition {
@@ -71,6 +75,24 @@ export class IconPickerComponent implements ControlValueAccessor {
   toggleDropdown(): void {
     if (!this.disabled) {
       this.isOpen = !this.isOpen;
+      if (this.isOpen) {
+        this.searchTerm = '';
+        this.currentPage = 1;
+        this.iconKeys = [...this.allIconKeys];
+      }
+    }
+  }
+
+  onSearch(term: string): void {
+    this.searchTerm = term;
+    this.currentPage = 1;
+    if (!term) {
+      this.iconKeys = [...this.allIconKeys];
+    } else {
+      const searchLower = term.toLowerCase();
+      this.iconKeys = this.allIconKeys.filter(key => 
+        key.toLowerCase().includes(searchLower)
+      );
     }
   }
 

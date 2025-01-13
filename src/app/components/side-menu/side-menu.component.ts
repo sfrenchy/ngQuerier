@@ -32,7 +32,13 @@ export class SideMenuComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private apiService: ApiService
-  ) {}
+  ) {
+    const savedPinnedState = localStorage.getItem('sideMenuPinned');
+    if (savedPinnedState) {
+      this.isPinned = JSON.parse(savedPinnedState);
+      this.isExpanded = this.isPinned;
+    }
+  }
 
   ngOnInit() {
     if (this.authService.isAuthenticated()) {
@@ -129,6 +135,7 @@ export class SideMenuComponent implements OnInit, OnDestroy {
     if (this.isPinned) {
       this.isExpanded = true;
     }
+    localStorage.setItem('sideMenuPinned', JSON.stringify(this.isPinned));
   }
 
   toggleSettings(): void {

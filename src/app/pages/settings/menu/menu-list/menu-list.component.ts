@@ -5,12 +5,13 @@ import { Router } from '@angular/router';
 import { ApiService } from '@services/api.service';
 import { MenuDto } from '@models/api.models';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-menu-list',
   templateUrl: './menu-list.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FontAwesomeModule]
+  imports: [CommonModule, TranslateModule, FontAwesomeModule, DragDropModule]
 })
 export class MenuListComponent {
   menus: MenuDto[] = [];
@@ -101,5 +102,20 @@ export class MenuListComponent {
       return 'fas fa-folder';
     }
     return menu.icon.startsWith('fas fa-') ? menu.icon : `fas fa-${menu.icon}`;
+  }
+
+  drop(event: CdkDragDrop<MenuDto[]>) {
+    moveItemInArray(this.menus, event.previousIndex, event.currentIndex);
+    
+    // Mettre à jour l'ordre de tous les menus
+    this.menus.forEach((menu, index) => {
+      const updatedMenu = { ...menu, order: index + 1 };
+      this.apiService.updateMenu(menu.id, updatedMenu).subscribe({
+        error: (error) => {
+          console.error('Error updating menu order:', error);
+          this.error = 'Error updating menu order';
+        }
+      });
+    });
   }
 }

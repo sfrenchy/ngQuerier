@@ -35,7 +35,6 @@ export class MenuFormComponent implements OnInit {
   ) {
     this.menuForm = this.fb.group({
       icon: ['', Validators.required],
-      order: [0, Validators.required],
       isVisible: [true],
       roles: [[]],
       route: ['', Validators.required]
@@ -82,7 +81,6 @@ export class MenuFormComponent implements OnInit {
         setTimeout(() => {
           this.menuForm.patchValue({
             icon: menu.icon,
-            order: menu.order,
             isVisible: menu.isVisible,
             roles: menu.roles.map(r => r.name),
             route: menu.route
@@ -123,7 +121,6 @@ export class MenuFormComponent implements OnInit {
         const menuData: MenuDto = {
           ...this.currentMenu,
           icon: formValue.icon,
-          order: formValue.order,
           isVisible: formValue.isVisible,
           route: formValue.route,
           title: this.menuTitles,
@@ -134,11 +131,11 @@ export class MenuFormComponent implements OnInit {
         // Pour la création, on utilise MenuCreateDto
         const menuData: MenuCreateDto = {
           icon: formValue.icon,
-          order: formValue.order,
           isVisible: formValue.isVisible,
           route: formValue.route,
           title: this.menuTitles,
-          roles: selectedRoles
+          roles: selectedRoles,
+          order: 9999 // Valeur par défaut élevée, sera réordonnée par le drag & drop
         };
         this.createMenu(menuData);
       }

@@ -66,10 +66,11 @@ export class SideMenuComponent implements OnInit, OnDestroy {
         return of([]);
       }),
       switchMap(menus => {
-        this.menus = menus;
+        // Trier les menus par ordre
+        this.menus = menus.sort((a, b) => a.order - b.order);
         
         // Create an array of observables for each menu's pages
-        const pageRequests = menus.map(menu => 
+        const pageRequests = this.menus.map(menu => 
           this.apiService.getMenuPages(menu.id).pipe(
             catchError(error => {
               console.error(`Failed to load pages for menu ${menu.id}:`, error);
@@ -83,7 +84,7 @@ export class SideMenuComponent implements OnInit, OnDestroy {
           pageRequests.map((request, index) => 
             request.pipe(
               catchError(error => {
-                console.error(`Failed to load pages for menu ${menus[index].id}:`, error);
+                console.error(`Failed to load pages for menu ${this.menus[index].id}:`, error);
                 return of([]);
               })
             )

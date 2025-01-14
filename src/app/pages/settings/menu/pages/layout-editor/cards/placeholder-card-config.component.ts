@@ -21,9 +21,12 @@ export class PlaceholderCardConfigComponent extends BaseCardConfigComponent<Plac
     fb: FormBuilder
   ) {
     super(fb);
+    this.translations = [];
   }
 
   override ngOnInit() {
+    this.translations = Array.isArray(this.card?.title) ? [...this.card.title] : [];
+    
     super.ngOnInit();
     
     if (this.card?.configuration?.label) {

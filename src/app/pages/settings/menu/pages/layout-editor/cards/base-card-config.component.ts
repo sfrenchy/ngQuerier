@@ -21,7 +21,7 @@ export class BaseCardConfigComponent<T extends BaseCardConfig = BaseCardConfig> 
   constructor(protected fb: FormBuilder) {}
 
   ngOnInit() {
-    this.translations = this.card?.title || [];
+    this.translations = Array.isArray(this.card?.title) ? [...this.card.title] : [];
     
     this.form = this.fb.group({
       gridWidth: [this.card?.gridWidth || 12],
@@ -33,7 +33,7 @@ export class BaseCardConfigComponent<T extends BaseCardConfig = BaseCardConfig> 
   }
 
   onTranslationsChange(translations: TranslatableString[]) {
-    this.translations = translations;
+    this.translations = Array.isArray(translations) ? [...translations] : [];
   }
 
   onSave() {

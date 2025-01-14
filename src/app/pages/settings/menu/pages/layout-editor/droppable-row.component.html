@@ -1,11 +1,8 @@
 <div class="relative bg-white border border-gray-200 rounded-lg shadow-sm hover:border-blue-500 transition-colors" 
-        [style.height.px]="row.height"
-        cdkDrag
-        [cdkDragData]="row">
-    <div class="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg opacity-50 h-full" *cdkDragPlaceholder></div>
+        [style.height.px]="row.height">
     
     <div class="flex items-center p-2 bg-gray-50 border-b border-gray-200 rounded-t-lg">
-    <span class="flex items-center cursor-move mr-2 text-gray-600" cdkDragHandle>
+    <span class="flex items-center cursor-move mr-2 text-gray-600">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M3 7a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 13a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
         </svg>
@@ -21,13 +18,7 @@
     </div>
 
     <!-- Grid des cartes -->
-    <div cdkDropListGroup>
-    <div class="grid grid-cols-12 gap-4 p-4 hover:bg-blue-50 transition-colors"
-            cdkDropList
-            #cardList="cdkDropList"
-            [cdkDropListData]="row.cards"
-            (cdkDropListDropped)="onCardDrop($event)"
-            [cdkDropListConnectedTo]="[cardToolbox]">
+    <div class="grid grid-cols-12 gap-4 p-4 hover:bg-blue-50 transition-colors">
         <ng-container *ngFor="let card of row.cards">
         <ng-container *ngComponentOutlet="
             getCardComponent(card.type);
@@ -38,7 +29,6 @@
             }">
         </ng-container>
         </ng-container>
-    </div>
     </div>
     
     <!-- Zone redimensionnable -->

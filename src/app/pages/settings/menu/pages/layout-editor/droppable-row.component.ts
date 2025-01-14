@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RowDto, CardDto } from '@models/api.models';
 import { BaseCardComponent } from './cards/base-card.component';
 import { Type } from '@angular/core';
+import { CardType } from './cards/card.service';
 
 @Component({
   selector: 'app-droppable-row',
@@ -18,19 +19,46 @@ export class DroppableRowComponent {
 
   @Output() deleteRow = new EventEmitter<number>();
   @Output() startResize = new EventEmitter<{event: MouseEvent, rowId: number}>();
-  @Output() cardDropped = new EventEmitter<{event: any, row: RowDto}>();
+  @Output() cardDropped = new EventEmitter<{event: DragEvent, row: RowDto}>();
   @Output() configureCard = new EventEmitter<{rowId: number, card: CardDto}>();
   @Output() deleteCard = new EventEmitter<{rowId: number, card: CardDto}>();
 
-  onCardDrop(event: any) {
-    this.cardDropped.emit({event, row: this.row});
+  get gridStyle() {
+    return {
+      'grid-template-columns': 'repeat(12, 1fr)'
+    };
+  }
+
+  onDeleteRow() {
+    this.deleteRow.emit(this.row.id);
+  }
+
+  onResizeStart(event: MouseEvent) {
+    this.startResize.emit({event, rowId: this.row.id});
+  }
+
+  onCardDrop(event: DragEvent) {
+    event.preventDefault();
+    if (!event.dataTransfer) return;
+
+    const type = event.dataTransfer.getData('text/plain');
+    if (type === 'card') {
+      this.cardDropped.emit({event, row: this.row});
+    }
   }
 
   onConfigureCard(card: CardDto) {
     this.configureCard.emit({rowId: this.row.id, card});
   }
 
-  onDeleteCard(rowId: number, card: CardDto) {
-    this.deleteCard.emit({rowId, card});
+  onDeleteCard(card: CardDto) {
+    this.deleteCard.emit({rowId: this.row.id, card});
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
   }
 } 

@@ -52,10 +52,28 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     return this.cardService.getCardComponent(type);
   }
 
-  onDrop(event: any) {
-    if (event.data === 'row') {
+  onDragStart(event: DragEvent) {
+    if (event.dataTransfer) {
+      event.dataTransfer.setData('text/plain', 'row');
+      event.dataTransfer.effectAllowed = 'move';
+    }
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    if (!event.dataTransfer) return;
+
+    const type = event.dataTransfer.getData('text/plain');
+    if (type === 'row') {
       const newRow: RowDto = {
-        id: this.nextRowId++,
+        id: this.layout.rows.length + 1,
         order: this.layout.rows.length,
         height: 200,
         cards: []
@@ -64,17 +82,23 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-  onCardDrop(event: any, row: RowDto) {
-    const cardType = event.data as CardType;
-    const newCard: CardDto = {
-      id: this.nextCardId++,
-      type: cardType.type,
-      title: cardType.title,
-      gridWidth: 4,
-      backgroundColor: '#ffffff',
-      config: {}
-    };
-    row.cards.push(newCard);
+  onCardDrop(event: DragEvent, row: RowDto) {
+    event.preventDefault();
+    if (!event.dataTransfer) return;
+
+    const type = event.dataTransfer.getData('text/plain');
+    if (type === 'card') {
+      const cardType = JSON.parse(event.dataTransfer.getData('application/json')) as CardType;
+      const newCard: CardDto = {
+        id: this.nextCardId++,
+        type: cardType.type,
+        title: cardType.title,
+        gridWidth: 4,
+        backgroundColor: '#ffffff',
+        config: {}
+      };
+      row.cards.push(newCard);
+    }
   }
 
   deleteRow(rowId: number) {
@@ -121,6 +145,14 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       if (index !== -1) {
         row.cards.splice(index, 1);
       }
+    }
+  }
+
+  onCardDragStart(event: DragEvent, cardType: CardType) {
+    if (event.dataTransfer) {
+      event.dataTransfer.setData('text/plain', 'card');
+      event.dataTransfer.setData('application/json', JSON.stringify(cardType));
+      event.dataTransfer.effectAllowed = 'move';
     }
   }
 }

@@ -305,10 +305,15 @@ export class PlaceholderCardConfig extends BaseCardConfig {
 export interface CardDto<T extends BaseCardConfig = BaseCardConfig> {
   id: number;
   type: string;
-  title: string;
+  title: TranslatableString[];
+  order: number;
   gridWidth: number;
   backgroundColor?: string;
-  config?: T;
+  textColor?: string;
+  headerTextColor?: string;
+  headerBackgroundColor?: string;
+  rowId: number;
+  configuration?: T;
 }
 
 // Type utilitaire pour la factory de configuration
@@ -323,9 +328,14 @@ export function mapCardFromApi<T extends BaseCardConfig>(
     id: jsonData.id,
     type: jsonData.type,
     title: jsonData.title,
+    order: jsonData.order,
     gridWidth: jsonData.gridWidth,
     backgroundColor: jsonData.backgroundColor,
-    config: jsonData.config ? configFactory(jsonData.config) : undefined
+    textColor: jsonData.textColor,
+    headerTextColor: jsonData.headerTextColor,
+    headerBackgroundColor: jsonData.headerBackgroundColor,
+    rowId: jsonData.rowId,
+    configuration: jsonData.configuration ? configFactory(jsonData.configuration) : undefined
   };
 }
 
@@ -343,9 +353,14 @@ export function mapCardToApi<T extends BaseCardConfig>(card: CardDto<T>): any {
     id: card.id,
     type: card.type,
     title: card.title,
+    order: card.order,
     gridWidth: card.gridWidth,
     backgroundColor: card.backgroundColor,
-    config: card.config?.toJson()
+    textColor: card.textColor,
+    headerTextColor: card.headerTextColor,
+    headerBackgroundColor: card.headerBackgroundColor,
+    rowId: card.rowId,
+    configuration: card.configuration?.toJson()
   };
 }
 

@@ -119,9 +119,14 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       id: this.nextCardId++,
       type: cardType.type,
       title: cardType.title,
+      order: 0,
+      rowId: event.row.id,
+      headerBackgroundColor: '#ffffff',
+      headerTextColor: '#000000',
+      textColor: '#000000',
       gridWidth: event.availableColumns,
       backgroundColor: '#ffffff',
-      config: metadata.configFactory({})
+      configuration: metadata.configFactory({})
     };
 
     const rowIndex = this.layout.rows.findIndex(r => r.id === event.row.id);

@@ -1,56 +1,55 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormControl, FormBuilder, FormGroup } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, FormBuilder } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { BaseCardConfigComponent } from './base-card-config.component';
-import { PlaceholderCardConfig, CardDto } from '@models/api.models';
+import { PlaceholderCardConfig } from '@models/api.models';
 import { CardConfigService } from './card-config.service';
+import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
 
 @Component({
   selector: 'app-placeholder-card-config',
   templateUrl: './placeholder-card-config.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, BaseCardConfigComponent, TranslateModule]
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, TranslatableStringFormComponent]
 })
 export class PlaceholderCardConfigComponent extends BaseCardConfigComponent<PlaceholderCardConfig> implements OnInit {
   labelControl = new FormControl('');
 
   constructor(
     private cardConfigService: CardConfigService,
-    private fb: FormBuilder
+    fb: FormBuilder
   ) {
-    super();
+    super(fb);
   }
 
-  ngOnInit() {
-    if (this.card?.config?.label) {
-      this.labelControl.setValue(this.card.config.label);
+  override ngOnInit() {
+    super.ngOnInit();
+    
+    if (this.card?.configuration?.label) {
+      this.labelControl.setValue(this.card.configuration.label);
     }
 
-    this.form = this.fb.group({
-      title: [this.card?.title || ''],
-      gridWidth: [this.card?.gridWidth || 12],
-      backgroundColor: [this.card?.backgroundColor || '#ffffff'],
-      config: this.fb.group({
-        label: this.labelControl
-      })
-    });
+    this.form.addControl('configuration', this.fb.group({
+      label: this.labelControl
+    }));
   }
 
-  onSave() {
+  override onSave() {
     if (this.form.valid) {
       const formValue = this.form.value;
       this.cardConfigService.emitSave({
         ...this.card,
         ...formValue,
-        config: {
+        title: this.translations,
+        configuration: {
           label: this.labelControl.value || ''
         }
-      } as CardDto<PlaceholderCardConfig>);
+      });
     }
   }
 
-  onCancel() {
+  override onCancel() {
     this.cardConfigService.emitCancel();
   }
 } 

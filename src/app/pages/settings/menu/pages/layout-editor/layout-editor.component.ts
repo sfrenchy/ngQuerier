@@ -23,6 +23,8 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   };
 
   availableCards: CardType[] = [];
+  isDraggingRow = false;
+  private isDraggingRowItem = false;
 
   nextRowId = 1;
   nextCardId = 1;
@@ -35,7 +37,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     private injector: Injector,
     private cardService: CardService
   ) {
-    // Bind the event handlers to maintain the correct 'this' context
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
   }
@@ -60,6 +61,8 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     if (event.dataTransfer) {
       event.dataTransfer.setData('text/plain', 'row');
       event.dataTransfer.effectAllowed = 'move';
+      this.isDraggingRowItem = true;
+      this.isDraggingRow = true;
     }
   }
 
@@ -67,11 +70,22 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     event.preventDefault();
     if (event.dataTransfer) {
       event.dataTransfer.dropEffect = 'move';
+      if (this.isDraggingRowItem) {
+        this.isDraggingRow = true;
+      }
+    }
+  }
+
+  onDragLeave(event: DragEvent) {
+    if (event.currentTarget === event.target) {
+      this.isDraggingRow = false;
     }
   }
 
   onDrop(event: DragEvent) {
     event.preventDefault();
+    this.isDraggingRow = false;
+    this.isDraggingRowItem = false;
     if (!event.dataTransfer) return;
 
     const type = event.dataTransfer.getData('text/plain');
@@ -83,6 +97,14 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
         cards: []
       };
       this.layout.rows.push(newRow);
+    }
+  }
+
+  onCardDragStart(event: DragEvent, cardType: CardType) {
+    if (event.dataTransfer) {
+      event.dataTransfer.setData('text/plain', 'card');
+      event.dataTransfer.setData('application/json', JSON.stringify(cardType));
+      event.dataTransfer.effectAllowed = 'move';
     }
   }
 
@@ -150,14 +172,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       if (index !== -1) {
         row.cards.splice(index, 1);
       }
-    }
-  }
-
-  onCardDragStart(event: DragEvent, cardType: CardType) {
-    if (event.dataTransfer) {
-      event.dataTransfer.setData('text/plain', 'card');
-      event.dataTransfer.setData('application/json', JSON.stringify(cardType));
-      event.dataTransfer.effectAllowed = 'move';
     }
   }
 }

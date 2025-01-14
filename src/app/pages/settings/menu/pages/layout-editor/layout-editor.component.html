@@ -33,8 +33,11 @@
   </div>
 
   <!-- Editing zone -->
-  <div class="flex-1 flex flex-col p-4 bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg min-h-[500px] overflow-y-auto"
+  <div class="flex-1 flex flex-col p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[500px] overflow-y-auto transition-colors"
+       [class.bg-gray-100]="!isDraggingRow"
+       [class.bg-gray-200]="isDraggingRow"
        (dragover)="onDragOver($event)"
+       (dragleave)="onDragLeave($event)"
        (drop)="onDrop($event)">
     <div class="flex flex-col gap-4">
       <app-droppable-row *ngFor="let row of layout.rows"

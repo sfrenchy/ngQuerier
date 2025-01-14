@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { CardDto } from '@models/api.models';
+import { BaseCardConfig, CardDto } from '@models/api.models';
 
 @Component({
   template: ''
 })
-export abstract class BaseCardComponent {
-  @Input() card!: CardDto;
-  @Input() config: any;
+export abstract class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> {
+  @Input() card!: CardDto<T>;
+  @Input() config!: T;
 } 

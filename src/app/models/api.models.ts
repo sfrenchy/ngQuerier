@@ -280,13 +280,73 @@ export interface ApiUserUpdateDto {
   roles: RoleDto[];
 }
 
-export interface CardDto {
+export abstract class BaseCardConfig {
+  abstract toJson(): any;
+}
+
+export class PlaceholderCardConfig extends BaseCardConfig {
+  constructor(public label: string) {
+    super();
+  }
+
+  toJson(): any {
+    return {
+      label: this.label
+    };
+  }
+
+  static fromJson(json: any): PlaceholderCardConfig {
+    return new PlaceholderCardConfig(
+      json?.label || 'Nouveau placeholder'
+    );
+  }
+}
+
+export interface CardDto<T extends BaseCardConfig = BaseCardConfig> {
   id: number;
   type: string;
   title: string;
   gridWidth: number;
   backgroundColor?: string;
-  config?: { [key: string]: any };
+  config?: T;
+}
+
+// Type utilitaire pour la factory de configuration
+export type CardConfigFactory<T extends BaseCardConfig> = (json: any) => T;
+
+// Fonction utilitaire pour mapper une CardDto depuis le JSON de l'API
+export function mapCardFromApi<T extends BaseCardConfig>(
+  jsonData: any, 
+  configFactory: CardConfigFactory<T>
+): CardDto<T> {
+  return {
+    id: jsonData.id,
+    type: jsonData.type,
+    title: jsonData.title,
+    gridWidth: jsonData.gridWidth,
+    backgroundColor: jsonData.backgroundColor,
+    config: jsonData.config ? configFactory(jsonData.config) : undefined
+  };
+}
+
+// Fonction utilitaire pour mapper un tableau de CardDto depuis le JSON de l'API
+export function mapCardsFromApi<T extends BaseCardConfig>(
+  jsonData: any[], 
+  configFactory: CardConfigFactory<T>
+): CardDto<T>[] {
+  return jsonData.map(card => mapCardFromApi<T>(card, configFactory));
+}
+
+// Fonction utilitaire pour mapper une CardDto vers le format JSON pour l'API
+export function mapCardToApi<T extends BaseCardConfig>(card: CardDto<T>): any {
+  return {
+    id: card.id,
+    type: card.type,
+    title: card.title,
+    gridWidth: card.gridWidth,
+    backgroundColor: card.backgroundColor,
+    config: card.config?.toJson()
+  };
 }
 
 export interface RowDto {

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CardDto } from '../../../../../../models/api.models';
+import { BaseCardConfig, CardDto } from '@models/api.models';
 
 @Component({
   selector: 'app-base-card-config',
@@ -9,9 +9,9 @@ import { CardDto } from '../../../../../../models/api.models';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule]
 })
-export abstract class BaseCardConfigComponent implements OnInit {
-  @Input() card!: CardDto;
-  @Output() save = new EventEmitter<CardDto>();
+export abstract class BaseCardConfigComponent<T extends BaseCardConfig = BaseCardConfig> implements OnInit {
+  @Input() card!: CardDto<T>;
+  @Output() save = new EventEmitter<CardDto<T>>();
   @Output() cancel = new EventEmitter<void>();
 
   protected form!: FormGroup;
@@ -31,7 +31,7 @@ export abstract class BaseCardConfigComponent implements OnInit {
 
   onSave(): void {
     if (this.form.valid) {
-      const updatedCard: CardDto = {
+      const updatedCard: CardDto<T> = {
         ...this.card,
         ...this.form.value
       };

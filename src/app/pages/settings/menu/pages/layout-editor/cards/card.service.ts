@@ -1,12 +1,16 @@
 import { Injectable, Type } from '@angular/core';
 import { BaseCardComponent } from './base-card.component';
 import { CardMetadata, getCardMetadata } from './card.decorator';
+import { BaseCardConfig, CardConfigFactory, CardDto, mapCardFromApi, mapCardToApi, mapCardsFromApi } from '@models/api.models';
+import { HttpClient } from '@angular/common/http';
+import { Observable, map } from 'rxjs';
 
 export interface CardType {
   type: string;
   title: string;
   component: Type<BaseCardComponent>;
   icon: string;
+  configFactory: CardConfigFactory<BaseCardConfig>;
 }
 
 @Injectable({
@@ -14,6 +18,14 @@ export interface CardType {
 })
 export class CardService {
   private availableCards: CardType[] = [];
+  private configFactories = new Map<string, CardConfigFactory<BaseCardConfig>>();
+
+  constructor(private http: HttpClient) {}
+
+  registerCardType(cardType: CardType) {
+    this.availableCards.push(cardType);
+    this.configFactories.set(cardType.type, cardType.configFactory);
+  }
 
   async discoverCards(): Promise<CardType[]> {
     if (this.availableCards.length > 0) {
@@ -44,5 +56,30 @@ export class CardService {
   getCardComponent(type: string): Type<BaseCardComponent> | null {
     const cardType = this.availableCards.find(c => c.type === type);
     return cardType?.component || null;
+  }
+
+  getCards(): Observable<CardDto<BaseCardConfig>[]> {
+    return this.http.get<any[]>('/api/cards').pipe(
+      map(cards => cards.map(card => {
+        const factory = this.configFactories.get(card.type);
+        if (!factory) {
+          throw new Error(`No configuration factory registered for card type: ${card.type}`);
+        }
+        return mapCardFromApi(card, factory);
+      }))
+    );
+  }
+
+  saveCard(card: CardDto<BaseCardConfig>): Observable<CardDto<BaseCardConfig>> {
+    const cardData = mapCardToApi(card);
+    return this.http.post<any>('/api/cards', cardData).pipe(
+      map(response => {
+        const factory = this.configFactories.get(response.type);
+        if (!factory) {
+          throw new Error(`No configuration factory registered for card type: ${response.type}`);
+        }
+        return mapCardFromApi(response, factory);
+      })
+    );
   }
 } 

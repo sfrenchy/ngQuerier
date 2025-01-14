@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import { Component, OnInit, OnDestroy, Type, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LayoutDto, RowDto, CardDto } from '@models/api.models';
+import { LayoutDto, RowDto, CardDto, BaseCardConfig } from '@models/api.models';
 import { BaseCardComponent } from './cards/base-card.component';
 import { CardService, CardType } from './cards/card.service';
 import { DroppableRowComponent } from './droppable-row.component';
@@ -112,13 +112,16 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     if (!event.event.dataTransfer) return;
     
     const cardType = JSON.parse(event.event.dataTransfer.getData('application/json'));
-    const newCard: CardDto = {
+    const metadata = this.availableCards.find(c => c.type === cardType.type);
+    if (!metadata) return;
+
+    const newCard: CardDto<BaseCardConfig> = {
       id: this.nextCardId++,
       type: cardType.type,
       title: cardType.title,
       gridWidth: event.availableColumns,
       backgroundColor: '#ffffff',
-      config: {}
+      config: metadata.configFactory({})
     };
 
     const rowIndex = this.layout.rows.findIndex(r => r.id === event.row.id);

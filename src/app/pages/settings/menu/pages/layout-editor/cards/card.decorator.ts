@@ -1,10 +1,12 @@
 import { Type } from '@angular/core';
 import { BaseCardComponent } from './base-card.component';
+import { BaseCardConfig, CardConfigFactory } from '@models/api.models';
 
 export interface CardMetadata {
   type: string;
   title: string;
   icon: string;
+  configFactory: CardConfigFactory<BaseCardConfig>;
 }
 
 const CARD_METADATA_KEY = 'cardMetadata';

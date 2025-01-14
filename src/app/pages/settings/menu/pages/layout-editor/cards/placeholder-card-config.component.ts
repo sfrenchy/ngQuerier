@@ -2,10 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { BaseCardConfigComponent } from './base-card-config.component';
-
-interface PlaceholderConfig {
-  label: string;
-}
+import { PlaceholderCardConfig } from '@models/api.models';
 
 @Component({
   selector: 'app-placeholder-card-config',
@@ -21,11 +18,11 @@ interface PlaceholderConfig {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule]
 })
-export class PlaceholderCardConfigComponent extends BaseCardConfigComponent {
+export class PlaceholderCardConfigComponent extends BaseCardConfigComponent<PlaceholderCardConfig> {
   override getSpecificControls() {
     return {
       config: this.fb.group({
-        label: [(this.card.config as PlaceholderConfig)?.label || '', []]
+        label: [this.card.config?.label || '', []]
       })
     };
   }

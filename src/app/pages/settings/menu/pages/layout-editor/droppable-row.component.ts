@@ -19,14 +19,20 @@ export class DroppableRowComponent {
 
   @Output() deleteRow = new EventEmitter<number>();
   @Output() startResize = new EventEmitter<{event: MouseEvent, rowId: number}>();
-  @Output() cardDropped = new EventEmitter<{event: DragEvent, row: RowDto}>();
+  @Output() cardDropped = new EventEmitter<{event: DragEvent, row: RowDto, availableColumns: number}>();
   @Output() configureCard = new EventEmitter<{rowId: number, card: CardDto}>();
   @Output() deleteCard = new EventEmitter<{rowId: number, card: CardDto}>();
 
   get gridStyle() {
     return {
-      'grid-template-columns': 'repeat(12, 1fr)'
+      'grid-template-columns': 'repeat(12, 1fr)',
+      'display': 'grid'
     };
+  }
+
+  get availableColumns(): number {
+    const usedColumns = this.row.cards.reduce((total, card) => total + (card.gridWidth || 4), 0);
+    return Math.max(0, 12 - usedColumns);
   }
 
   onDeleteRow() {
@@ -43,7 +49,7 @@ export class DroppableRowComponent {
 
     const type = event.dataTransfer.getData('text/plain');
     if (type === 'card') {
-      this.cardDropped.emit({event, row: this.row});
+      this.cardDropped.emit({event, row: this.row, availableColumns: this.availableColumns});
     }
   }
 

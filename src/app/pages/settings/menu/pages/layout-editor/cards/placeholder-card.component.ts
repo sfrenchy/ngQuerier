@@ -1,12 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BaseCardComponent } from './base-card.component';
 import { Card } from './card.decorator';
-
-interface PlaceholderConfig {
-  label: string;
-}
 
 @Card({
   type: 'placeholder',
@@ -16,8 +11,8 @@ interface PlaceholderConfig {
 @Component({
   selector: 'app-placeholder-card',
   template: `
-    <div class="flex items-center justify-center h-full text-gray-500">
-      {{label}}
+    <div class="h-full flex items-center justify-center">
+      <span class="text-gray-500">{{label}}</span>
     </div>
   `,
   standalone: true,
@@ -25,16 +20,6 @@ interface PlaceholderConfig {
 })
 export class PlaceholderCardComponent extends BaseCardComponent {
   get label(): string {
-    return (this.card.config as PlaceholderConfig)?.label || 'Placeholder';
-  }
-
-  override getConfigForm(): FormGroup {
-    return new FormBuilder().group({
-      label: [this.label, Validators.required]
-    });
-  }
-
-  override getCardType(): string {
-    return 'placeholder';
+    return this.config?.label || 'Placeholder';
   }
 } 

@@ -34,18 +34,22 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   constructor(
     private injector: Injector,
     private cardService: CardService
-  ) {}
+  ) {
+    // Bind the event handlers to maintain the correct 'this' context
+    this.onMouseMove = this.onMouseMove.bind(this);
+    this.onMouseUp = this.onMouseUp.bind(this);
+  }
 
   async ngOnInit() {
-    document.addEventListener('mousemove', this.onMouseMove.bind(this));
-    document.addEventListener('mouseup', this.onMouseUp.bind(this));
+    document.addEventListener('mousemove', this.onMouseMove);
+    document.addEventListener('mouseup', this.onMouseUp);
     
     this.availableCards = await this.cardService.discoverCards();
   }
 
   ngOnDestroy(): void {
-    document.removeEventListener('mousemove', this.onMouseMove.bind(this));
-    document.removeEventListener('mouseup', this.onMouseUp.bind(this));
+    document.removeEventListener('mousemove', this.onMouseMove);
+    document.removeEventListener('mouseup', this.onMouseUp);
   }
 
   getCardComponent(type: string): Type<BaseCardComponent> | null {
@@ -73,7 +77,7 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     const type = event.dataTransfer.getData('text/plain');
     if (type === 'row') {
       const newRow: RowDto = {
-        id: this.layout.rows.length + 1,
+        id: this.nextRowId++,
         order: this.layout.rows.length,
         height: 200,
         cards: []
@@ -82,22 +86,22 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-  onCardDrop(event: DragEvent, row: RowDto) {
-    event.preventDefault();
-    if (!event.dataTransfer) return;
+  onCardDrop(event: {event: DragEvent, row: RowDto, availableColumns: number}) {
+    if (!event.event.dataTransfer) return;
+    
+    const cardType = JSON.parse(event.event.dataTransfer.getData('application/json'));
+    const newCard: CardDto = {
+      id: this.nextCardId++,
+      type: cardType.type,
+      title: cardType.title,
+      gridWidth: event.availableColumns,
+      backgroundColor: '#ffffff',
+      config: {}
+    };
 
-    const type = event.dataTransfer.getData('text/plain');
-    if (type === 'card') {
-      const cardType = JSON.parse(event.dataTransfer.getData('application/json')) as CardType;
-      const newCard: CardDto = {
-        id: this.nextCardId++,
-        type: cardType.type,
-        title: cardType.title,
-        gridWidth: 4,
-        backgroundColor: '#ffffff',
-        config: {}
-      };
-      row.cards.push(newCard);
+    const rowIndex = this.layout.rows.findIndex(r => r.id === event.row.id);
+    if (rowIndex !== -1) {
+      this.layout.rows[rowIndex].cards.push(newCard);
     }
   }
 
@@ -119,12 +123,13 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   }
 
   private onMouseMove(event: MouseEvent) {
-    if (this.resizing && this.currentRowId !== null) {
-      const deltaY = event.clientY - this.startY;
-      const row = this.layout.rows.find(r => r.id === this.currentRowId);
-      if (row) {
-        row.height = Math.max(100, this.startHeight + deltaY);
-      }
+    if (!this.resizing || this.currentRowId === null) return;
+
+    const deltaY = event.clientY - this.startY;
+    const row = this.layout.rows.find(r => r.id === this.currentRowId);
+    if (row) {
+      const newHeight = Math.max(100, this.startHeight + deltaY);
+      row.height = newHeight;
     }
   }
 

@@ -5,13 +5,14 @@ import { CdkDragDrop, moveItemInArray, DragDropModule, transferArrayItem, CdkDra
 import { LayoutDto, RowDto, CardDto } from '@models/api.models';
 import { BaseCardComponent } from './cards/base-card.component';
 import { CardService, CardType } from './cards/card.service';
+import { DroppableRowComponent } from './droppable-row.component';
 
 @Component({
   selector: 'app-layout-editor',
   templateUrl: './layout-editor.component.html',
   styleUrls: ['./layout-editor.component.css'],
   standalone: true,
-  imports: [CommonModule, DragDropModule]
+  imports: [CommonModule, DragDropModule, DroppableRowComponent]
 })
 export class LayoutEditorComponent implements OnInit, OnDestroy {
   layout: LayoutDto = {
@@ -49,8 +50,24 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     return this.cardService.getCardComponent(type);
   }
 
+  private getAvailableWidth(row: RowDto): number {
+    const usedWidth = row.cards.reduce((total, card) => total + card.gridWidth, 0);
+    return Math.max(0, 12 - usedWidth);
+  }
+
   canDrop = (drag: CdkDrag, drop: CdkDropList) => {
-    return drag.data === 'row' || this.availableCards.some(card => card.type === drag.data);
+    if (drag.data === 'row') {
+      return true;
+    }
+    
+    // Pour les cartes, vérifier s'il y a de l'espace disponible dans la ligne
+    const rowIndex = this.layout.rows.findIndex(row => row.cards === drop.data);
+    if (rowIndex !== -1) {
+      const availableWidth = this.getAvailableWidth(this.layout.rows[rowIndex]);
+      return availableWidth > 0;
+    }
+    
+    return this.availableCards.some(card => card.type === drag.data);
   };
 
   onDrop(event: CdkDragDrop<any>) {
@@ -60,39 +77,46 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       this.layout.rows.forEach((row: RowDto, index: number) => {
         row.order = index + 1;
       });
+    } else if (event.item.data === 'row') {
+      // Ajouter une nouvelle ligne
+      const newRow: RowDto = {
+        id: this.nextRowId++,
+        order: this.layout.rows.length + 1,
+        height: 100,
+        cards: []
+      };
+      
+      // Insérer la nouvelle ligne à la position du drop
+      this.layout.rows.splice(event.currentIndex, 0, newRow);
+      
+      // Mettre à jour l'ordre des lignes
+      this.layout.rows.forEach((row: RowDto, index: number) => {
+        row.order = index + 1;
+      });
+    }
+  }
+
+  onCardDrop(event: CdkDragDrop<CardDto[]>, row: RowDto) {
+    if (event.previousContainer === event.container) {
+      moveItemInArray(row.cards, event.previousIndex, event.currentIndex);
     } else {
       const dragData = event.item.data;
-      if (dragData === 'row') {
-        // Ajouter une nouvelle ligne
-        const newRow: RowDto = {
-          id: this.nextRowId++,
-          order: this.layout.rows.length + 1,
-          height: 100,
-          cards: []
-        };
+      const cardConfig = this.availableCards.find(c => c.type === dragData);
+      if (cardConfig) {
+        const availableWidth = this.getAvailableWidth(row);
         
-        // Insérer la nouvelle ligne à la position du drop
-        this.layout.rows.splice(event.currentIndex, 0, newRow);
-        
-        // Mettre à jour l'ordre des lignes
-        this.layout.rows.forEach((row: RowDto, index: number) => {
-          row.order = index + 1;
-        });
-      } else {
-        // Ajouter une nouvelle carte
-        const cardConfig = this.availableCards.find(c => c.type === dragData);
-        if (cardConfig) {
+        if (availableWidth > 0) {
           const newCard: CardDto = {
             id: this.nextCardId++,
             type: dragData,
             title: cardConfig.title,
-            gridWidth: 4,
+            gridWidth: availableWidth,
             backgroundColor: '#ffffff',
             config: {}
           };
           
-          const rowIndex = event.currentIndex;
-          this.layout.rows[rowIndex].cards.push(newCard);
+          // Insérer la nouvelle carte à la position du drop
+          row.cards.splice(event.currentIndex, 0, newCard);
         }
       }
     }

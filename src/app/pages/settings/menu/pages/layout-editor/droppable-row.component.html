@@ -19,7 +19,7 @@
   </div>
 
   <!-- Row content -->
-  <div class="p-4 bg-gray-50 rounded-lg border border-gray-200"
+  <div class="p-4 rounded-lg border border-gray-200"
        [style.height.px]="row.height"
        (dragover)="onDragOver($event)"
        (drop)="onCardDrop($event)">
@@ -53,8 +53,12 @@
 
       <!-- Empty state or Drop zone -->
       <div *ngIf="availableColumns > 0" 
-           class="flex items-center justify-center h-full bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg text-gray-500"
-           [ngStyle]="{'grid-column': 'span ' + availableColumns}">
+           class="flex items-center justify-center h-full border-2 border-dashed border-gray-300 rounded-lg text-gray-500 transition-colors"
+           [class.bg-gray-50]="!isDraggingCard"
+           [class.bg-gray-100]="isDraggingCard"
+           [ngStyle]="{'grid-column': 'span ' + availableColumns}"
+           (dragenter)="onDragEnter($event)"
+           (dragleave)="onDragLeave($event)">
         Glissez-déposez des cartes depuis la toolbox
       </div>
     </div>

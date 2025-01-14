@@ -23,6 +23,8 @@ export class DroppableRowComponent {
   @Output() configureCard = new EventEmitter<{rowId: number, card: CardDto}>();
   @Output() deleteCard = new EventEmitter<{rowId: number, card: CardDto}>();
 
+  isDraggingCard = false;
+
   get gridStyle() {
     return {
       'grid-template-columns': 'repeat(12, 1fr)',
@@ -45,12 +47,8 @@ export class DroppableRowComponent {
 
   onCardDrop(event: DragEvent) {
     event.preventDefault();
-    if (!event.dataTransfer) return;
-
-    const type = event.dataTransfer.getData('text/plain');
-    if (type === 'card') {
-      this.cardDropped.emit({event, row: this.row, availableColumns: this.availableColumns});
-    }
+    this.isDraggingCard = false;
+    this.cardDropped.emit({ event, row: this.row, availableColumns: this.availableColumns });
   }
 
   onConfigureCard(card: CardDto) {
@@ -63,8 +61,16 @@ export class DroppableRowComponent {
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
-    if (event.dataTransfer) {
-      event.dataTransfer.dropEffect = 'move';
-    }
+    event.dataTransfer!.dropEffect = 'copy';
+  }
+
+  onDragEnter(event: DragEvent) {
+    event.preventDefault();
+    this.isDraggingCard = true;
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    this.isDraggingCard = false;
   }
 } 

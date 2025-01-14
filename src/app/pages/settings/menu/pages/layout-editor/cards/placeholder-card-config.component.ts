@@ -1,60 +1,50 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormControl, FormBuilder } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, FormGroup } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { BaseCardConfigComponent } from './base-card-config.component';
 import { PlaceholderCardConfig } from '@models/api.models';
-import { CardConfigService } from './card-config.service';
-import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
+import { BaseCardConfigComponent } from './base-card-config.component';
 
 @Component({
   selector: 'app-placeholder-card-config',
-  templateUrl: './placeholder-card-config.component.html',
+  template: `
+    <div [formGroup]="form">
+      <div formGroupName="configuration">
+        <div>
+          <label class="block text-sm font-medium mb-2">{{'CARD.CONFIG.SPECIFIC.PLACEHOLDER.LABEL' | translate}}</label>
+          <div>
+            <input type="text" [formControl]="labelControl"
+                   class="block w-full h-11 rounded-md bg-[#25262b] border-0 text-gray-100
+                          ring-1 ring-inset ring-[#373A40] focus:ring-2 focus:ring-inset focus:ring-blue-500
+                          transition duration-150 ease-in-out text-base"
+                   [placeholder]="'CARD.CONFIG.SPECIFIC.PLACEHOLDER.LABEL_PLACEHOLDER' | translate">
+            <p class="mt-2 text-sm text-gray-400">
+              {{'CARD.CONFIG.SPECIFIC.PLACEHOLDER.LABEL_HELP' | translate}}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, TranslatableStringFormComponent]
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule]
 })
 export class PlaceholderCardConfigComponent extends BaseCardConfigComponent<PlaceholderCardConfig> implements OnInit {
   labelControl = new FormControl('');
-  isGeneralExpanded = true;
-  isSpecificExpanded = true;
-
-  constructor(
-    private cardConfigService: CardConfigService,
-    fb: FormBuilder
-  ) {
-    super(fb);
-    this.translations = [];
-  }
 
   override ngOnInit() {
-    this.translations = Array.isArray(this.card?.title) ? [...this.card.title] : [];
-    
     super.ngOnInit();
     
-    if (this.card?.configuration?.label) {
-      this.labelControl.setValue(this.card.configuration.label);
+    // Récupérer le groupe de configuration
+    const configGroup = this.form.get('configuration') as FormGroup;
+    if (configGroup) {
+      // Ajouter le contrôle label
+      configGroup.addControl('label', this.labelControl);
+      
+      // Initialiser avec la valeur existante si elle existe
+      if (this.card?.configuration?.label) {
+        this.labelControl.setValue(this.card.configuration.label);
+      }
     }
-
-    this.form.addControl('configuration', this.fb.group({
-      label: this.labelControl
-    }));
-  }
-
-  override onSave() {
-    if (this.form.valid) {
-      const formValue = this.form.value;
-      this.cardConfigService.emitSave({
-        ...this.card,
-        ...formValue,
-        title: this.translations,
-        configuration: {
-          label: this.labelControl.value || ''
-        }
-      });
-    }
-  }
-
-  override onCancel() {
-    this.cardConfigService.emitCancel();
   }
 } 

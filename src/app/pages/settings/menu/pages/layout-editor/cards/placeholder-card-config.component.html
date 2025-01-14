@@ -1,160 +1,17 @@
-<div [formGroup]="form" class="space-y-8">
-  <!-- Section générale -->
-  <div class="border border-[#373A40] rounded-lg overflow-hidden">
-    <button type="button" 
-            (click)="isGeneralExpanded = !isGeneralExpanded"
-            class="w-full px-6 py-4 flex items-center justify-between bg-[#25262b] hover:bg-[#2C2D31] transition-colors">
-      <h3 class="text-lg font-medium text-gray-100">{{'CARD.CONFIG.GENERAL.TITLE' | translate}}</h3>
-      <svg xmlns="http://www.w3.org/2000/svg" 
-           [class.rotate-180]="!isGeneralExpanded"
-           class="h-5 w-5 text-gray-400 transform transition-transform duration-200" 
-           viewBox="0 0 20 20" 
-           fill="currentColor">
-        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-      </svg>
-    </button>
-    
-    <div *ngIf="isGeneralExpanded" class="px-6 py-4 space-y-6 bg-[#1a1b1e]">
-      <!-- Titre -->
-  <div>
-    <app-translatable-string-form
-      [(translations)]="translations"
-      (translationsChange)="onTranslationsChange($event)">
-    </app-translatable-string-form>
-  </div>
-
-      <!-- Apparence -->
-      <div class="space-y-6">
-        <!-- Largeur -->
-  <div>
-      <label class="block text-sm font-medium mb-2">{{'CARD.CONFIG.GENERAL.WIDTH' | translate}}</label>
-      <select formControlName="gridWidth"
-              class="block w-full h-11 rounded-md bg-[#25262b] border-0 text-gray-100
-                     ring-1 ring-inset ring-[#373A40] focus:ring-2 focus:ring-inset focus:ring-blue-500
-                     transition duration-150 ease-in-out text-base">
-        <option [value]="3">{{'CARD.CONFIG.GENERAL.WIDTH_OPTIONS.25' | translate}}</option>
-        <option [value]="4">{{'CARD.CONFIG.GENERAL.WIDTH_OPTIONS.33' | translate}}</option>
-        <option [value]="6">{{'CARD.CONFIG.GENERAL.WIDTH_OPTIONS.50' | translate}}</option>
-        <option [value]="8">{{'CARD.CONFIG.GENERAL.WIDTH_OPTIONS.66' | translate}}</option>
-        <option [value]="9">{{'CARD.CONFIG.GENERAL.WIDTH_OPTIONS.75' | translate}}</option>
-        <option [value]="12">{{'CARD.CONFIG.GENERAL.WIDTH_OPTIONS.100' | translate}}</option>
-      </select>
-      <p class="mt-2 text-sm text-gray-400">
-        {{'CARD.CONFIG.GENERAL.WIDTH_HELP' | translate}}
-      </p>
-    </div>
-
-    <!-- Couleurs -->
-    <div class="space-y-6">
-      <!-- Couleur de fond -->
+<app-base-card-config [card]="card" (save)="onSave()" (cancel)="onCancel()">
+  <div formGroupName="configuration">
+    <div>
+      <label class="block text-sm font-medium mb-2">{{'CARD.CONFIG.SPECIFIC.PLACEHOLDER.LABEL' | translate}}</label>
       <div>
-        <label class="block text-sm font-medium mb-2">{{'CARD.CONFIG.GENERAL.BACKGROUND_COLOR' | translate}}</label>
-        <div class="flex items-center gap-3">
-          <input type="color" formControlName="backgroundColor"
-                class="h-11 w-28 rounded-md bg-[#25262b] border-0
-                       ring-1 ring-inset ring-[#373A40] focus:ring-2 focus:ring-inset focus:ring-blue-500
-                       transition duration-150 ease-in-out cursor-pointer">
-          <span class="text-base text-gray-400 font-mono">{{form.get('backgroundColor')?.value}}</span>
-        </div>
+        <input type="text" [formControl]="labelControl"
+               class="block w-full h-11 rounded-md bg-[#25262b] border-0 text-gray-100
+                      ring-1 ring-inset ring-[#373A40] focus:ring-2 focus:ring-inset focus:ring-blue-500
+                      transition duration-150 ease-in-out text-base"
+               [placeholder]="'CARD.CONFIG.SPECIFIC.PLACEHOLDER.LABEL_PLACEHOLDER' | translate">
         <p class="mt-2 text-sm text-gray-400">
-          {{'CARD.CONFIG.GENERAL.BACKGROUND_COLOR_HELP' | translate}}
+          {{'CARD.CONFIG.SPECIFIC.PLACEHOLDER.LABEL_HELP' | translate}}
         </p>
-      </div>
-
-      <!-- Couleur du texte -->
-      <div>
-        <label class="block text-sm font-medium mb-2">{{'CARD.CONFIG.GENERAL.TEXT_COLOR' | translate}}</label>
-        <div class="flex items-center gap-3">
-          <input type="color" formControlName="textColor"
-                class="h-11 w-28 rounded-md bg-[#25262b] border-0
-                       ring-1 ring-inset ring-[#373A40] focus:ring-2 focus:ring-inset focus:ring-blue-500
-                       transition duration-150 ease-in-out cursor-pointer">
-          <span class="text-base text-gray-400 font-mono">{{form.get('textColor')?.value}}</span>
-        </div>
-        <p class="mt-2 text-sm text-gray-400">
-          {{'CARD.CONFIG.GENERAL.TEXT_COLOR_HELP' | translate}}
-        </p>
-      </div>
-
-      <!-- Couleur de fond de l'en-tête -->
-      <div>
-        <label class="block text-sm font-medium mb-2">{{'CARD.CONFIG.GENERAL.HEADER_BACKGROUND_COLOR' | translate}}</label>
-        <div class="flex items-center gap-3">
-          <input type="color" formControlName="headerBackgroundColor"
-                class="h-11 w-28 rounded-md bg-[#25262b] border-0
-                       ring-1 ring-inset ring-[#373A40] focus:ring-2 focus:ring-inset focus:ring-blue-500
-                       transition duration-150 ease-in-out cursor-pointer">
-          <span class="text-base text-gray-400 font-mono">{{form.get('headerBackgroundColor')?.value}}</span>
-        </div>
-        <p class="mt-2 text-sm text-gray-400">
-          {{'CARD.CONFIG.GENERAL.HEADER_BACKGROUND_COLOR_HELP' | translate}}
-        </p>
-      </div>
-
-      <!-- Couleur du texte de l'en-tête -->
-      <div>
-        <label class="block text-sm font-medium mb-2">{{'CARD.CONFIG.GENERAL.HEADER_TEXT_COLOR' | translate}}</label>
-        <div class="flex items-center gap-3">
-          <input type="color" formControlName="headerTextColor"
-                class="h-11 w-28 rounded-md bg-[#25262b] border-0
-                       ring-1 ring-inset ring-[#373A40] focus:ring-2 focus:ring-inset focus:ring-blue-500
-                       transition duration-150 ease-in-out cursor-pointer">
-          <span class="text-base text-gray-400 font-mono">{{form.get('headerTextColor')?.value}}</span>
-        </div>
-        <p class="mt-2 text-sm text-gray-400">
-          {{'CARD.CONFIG.GENERAL.HEADER_TEXT_COLOR_HELP' | translate}}
-        </p>
-          </div>
-        </div>
       </div>
     </div>
   </div>
-
-  <!-- Configuration spécifique -->
-  <div class="border border-[#373A40] rounded-lg overflow-hidden">
-    <button type="button" 
-            (click)="isSpecificExpanded = !isSpecificExpanded"
-            class="w-full px-6 py-4 flex items-center justify-between bg-[#25262b] hover:bg-[#2C2D31] transition-colors">
-      <h3 class="text-lg font-medium text-gray-100">{{'CARD.CONFIG.SPECIFIC.TITLE' | translate}}</h3>
-      <svg xmlns="http://www.w3.org/2000/svg" 
-           [class.rotate-180]="!isSpecificExpanded"
-           class="h-5 w-5 text-gray-400 transform transition-transform duration-200" 
-           viewBox="0 0 20 20" 
-           fill="currentColor">
-        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-      </svg>
-    </button>
-    
-    <div *ngIf="isSpecificExpanded" class="px-6 py-4 bg-[#1a1b1e]">
-    <div formGroupName="configuration">
-      <div>
-        <label class="block text-sm font-medium mb-2">{{'CARD.CONFIG.SPECIFIC.PLACEHOLDER.LABEL' | translate}}</label>
-        <div>
-          <input type="text" [formControl]="labelControl"
-                 class="block w-full h-11 rounded-md bg-[#25262b] border-0 text-gray-100
-                        ring-1 ring-inset ring-[#373A40] focus:ring-2 focus:ring-inset focus:ring-blue-500
-                        transition duration-150 ease-in-out text-base"
-                 [placeholder]="'CARD.CONFIG.SPECIFIC.PLACEHOLDER.LABEL_PLACEHOLDER' | translate">
-          <p class="mt-2 text-sm text-gray-400">
-            {{'CARD.CONFIG.SPECIFIC.PLACEHOLDER.LABEL_HELP' | translate}}
-          </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Actions -->
-  <div class="flex justify-end space-x-4">
-    <button type="button" (click)="onCancel()"
-            class="px-4 py-2 rounded-md bg-[#25262b] text-gray-100 hover:bg-[#2C2D31]
-                   transition duration-150 ease-in-out">
-      {{'CARD.CONFIG.ACTIONS.CANCEL' | translate}}
-    </button>
-    <button type="button" (click)="onSave()"
-            class="px-4 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-600
-                   transition duration-150 ease-in-out">
-      {{'CARD.CONFIG.ACTIONS.SAVE' | translate}}
-    </button>
-  </div>
-</div> 
+</app-base-card-config> 

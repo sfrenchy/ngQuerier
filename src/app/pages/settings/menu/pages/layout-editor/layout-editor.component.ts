@@ -1,10 +1,10 @@
 import 'reflect-metadata';
 import { Component, OnInit, OnDestroy, Type, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LayoutDto, RowDto, CardDto, BaseCardConfig } from '@models/api.models';
+import { LayoutDto, RowDto, CardDto, BaseCardConfig, TranslatableString } from '@models/api.models';
 import { BaseCardComponent } from './cards/base-card.component';
 import { CardService, CardType } from './cards/card.service';
-import { DroppableRowComponent } from './droppable-row.component';
+import { DroppableRowComponent } from './cards/droppable-row.component';
 
 @Component({
   selector: 'app-layout-editor',
@@ -115,10 +115,15 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     const metadata = this.availableCards.find(c => c.type === cardType.type);
     if (!metadata) return;
 
+    const defaultTitle: TranslatableString[] = [
+      { languageCode: 'fr', value: cardType.title },
+      { languageCode: 'en', value: cardType.title }
+    ];
+
     const newCard: CardDto<BaseCardConfig> = {
       id: this.nextCardId++,
       type: cardType.type,
-      title: cardType.title,
+      title: defaultTitle,
       order: 0,
       rowId: event.row.id,
       headerBackgroundColor: '#ffffff',
@@ -166,11 +171,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   private onMouseUp() {
     this.resizing = false;
     this.currentRowId = null;
-  }
-
-  onConfigureCard(event: { rowId: number, card: CardDto }) {
-    // TODO: Implement card configuration
-    console.log('Configure card', event);
   }
 
   onDeleteCard(rowId: number, card: CardDto) {

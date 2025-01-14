@@ -89,4 +89,8 @@ export class CardService {
     const cardType = this.availableCards.find(c => c.type === type);
     return cardType?.configComponent || null;
   }
+
+  getCardMetadata(type: string): CardMetadata<any> | undefined {
+    return this.availableCards.find(card => card.type === type);
+  }
 } 

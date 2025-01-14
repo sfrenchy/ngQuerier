@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { BaseCardComponent } from './base-card.component';
-import { Card } from './card.decorator';
 import { PlaceholderCardConfig } from '@models/api.models';
+import { Card } from './card.decorator';
 import { PlaceholderCardConfigComponent } from './placeholder-card-config.component';
 
 @Card<PlaceholderCardConfig>({
@@ -14,16 +13,12 @@ import { PlaceholderCardConfigComponent } from './placeholder-card-config.compon
 })
 @Component({
   selector: 'app-placeholder-card',
-  template: `
-    <div class="h-full flex items-center justify-center">
-      <span class="text-gray-500">{{label}}</span>
-    </div>
-  `,
+  templateUrl: './placeholder-card.component.html',
   standalone: true,
-  imports: [CommonModule]
+  imports: [BaseCardComponent]
 })
 export class PlaceholderCardComponent extends BaseCardComponent<PlaceholderCardConfig> {
   get label(): string {
-    return this.config?.label || 'Placeholder';
+    return this.config.label || 'Placeholder';
   }
 } 

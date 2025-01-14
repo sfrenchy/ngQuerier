@@ -1,9 +1,16 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LayoutDto, RowDto, CardDto, BaseCardConfig } from '@models/api.models';
+import { LayoutDto, RowDto, CardDto } from '@models/api.models';
 import { DroppableRowComponent } from './cards/droppable-row.component';
 import { BaseCardComponent } from './cards/base-card.component';
 import { BaseCardConfigurationComponent } from './cards/base-card-configuration.component';
+import { CardService } from './cards/card.service';
+import { CardMetadata } from './cards/card.decorator';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
+interface CardMetadataWithSafeIcon extends CardMetadata {
+  safeIcon: SafeHtml;
+}
 
 @Component({
   selector: 'app-layout-editor',
@@ -47,21 +54,12 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   configCardData: { rowId: number; cardId: number; } | null = null;
   isFullscreen = false;
 
-  // Exemple de carte pour le drag and drop
-  baseCard: CardDto = {
-    id: 0,
-    type: 'base',
-    title: [{ languageCode: 'fr', value: 'Nouvelle carte' }],
-    order: 0,
-    gridWidth: 4,
-    backgroundColor: '#ffffff',
-    textColor: '#000000',
-    headerTextColor: '#000000',
-    headerBackgroundColor: '#f3f4f6',
-    rowId: 0
-  };
+  availableCards: CardMetadataWithSafeIcon[] = [];
 
-  constructor() {
+  constructor(
+    private cardService: CardService,
+    private sanitizer: DomSanitizer
+  ) {
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
   }
@@ -69,6 +67,10 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   ngOnInit() {
     document.addEventListener('mousemove', this.onMouseMove);
     document.addEventListener('mouseup', this.onMouseUp);
+    this.availableCards = this.cardService.getAvailableCards().map(card => ({
+      ...card,
+      safeIcon: this.sanitizer.bypassSecurityTrustHtml(card.icon)
+    }));
   }
 
   ngOnDestroy(): void {
@@ -76,11 +78,14 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     document.removeEventListener('mouseup', this.onMouseUp);
   }
 
-  onDragStart(event: DragEvent, type: 'row' | 'card') {
+  onDragStart(event: DragEvent, cardMetadata?: CardMetadata) {
     if (event.dataTransfer) {
-      event.dataTransfer.setData('text/plain', type);
+      event.dataTransfer.setData('text/plain', cardMetadata ? 'card' : 'row');
+      if (cardMetadata) {
+        event.dataTransfer.setData('cardType', cardMetadata.type.name);
+      }
       event.dataTransfer.effectAllowed = 'move';
-      if (type === 'row') {
+      if (!cardMetadata) {
         this.isDraggingRowItem = true;
         this.isDraggingRow = true;
       } else {
@@ -143,11 +148,16 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     if (availableSpace <= 0) return; // Pas d'espace disponible
 
     const newCard: CardDto = {
-      ...this.baseCard,
       id: this.nextCardId++,
-      rowId: event.rowId,
+      type: 'label', // TODO: Récupérer le type depuis le drag and drop
+      title: [{ languageCode: 'fr', value: 'Nouvelle carte' }],
       order: row.cards.length,
-      gridWidth: availableSpace // Utilise tout l'espace disponible
+      gridWidth: availableSpace,
+      backgroundColor: '#ffffff',
+      textColor: '#000000',
+      headerTextColor: '#000000',
+      headerBackgroundColor: '#f3f4f6',
+      rowId: event.rowId
     };
 
     const updatedRows = [...this.layout.rows];

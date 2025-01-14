@@ -15,6 +15,8 @@ import { TranslatableStringFormComponent } from '@shared/components/translatable
 })
 export class PlaceholderCardConfigComponent extends BaseCardConfigComponent<PlaceholderCardConfig> implements OnInit {
   labelControl = new FormControl('');
+  isGeneralExpanded = true;
+  isSpecificExpanded = true;
 
   constructor(
     private cardConfigService: CardConfigService,

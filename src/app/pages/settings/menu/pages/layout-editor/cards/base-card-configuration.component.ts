@@ -1,14 +1,14 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, Type, ViewChild, ViewContainerRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CardDto, RowDto, TranslatableString } from '@models/api.models';
+import { CardDto, RowDto } from '@models/api.models';
 import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
 import { TileComponent } from '@shared/components/tile/tile.component';
+import { CardRegistry } from './card.registry';
 
 @Component({
   selector: 'app-base-card-configuration',
   templateUrl: './base-card-configuration.component.html',
-  styleUrls: ['./base-card-configuration.component.css'],
   standalone: true,
   imports: [
     CommonModule,
@@ -17,16 +17,19 @@ import { TileComponent } from '@shared/components/tile/tile.component';
     TileComponent
   ]
 })
-export class BaseCardConfigurationComponent implements OnInit {
+export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
   @Input() card!: CardDto;
   @Input() row!: RowDto;
   @Input() isFullscreen = false;
   @Output() save = new EventEmitter<CardDto>();
   @Output() cancel = new EventEmitter<void>();
   @Output() toggleFullscreen = new EventEmitter<void>();
+  @ViewChild('configContainer', { read: ViewContainerRef }) configContainer!: ViewContainerRef;
 
   form: FormGroup;
   maxAvailableWidth: number = 12;
+  cardConfigComponent?: Type<any>;
+  cardConfig?: any;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -56,6 +59,41 @@ export class BaseCardConfigurationComponent implements OnInit {
       Validators.min(1),
       Validators.max(this.maxAvailableWidth)
     ]);
+
+    // Récupérer les métadonnées de la carte via le registre
+    console.log('[BaseCardConfiguration] Card type:', this.card.type);
+    const metadata = CardRegistry.getMetadata(this.card.type);
+    console.log('[BaseCardConfiguration] Found metadata:', metadata);
+    if (metadata) {
+      this.cardConfigComponent = metadata.configComponent;
+      console.log('[BaseCardConfiguration] Config component:', this.cardConfigComponent);
+    }
+    
+    // Initialiser la configuration spécifique
+    if (this.card.config) {
+      this.cardConfig = this.card.config;
+      console.log('[BaseCardConfiguration] Card config:', this.cardConfig);
+    }
+  }
+
+  ngAfterViewInit() {
+    console.log('[BaseCardConfiguration] AfterViewInit - Component:', this.cardConfigComponent);
+    console.log('[BaseCardConfiguration] AfterViewInit - Container:', this.configContainer);
+    if (this.cardConfigComponent && this.configContainer) {
+      // Créer le composant de configuration
+      const componentRef = this.configContainer.createComponent(this.cardConfigComponent);
+      console.log('[BaseCardConfiguration] Created component:', componentRef);
+      
+      // Définir les inputs
+      componentRef.setInput('card', this.card);
+      componentRef.setInput('config', this.cardConfig);
+      
+      // S'abonner aux outputs
+      componentRef.instance.save?.subscribe((config: any) => {
+        console.log('[BaseCardConfiguration] Config saved:', config);
+        this.onCardConfigSave(config);
+      });
+    }
   }
 
   private calculateMaxWidth() {
@@ -72,7 +110,8 @@ export class BaseCardConfigurationComponent implements OnInit {
     if (this.form.valid) {
       const updatedCard: CardDto = {
         ...this.card,
-        ...this.form.value
+        ...this.form.value,
+        config: this.cardConfig
       };
       this.save.emit(updatedCard);
     }
@@ -80,5 +119,9 @@ export class BaseCardConfigurationComponent implements OnInit {
 
   onCancel() {
     this.cancel.emit();
+  }
+
+  onCardConfigSave(config: any) {
+    this.cardConfig = config;
   }
 } 

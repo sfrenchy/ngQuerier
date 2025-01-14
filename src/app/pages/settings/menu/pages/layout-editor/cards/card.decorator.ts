@@ -1,20 +1,25 @@
-import 'reflect-metadata';
 import { Type } from '@angular/core';
+import { CardRegistry } from './card.registry';
 
-export interface CardMetadata<TConfig = any> {
-  type: Type<any>;
-  configComponent: Type<any>;
-  icon: string;
+export interface CardMetadata {
   name: string;
+  icon: string;
+  configComponent?: Type<any>;
 }
 
-const CARD_METADATA_KEY = 'cardMetadata';
+export interface RegisteredCardMetadata extends CardMetadata {
+  type: Type<any>;
+}
 
 export function Card(metadata: CardMetadata) {
   return function (target: Type<any>) {
-    Reflect.defineMetadata(CARD_METADATA_KEY, metadata, target);
-    
-    // Expose une méthode statique pour récupérer les métadonnées
-    (target as any).getMetadata = () => Reflect.getMetadata(CARD_METADATA_KEY, target);
+    // Utiliser le type de la carte comme clé (en minuscules)
+    const type = metadata.name.toLowerCase();
+    const registeredMetadata: RegisteredCardMetadata = {
+      ...metadata,
+      type: target
+    };
+    CardRegistry.register(type, registeredMetadata);
+    return target;
   };
 } 

@@ -1,32 +1,22 @@
 import { Injectable, Type } from '@angular/core';
 import { CardMetadata } from './card.decorator';
-import { LabelCardComponent } from './label-card/label-card.component';
+import { CardRegistry } from './card.registry';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CardService {
-  private readonly cardTypes: Type<any>[] = [
-    LabelCardComponent
-  ];
-
   getAvailableCards(): CardMetadata[] {
-    return this.cardTypes
-      .map(type => (type as any).getMetadata?.())
-      .filter((metadata): metadata is CardMetadata => !!metadata);
+    return CardRegistry.getAllCards();
   }
 
   getCardByType(type: string): Type<any> | undefined {
-    return this.cardTypes.find(cardType => 
-      cardType.name === type
-    );
+    const metadata = CardRegistry.getMetadata(type);
+    return metadata?.type;
   }
 
   getConfigComponentByType(type: string): Type<any> | undefined {
-    const cardType = this.getCardByType(type);
-    if (!cardType) return undefined;
-
-    const metadata = (cardType as any).getMetadata?.();
+    const metadata = CardRegistry.getMetadata(type);
     return metadata?.configComponent;
   }
 } 

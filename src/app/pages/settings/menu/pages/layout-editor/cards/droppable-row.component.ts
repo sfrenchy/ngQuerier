@@ -13,7 +13,7 @@ export class DroppableRowComponent {
   @Input() row!: RowDto;
   @Output() deleteRow = new EventEmitter<void>();
   @Output() startResize = new EventEmitter<{ event: MouseEvent, rowId: number }>();
-  @Output() cardDrop = new EventEmitter<{ rowId: number }>();
+  @Output() cardDrop = new EventEmitter<{ rowId: number, cardType: string }>();
   @Output() deleteCard = new EventEmitter<{ rowId: number, cardId: number }>();
   @Output() configureCard = new EventEmitter<{ rowId: number, cardId: number }>();
 
@@ -46,12 +46,12 @@ export class DroppableRowComponent {
 
   onDrop(event: DragEvent) {
     event.preventDefault();
-    this.isDraggingCard = false;
     if (!event.dataTransfer) return;
 
     const type = event.dataTransfer.getData('text/plain');
     if (type === 'card') {
-      this.cardDrop.emit({ rowId: this.row.id });
+      const cardType = event.dataTransfer.getData('cardType');
+      this.cardDrop.emit({ rowId: this.row.id, cardType });
     }
   }
 

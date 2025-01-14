@@ -7,6 +7,7 @@ import { BaseCardConfigurationComponent } from './cards/base-card-configuration.
 import { CardService } from './cards/card.service';
 import { CardMetadata } from './cards/card.decorator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import './cards/available-cards';
 
 interface CardMetadataWithSafeIcon extends CardMetadata {
   safeIcon: SafeHtml;
@@ -82,7 +83,8 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     if (event.dataTransfer) {
       event.dataTransfer.setData('text/plain', cardMetadata ? 'card' : 'row');
       if (cardMetadata) {
-        event.dataTransfer.setData('cardType', cardMetadata.type.name);
+        const cardType = cardMetadata.name.toLowerCase();
+        event.dataTransfer.setData('cardType', cardType);
       }
       event.dataTransfer.effectAllowed = 'move';
       if (!cardMetadata) {
@@ -136,7 +138,7 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-  onCardDrop(event: { rowId: number }) {
+  onCardDrop(event: { rowId: number; cardType?: string }) {
     const rowIndex = this.layout.rows.findIndex(r => r.id === event.rowId);
     if (rowIndex === -1) return;
 
@@ -149,7 +151,7 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
 
     const newCard: CardDto = {
       id: this.nextCardId++,
-      type: 'label', // TODO: Récupérer le type depuis le drag and drop
+      type: event.cardType || 'label',
       title: [{ languageCode: 'fr', value: 'Nouvelle carte' }],
       order: row.cards.length,
       gridWidth: availableSpace,

@@ -189,7 +189,7 @@ export interface EntityDefinitionDto {
 export interface EntityPropertyDto {
   name: string;
   type: string;
-  options: ["IsReadOnly" | "IsForeignKey" | "IsKey" | "IsNullable"];
+  options: ["IsReadOnly" | "IsForeignKey" | "IsKey" | "IsNullable"];
   availableItems: PropertyItemDefinitionDto[];
 }
 
@@ -302,18 +302,18 @@ export class PlaceholderCardConfig extends BaseCardConfig {
   }
 }
 
-export interface CardDto<T extends BaseCardConfig = BaseCardConfig> {
+export interface CardDto<TConfig = any> {
   id: number;
   type: string;
   title: TranslatableString[];
   order: number;
   gridWidth: number;
-  backgroundColor?: string;
-  textColor?: string;
-  headerTextColor?: string;
-  headerBackgroundColor?: string;
+  backgroundColor: string;
+  textColor: string;
+  headerTextColor: string;
+  headerBackgroundColor: string;
   rowId: number;
-  configuration?: T;
+  config?: TConfig;
 }
 
 // Type utilitaire pour la factory de configuration
@@ -335,7 +335,7 @@ export function mapCardFromApi<T extends BaseCardConfig>(
     headerTextColor: jsonData.headerTextColor,
     headerBackgroundColor: jsonData.headerBackgroundColor,
     rowId: jsonData.rowId,
-    configuration: jsonData.configuration ? configFactory(jsonData.configuration) : undefined
+    config: jsonData.config ? configFactory(jsonData.config) : undefined
   };
 }
 
@@ -360,7 +360,7 @@ export function mapCardToApi<T extends BaseCardConfig>(card: CardDto<T>): any {
     headerTextColor: card.headerTextColor,
     headerBackgroundColor: card.headerBackgroundColor,
     rowId: card.rowId,
-    configuration: card.configuration?.toJson()
+    config: card.config?.toJson()
   };
 }
 

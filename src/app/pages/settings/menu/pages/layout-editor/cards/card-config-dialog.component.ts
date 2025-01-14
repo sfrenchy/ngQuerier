@@ -12,12 +12,14 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-card-config-dialog',
   template: `
-    <app-dialog title="Configuration de la carte">
-      <ng-container *ngComponentOutlet="configComponent;
-                    inputs: {
-                      card: card
-                    }">
-      </ng-container>
+    <app-dialog title="Configuration de la carte" class="min-w-[800px]">
+      <div class="p-8 bg-[#1a1b1e]">
+        <ng-container *ngComponentOutlet="configComponent;
+                      inputs: {
+                        card: card
+                      }">
+        </ng-container>
+      </div>
     </app-dialog>
   `,
   standalone: true,

@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { PlaceholderCardConfig } from '@models/api.models';
+import { PlaceholderCardConfig, CardDto } from '@models/api.models';
 import { CardConfigService } from './card-config.service';
 import { BaseCardConfigComponent } from './base-card-config.component';
 
@@ -9,17 +9,24 @@ import { BaseCardConfigComponent } from './base-card-config.component';
   selector: 'app-placeholder-card-config',
   templateUrl: './placeholder-card-config.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule]
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule,
+    BaseCardConfigComponent
+  ]
 })
-export class PlaceholderCardConfigComponent extends BaseCardConfigComponent<PlaceholderCardConfig> {
-  override form: FormGroup;
+export class PlaceholderCardConfigComponent implements BaseCardConfigComponent<PlaceholderCardConfig> {
+  @Input() card!: CardDto<PlaceholderCardConfig>;
+  @Output() save = new EventEmitter<CardDto<PlaceholderCardConfig>>();
+  @Output() cancel = new EventEmitter<void>();
+  
+  form: FormGroup;
   labelControl = new FormControl('');
 
   constructor(
     private fb: FormBuilder,
     private cardConfigService: CardConfigService
   ) {
-    super();
     this.form = this.fb.group({
       title: ['', []],
       gridWidth: [1, []],

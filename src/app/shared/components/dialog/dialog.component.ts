@@ -9,15 +9,12 @@ import { CommonModule } from '@angular/common';
         <div class="px-6 py-4 border-b">
           <h3 class="text-lg font-medium text-gray-900">{{title}}</h3>
         </div>
-        
-        <div class="px-6 py-4">
           <ng-content></ng-content>
-        </div>
-
-        <div class="px-6 py-4 border-t flex justify-end gap-2">
+        
+      </div>
+      <div class="px-6 py-4 border-t flex justify-end gap-2">
           <ng-content select="[dialog-actions]"></ng-content>
         </div>
-      </div>
     </div>
   `,
   standalone: true,

@@ -4,11 +4,13 @@ import { CardMetadata, getCardMetadata } from './card.decorator';
 import { BaseCardConfig, CardConfigFactory, CardDto, mapCardFromApi, mapCardToApi, mapCardsFromApi } from '@models/api.models';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
+import { BaseCardConfigComponent } from './base-card-config.component';
 
 export interface CardType {
   type: string;
   title: string;
   component: Type<BaseCardComponent>;
+  configComponent: Type<BaseCardConfigComponent>;
   icon: string;
   configFactory: CardConfigFactory<BaseCardConfig>;
 }
@@ -81,5 +83,10 @@ export class CardService {
         return mapCardFromApi(response, factory);
       })
     );
+  }
+
+  getConfigComponent(type: string): Type<BaseCardConfigComponent> | null {
+    const cardType = this.availableCards.find(c => c.type === type);
+    return cardType?.configComponent || null;
   }
 } 

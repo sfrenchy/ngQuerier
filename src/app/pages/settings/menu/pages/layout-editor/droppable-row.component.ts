@@ -4,12 +4,14 @@ import { RowDto, CardDto } from '@models/api.models';
 import { BaseCardComponent } from './cards/base-card.component';
 import { Type } from '@angular/core';
 import { CardType } from './cards/card.service';
+import { CardConfigDialogComponent } from './cards/card-config-dialog.component';
 
 @Component({
   selector: 'app-droppable-row',
   standalone: true,
   imports: [
-    CommonModule
+    CommonModule,
+    CardConfigDialogComponent
   ],
   templateUrl: "./droppable-row.component.html"
 })
@@ -22,6 +24,9 @@ export class DroppableRowComponent {
   @Output() cardDropped = new EventEmitter<{event: DragEvent, row: RowDto, availableColumns: number}>();
   @Output() configureCard = new EventEmitter<{rowId: number, card: CardDto}>();
   @Output() deleteCard = new EventEmitter<{rowId: number, card: CardDto}>();
+
+  showConfigDialog = false;
+  currentCard: CardDto | null = null;
 
   isDraggingCard = false;
 
@@ -52,7 +57,17 @@ export class DroppableRowComponent {
   }
 
   onConfigureCard(card: CardDto) {
-    this.configureCard.emit({rowId: this.row.id, card});
+    this.currentCard = card;
+    this.showConfigDialog = true;
+  }
+
+  onConfigSave(updatedCard: CardDto) {
+    this.showConfigDialog = false;
+    this.configureCard.emit({rowId: this.row.id, card: updatedCard});
+  }
+
+  onConfigCancel() {
+    this.showConfigDialog = false;
   }
 
   onDeleteCard(card: CardDto) {

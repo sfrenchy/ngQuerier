@@ -1,0 +1,100 @@
+<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div [class]="isFullscreen ? 'w-full h-full' : 'w-[600px] max-h-[90vh]'"
+       class="bg-gray-800 rounded-lg shadow-xl flex flex-col">
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
+      <h2 class="text-xl font-semibold text-white">Configuration de la carte</h2>
+      <div class="flex items-center gap-2">
+        <button (click)="toggleFullscreen.emit()" class="text-gray-400 hover:text-gray-200">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path *ngIf="!isFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            <path *ngIf="isFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l5 5m11-5l-5 5m5 6l-5-5m-11 5l5-5" />
+          </svg>
+        </button>
+        <button (click)="onCancel()" class="text-gray-400 hover:text-gray-200">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto p-6">
+      <form [formGroup]="form" class="space-y-6">
+        <!-- Title -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Titre</label>
+          <app-translatable-string-form formControlName="title"></app-translatable-string-form>
+        </div>
+
+        <!-- Grid Width -->
+        <div>
+          <label for="gridWidth" class="block text-sm font-medium text-gray-300 mb-2">Largeur (1-12)</label>
+          <input type="number" id="gridWidth" formControlName="gridWidth" min="1" max="12"
+                 class="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <!-- Colors -->
+        <div class="grid grid-cols-2 gap-4">
+          <!-- Background Color -->
+          <div>
+            <label for="backgroundColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur de fond</label>
+            <div class="flex items-center gap-2">
+              <input type="color" id="backgroundColor" formControlName="backgroundColor"
+                     class="h-10 w-10 rounded border border-gray-600">
+              <input type="text" [formControlName]="'backgroundColor'"
+                     class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- Text Color -->
+          <div>
+            <label for="textColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur du texte</label>
+            <div class="flex items-center gap-2">
+              <input type="color" id="textColor" formControlName="textColor"
+                     class="h-10 w-10 rounded border border-gray-600">
+              <input type="text" [formControlName]="'textColor'"
+                     class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- Header Background Color -->
+          <div>
+            <label for="headerBackgroundColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur de fond de l'en-tête</label>
+            <div class="flex items-center gap-2">
+              <input type="color" id="headerBackgroundColor" formControlName="headerBackgroundColor"
+                     class="h-10 w-10 rounded border border-gray-600">
+              <input type="text" [formControlName]="'headerBackgroundColor'"
+                     class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- Header Text Color -->
+          <div>
+            <label for="headerTextColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur du texte de l'en-tête</label>
+            <div class="flex items-center gap-2">
+              <input type="color" id="headerTextColor" formControlName="headerTextColor"
+                     class="h-10 w-10 rounded border border-gray-600">
+              <input type="text" [formControlName]="'headerTextColor'"
+                     class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-gray-700 flex justify-end gap-4">
+      <button (click)="onCancel()"
+              class="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500">
+        Annuler
+      </button>
+      <button (click)="onSave()"
+              [disabled]="!form.valid"
+              class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+        Enregistrer
+      </button>
+    </div>
+  </div>
+</div> 

@@ -1,10 +1,9 @@
-import 'reflect-metadata';
-import { Component, OnInit, OnDestroy, Type, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { LayoutDto, RowDto, CardDto, BaseCardConfig, TranslatableString } from '@models/api.models';
-import { BaseCardComponent } from './cards/base-card.component';
-import { CardService, CardType } from './cards/card.service';
+import { LayoutDto, RowDto, CardDto, BaseCardConfig } from '@models/api.models';
 import { DroppableRowComponent } from './cards/droppable-row.component';
+import { BaseCardComponent } from './cards/base-card.component';
+import { BaseCardConfigurationComponent } from './cards/base-card-configuration.component';
 
 @Component({
   selector: 'app-layout-editor',
@@ -13,18 +12,29 @@ import { DroppableRowComponent } from './cards/droppable-row.component';
   standalone: true,
   imports: [
     CommonModule,
-    DroppableRowComponent
+    DroppableRowComponent,
+    BaseCardConfigurationComponent
   ]
 })
 export class LayoutEditorComponent implements OnInit, OnDestroy {
-  layout: LayoutDto = {
+  private _layout: LayoutDto = {
     pageId: 0,
     rows: []
   };
 
-  availableCards: CardType[] = [];
+  get layout(): LayoutDto {
+    return this._layout;
+  }
+
+  set layout(value: LayoutDto) {
+    this._layout = value;
+    console.log('[Layout Changed]', JSON.parse(JSON.stringify(value)));
+  }
+
   isDraggingRow = false;
+  isDraggingCard = false;
   private isDraggingRowItem = false;
+  private isDraggingCardItem = false;
 
   nextRowId = 1;
   nextCardId = 1;
@@ -33,19 +43,32 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   private startY = 0;
   private startHeight = 0;
 
-  constructor(
-    private injector: Injector,
-    private cardService: CardService
-  ) {
+  showCardConfig = false;
+  configCardData: { rowId: number; cardId: number; } | null = null;
+  isFullscreen = false;
+
+  // Exemple de carte pour le drag and drop
+  baseCard: CardDto = {
+    id: 0,
+    type: 'base',
+    title: [{ languageCode: 'fr', value: 'Nouvelle carte' }],
+    order: 0,
+    gridWidth: 4,
+    backgroundColor: '#ffffff',
+    textColor: '#000000',
+    headerTextColor: '#000000',
+    headerBackgroundColor: '#f3f4f6',
+    rowId: 0
+  };
+
+  constructor() {
     this.onMouseMove = this.onMouseMove.bind(this);
     this.onMouseUp = this.onMouseUp.bind(this);
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     document.addEventListener('mousemove', this.onMouseMove);
     document.addEventListener('mouseup', this.onMouseUp);
-    
-    this.availableCards = await this.cardService.discoverCards();
   }
 
   ngOnDestroy(): void {
@@ -53,16 +76,17 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     document.removeEventListener('mouseup', this.onMouseUp);
   }
 
-  getCardComponent(type: string): Type<BaseCardComponent> | null {
-    return this.cardService.getCardComponent(type);
-  }
-
-  onDragStart(event: DragEvent) {
+  onDragStart(event: DragEvent, type: 'row' | 'card') {
     if (event.dataTransfer) {
-      event.dataTransfer.setData('text/plain', 'row');
+      event.dataTransfer.setData('text/plain', type);
       event.dataTransfer.effectAllowed = 'move';
-      this.isDraggingRowItem = true;
-      this.isDraggingRow = true;
+      if (type === 'row') {
+        this.isDraggingRowItem = true;
+        this.isDraggingRow = true;
+      } else {
+        this.isDraggingCardItem = true;
+        this.isDraggingCard = true;
+      }
     }
   }
 
@@ -79,13 +103,17 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   onDragLeave(event: DragEvent) {
     if (event.currentTarget === event.target) {
       this.isDraggingRow = false;
+      this.isDraggingCard = false;
     }
   }
 
   onDrop(event: DragEvent) {
     event.preventDefault();
     this.isDraggingRow = false;
+    this.isDraggingCard = false;
     this.isDraggingRowItem = false;
+    this.isDraggingCardItem = false;
+    
     if (!event.dataTransfer) return;
 
     const type = event.dataTransfer.getData('text/plain');
@@ -96,55 +124,115 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
         height: 200,
         cards: []
       };
-      this.layout.rows.push(newRow);
+      this.layout = {
+        ...this.layout,
+        rows: [...this.layout.rows, newRow]
+      };
     }
   }
 
-  onCardDragStart(event: DragEvent, cardType: CardType) {
-    if (event.dataTransfer) {
-      event.dataTransfer.setData('text/plain', 'card');
-      event.dataTransfer.setData('application/json', JSON.stringify(cardType));
-      event.dataTransfer.effectAllowed = 'move';
-    }
-  }
+  onCardDrop(event: { rowId: number }) {
+    const rowIndex = this.layout.rows.findIndex(r => r.id === event.rowId);
+    if (rowIndex === -1) return;
 
-  onCardDrop(event: {event: DragEvent, row: RowDto, availableColumns: number}) {
-    if (!event.event.dataTransfer) return;
+    // Calcul de l'espace disponible
+    const row = this.layout.rows[rowIndex];
+    const usedSpace = row.cards.reduce((total, card) => total + (card.gridWidth || 4), 0);
+    const availableSpace = 12 - usedSpace;
     
-    const cardType = JSON.parse(event.event.dataTransfer.getData('application/json'));
-    const metadata = this.availableCards.find(c => c.type === cardType.type);
-    if (!metadata) return;
+    if (availableSpace <= 0) return; // Pas d'espace disponible
 
-    const defaultTitle: TranslatableString[] = [
-      { languageCode: 'fr', value: cardType.title },
-      { languageCode: 'en', value: cardType.title }
-    ];
-
-    const newCard: CardDto<any> = {
+    const newCard: CardDto = {
+      ...this.baseCard,
       id: this.nextCardId++,
-      type: cardType.type,
-      title: defaultTitle,
-      order: 0,
-      rowId: event.row.id,
-      headerBackgroundColor: '#ffffff',
-      headerTextColor: '#000000',
-      textColor: '#000000',
-      gridWidth: event.availableColumns,
-      backgroundColor: '#ffffff',
-      configuration: metadata.configFactory({})
+      rowId: event.rowId,
+      order: row.cards.length,
+      gridWidth: availableSpace // Utilise tout l'espace disponible
     };
 
-    const rowIndex = this.layout.rows.findIndex(r => r.id === event.row.id);
-    if (rowIndex !== -1) {
-      this.layout.rows[rowIndex].cards.push(newCard);
-    }
+    const updatedRows = [...this.layout.rows];
+    updatedRows[rowIndex] = {
+      ...updatedRows[rowIndex],
+      cards: [...updatedRows[rowIndex].cards, newCard]
+    };
+    
+    this.layout = {
+      ...this.layout,
+      rows: updatedRows
+    };
   }
 
   deleteRow(rowId: number) {
     const index = this.layout.rows.findIndex(r => r.id === rowId);
     if (index !== -1) {
-      this.layout.rows.splice(index, 1);
+      this.layout = {
+        ...this.layout,
+        rows: this.layout.rows.filter(r => r.id !== rowId)
+      };
     }
+  }
+
+  deleteCard(rowId: number, cardId: number) {
+    const rowIndex = this.layout.rows.findIndex(r => r.id === rowId);
+    if (rowIndex !== -1) {
+      const updatedRows = [...this.layout.rows];
+      updatedRows[rowIndex] = {
+        ...updatedRows[rowIndex],
+        cards: updatedRows[rowIndex].cards.filter(c => c.id !== cardId)
+      };
+      this.layout = {
+        ...this.layout,
+        rows: updatedRows
+      };
+    }
+  }
+
+  configureCard(rowId: number, cardId: number) {
+    const row = this.layout.rows.find(r => r.id === rowId);
+    if (!row) return;
+
+    const card = row.cards.find(c => c.id === cardId);
+    if (!card) return;
+
+    this.configCardData = { rowId, cardId };
+    this.showCardConfig = true;
+  }
+
+  onCardConfigSave(updatedCard: CardDto) {
+    const data = this.configCardData;
+    if (!data) return;
+
+    const rowIndex = this.layout.rows.findIndex(r => r.id === data.rowId);
+    if (rowIndex === -1) return;
+
+    const updatedRows = [...this.layout.rows];
+    const cardIndex = updatedRows[rowIndex].cards.findIndex(c => c.id === data.cardId);
+    if (cardIndex === -1) return;
+
+    updatedRows[rowIndex] = {
+      ...updatedRows[rowIndex],
+      cards: [
+        ...updatedRows[rowIndex].cards.slice(0, cardIndex),
+        updatedCard,
+        ...updatedRows[rowIndex].cards.slice(cardIndex + 1)
+      ]
+    };
+
+    this.layout = {
+      ...this.layout,
+      rows: updatedRows
+    };
+
+    this.closeCardConfig();
+  }
+
+  closeCardConfig() {
+    this.showCardConfig = false;
+    this.configCardData = null;
+  }
+
+  toggleFullscreen() {
+    this.isFullscreen = !this.isFullscreen;
   }
 
   startResize(event: MouseEvent, rowId: number) {
@@ -161,10 +249,17 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     if (!this.resizing || this.currentRowId === null) return;
 
     const deltaY = event.clientY - this.startY;
-    const row = this.layout.rows.find(r => r.id === this.currentRowId);
-    if (row) {
-      const newHeight = Math.max(100, this.startHeight + deltaY);
-      row.height = newHeight;
+    const rowIndex = this.layout.rows.findIndex(r => r.id === this.currentRowId);
+    if (rowIndex !== -1) {
+      const updatedRows = [...this.layout.rows];
+      updatedRows[rowIndex] = {
+        ...updatedRows[rowIndex],
+        height: Math.max(100, this.startHeight + deltaY)
+      };
+      this.layout = {
+        ...this.layout,
+        rows: updatedRows
+      };
     }
   }
 
@@ -173,23 +268,10 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     this.currentRowId = null;
   }
 
-  onConfigureCard(event: { rowId: number, card: CardDto<any> }) {
-    const row = this.layout.rows.find(r => r.id === event.rowId);
-    if (row) {
-      const cardIndex = row.cards.findIndex(c => c.id === event.card.id);
-      if (cardIndex !== -1) {
-        row.cards[cardIndex] = event.card;
-      }
-    }
-  }
-
-  onDeleteCard(rowId: number, card: CardDto<any>) {
-    const row = this.layout.rows.find(r => r.id === rowId);
-    if (row) {
-      const index = row.cards.findIndex(c => c.id === card.id);
-      if (index !== -1) {
-        row.cards.splice(index, 1);
-      }
-    }
+  getCardToEdit(): CardDto | null {
+    if (!this.configCardData) return null;
+    return this.layout.rows
+      .find(r => r.id === this.configCardData?.rowId)
+      ?.cards.find(c => c.id === this.configCardData?.cardId) || null;
   }
 }

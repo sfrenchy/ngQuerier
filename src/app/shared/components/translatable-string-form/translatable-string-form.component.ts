@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Component, EventEmitter, Input, OnInit, Output, forwardRef } from '@angular/core';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslatableString } from '@models/api.models';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
@@ -13,9 +13,16 @@ import { TranslateModule } from '@ngx-translate/core';
     CommonModule,
     ReactiveFormsModule,
     TranslateModule
+  ],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => TranslatableStringFormComponent),
+      multi: true
+    }
   ]
 })
-export class TranslatableStringFormComponent implements OnInit {
+export class TranslatableStringFormComponent implements OnInit, ControlValueAccessor {
   @Input() set translations(value: TranslatableString[]) {
     if (JSON.stringify(this._translations) !== JSON.stringify(value)) {
       this._translations = value;
@@ -40,6 +47,9 @@ export class TranslatableStringFormComponent implements OnInit {
     { code: 'it', name: 'Italiano' }
   ];
 
+  private onChange: (value: TranslatableString[]) => void = () => {};
+  private onTouched: () => void = () => {};
+
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       translations: this.fb.array([])
@@ -55,6 +65,29 @@ export class TranslatableStringFormComponent implements OnInit {
         this.emitChanges();
       }
     });
+  }
+
+  writeValue(value: TranslatableString[]): void {
+    if (value) {
+      this._translations = value;
+      this.initForm();
+    }
+  }
+
+  registerOnChange(fn: (value: TranslatableString[]) => void): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    if (isDisabled) {
+      this.form.disable();
+    } else {
+      this.form.enable();
+    }
   }
 
   get translationsArray() {
@@ -89,17 +122,21 @@ export class TranslatableStringFormComponent implements OnInit {
           value: ['']
         })
       );
+      this.onTouched();
     }
   }
 
   removeTranslation(index: number) {
     this.translationsArray.removeAt(index);
+    this.onTouched();
   }
 
   private emitChanges() {
     const translations = this.form.value.translations as TranslatableString[];
     this._translations = [...translations];
     this.translationsChange.emit(translations);
+    this.onChange(translations);
+    this.onTouched();
   }
 
   getLanguageName(code: string): string {

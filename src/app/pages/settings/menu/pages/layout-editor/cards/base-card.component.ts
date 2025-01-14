@@ -1,53 +1,25 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateService } from '@ngx-translate/core';
 import { CardDto, BaseCardConfig } from '@models/api.models';
-import { CardConfigDialogComponent } from './card-config-dialog.component';
 
 @Component({
   selector: 'app-base-card',
   templateUrl: './base-card.component.html',
+  styleUrls: ['./base-card.component.css'],
   standalone: true,
-  imports: [CommonModule, CardConfigDialogComponent]
+  imports: [CommonModule]
 })
-export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> {
+export class BaseCardComponent<T extends BaseCardConfig> {
   @Input() card!: CardDto<T>;
-  @Input() config!: T;
+  @Input() isEditing = false;
+  @Output() configure = new EventEmitter<void>();
   @Output() delete = new EventEmitter<void>();
-  @Output() configurationChange = new EventEmitter<CardDto<T>>();
 
-  showConfigDialog = false;
-
-  constructor(private translate: TranslateService) {}
-
-  getTitle(): string {
-    const currentLangTitle = this.card.title.find(t => t.languageCode === this.translate.currentLang);
-    if (currentLangTitle) {
-      return currentLangTitle.value;
-    }
-    
-    const frTitle = this.card.title.find(t => t.languageCode === 'fr');
-    if (frTitle) {
-      return frTitle.value;
-    }
-
-    return 'Sans titre';
+  onConfigure() {
+    this.configure.emit();
   }
 
-  onConfigureClick() {
-    this.showConfigDialog = true;
-  }
-
-  onDeleteClick() {
+  onDelete() {
     this.delete.emit();
-  }
-
-  onConfigSave(updatedCard: CardDto<BaseCardConfig>) {
-    this.showConfigDialog = false;
-    this.configurationChange.emit(updatedCard as unknown as CardDto<T>);
-  }
-
-  onConfigCancel() {
-    this.showConfigDialog = false;
   }
 } 

@@ -6,7 +6,7 @@
       <span class="text-sm font-medium text-gray-700">Lignes</span>
       <div class="p-2 bg-gray-50 border border-gray-200 rounded-lg cursor-move hover:bg-gray-100 transition-colors"
            draggable="true"
-           (dragstart)="onDragStart($event)">
+           (dragstart)="onDragStart($event, 'row')">
         <div class="flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
@@ -18,18 +18,15 @@
 
     <!-- Card toolbox -->
     <div class="flex flex-col gap-2">
-      <span class="text-sm font-medium text-gray-700">Cartes disponibles</span>
-      <div class="grid grid-cols-1 gap-2">
-        <div *ngFor="let cardType of availableCards"
-             class="p-2 bg-gray-50 border border-gray-200 rounded-lg cursor-move hover:bg-gray-100 transition-colors"
-             draggable="true"
-             (dragstart)="onCardDragStart($event, cardType)">
-          <div class="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-              <path [attr.d]="cardType.icon"/>
-            </svg>
-            <span class="text-sm font-medium text-gray-700">{{cardType.title}}</span>
-          </div>
+      <span class="text-sm font-medium text-gray-700">Cartes</span>
+      <div class="p-2 bg-gray-50 border border-gray-200 rounded-lg cursor-move hover:bg-gray-100 transition-colors"
+           draggable="true"
+           (dragstart)="onDragStart($event, 'card')">
+        <div class="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2-1a1 1 0 00-1 1v12a1 1 0 001 1h8a1 1 0 001-1V4a1 1 0 00-1-1H6z" clip-rule="evenodd"/>
+          </svg>
+          <span class="text-sm font-medium text-gray-700">Nouvelle carte</span>
         </div>
       </div>
     </div>
@@ -37,20 +34,19 @@
 
   <!-- Editing zone -->
   <div class="flex-1 flex flex-col p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[500px] overflow-y-auto transition-colors"
-       [class.bg-gray-100]="!isDraggingRow"
-       [class.bg-gray-200]="isDraggingRow"
+       [class.bg-gray-100]="!isDraggingRow && !isDraggingCard"
+       [class.bg-gray-200]="isDraggingRow || isDraggingCard"
        (dragover)="onDragOver($event)"
        (dragleave)="onDragLeave($event)"
        (drop)="onDrop($event)">
     <div class="flex flex-col gap-4">
       <app-droppable-row *ngFor="let row of layout.rows"
                         [row]="row"
-                        [getCardComponent]="getCardComponent.bind(this)"
                         (deleteRow)="deleteRow(row.id)"
                         (startResize)="startResize($event.event, $event.rowId)"
-                        (cardDropped)="onCardDrop($event)"
-                        (configureCard)="onConfigureCard($event)"
-                        (deleteCard)="onDeleteCard($event.rowId, $event.card)">
+                        (cardDrop)="onCardDrop($event)"
+                        (deleteCard)="deleteCard($event.rowId, $event.cardId)"
+                        (configureCard)="configureCard($event.rowId, $event.cardId)">
       </app-droppable-row>
     </div>
 
@@ -59,4 +55,13 @@
       <span class="text-gray-500">Glissez-déposez des lignes depuis la toolbox</span>
     </div>
   </div>
+
+  <!-- Configuration Dialog -->
+  <app-base-card-configuration *ngIf="showCardConfig && getCardToEdit()"
+                              [card]="getCardToEdit()!"
+                              [isFullscreen]="isFullscreen"
+                              (save)="onCardConfigSave($event)"
+                              (cancel)="closeCardConfig()"
+                              (toggleFullscreen)="toggleFullscreen()">
+  </app-base-card-configuration>
 </div>

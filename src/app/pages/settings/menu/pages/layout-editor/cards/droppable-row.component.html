@@ -19,37 +19,32 @@
   </div>
 
   <!-- Row content -->
-  <div class="p-4 rounded-lg border border-gray-200"
+  <div class="p-4 rounded-lg border border-gray-200 transition-colors"
+       [class.bg-gray-50]="!isDraggingCard"
+       [class.bg-gray-100]="isDraggingCard"
        [style.height.px]="row.height"
        (dragover)="onDragOver($event)"
-       (drop)="onCardDrop($event)">
+       (dragenter)="onDragEnter($event)"
+       (dragleave)="onDragLeave($event)"
+       (drop)="onDrop($event)">
     <!-- Grid container -->
-    <div class="grid gap-4 h-full" [ngStyle]="gridStyle">
+    <div class="grid gap-4 h-full" [ngStyle]="{'grid-template-columns': 'repeat(12, 1fr)'}">
       <!-- Cards -->
       <ng-container *ngFor="let card of row.cards">
-        <div class="relative h-full border-2 border-red-500" 
-             [style.background-color]="card.backgroundColor" 
-             [ngStyle]="{'grid-column': 'span ' + (card.gridWidth || 4)}">
-          <ng-container *ngIf="getCardComponent(card.type) as component">
-            <app-card-wrapper
-              [component]="component"
-              [card]="card"
-              [config]="getDefaultConfig(card)"
-              (delete)="onDeleteCard(card)"
-              (configurationChange)="onConfigurationChange(card, $event)">
-            </app-card-wrapper>
-          </ng-container>
+        <div [ngStyle]="{'grid-column': 'span ' + (card.gridWidth || 4)}">
+          <app-base-card [card]="card" 
+                        [isEditing]="true"
+                        (delete)="onCardDelete(card.id)"
+                        (configure)="onCardConfigure(card.id)">
+            <div body class="text-sm text-gray-500">
+              Carte {{card.id}}
+            </div>
+          </app-base-card>
         </div>
       </ng-container>
 
-      <!-- Empty state or Drop zone -->
-      <div *ngIf="availableColumns > 0" 
-           class="flex items-center justify-center h-full border-2 border-dashed border-gray-300 rounded-lg text-gray-500 transition-colors"
-           [class.bg-gray-50]="!isDraggingCard"
-           [class.bg-gray-100]="isDraggingCard"
-           [ngStyle]="{'grid-column': 'span ' + availableColumns}"
-           (dragenter)="onDragEnter($event)"
-           (dragleave)="onDragLeave($event)">
+      <!-- Empty state -->
+      <div *ngIf="row.cards.length === 0" class="flex items-center justify-center h-full col-span-12 text-gray-500">
         Glissez-déposez des cartes depuis la toolbox
       </div>
     </div>

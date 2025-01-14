@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { CardDto, BaseCardConfig } from '@models/api.models';
 import { DialogComponent } from '@shared/components/dialog/dialog.component';
 import { CardService } from './card.service';
@@ -11,19 +12,9 @@ import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-card-config-dialog',
-  template: `
-    <app-dialog title="Configuration de la carte" class="min-w-[800px]">
-      <div class="p-8 bg-[#1a1b1e]">
-        <ng-container *ngComponentOutlet="configComponent;
-                      inputs: {
-                        card: card
-                      }">
-        </ng-container>
-      </div>
-    </app-dialog>
-  `,
+  templateUrl: './card-config-dialog.component.html',
   standalone: true,
-  imports: [CommonModule, DialogComponent, ReactiveFormsModule]
+  imports: [CommonModule, DialogComponent, ReactiveFormsModule, TranslateModule]
 })
 export class CardConfigDialogComponent implements OnInit, OnDestroy {
   @Input() card!: CardDto<BaseCardConfig>;

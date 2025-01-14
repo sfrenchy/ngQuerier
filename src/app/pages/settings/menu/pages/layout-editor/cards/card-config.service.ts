@@ -6,8 +6,8 @@ import { CardDto, BaseCardConfig } from '@models/api.models';
   providedIn: 'root'
 })
 export class CardConfigService {
-  saveSubject = new Subject<CardDto<BaseCardConfig>>();
-  cancelSubject = new Subject<void>();
+  private saveSubject = new Subject<CardDto<BaseCardConfig>>();
+  private cancelSubject = new Subject<void>();
 
   save$ = this.saveSubject.asObservable();
   cancel$ = this.cancelSubject.asObservable();

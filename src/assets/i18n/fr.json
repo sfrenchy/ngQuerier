@@ -349,5 +349,37 @@
     "CREATE_MENU": "Erreur lors de la création du menu",
     "UPDATE_MENU": "Erreur lors de la mise à jour du menu",
     "SAVE_PAGE": "Erreur lors de la sauvegarde de la page"
+  },
+  "CARD": {
+    "CONFIG": {
+      "TITLE": "Configuration de la carte",
+      "GENERAL": {
+        "TITLE": "Configuration générale",
+        "CARD_TITLE": "Titre",
+        "CARD_TITLE_PLACEHOLDER": "Entrez un titre...",
+        "WIDTH": "Largeur (en colonnes)",
+        "WIDTH_OPTIONS": {
+          "25": "25% (3 colonnes)",
+          "33": "33% (4 colonnes)",
+          "50": "50% (6 colonnes)",
+          "66": "66% (8 colonnes)",
+          "75": "75% (9 colonnes)",
+          "100": "100% (12 colonnes)"
+        },
+        "BACKGROUND_COLOR": "Couleur de fond"
+      },
+      "SPECIFIC": {
+        "TITLE": "Configuration spécifique",
+        "PLACEHOLDER": {
+          "LABEL": "Libellé",
+          "LABEL_PLACEHOLDER": "Entrez un libellé...",
+          "LABEL_HELP": "Ce libellé sera affiché au centre de la carte"
+        }
+      },
+      "ACTIONS": {
+        "SAVE": "Enregistrer",
+        "CANCEL": "Annuler"
+      }
+    }
   }
 } 

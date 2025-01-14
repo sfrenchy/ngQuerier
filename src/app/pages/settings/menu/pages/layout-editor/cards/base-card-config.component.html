@@ -1,35 +1,36 @@
 <div [formGroup]="form" class="space-y-8 text-gray-100">
   <!-- Configuration de base -->
   <div class="space-y-6">
-    <h3 class="text-xl font-medium text-white">Configuration générale</h3>
+    <h3 class="text-xl font-medium text-white">{{'CARD.CONFIG.GENERAL.TITLE' | translate}}</h3>
     
     <div class="grid grid-cols-2 gap-6">
       <div>
-        <label class="block text-sm font-medium mb-2">Titre</label>
+        <label class="block text-sm font-medium mb-2">{{'CARD.CONFIG.GENERAL.CARD_TITLE' | translate}}</label>
         <input type="text" formControlName="title"
                class="block w-full h-11 rounded-md bg-[#25262b] border-0 text-gray-100
                       ring-1 ring-inset ring-[#373A40] focus:ring-2 focus:ring-inset focus:ring-blue-500 
-                      transition duration-150 ease-in-out text-base">
+                      transition duration-150 ease-in-out text-base"
+               [placeholder]="'CARD.CONFIG.GENERAL.CARD_TITLE_PLACEHOLDER' | translate">
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-2">Largeur (en colonnes)</label>
+        <label class="block text-sm font-medium mb-2">{{'CARD.CONFIG.GENERAL.WIDTH' | translate}}</label>
         <select formControlName="gridWidth"
                 class="block w-full h-11 rounded-md bg-[#25262b] border-0 text-gray-100
                        ring-1 ring-inset ring-[#373A40] focus:ring-2 focus:ring-inset focus:ring-blue-500
                        transition duration-150 ease-in-out text-base">
-          <option [ngValue]="3">25% (3 colonnes)</option>
-          <option [ngValue]="4">33% (4 colonnes)</option>
-          <option [ngValue]="6">50% (6 colonnes)</option>
-          <option [ngValue]="8">66% (8 colonnes)</option>
-          <option [ngValue]="9">75% (9 colonnes)</option>
-          <option [ngValue]="12">100% (12 colonnes)</option>
+          <option [ngValue]="3">{{'CARD.CONFIG.GENERAL.WIDTH_OPTIONS.25' | translate}}</option>
+          <option [ngValue]="4">{{'CARD.CONFIG.GENERAL.WIDTH_OPTIONS.33' | translate}}</option>
+          <option [ngValue]="6">{{'CARD.CONFIG.GENERAL.WIDTH_OPTIONS.50' | translate}}</option>
+          <option [ngValue]="8">{{'CARD.CONFIG.GENERAL.WIDTH_OPTIONS.66' | translate}}</option>
+          <option [ngValue]="9">{{'CARD.CONFIG.GENERAL.WIDTH_OPTIONS.75' | translate}}</option>
+          <option [ngValue]="12">{{'CARD.CONFIG.GENERAL.WIDTH_OPTIONS.100' | translate}}</option>
         </select>
       </div>
     </div>
 
     <div>
-      <label class="block text-sm font-medium mb-2">Couleur de fond</label>
+      <label class="block text-sm font-medium mb-2">{{'CARD.CONFIG.GENERAL.BACKGROUND_COLOR' | translate}}</label>
       <div class="flex items-center gap-3">
         <input type="color" formControlName="backgroundColor"
                class="h-11 w-28 rounded-md bg-[#25262b] border-0
@@ -42,7 +43,7 @@
 
   <!-- Configuration spécifique -->
   <div class="space-y-6">
-    <h3 class="text-xl font-medium text-white">Configuration spécifique</h3>
+    <h3 class="text-xl font-medium text-white">{{'CARD.CONFIG.SPECIFIC.TITLE' | translate}}</h3>
     <div class="bg-[#25262b] p-6 rounded-md ring-1 ring-inset ring-[#373A40]">
       <ng-content></ng-content>
     </div>
@@ -56,7 +57,7 @@
                    focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500
                    transition duration-150 ease-in-out"
             (click)="cancel.emit()">
-      Annuler
+      {{'CARD.CONFIG.ACTIONS.CANCEL' | translate}}
     </button>
     <button type="button" 
             class="px-6 py-3 text-base font-medium text-white bg-blue-600 rounded-md
@@ -65,7 +66,7 @@
                    transition duration-150 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
             [disabled]="!form.valid"
             (click)="save.emit(form.value)">
-      Enregistrer
+      {{'CARD.CONFIG.ACTIONS.SAVE' | translate}}
     </button>
   </div>
 </div> 

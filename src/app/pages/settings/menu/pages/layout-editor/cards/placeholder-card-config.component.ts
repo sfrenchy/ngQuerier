@@ -1,55 +1,56 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormControl, FormBuilder, FormGroup } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import { BaseCardConfigComponent } from './base-card-config.component';
 import { PlaceholderCardConfig, CardDto } from '@models/api.models';
 import { CardConfigService } from './card-config.service';
-import { BaseCardConfigComponent } from './base-card-config.component';
 
 @Component({
   selector: 'app-placeholder-card-config',
   templateUrl: './placeholder-card-config.component.html',
   standalone: true,
-  imports: [
-    CommonModule, 
-    ReactiveFormsModule,
-    BaseCardConfigComponent
-  ]
+  imports: [CommonModule, ReactiveFormsModule, BaseCardConfigComponent, TranslateModule]
 })
-export class PlaceholderCardConfigComponent implements BaseCardConfigComponent<PlaceholderCardConfig> {
-  @Input() card!: CardDto<PlaceholderCardConfig>;
-  @Output() save = new EventEmitter<CardDto<PlaceholderCardConfig>>();
-  @Output() cancel = new EventEmitter<void>();
-  
-  form: FormGroup;
+export class PlaceholderCardConfigComponent extends BaseCardConfigComponent<PlaceholderCardConfig> implements OnInit {
   labelControl = new FormControl('');
 
   constructor(
-    private fb: FormBuilder,
-    private cardConfigService: CardConfigService
+    private cardConfigService: CardConfigService,
+    private fb: FormBuilder
   ) {
+    super();
+  }
+
+  ngOnInit() {
+    if (this.card?.config?.label) {
+      this.labelControl.setValue(this.card.config.label);
+    }
+
     this.form = this.fb.group({
-      title: ['', []],
-      gridWidth: [1, []],
-      backgroundColor: ['#ffffff', []],
+      title: [this.card?.title || ''],
+      gridWidth: [this.card?.gridWidth || 12],
+      backgroundColor: [this.card?.backgroundColor || '#ffffff'],
       config: this.fb.group({
         label: this.labelControl
       })
     });
   }
 
-  onSave(formValue: any): void {
+  onSave() {
     if (this.form.valid) {
-      const updatedCard = {
+      const formValue = this.form.value;
+      this.cardConfigService.emitSave({
         ...this.card,
-        ...formValue
-      };
-      this.save.emit(updatedCard);
-      this.cardConfigService.emitSave(updatedCard);
+        ...formValue,
+        config: {
+          label: this.labelControl.value || ''
+        }
+      } as CardDto<PlaceholderCardConfig>);
     }
   }
 
-  onCancel(): void {
-    this.cancel.emit();
+  onCancel() {
     this.cardConfigService.emitCancel();
   }
 } 

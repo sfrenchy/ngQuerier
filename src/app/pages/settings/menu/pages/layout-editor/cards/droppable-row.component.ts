@@ -1,13 +1,14 @@
 import { Component, Input, Output, EventEmitter, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RowDto, CardDto } from '@models/api.models';
+import { RowDto, CardDto, BaseCardConfig } from '@models/api.models';
 import { BaseCardComponent } from './base-card.component';
+import { CardWrapperComponent } from './card-wrapper.component';
 
 @Component({
   selector: 'app-droppable-row',
   templateUrl: './droppable-row.component.html',
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, CardWrapperComponent]
 })
 export class DroppableRowComponent {
   @Input() row!: RowDto;
@@ -29,6 +30,12 @@ export class DroppableRowComponent {
   get availableColumns(): number {
     const usedColumns = this.row.cards.reduce((sum, card) => sum + (card.gridWidth || 4), 0);
     return Math.max(0, 12 - usedColumns);
+  }
+
+  getDefaultConfig(card: CardDto<any>): BaseCardConfig {
+    return card.configuration || {
+      toJson: () => ({})
+    };
   }
 
   onDeleteRow() {

@@ -1,15 +1,18 @@
-<div class="flex h-full gap-5">
+<div class="flex gap-4 h-full">
   <!-- Toolbox -->
-  <div class="w-64 flex flex-col gap-4 p-4 bg-white border border-gray-200 rounded-lg">
+  <div class="w-64 flex flex-col gap-4">
     <!-- Row toolbox -->
-    <div class="p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors"
-         draggable="true"
-         (dragstart)="onDragStart($event)">
-      <div class="flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-        </svg>
-        <span class="text-sm font-medium text-gray-700">Nouvelle ligne</span>
+    <div class="flex flex-col gap-2">
+      <span class="text-sm font-medium text-gray-700">Lignes</span>
+      <div class="p-2 bg-gray-50 border border-gray-200 rounded-lg cursor-move hover:bg-gray-100 transition-colors"
+           draggable="true"
+           (dragstart)="onDragStart($event)">
+        <div class="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+          </svg>
+          <span class="text-sm font-medium text-gray-700">Nouvelle ligne</span>
+        </div>
       </div>
     </div>
 
@@ -43,9 +46,10 @@
       <app-droppable-row *ngFor="let row of layout.rows"
                         [row]="row"
                         [getCardComponent]="getCardComponent.bind(this)"
-                        (deleteRow)="deleteRow($event)"
+                        (deleteRow)="deleteRow(row.id)"
                         (startResize)="startResize($event.event, $event.rowId)"
                         (cardDropped)="onCardDrop($event)"
+                        (configureCard)="onConfigureCard($event)"
                         (deleteCard)="onDeleteCard($event.rowId, $event.card)">
       </app-droppable-row>
     </div>

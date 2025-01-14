@@ -120,7 +120,7 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       { languageCode: 'en', value: cardType.title }
     ];
 
-    const newCard: CardDto<BaseCardConfig> = {
+    const newCard: CardDto<any> = {
       id: this.nextCardId++,
       type: cardType.type,
       title: defaultTitle,
@@ -173,7 +173,17 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     this.currentRowId = null;
   }
 
-  onDeleteCard(rowId: number, card: CardDto) {
+  onConfigureCard(event: { rowId: number, card: CardDto<any> }) {
+    const row = this.layout.rows.find(r => r.id === event.rowId);
+    if (row) {
+      const cardIndex = row.cards.findIndex(c => c.id === event.card.id);
+      if (cardIndex !== -1) {
+        row.cards[cardIndex] = event.card;
+      }
+    }
+  }
+
+  onDeleteCard(rowId: number, card: CardDto<any>) {
     const row = this.layout.rows.find(r => r.id === rowId);
     if (row) {
       const index = row.cards.findIndex(c => c.id === card.id);

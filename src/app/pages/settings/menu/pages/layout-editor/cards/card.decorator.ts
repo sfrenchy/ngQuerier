@@ -20,6 +20,6 @@ export function Card<T extends BaseCardConfig>(metadata: CardMetadata<T>): Class
   };
 }
 
-export function getCardMetadata(target: Type<BaseCardComponent>): CardMetadata | undefined {
+export function getCardMetadata<T extends BaseCardConfig>(target: Type<BaseCardComponent<T>>): CardMetadata<T> | undefined {
   return Reflect.getMetadata(CARD_METADATA_KEY, target);
 } 

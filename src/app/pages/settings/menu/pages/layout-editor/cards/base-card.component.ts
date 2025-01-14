@@ -42,9 +42,9 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> {
     this.delete.emit();
   }
 
-  onConfigSave(updatedCard: CardDto<T>) {
+  onConfigSave(updatedCard: CardDto<BaseCardConfig>) {
     this.showConfigDialog = false;
-    this.configurationChange.emit(updatedCard);
+    this.configurationChange.emit(updatedCard as unknown as CardDto<T>);
   }
 
   onConfigCancel() {

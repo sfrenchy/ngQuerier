@@ -30,13 +30,14 @@
         <div class="relative h-full border-2 border-red-500" 
              [style.background-color]="card.backgroundColor" 
              [ngStyle]="{'grid-column': 'span ' + (card.gridWidth || 4)}">
-          <ng-container *ngComponentOutlet="getCardComponent(card.type);
-                                          inputs: {
-                                            card: card,
-                                            config: card.configuration,
-                                            delete: onDeleteCard.bind(this, card),
-                                            configurationChange: onConfigurationChange.bind(this, card)
-                                          }">
+          <ng-container *ngIf="getCardComponent(card.type) as component">
+            <app-card-wrapper
+              [component]="component"
+              [card]="card"
+              [config]="getDefaultConfig(card)"
+              (delete)="onDeleteCard(card)"
+              (configurationChange)="onConfigurationChange(card, $event)">
+            </app-card-wrapper>
           </ng-container>
         </div>
       </ng-container>

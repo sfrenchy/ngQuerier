@@ -274,4 +274,9 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       .find(r => r.id === this.configCardData?.rowId)
       ?.cards.find(c => c.id === this.configCardData?.cardId) || null;
   }
+
+  getRowForCard(): RowDto | null {
+    if (!this.configCardData) return null;
+    return this.layout.rows.find(r => r.id === this.configCardData?.rowId) || null;
+  }
 }

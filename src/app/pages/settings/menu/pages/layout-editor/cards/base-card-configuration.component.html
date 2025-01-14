@@ -23,63 +23,75 @@
     <div class="flex-1 overflow-y-auto p-6">
       <form [formGroup]="form" class="space-y-6">
         <!-- Title -->
-        <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">Titre</label>
+        <app-tile title="Titre">
           <app-translatable-string-form formControlName="title"></app-translatable-string-form>
-        </div>
+        </app-tile>
 
-        <!-- Grid Width -->
-        <div>
-          <label for="gridWidth" class="block text-sm font-medium text-gray-300 mb-2">Largeur (1-12)</label>
-          <input type="number" id="gridWidth" formControlName="gridWidth" min="1" max="12"
-                 class="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
+        <!-- Layout and Colors -->
+        <div class="mt-6">
+          <app-tile title="Mise en page et couleurs">
+            <div class="space-y-6">
+              <!-- Grid Width -->
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label for="gridWidth" class="text-sm font-medium text-gray-300">Largeur</label>
+                  <span class="text-sm font-medium text-gray-300">{{form.get('gridWidth')?.value}} / {{maxAvailableWidth}}</span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <input type="range" id="gridWidth" formControlName="gridWidth" 
+                         [min]="1" [max]="maxAvailableWidth" step="1"
+                         class="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                </div>
+              </div>
 
-        <!-- Colors -->
-        <div class="grid grid-cols-2 gap-4">
-          <!-- Background Color -->
-          <div>
-            <label for="backgroundColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur de fond</label>
-            <div class="flex items-center gap-2">
-              <input type="color" id="backgroundColor" formControlName="backgroundColor"
-                     class="h-10 w-10 rounded border border-gray-600">
-              <input type="text" [formControlName]="'backgroundColor'"
-                     class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <!-- Colors -->
+              <div class="grid grid-cols-2 gap-4">
+                <!-- Background Color -->
+                <div>
+                  <label for="backgroundColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur de fond</label>
+                  <div class="flex items-center gap-2">
+                    <input type="color" id="backgroundColor" formControlName="backgroundColor"
+                           class="h-10 w-10 rounded border border-gray-600">
+                    <input type="text" [formControlName]="'backgroundColor'"
+                           class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                </div>
+
+                <!-- Text Color -->
+                <div>
+                  <label for="textColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur du texte</label>
+                  <div class="flex items-center gap-2">
+                    <input type="color" id="textColor" formControlName="textColor"
+                           class="h-10 w-10 rounded border border-gray-600">
+                    <input type="text" [formControlName]="'textColor'"
+                           class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                </div>
+
+                <!-- Header Background Color -->
+                <div>
+                  <label for="headerBackgroundColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur de fond de l'en-tête</label>
+                  <div class="flex items-center gap-2">
+                    <input type="color" id="headerBackgroundColor" formControlName="headerBackgroundColor"
+                           class="h-10 w-10 rounded border border-gray-600">
+                    <input type="text" [formControlName]="'headerBackgroundColor'"
+                           class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                </div>
+
+                <!-- Header Text Color -->
+                <div>
+                  <label for="headerTextColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur du texte de l'en-tête</label>
+                  <div class="flex items-center gap-2">
+                    <input type="color" id="headerTextColor" formControlName="headerTextColor"
+                           class="h-10 w-10 rounded border border-gray-600">
+                    <input type="text" [formControlName]="'headerTextColor'"
+                           class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <!-- Text Color -->
-          <div>
-            <label for="textColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur du texte</label>
-            <div class="flex items-center gap-2">
-              <input type="color" id="textColor" formControlName="textColor"
-                     class="h-10 w-10 rounded border border-gray-600">
-              <input type="text" [formControlName]="'textColor'"
-                     class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-          </div>
-
-          <!-- Header Background Color -->
-          <div>
-            <label for="headerBackgroundColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur de fond de l'en-tête</label>
-            <div class="flex items-center gap-2">
-              <input type="color" id="headerBackgroundColor" formControlName="headerBackgroundColor"
-                     class="h-10 w-10 rounded border border-gray-600">
-              <input type="text" [formControlName]="'headerBackgroundColor'"
-                     class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-          </div>
-
-          <!-- Header Text Color -->
-          <div>
-            <label for="headerTextColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur du texte de l'en-tête</label>
-            <div class="flex items-center gap-2">
-              <input type="color" id="headerTextColor" formControlName="headerTextColor"
-                     class="h-10 w-10 rounded border border-gray-600">
-              <input type="text" [formControlName]="'headerTextColor'"
-                     class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-          </div>
+          </app-tile>
         </div>
       </form>
     </div>

@@ -57,8 +57,9 @@
   </div>
 
   <!-- Configuration Dialog -->
-  <app-base-card-configuration *ngIf="showCardConfig && getCardToEdit()"
+  <app-base-card-configuration *ngIf="showCardConfig && getCardToEdit() && getRowForCard()"
                               [card]="getCardToEdit()!"
+                              [row]="getRowForCard()!"
                               [isFullscreen]="isFullscreen"
                               (save)="onCardConfigSave($event)"
                               (cancel)="closeCardConfig()"

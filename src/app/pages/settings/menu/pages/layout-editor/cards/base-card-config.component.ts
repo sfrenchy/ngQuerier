@@ -27,7 +27,7 @@ export abstract class BaseCardConfigComponent<T extends BaseCardConfig = BaseCar
     });
   }
 
-  abstract getSpecificControls(): { [key: string]: any[] };
+  abstract getSpecificControls(): { [key: string]: FormGroup | any[] };
 
   onSave(): void {
     if (this.form.valid) {

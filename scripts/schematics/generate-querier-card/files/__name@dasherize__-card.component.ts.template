@@ -1,0 +1,29 @@
+import { Component, Input } from '@angular/core';
+import { Card } from '../card.decorator';
+import { BaseCardComponent } from '../base-card.component';
+import { CardDto, BaseCardConfig } from '@models/api.models';
+import { <%= classify(name) %>CardConfigurationComponent } from './<%= dasherize(name) %>-card-configuration.component';
+
+export class <%= classify(name) %>CardDto implements BaseCardConfig {
+  // Add your card specific properties here
+
+  toJson(): any {
+    const json = {
+      // Add your properties here
+    };
+    return json;
+  }
+}
+
+@Card({
+  name: '<%= classify(name) %> Card',
+  icon: 'question', // Change this to your preferred icon
+  configComponent: <%= classify(name) %>CardConfigurationComponent
+})
+@Component({
+  selector: 'app-<%= dasherize(name) %>-card',
+  templateUrl: './<%= dasherize(name) %>-card.component.html'
+})
+export class <%= classify(name) %>CardComponent extends BaseCardComponent<<%= classify(name) %>CardDto> {
+  // Add your component logic here
+} 

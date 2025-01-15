@@ -1,7 +1,5 @@
 import { Injectable, ApplicationRef, createComponent, EnvironmentInjector, Type } from '@angular/core';
 import { getRegisteredCards } from './card.decorator';
-
-// Import pour déclencher l'exécution du décorateur
 import './label-card/label-card.component';
 
 @Injectable({

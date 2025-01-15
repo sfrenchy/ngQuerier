@@ -1,0 +1,4 @@
+<div class="card">
+  <!-- Add your card content here -->
+  <p>{{ card.title }}</p>
+</div> 

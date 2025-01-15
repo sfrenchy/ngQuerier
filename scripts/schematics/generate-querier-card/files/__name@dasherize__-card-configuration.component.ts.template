@@ -1,0 +1,13 @@
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CardDto } from '@models/api.models';
+import { <%= classify(name) %>CardDto } from './<%= dasherize(name) %>-card.component';
+
+@Component({
+  selector: 'app-<%= dasherize(name) %>-card-configuration',
+  templateUrl: './<%= dasherize(name) %>-card-configuration.component.html'
+})
+export class <%= classify(name) %>CardConfigurationComponent {
+  @Input() card!: CardDto<<%= classify(name) %>CardDto>;
+  @Input() config?: <%= classify(name) %>CardDto;
+  @Output() save = new EventEmitter<<%= classify(name) %>CardDto>();
+} 

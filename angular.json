@@ -121,6 +121,9 @@
     }
   },
   "cli": {
-    "analytics": "0b8167eb-2cbe-4b0d-bd53-334ad1b10427"
+    "analytics": "0b8167eb-2cbe-4b0d-bd53-334ad1b10427",
+    "schematicCollections": [
+      "@querier/schematics"
+    ]
   }
 }

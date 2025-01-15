@@ -40,3 +40,9 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Schematics
+scripts/schematics/node_modules/
+scripts/schematics/dist/
+scripts/schematics/*.tgz
+querier-schematics-*.tgz

@@ -1,4 +1,3 @@
 <div class="card-configuration">
-  <!-- Add your configuration form here -->
-  <button (click)="save.emit(config)">Save</button>
+  <ng-container #configContainer></ng-container>
 </div> 

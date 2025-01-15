@@ -23,7 +23,7 @@ export class LabelCardConfigurationComponent implements OnInit {
     });
 
     // Émettre les changements dès que le formulaire change
-    this.form.valueChanges.subscribe(value => {
+    this.form.valueChanges.subscribe((value: any) => {
       if (this.form.valid) {
         const config = new LabelCardConfig(value.label);
         this.configChange.emit(config);

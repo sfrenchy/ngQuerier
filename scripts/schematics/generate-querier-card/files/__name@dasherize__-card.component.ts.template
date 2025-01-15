@@ -1,29 +1,41 @@
-import { Component, Input } from '@angular/core';
+import { Component, Type } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TranslateModule } from '@ngx-translate/core';
 import { Card } from '../card.decorator';
-import { BaseCardComponent } from '../base-card.component';
-import { CardDto, BaseCardConfig } from '@models/api.models';
 import { <%= classify(name) %>CardConfigurationComponent } from './<%= dasherize(name) %>-card-configuration.component';
+import { BaseCardConfig } from '@models/api.models';
+import { BaseCardComponent } from '../base-card.component';
 
-export class <%= classify(name) %>CardDto implements BaseCardConfig {
-  // Add your card specific properties here
+export class <%= classify(name) %>CardConfig extends BaseCardConfig {
+  constructor() {
+    super();
+  }
 
   toJson(): any {
-    const json = {
+    return {
       // Add your properties here
     };
-    return json;
+  }
+
+  static fromJson(json: any): <%= classify(name) %>CardConfig {
+    return new <%= classify(name) %>CardConfig();
   }
 }
 
 @Card({
-  name: '<%= classify(name) %> Card',
-  icon: 'question', // Change this to your preferred icon
-  configComponent: <%= classify(name) %>CardConfigurationComponent
+  name: '<%= classify(name) %>',
+  icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+    <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
+  </svg>`,
+  configComponent: <%= classify(name) %>CardConfigurationComponent as Type<any>,
+  configType: <%= classify(name) %>CardConfig,
+  defaultConfig: () => new <%= classify(name) %>CardConfig()
 })
 @Component({
   selector: 'app-<%= dasherize(name) %>-card',
-  templateUrl: './<%= dasherize(name) %>-card.component.html'
+  templateUrl: './<%= dasherize(name) %>-card.component.html',
+  standalone: true,
+  imports: [CommonModule, TranslateModule]
 })
-export class <%= classify(name) %>CardComponent extends BaseCardComponent<<%= classify(name) %>CardDto> {
-  // Add your component logic here
-} 
+export class <%= classify(name) %>CardComponent extends BaseCardComponent<<%= classify(name) %>CardConfig> {} 

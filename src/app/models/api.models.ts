@@ -281,6 +281,11 @@ export interface ApiUserUpdateDto {
 }
 
 export abstract class BaseCardConfig {
+  backgroundColor: number = 0xFFFFFF;
+  textColor: number = 0;
+  headerBackgroundColor: number = 0xF3F4F6;
+  headerTextColor: number = 0;
+
   abstract toJson(): any;
 }
 

@@ -1,4 +1,5 @@
-<div class="card">
-  <!-- Add your card content here -->
-  <p>{{ card.title }}</p>
+<div class="card-content">
+  <ng-container *ngFor="let title of card.title">
+    <span *ngIf="title.languageCode === 'fr'" [title]="title.value">{{ title.value }}</span>
+  </ng-container>
 </div> 

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CardDto } from '@models/api.models';
 import { LabelCardDto } from './label-card.component';
-import { TileComponent } from '@shared/components/tile/tile.component';
 
 @Component({
   selector: 'app-label-card-configuration',
@@ -11,8 +10,7 @@ import { TileComponent } from '@shared/components/tile/tile.component';
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
-    TileComponent
+    ReactiveFormsModule
   ]
 })
 export class LabelCardConfigurationComponent implements OnInit {

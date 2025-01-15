@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RowDto, CardDto } from '@models/api.models';
-import { BaseCardComponent } from './base-card.component';
+import { BaseCardComponent } from '../../../../../../cards/base-card.component';
 
 @Component({
   selector: 'app-droppable-row',

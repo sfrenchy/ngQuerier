@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LayoutDto, RowDto, CardDto } from '@models/api.models';
-import { DroppableRowComponent } from './cards/droppable-row.component';
-import { BaseCardComponent } from './cards/base-card.component';
-import { BaseCardConfigurationComponent } from './cards/base-card-configuration.component';
-import { CardService } from './cards/card.service';
-import { CardMetadata } from './cards/card.decorator';
+import { DroppableRowComponent } from './rows/droppable-row.component';
+import { BaseCardComponent } from '../../../../../cards/base-card.component';
+import { BaseCardConfigurationComponent } from '../../../../../cards/base-card-configuration.component';
+import { CardService } from '../../../../../cards/card.service';
+import { CardMetadata } from '../../../../../cards/card.decorator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import './cards/available-cards';
+import '../../../../../cards/available-cards';
 
 interface CardMetadataWithSafeIcon extends CardMetadata {
   safeIcon: SafeHtml;

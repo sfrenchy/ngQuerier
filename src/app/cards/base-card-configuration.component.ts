@@ -77,6 +77,14 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
       componentRef.instance.save?.subscribe((configuration: any) => {
         this.onCardConfigSave(configuration);
       });
+
+      // S'abonner aux changements en temps réel
+      componentRef.instance.configChange?.subscribe((configuration: any) => {
+        this.card = {
+          ...this.card,
+          configuration
+        };
+      });
     }
   }
 
@@ -92,9 +100,11 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
 
   onSave() {
     if (this.form.valid) {
+      const { configuration, ...rest } = this.card;
       const updatedCard: CardDto = {
-        ...this.card,
-        ...this.form.value
+        ...rest,
+        ...this.form.value,
+        configuration: this.card.configuration
       };
       this.save.emit(updatedCard);
     }
@@ -105,8 +115,9 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
   }
 
   onCardConfigSave(configuration: any) {
+    const { configuration: oldConfig, ...rest } = this.card;
     const updatedCard: CardDto = {
-      ...this.card,
+      ...rest,
       configuration
     };
     this.save.emit(updatedCard);

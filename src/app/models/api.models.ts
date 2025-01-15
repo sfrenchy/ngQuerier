@@ -313,7 +313,7 @@ export interface CardDto<TConfig = any> {
   headerTextColor: string;
   headerBackgroundColor: string;
   rowId: number;
-  config?: TConfig;
+  configuration?: TConfig;
 }
 
 // Type utilitaire pour la factory de configuration

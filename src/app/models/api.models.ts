@@ -308,10 +308,10 @@ export interface CardDto<TConfig = any> {
   title: TranslatableString[];
   order: number;
   gridWidth: number;
-  backgroundColor: string;
-  textColor: string;
-  headerTextColor: string;
-  headerBackgroundColor: string;
+  backgroundColor: number;
+  textColor: number;
+  headerTextColor: number;
+  headerBackgroundColor: number;
   rowId: number;
   configuration?: TConfig;
 }

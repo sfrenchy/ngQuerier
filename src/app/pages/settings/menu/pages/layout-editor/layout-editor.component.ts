@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LayoutDto, RowDto, CardDto } from '@models/api.models';
 import { DroppableRowComponent } from './rows/droppable-row.component';
@@ -9,6 +9,7 @@ import { CardMetadata } from '../../../../../cards/card.decorator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import '../../../../../cards/available-cards';
 import { CardRegistry } from '../../../../../cards/card.registry';
+import { hexToUint } from '../../../../../shared/utils/color.utils';
 
 interface CardMetadataWithSafeIcon extends CardMetadata {
   safeIcon: SafeHtml;
@@ -26,6 +27,15 @@ interface CardMetadataWithSafeIcon extends CardMetadata {
   ]
 })
 export class LayoutEditorComponent implements OnInit, OnDestroy {
+  @Input() set pageId(value: number | null) {
+    if (value) {
+      this._layout = {
+        ...this._layout,
+        pageId: value
+      };
+    }
+  }
+
   private _layout: LayoutDto = {
     pageId: 0,
     rows: []
@@ -174,10 +184,10 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       title: [{ languageCode: 'fr', value: 'Nouvelle carte' }],
       order: row.cards.length,
       gridWidth: availableSpace,
-      backgroundColor: '#ffffff',
-      textColor: '#000000',
-      headerTextColor: '#000000',
-      headerBackgroundColor: '#f3f4f6',
+      backgroundColor: hexToUint('#ffffff'),
+      textColor: hexToUint('#000000'),
+      headerTextColor: hexToUint('#000000'),
+      headerBackgroundColor: hexToUint('#f3f4f6'),
       rowId: event.rowId,
       configuration
     };

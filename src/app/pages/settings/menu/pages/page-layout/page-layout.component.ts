@@ -1,7 +1,9 @@
-import { Component, ElementRef } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-              import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { LayoutEditorComponent } from '../layout-editor/layout-editor.component';
+import { ApiService } from '../../../../../services/api.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-page-layout',
@@ -9,12 +11,39 @@ import { LayoutEditorComponent } from '../layout-editor/layout-editor.component'
   imports: [CommonModule, TranslateModule, LayoutEditorComponent],
   templateUrl: './page-layout.component.html'
 })
-export class PageLayoutComponent {
+export class PageLayoutComponent implements OnInit {
   isFullscreen = false;
+  @ViewChild(LayoutEditorComponent) layoutEditor!: LayoutEditorComponent;
+  pageId: number | null = null;
 
-  constructor(private elementRef: ElementRef) {
+  constructor(
+    private elementRef: ElementRef,
+    private apiService: ApiService,
+    private route: ActivatedRoute
+  ) {
     document.addEventListener('fullscreenchange', () => {
       this.isFullscreen = !!document.fullscreenElement;
+    });
+  }
+
+  ngOnInit() {
+    const pageId = this.route.snapshot.paramMap.get('id');
+    if (pageId) {
+      this.pageId = +pageId;
+      this.loadLayout(this.pageId);
+    }
+  }
+
+  loadLayout(pageId: number) {
+    this.apiService.getLayout(pageId).subscribe({
+      next: (layout) => {
+        if (this.layoutEditor) {
+          this.layoutEditor.layout = layout;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading layout:', error);
+      }
     });
   }
 
@@ -32,5 +61,23 @@ export class PageLayoutComponent {
         console.error('Erreur lors de la sortie du plein écran:', err);
       }
     }
+  }
+
+  saveLayout(): void {
+    const layout = this.layoutEditor.layout;
+    if (!this.pageId) {
+      console.error('No pageId specified for layout');
+      return;
+    }
+
+    this.apiService.updateLayout(this.pageId, layout).subscribe({
+      next: (updatedLayout) => {
+        console.log('Layout saved successfully:', updatedLayout);
+        this.layoutEditor.layout = updatedLayout;
+      },
+      error: (error) => {
+        console.error('Error saving layout:', error);
+      }
+    });
   }
 } 

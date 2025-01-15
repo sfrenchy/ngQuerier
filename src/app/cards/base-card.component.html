@@ -1,7 +1,7 @@
-<div class="flex flex-col h-full rounded-lg overflow-hidden" [style.background-color]="card.backgroundColor">
+<div class="flex flex-col h-full rounded-lg overflow-hidden" [style.background-color]="backgroundColor">
   <!-- Header -->
-  <div class="flex items-center justify-between px-4 py-2" [style.background-color]="card.headerBackgroundColor">
-    <h3 class="text-sm font-medium" [style.color]="card.headerTextColor">
+  <div class="flex items-center justify-between px-4 py-2" [style.background-color]="headerBackgroundColor">
+    <h3 class="text-sm font-medium" [style.color]="headerTextColor">
       <ng-container *ngFor="let title of card.title">
         <span *ngIf="title.languageCode === 'fr'">{{title.value}}</span>
       </ng-container>
@@ -21,12 +21,12 @@
   </div>
 
   <!-- Body -->
-  <div class="flex-1 p-4" [style.color]="card.textColor">
+  <div class="flex-1 p-4" [style.color]="textColor">
     <ng-content select="[body]"></ng-content>
   </div>
 
   <!-- Footer -->
-  <div class="px-4 py-2 border-t border-gray-200" [style.color]="card.textColor">
+  <div class="px-4 py-2 border-t border-gray-200" [style.color]="textColor">
     <ng-content select="[footer]"></ng-content>
   </div>
 </div> 

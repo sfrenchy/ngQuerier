@@ -5,20 +5,30 @@
         <h2 class="font-medium" [class.text-lg]="!isFullscreen" [class.text-base]="isFullscreen">
           {{ 'MENU.PAGES.LAYOUT_EDITOR' | translate }}
         </h2>
-        <button 
-          class="p-1.5 hover:bg-gray-700 rounded transition-colors"
-          (click)="toggleFullscreen()"
-          [title]="(isFullscreen ? 'COMMON.EXIT_FULLSCREEN' : 'COMMON.FULLSCREEN') | translate">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path *ngIf="!isFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-            <path *ngIf="isFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l5 5m11-5l-5 5m5 11l-5-5m-11 5l5-5" />
-          </svg>
-        </button>
+        <div class="flex gap-2">
+          <button 
+            class="p-1.5 hover:bg-gray-700 rounded transition-colors"
+            (click)="saveLayout()"
+            [title]="'COMMON.SAVE' | translate">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+            </svg>
+          </button>
+          <button 
+            class="p-1.5 hover:bg-gray-700 rounded transition-colors"
+            (click)="toggleFullscreen()"
+            [title]="(isFullscreen ? 'COMMON.EXIT_FULLSCREEN' : 'COMMON.FULLSCREEN') | translate">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path *ngIf="!isFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              <path *ngIf="isFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l5 5m11-5l-5 5m5 11l-5-5m-11 5l5-5" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
 
     <div class="h-[calc(100%-3rem)]">
-      <app-layout-editor></app-layout-editor>
+      <app-layout-editor [pageId]="pageId"></app-layout-editor>
     </div>
   </div>
 </div> 

@@ -29,7 +29,6 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
   form: FormGroup;
   maxAvailableWidth: number = 12;
   cardConfigComponent?: Type<any>;
-  cardConfig?: any;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -64,11 +63,6 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
     if (metadata) {
       this.cardConfigComponent = metadata.configComponent;
     }
-    
-    // Initialiser la configuration spécifique
-    if (this.card.config) {
-      this.cardConfig = this.card.config;
-    }
   }
 
   ngAfterViewInit() {
@@ -78,11 +72,10 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
       
       // Définir les inputs
       componentRef.setInput('card', this.card);
-      componentRef.setInput('config', this.cardConfig);
       
       // S'abonner aux outputs
-      componentRef.instance.save?.subscribe((config: any) => {
-        this.onCardConfigSave(config);
+      componentRef.instance.save?.subscribe((configuration: any) => {
+        this.onCardConfigSave(configuration);
       });
     }
   }
@@ -101,8 +94,7 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
     if (this.form.valid) {
       const updatedCard: CardDto = {
         ...this.card,
-        ...this.form.value,
-        config: this.cardConfig
+        ...this.form.value
       };
       this.save.emit(updatedCard);
     }
@@ -112,7 +104,11 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
     this.cancel.emit();
   }
 
-  onCardConfigSave(config: any) {
-    this.cardConfig = config;
+  onCardConfigSave(configuration: any) {
+    const updatedCard: CardDto = {
+      ...this.card,
+      configuration
+    };
+    this.save.emit(updatedCard);
   }
 } 

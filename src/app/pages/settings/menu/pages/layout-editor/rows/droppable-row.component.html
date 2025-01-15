@@ -36,9 +36,10 @@
                         [isEditing]="true"
                         (delete)="onCardDelete(card.id)"
                         (configure)="onCardConfigure(card.id)">
-            <div body class="text-sm text-gray-500">
-              Carte {{card.id}}
-            </div>
+            <ng-container body>
+              <ng-container *ngComponentOutlet="getCardComponent(card.type)!; inputs: { card: card }">
+              </ng-container>
+            </ng-container>
           </app-base-card>
         </div>
       </ng-container>

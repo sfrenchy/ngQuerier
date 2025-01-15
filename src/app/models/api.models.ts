@@ -335,7 +335,7 @@ export function mapCardFromApi<T extends BaseCardConfig>(
     headerTextColor: jsonData.headerTextColor,
     headerBackgroundColor: jsonData.headerBackgroundColor,
     rowId: jsonData.rowId,
-    config: jsonData.config ? configFactory(jsonData.config) : undefined
+    configuration: jsonData.configuration ? configFactory(jsonData.configuration) : undefined
   };
 }
 
@@ -360,7 +360,7 @@ export function mapCardToApi<T extends BaseCardConfig>(card: CardDto<T>): any {
     headerTextColor: card.headerTextColor,
     headerBackgroundColor: card.headerBackgroundColor,
     rowId: card.rowId,
-    config: card.config?.toJson()
+    configuration: card.configuration?.toJson()
   };
 }
 

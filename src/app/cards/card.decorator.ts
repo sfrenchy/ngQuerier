@@ -1,10 +1,12 @@
 import { Type } from '@angular/core';
 import { CardRegistry } from './card.registry';
+import { BaseCardConfig } from '@models/api.models';
 
 export interface CardMetadata {
   name: string;
   icon: string;
   configComponent?: Type<any>;
+  defaultConfig?: () => BaseCardConfig;
 }
 
 export interface RegisteredCardMetadata extends CardMetadata {

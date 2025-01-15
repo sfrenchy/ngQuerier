@@ -8,6 +8,7 @@ import { CardService } from '../../../../../cards/card.service';
 import { CardMetadata } from '../../../../../cards/card.decorator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import '../../../../../cards/available-cards';
+import { CardRegistry } from '../../../../../cards/card.registry';
 
 interface CardMetadataWithSafeIcon extends CardMetadata {
   safeIcon: SafeHtml;
@@ -40,7 +41,17 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       new: value,
       trace: new Error().stack
     });
-    this._layout = value;
+
+    // Désérialiser les configurations des cartes
+    const updatedLayout = {
+      ...value,
+      rows: value.rows.map(row => ({
+        ...row,
+        cards: row.cards.map(card => this.cardService.deserializeCardConfig(card))
+      }))
+    };
+
+    this._layout = updatedLayout;
   }
 
   isDraggingRow = false;
@@ -153,9 +164,13 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     
     if (availableSpace <= 0) return; // Pas d'espace disponible
 
+    const cardType = event.cardType || 'label';
+    const metadata = CardRegistry.getMetadata(cardType);
+    const configuration = metadata?.defaultConfig?.();
+
     const newCard: CardDto = {
       id: this.nextCardId++,
-      type: event.cardType || 'label',
+      type: cardType,
       title: [{ languageCode: 'fr', value: 'Nouvelle carte' }],
       order: row.cards.length,
       gridWidth: availableSpace,
@@ -163,7 +178,8 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       textColor: '#000000',
       headerTextColor: '#000000',
       headerBackgroundColor: '#f3f4f6',
-      rowId: event.rowId
+      rowId: event.rowId,
+      configuration
     };
 
     const updatedRows = [...this.layout.rows];
@@ -225,11 +241,17 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     const cardIndex = updatedRows[rowIndex].cards.findIndex(c => c.id === data.cardId);
     if (cardIndex === -1) return;
 
+    // S'assurer que la configuration est correctement sérialisée
+    const cardWithSerializedConfig = {
+      ...updatedCard,
+      configuration: updatedCard.configuration?.toJson()
+    };
+
     updatedRows[rowIndex] = {
       ...updatedRows[rowIndex],
       cards: [
         ...updatedRows[rowIndex].cards.slice(0, cardIndex),
-        updatedCard,
+        cardWithSerializedConfig,
         ...updatedRows[rowIndex].cards.slice(cardIndex + 1)
       ]
     };

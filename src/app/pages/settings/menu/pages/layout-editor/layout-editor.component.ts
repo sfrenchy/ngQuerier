@@ -45,7 +45,7 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
 
   nextRowId = 1;
   nextCardId = 1;
-  private resizing = false;
+  resizing = false;
   private currentRowId: number | null = null;
   private startY = 0;
   private startHeight = 0;

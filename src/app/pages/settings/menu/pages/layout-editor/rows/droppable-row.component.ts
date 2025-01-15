@@ -18,13 +18,21 @@ export class DroppableRowComponent {
   @Output() configureCard = new EventEmitter<{ rowId: number, cardId: number }>();
 
   isDraggingCard = false;
+  isResizing = false;
 
   onDeleteRow() {
     this.deleteRow.emit();
   }
 
   onResizeStart(event: MouseEvent) {
+    this.isResizing = true;
     this.startResize.emit({ event, rowId: this.row.id });
+    document.addEventListener('mouseup', this.onResizeEnd);
+  }
+
+  private onResizeEnd = () => {
+    this.isResizing = false;
+    document.removeEventListener('mouseup', this.onResizeEnd);
   }
 
   onDragOver(event: DragEvent) {

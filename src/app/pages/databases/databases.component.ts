@@ -44,7 +44,6 @@ export class DatabasesComponent implements OnInit {
   private loadConnections(): void {
     this.apiService.getDBConnections().subscribe({
       next: (connections: DBConnectionDto[]) => {
-        console.log('Loaded connections:', connections);
         this.connections = connections;
       },
       error: (error: any) => {
@@ -87,14 +86,12 @@ export class DatabasesComponent implements OnInit {
   }
 
   onDeleteClick(connection: DBConnectionDto): void {
-    console.log('Connection to delete:', connection);
     this.connectionToDelete = connection;
     this.showDeleteConfirmation = true;
   }
 
   onConfirmDelete(): void {
     if (this.connectionToDelete) {
-      console.log('Deleting connection with ID:', this.connectionToDelete.id);
       this.apiService.deleteDBConnection(this.connectionToDelete.id).subscribe({
         next: () => {
           this.loadConnections();

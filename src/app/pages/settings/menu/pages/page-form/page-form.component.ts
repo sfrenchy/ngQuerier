@@ -75,7 +75,6 @@ export class PageFormComponent implements OnInit {
     this.isLoading = true;
     this.apiService.getPage(id).subscribe({
       next: (page) => {
-        console.log('Page loaded:', page);
         this.pageForm.patchValue({
           icon: page.icon,
           isVisible: page.isVisible,
@@ -85,7 +84,6 @@ export class PageFormComponent implements OnInit {
         
         // Forcer la détection de changement en créant un nouveau tableau
         this.pageTitles = [...page.title];
-        console.log('Page titles set:', this.pageTitles);
         
         this.isLoading = false;
       },
@@ -100,7 +98,6 @@ export class PageFormComponent implements OnInit {
   onSubmit(): void {
     if (this.pageForm.valid && this.pageTitles.length > 0) {
       const formValue = this.pageForm.value;
-      console.log('Submitting with titles:', this.pageTitles);
       const pageData = {
         ...formValue,
         title: this.pageTitles,

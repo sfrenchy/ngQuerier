@@ -60,29 +60,21 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
       Validators.max(this.maxAvailableWidth)
     ]);
 
-    // Récupérer les métadonnées de la carte via le registre
-    console.log('[BaseCardConfiguration] Card type:', this.card.type);
     const metadata = CardRegistry.getMetadata(this.card.type);
-    console.log('[BaseCardConfiguration] Found metadata:', metadata);
     if (metadata) {
       this.cardConfigComponent = metadata.configComponent;
-      console.log('[BaseCardConfiguration] Config component:', this.cardConfigComponent);
     }
     
     // Initialiser la configuration spécifique
     if (this.card.config) {
       this.cardConfig = this.card.config;
-      console.log('[BaseCardConfiguration] Card config:', this.cardConfig);
     }
   }
 
   ngAfterViewInit() {
-    console.log('[BaseCardConfiguration] AfterViewInit - Component:', this.cardConfigComponent);
-    console.log('[BaseCardConfiguration] AfterViewInit - Container:', this.configContainer);
     if (this.cardConfigComponent && this.configContainer) {
       // Créer le composant de configuration
       const componentRef = this.configContainer.createComponent(this.cardConfigComponent);
-      console.log('[BaseCardConfiguration] Created component:', componentRef);
       
       // Définir les inputs
       componentRef.setInput('card', this.card);
@@ -90,7 +82,6 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
       
       // S'abonner aux outputs
       componentRef.instance.save?.subscribe((config: any) => {
-        console.log('[BaseCardConfiguration] Config saved:', config);
         this.onCardConfigSave(config);
       });
     }

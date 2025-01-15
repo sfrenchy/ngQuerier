@@ -10,14 +10,11 @@ export class CardInitializerService {
     private appRef: ApplicationRef,
     private injector: EnvironmentInjector
   ) {
-    console.log('CardInitializerService created');
-    console.log('Registered cards:', getRegisteredCards());
   }
 
   initialize() {
     // Récupérer tous les composants décorés avec @Card
     const registeredCards = getRegisteredCards();
-    console.log('Initializing cards:', registeredCards);
     
     // Créer une instance de chaque composant pour forcer leur inclusion
     registeredCards.forEach((cardComponent: Type<any>) => {

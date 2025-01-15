@@ -36,7 +36,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
 
   set layout(value: LayoutDto) {
     this._layout = value;
-    console.log('[Layout Changed]', JSON.parse(JSON.stringify(value)));
   }
 
   isDraggingRow = false;

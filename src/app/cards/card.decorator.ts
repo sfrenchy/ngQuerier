@@ -18,7 +18,6 @@ export function Card(metadata: CardMetadata): ClassDecorator {
   return function (target: Function): any {
     // Ajouter le composant au registre
     cardRegistry.push(target as Type<any>);
-    console.log('Registering card component:', target.name);
 
     // Enregistrer les métadonnées comme avant
     const type = metadata.name.toLowerCase();

@@ -35,6 +35,11 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   }
 
   set layout(value: LayoutDto) {
+    console.log('Layout updated:', {
+      previous: this._layout,
+      new: value,
+      trace: new Error().stack
+    });
     this._layout = value;
   }
 

@@ -6,6 +6,7 @@ export interface CardMetadata {
   name: string;
   icon: string;
   configComponent?: Type<any>;
+  configType?: Type<BaseCardConfig>;
   defaultConfig?: () => BaseCardConfig;
 }
 

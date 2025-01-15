@@ -5,6 +5,7 @@ import { CardDto, RowDto } from '@models/api.models';
 import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
 import { TileComponent } from '@shared/components/tile/tile.component';
 import { CardRegistry } from './card.registry';
+import { hexToUint, uintToHex } from '../shared/utils/color.utils';
 
 @Component({
   selector: 'app-base-card-configuration',
@@ -26,31 +27,24 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
   @Output() toggleFullscreen = new EventEmitter<void>();
   @ViewChild('configContainer', { read: ViewContainerRef }) configContainer!: ViewContainerRef;
 
-  form: FormGroup;
+  form!: FormGroup;
   maxAvailableWidth: number = 12;
   cardConfigComponent?: Type<any>;
+  private colorFields = ['backgroundColor', 'textColor', 'headerTextColor', 'headerBackgroundColor'];
 
-  constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({
-      title: [[]],
-      gridWidth: [4, [Validators.required, Validators.min(1)]],
-      backgroundColor: ['#ffffff'],
-      textColor: ['#000000'],
-      headerTextColor: ['#000000'],
-      headerBackgroundColor: ['#f3f4f6']
-    });
-  }
+  constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
-    this.calculateMaxWidth();
-    this.form.patchValue({
-      title: this.card.title,
-      gridWidth: this.card.gridWidth,
-      backgroundColor: this.card.backgroundColor,
-      textColor: this.card.textColor,
-      headerTextColor: this.card.headerTextColor,
-      headerBackgroundColor: this.card.headerBackgroundColor
+    this.form = this.fb.group({
+      title: [this.card.title],
+      gridWidth: [this.card.gridWidth, [Validators.required, Validators.min(1)]],
+      backgroundColor: [this.convertUintToHex(this.card.backgroundColor)],
+      textColor: [this.convertUintToHex(this.card.textColor)],
+      headerTextColor: [this.convertUintToHex(this.card.headerTextColor)],
+      headerBackgroundColor: [this.convertUintToHex(this.card.headerBackgroundColor)]
     });
+
+    this.calculateMaxWidth();
 
     // Mettre à jour la validation de gridWidth avec la nouvelle valeur max
     this.form.get('gridWidth')?.setValidators([
@@ -88,24 +82,45 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private calculateMaxWidth() {
-    // Calculer l'espace utilisé par les autres cartes
-    const usedSpace = this.row.cards
-      .filter(c => c.id !== this.card.id) // Exclure la carte en cours d'édition
-      .reduce((total, card) => total + (card.gridWidth || 4), 0);
+  private convertUintToHex(value: number): string {
+    const hex = uintToHex(value);
+    return hex;
+  }
+
+  private convertHexToUint(value: string): number {
+    const uint = hexToUint(value);
+    return uint;
+  }
+
+  onColorTextInput(event: Event, controlName: string) {
+    const input = event.target as HTMLInputElement;
+    let value = input.value.trim();
     
-    // La largeur maximale est simplement l'espace disponible dans la ligne
-    this.maxAvailableWidth = 12 - usedSpace;
+    // Add # if missing
+    if (value && !value.startsWith('#')) {
+      value = '#' + value;
+    }
+    
+    // Validate hex format
+    if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
+      this.form.patchValue({ [controlName]: value }, { emitEvent: false });
+    }
   }
 
   onSave() {
     if (this.form.valid) {
-      const { configuration, ...rest } = this.card;
+      const formValues = this.form.value;
+
       const updatedCard: CardDto = {
-        ...rest,
-        ...this.form.value,
-        configuration: this.card.configuration
+        ...this.card,
+        title: formValues.title,
+        gridWidth: formValues.gridWidth,
+        backgroundColor: this.convertHexToUint(formValues.backgroundColor),
+        textColor: this.convertHexToUint(formValues.textColor),
+        headerTextColor: this.convertHexToUint(formValues.headerTextColor),
+        headerBackgroundColor: this.convertHexToUint(formValues.headerBackgroundColor)
       };
+
       this.save.emit(updatedCard);
     }
   }
@@ -115,11 +130,21 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
   }
 
   onCardConfigSave(configuration: any) {
-    const { configuration: oldConfig, ...rest } = this.card;
     const updatedCard: CardDto = {
-      ...rest,
+      ...this.card,
       configuration
     };
     this.save.emit(updatedCard);
+  }
+
+  calculateMaxWidth(): number {
+    // Calculer l'espace utilisé par les autres cartes
+    const usedSpace = this.row.cards
+      .filter(c => c.id !== this.card.id) // Exclure la carte en cours d'édition
+      .reduce((total, card) => total + (card.gridWidth || 4), 0);
+    
+    // La largeur maximale est l'espace disponible dans la ligne
+    this.maxAvailableWidth = 12 - usedSpace;
+    return this.maxAvailableWidth;
   }
 } 

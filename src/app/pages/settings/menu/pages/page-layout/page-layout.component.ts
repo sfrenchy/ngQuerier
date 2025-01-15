@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { LayoutEditorComponent } from '../layout-editor/layout-editor.component';
 import { ApiService } from '../../../../../services/api.service';
 import { ActivatedRoute } from '@angular/router';
+import { LayoutDto, RowDto, CardDto } from '@models/api.models';
 
 @Component({
   selector: 'app-page-layout',
@@ -37,8 +38,23 @@ export class PageLayoutComponent implements OnInit {
   loadLayout(pageId: number) {
     this.apiService.getLayout(pageId).subscribe({
       next: (layout) => {
+
+        const updatedLayout = {
+          ...layout,
+          rows: layout.rows.map(row => ({
+            ...row,
+            cards: row.cards.map(card => ({
+              ...card,
+              backgroundColor: card.backgroundColor ?? 0xFFFFFF,
+              textColor: card.textColor ?? 0,
+              headerTextColor: card.headerTextColor ?? 0,
+              headerBackgroundColor: card.headerBackgroundColor ?? 0xF3F4F6
+            }))
+          }))
+        };
+
         if (this.layoutEditor) {
-          this.layoutEditor.layout = layout;
+          this.layoutEditor.layout = updatedLayout;
         }
       },
       error: (error) => {
@@ -72,7 +88,6 @@ export class PageLayoutComponent implements OnInit {
 
     this.apiService.updateLayout(this.pageId, layout).subscribe({
       next: (updatedLayout) => {
-        console.log('Layout saved successfully:', updatedLayout);
         this.layoutEditor.layout = updatedLayout;
       },
       error: (error) => {

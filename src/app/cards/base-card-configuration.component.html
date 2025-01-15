@@ -49,10 +49,12 @@
               <div>
                 <label for="backgroundColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur de fond</label>
                 <div class="flex items-center gap-2">
-                  <input type="color" id="backgroundColor" formControlName="backgroundColor"
-                         class="h-10 w-10 rounded border border-gray-600">
+                  <input type="color" id="backgroundColor" [formControlName]="'backgroundColor'"
+                         class="h-10 w-10 rounded border border-gray-600"
+                         data-testid="backgroundColor">
                   <input type="text" [formControlName]="'backgroundColor'"
-                         class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                         class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                         (input)="onColorTextInput($event, 'backgroundColor')">
                 </div>
               </div>
 
@@ -60,21 +62,12 @@
               <div>
                 <label for="textColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur du texte</label>
                 <div class="flex items-center gap-2">
-                  <input type="color" id="textColor" formControlName="textColor"
-                         class="h-10 w-10 rounded border border-gray-600">
+                  <input type="color" id="textColor" [formControlName]="'textColor'"
+                         class="h-10 w-10 rounded border border-gray-600"
+                         data-testid="textColor">
                   <input type="text" [formControlName]="'textColor'"
-                         class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-              </div>
-
-              <!-- Header Background Color -->
-              <div>
-                <label for="headerBackgroundColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur de fond de l'en-tête</label>
-                <div class="flex items-center gap-2">
-                  <input type="color" id="headerBackgroundColor" formControlName="headerBackgroundColor"
-                         class="h-10 w-10 rounded border border-gray-600">
-                  <input type="text" [formControlName]="'headerBackgroundColor'"
-                         class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                         class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                         (input)="onColorTextInput($event, 'textColor')">
                 </div>
               </div>
 
@@ -82,10 +75,25 @@
               <div>
                 <label for="headerTextColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur du texte de l'en-tête</label>
                 <div class="flex items-center gap-2">
-                  <input type="color" id="headerTextColor" formControlName="headerTextColor"
-                         class="h-10 w-10 rounded border border-gray-600">
+                  <input type="color" id="headerTextColor" [formControlName]="'headerTextColor'"
+                         class="h-10 w-10 rounded border border-gray-600"
+                         data-testid="headerTextColor">
                   <input type="text" [formControlName]="'headerTextColor'"
-                         class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                         class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                         (input)="onColorTextInput($event, 'headerTextColor')">
+                </div>
+              </div>
+
+              <!-- Header Background Color -->
+              <div>
+                <label for="headerBackgroundColor" class="block text-sm font-medium text-gray-300 mb-2">Couleur de fond de l'en-tête</label>
+                <div class="flex items-center gap-2">
+                  <input type="color" id="headerBackgroundColor" [formControlName]="'headerBackgroundColor'"
+                         class="h-10 w-10 rounded border border-gray-600"
+                         data-testid="headerBackgroundColor">
+                  <input type="text" [formControlName]="'headerBackgroundColor'"
+                         class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                         (input)="onColorTextInput($event, 'headerBackgroundColor')">
                 </div>
               </div>
             </div>

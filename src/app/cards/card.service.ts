@@ -25,13 +25,13 @@ export class CardService {
     if (!card.configuration) return card;
 
     const metadata = CardRegistry.getMetadata(card.type);
-    if (!metadata?.type) return card;
+    if (!metadata?.configType) return card;
 
-    const cardType = metadata.type as any;
-    if (typeof cardType.fromJson === 'function') {
+    const configType = metadata.configType as any;
+    if (typeof configType.fromJson === 'function') {
       return {
         ...card,
-        configuration: cardType.fromJson(card.configuration)
+        configuration: configType.fromJson(card.configuration)
       };
     }
 

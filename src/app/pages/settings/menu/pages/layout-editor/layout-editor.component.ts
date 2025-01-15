@@ -46,18 +46,24 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   }
 
   set layout(value: LayoutDto) {
-    console.log('Layout updated:', {
-      previous: this._layout,
-      new: value,
-      trace: new Error().stack
-    });
+    
 
     // Désérialiser les configurations des cartes
     const updatedLayout = {
       ...value,
       rows: value.rows.map(row => ({
         ...row,
-        cards: row.cards.map(card => this.cardService.deserializeCardConfig(card))
+        cards: row.cards.map(card => {
+          const deserializedCard = this.cardService.deserializeCardConfig(card);
+          // Préserver les valeurs des couleurs
+          return {
+            ...deserializedCard,
+            backgroundColor: card.backgroundColor,
+            textColor: card.textColor,
+            headerTextColor: card.headerTextColor,
+            headerBackgroundColor: card.headerBackgroundColor
+          };
+        })
       }))
     };
 
@@ -184,10 +190,10 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       title: [{ languageCode: 'fr', value: 'Nouvelle carte' }],
       order: row.cards.length,
       gridWidth: availableSpace,
-      backgroundColor: hexToUint('#ffffff'),
-      textColor: hexToUint('#000000'),
-      headerTextColor: hexToUint('#000000'),
-      headerBackgroundColor: hexToUint('#f3f4f6'),
+      backgroundColor: hexToUint('#ffffff'),  // blanc
+      textColor: hexToUint('#000000'),       // noir
+      headerTextColor: hexToUint('#000000'), // noir
+      headerBackgroundColor: hexToUint('#f3f4f6'), // gris clair
       rowId: event.rowId,
       configuration
     };

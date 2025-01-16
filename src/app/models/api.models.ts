@@ -285,6 +285,9 @@ export abstract class BaseCardConfig {
   textColor: number = 0;
   headerBackgroundColor: number = 0xF3F4F6;
   headerTextColor: number = 0;
+  displayHeader: boolean = true;
+  displayFooter: boolean = false;
+  icon: string = '';
 
   abstract toJson(): any;
 }
@@ -319,6 +322,9 @@ export interface CardDto<TConfig = any> {
   headerBackgroundColor: number;
   rowId: number;
   configuration?: TConfig;
+  displayHeader: boolean;
+  displayFooter: boolean;
+  icon: string;
 }
 
 // Type utilitaire pour la factory de configuration
@@ -340,7 +346,10 @@ export function mapCardFromApi<T extends BaseCardConfig>(
     headerTextColor: jsonData.headerTextColor,
     headerBackgroundColor: jsonData.headerBackgroundColor,
     rowId: jsonData.rowId,
-    configuration: jsonData.configuration ? configFactory(jsonData.configuration) : undefined
+    configuration: jsonData.configuration ? configFactory(jsonData.configuration) : undefined,
+    displayHeader: jsonData.displayHeader,
+    displayFooter: jsonData.displayFooter,
+    icon: jsonData.icon
   };
 }
 

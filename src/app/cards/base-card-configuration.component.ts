@@ -7,6 +7,7 @@ import { TileComponent } from '@shared/components/tile/tile.component';
 import { CardRegistry } from './card.registry';
 import { hexToUint, uintToHex } from '../shared/utils/color.utils';
 import { IconSelectorComponent } from '@shared/components/icon-selector/icon-selector.component';
+import { CardDatabaseService } from '../services/card-database.service';
 
 @Component({
   selector: 'app-base-card-configuration',
@@ -34,7 +35,10 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
   cardConfigComponent?: Type<any>;
   private colorFields = ['backgroundColor', 'textColor', 'headerTextColor', 'headerBackgroundColor'];
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    protected cardDatabaseService: CardDatabaseService
+  ) {}
 
   ngOnInit() {
     this.form = this.fb.group({

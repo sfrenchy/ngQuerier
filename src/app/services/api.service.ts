@@ -591,7 +591,7 @@ export class ApiService {
   getQueries(): Observable<SQLQueryDto[]> {
     return this.http.get<SQLQueryDto[]>(`${this.baseUrl}/SQLQuery`);
   }
-
+/*
   getQuery(id: number): Observable<SQLQueryDto> {
     return this.http.get<SQLQueryDto>(`${this.baseUrl}/SQLQuery/${id}`);
   }
@@ -606,5 +606,5 @@ export class ApiService {
 
   deleteQuery(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/SQLQuery/${id}`);
-  }
+  }*/
 } 

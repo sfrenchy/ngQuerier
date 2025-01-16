@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardDto, BaseCardConfig } from '@models/api.models';
 import { uintToHex } from '../shared/utils/color.utils';
+import { CardDatabaseService } from '../services/card-database.service';
 
 @Component({
   selector: 'app-base-card',
@@ -15,6 +16,8 @@ export class BaseCardComponent<T extends BaseCardConfig> {
   @Input() isEditing = false;
   @Output() configure = new EventEmitter<void>();
   @Output() delete = new EventEmitter<void>();
+
+  constructor(protected cardDatabaseService: CardDatabaseService) {}
 
   get backgroundColor(): string {
     return uintToHex(this.card.backgroundColor);

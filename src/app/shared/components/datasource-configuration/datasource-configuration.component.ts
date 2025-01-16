@@ -4,15 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CardDatabaseService } from '@services/card-database.service';
 import { DBConnectionDto, DBConnectionControllerInfoDto, EntityDefinitionDto, SQLQueryDto } from '@models/api.models';
 import { TranslateModule } from '@ngx-translate/core';
-
-export interface DatasourceConfig {
-  type: 'API' | 'EntityFramework' | 'SQLQuery';
-  connection?: DBConnectionDto;
-  controller?: DBConnectionControllerInfoDto;
-  context?: string;
-  entity?: EntityDefinitionDto;
-  query?: SQLQueryDto;
-}
+import { DatasourceConfig } from '@models/datasource.models';
 
 @Component({
   selector: 'app-datasource-configuration',

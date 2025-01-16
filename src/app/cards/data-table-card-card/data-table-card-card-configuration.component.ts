@@ -5,7 +5,8 @@ import { TranslateModule } from '@ngx-translate/core';
 import { DataTableCardCardConfig } from './data-table-card-card.component';
 import { CardDto } from '@models/api.models';
 import { TileComponent } from '@shared/components/tile/tile.component';
-import { DatasourceConfigurationComponent, DatasourceConfig } from '@shared/components/datasource-configuration/datasource-configuration.component';
+import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
+import { DatasourceConfig } from '@models/datasource.models';
 
 @Component({
   selector: 'app-data-table-card-card-configuration',

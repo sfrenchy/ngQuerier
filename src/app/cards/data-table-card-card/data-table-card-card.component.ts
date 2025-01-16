@@ -5,7 +5,7 @@ import { Card } from '@cards/card.decorator';
 import { DataTableCardCardConfigurationComponent } from './data-table-card-card-configuration.component';
 import { BaseCardConfig } from '@models/api.models';
 import { BaseCardComponent } from '@cards/base-card.component';
-import { DatasourceConfig } from '@shared/components/datasource-configuration/datasource-configuration.component';
+import { DatasourceConfig } from '@models/datasource.models';
 
 export class DataTableCardCardConfig extends BaseCardConfig {
   datasource?: DatasourceConfig;

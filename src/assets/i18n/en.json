@@ -126,7 +126,8 @@
     "REMOVE_TRANSLATION": "Remove translation",
     "ADD_TRANSLATION": "Add translation",
     "FULLSCREEN": "Fullscreen",
-    "EXIT_FULLSCREEN": "Exit fullscreen"
+    "EXIT_FULLSCREEN": "Exit fullscreen",
+    "SELECT_OPTION": "Select an option"
   },
   "DASHBOARD": {
     "TITLE": "Dashboard",
@@ -345,5 +346,19 @@
     "CREATE_MENU": "Error creating menu",
     "UPDATE_MENU": "Error updating menu",
     "SAVE_PAGE": "Error saving page"
+  },
+  "DATASOURCE": {
+    "TITLE": "Data Source",
+    "TYPE": "Source Type",
+    "CONNECTION": "Connection",
+    "CONTROLLER": "Controller",
+    "CONTEXT": "Context",
+    "ENTITY": "Entity",
+    "QUERY": "Query",
+    "TYPES": {
+      "API": "API Call",
+      "EntityFramework": "Entity Framework",
+      "SQLQuery": "SQL Query"
+    }
   }
 } 

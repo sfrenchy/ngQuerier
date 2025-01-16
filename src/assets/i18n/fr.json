@@ -128,7 +128,8 @@
     "REMOVE_TRANSLATION": "Supprimer la traduction",
     "ADD_TRANSLATION": "Ajouter une traduction",
     "FULLSCREEN": "Plein écran",
-    "EXIT_FULLSCREEN": "Quitter le plein écran"
+    "EXIT_FULLSCREEN": "Quitter le plein écran",
+    "SELECT_OPTION": "Sélectionner une option"
   },
   "DASHBOARD": {
     "TITLE": "Tableau de bord",
@@ -380,6 +381,20 @@
         "SAVE": "Enregistrer",
         "CANCEL": "Annuler"
       }
+    }
+  },
+  "DATASOURCE": {
+    "TITLE": "Source de données",
+    "TYPE": "Type de source",
+    "CONNECTION": "Connexion",
+    "CONTROLLER": "Contrôleur",
+    "CONTEXT": "Contexte",
+    "ENTITY": "Entité",
+    "QUERY": "Requête",
+    "TYPES": {
+      "API": "Appel API",
+      "EntityFramework": "Entity Framework",
+      "SQLQuery": "Requête SQL"
     }
   }
 } 

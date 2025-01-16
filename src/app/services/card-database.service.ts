@@ -8,9 +8,10 @@ import {
   PaginationParametersDto,
   PaginatedResultDto,
   SQLQueryDto,
-  DBConnectionEndpointRequestInfoDto,
-  DBConnectionControllerInfoDto
+  DBConnectionControllerInfoDto,
+  DBConnectionEndpointRequestInfoDto
 } from '@models/api.models';
+import { DatasourceConfig } from '@models/datasource.models';
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +36,7 @@ export class CardDatabaseService {
     entityName: string,
     paginationParameters: PaginationParametersDto,
     orderBy: string = ''
-  ): Observable<{ items: any[]; total: number }> {
+  ): Observable<PaginatedResultDto<any>> {
     return this.apiService.getEntityRecords(contextName, entityName, paginationParameters, orderBy);
   }
 
@@ -51,7 +52,7 @@ export class CardDatabaseService {
     queryName: string,
     pageNumber: number = 1,
     pageSize: number = 0
-  ): Observable<{ items: any[]; total: number }> {
+  ): Observable<PaginatedResultDto<any>> {
     return this.apiService.executeQuery(queryName, pageNumber, pageSize);
   }
 
@@ -69,5 +70,49 @@ export class CardDatabaseService {
 
   getEndpoints(id: number): Observable<DBConnectionEndpointRequestInfoDto[]> {
     return this.apiService.getEndpoints(id);
+  }
+
+  /**
+   * Récupère les données selon la configuration de la source de données
+   * @param config Configuration de la source de données
+   * @param paginationParameters Paramètres de pagination optionnels
+   * @returns Observable des données paginées
+   */
+  fetchData(
+    config: DatasourceConfig,
+    paginationParameters: PaginationParametersDto = { pageNumber: 1, pageSize: 10 }
+  ): Observable<PaginatedResultDto<any>> {
+    switch (config.type) {
+      case 'API':
+        if (!config.connection || !config.controller) {
+          throw new Error('API configuration requires both connection and controller');
+        }
+        // TODO: Implémenter l'appel API via le contrôleur sélectionné
+        // Pour l'instant, on retourne un Observable vide
+        throw new Error('API calls not implemented yet');
+
+      case 'EntityFramework':
+        if (!config.context || !config.entity) {
+          throw new Error('EntityFramework configuration requires both context and entity');
+        }
+        return this.getEntityRecords(
+          config.context,
+          config.entity.name,
+          paginationParameters
+        );
+
+      case 'SQLQuery':
+        if (!config.query) {
+          throw new Error('SQLQuery configuration requires a query');
+        }
+        return this.executeQuery(
+          config.query.name,
+          paginationParameters.pageNumber,
+          paginationParameters.pageSize
+        );
+
+      default:
+        throw new Error(`Unsupported datasource type: ${config.type}`);
+    }
   }
 } 

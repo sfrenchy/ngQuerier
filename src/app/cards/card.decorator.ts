@@ -1,5 +1,5 @@
 import { Type } from '@angular/core';
-import { CardRegistry } from './card.registry';
+import { CardRegistry } from '@cards/card.registry';
 import { BaseCardConfig } from '@models/api.models';
 
 export interface CardMetadata {

@@ -1,6 +1,6 @@
 import { Injectable, Type } from '@angular/core';
-import { CardMetadata } from './card.decorator';
-import { CardRegistry } from './card.registry';
+import { CardMetadata } from '@cards/card.decorator';
+import { CardRegistry } from '@cards/card.registry';
 import { BaseCardConfig, CardDto } from '@models/api.models';
 
 @Injectable({

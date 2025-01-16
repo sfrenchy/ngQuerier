@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { Card } from '../card.decorator';
+import { Card } from '@cards/card.decorator';
 import { LabelCardConfigurationComponent } from './label-card-configuration.component';
 import { BaseCardConfig } from '@models/api.models';
-import { BaseCardComponent } from '../base-card.component';
+import { BaseCardComponent } from '@cards/base-card.component';
 import { CommonModule } from '@angular/common';
 
 export class LabelCardConfig extends BaseCardConfig {

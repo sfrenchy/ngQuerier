@@ -31,7 +31,9 @@ import {
   PaginationParametersDto,
   PaginatedResultDto,
   SQLQueryDto,
-  SQLQueryCreateDto
+  SQLQueryCreateDto,
+  DBConnectionControllerInfoDto,
+  DBConnectionEndpointRequestInfoDto
 } from '@models/api.models';
 
 @Injectable({
@@ -239,6 +241,18 @@ export class ApiService {
           id: id.toString()
         })
       )
+    );
+  }
+
+  getControllers(id: number): Observable<DBConnectionControllerInfoDto[]> {
+    return this.http.get<DBConnectionControllerInfoDto[]>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.dbConnectionControllers, { id: id.toString() }))
+    );
+  }
+
+  getEndpoints(id: number): Observable<DBConnectionEndpointRequestInfoDto[]> {
+    return this.http.get<DBConnectionEndpointRequestInfoDto[]>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.dbConnectionControllers, { id: id.toString() }))
     );
   }
 

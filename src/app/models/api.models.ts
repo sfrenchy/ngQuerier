@@ -396,3 +396,35 @@ export interface PaginatedResultDto<T> {
   items: T[];
   total: number;
 }
+
+export interface DBConnectionControllerInfoDto {
+  name: string;
+  route: string;
+  httpGetJsonSchema: string;
+}
+
+export interface DBConnectionEndpointInfoDto {
+  controller: string;
+  action: string;
+  route: string;
+  httpMethod: string;
+  description: string;
+  parameters: DBConnectionEndpointRequestInfoDto[];
+  responses: DBConnectionEndpointResponseInfoDto[];
+}
+
+export interface DBConnectionEndpointResponseInfoDto {
+  statusCode: number;
+  type: string;
+  description: string;
+  jsonSchema: string;
+}
+
+export interface DBConnectionEndpointRequestInfoDto {
+  name: string;
+  type: string;
+  description: string;
+  isRequired: boolean;
+  source: string;
+  jsonSchema: string;
+}

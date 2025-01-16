@@ -7,7 +7,9 @@ import {
   EntityDefinitionDto,
   PaginationParametersDto,
   PaginatedResultDto,
-  SQLQueryDto
+  SQLQueryDto,
+  DBConnectionEndpointRequestInfoDto,
+  DBConnectionControllerInfoDto
 } from '@models/api.models';
 
 @Injectable({
@@ -59,5 +61,13 @@ export class CardDatabaseService {
 
   getDBConnections(): Observable<DBConnectionDto[]> {
     return this.apiService.getDBConnections();
+  }
+
+  getControllers(id: number): Observable<DBConnectionControllerInfoDto[]> {
+    return this.apiService.getControllers(id);
+  }
+
+  getEndpoints(id: number): Observable<DBConnectionEndpointRequestInfoDto[]> {
+    return this.apiService.getEndpoints(id);
   }
 } 

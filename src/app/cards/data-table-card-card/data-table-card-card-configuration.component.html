@@ -1,7 +1,8 @@
-<div class="card-configuration">
-  <ng-container #configContainer></ng-container>
-</div>
-
-<form [formGroup]="form" class="space-y-4">
-  <!-- Ajoutez vos contrôles de formulaire ici -->
-</form> 
+<div class="flex flex-col gap-4">
+  <app-tile [title]="'DATASOURCE.TITLE' | translate">
+    <app-datasource-configuration
+      [config]="form.get('datasource')?.value"
+      (configChange)="onDatasourceChange($event)">
+    </app-datasource-configuration>
+  </app-tile>
+</div> 

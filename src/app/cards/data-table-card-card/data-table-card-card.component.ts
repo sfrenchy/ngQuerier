@@ -5,24 +5,25 @@ import { Card } from '@cards/card.decorator';
 import { DataTableCardCardConfigurationComponent } from './data-table-card-card-configuration.component';
 import { BaseCardConfig } from '@models/api.models';
 import { BaseCardComponent } from '@cards/base-card.component';
+import { DatasourceConfig } from '@shared/components/datasource-configuration/datasource-configuration.component';
 
 export class DataTableCardCardConfig extends BaseCardConfig {
-  constructor(
-    // Ajoutez les paramètres du constructeur ici
-  ) {
+  datasource?: DatasourceConfig;
+
+  constructor() {
     super();
   }
 
   toJson(): any {
     return {
-      // Ajoutez vos propriétés spécifiques ici
+      datasource: this.datasource
     };
   }
 
   static fromJson(json: any): DataTableCardCardConfig {
-    return new DataTableCardCardConfig(
-      // Ajoutez les paramètres du constructeur ici
-    );
+    const config = new DataTableCardCardConfig();
+    Object.assign(config, json);
+    return config;
   }
 }
 

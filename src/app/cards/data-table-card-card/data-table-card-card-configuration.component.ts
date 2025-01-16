@@ -4,12 +4,20 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { TranslateModule } from '@ngx-translate/core';
 import { DataTableCardCardConfig } from './data-table-card-card.component';
 import { CardDto } from '@models/api.models';
+import { TileComponent } from '@shared/components/tile/tile.component';
+import { DatasourceConfigurationComponent, DatasourceConfig } from '@shared/components/datasource-configuration/datasource-configuration.component';
 
 @Component({
   selector: 'app-data-table-card-card-configuration',
   templateUrl: './data-table-card-card-configuration.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule]
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    TileComponent,
+    DatasourceConfigurationComponent
+  ]
 })
 export class DataTableCardCardConfigurationComponent implements OnInit {
   @Input() card!: CardDto<DataTableCardCardConfig>;
@@ -20,15 +28,13 @@ export class DataTableCardCardConfigurationComponent implements OnInit {
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      // Ajoutez vos contrôles de formulaire ici
+      datasource: [null, Validators.required]
     });
 
-    // Émettre les changements dès que le formulaire change
     this.form.valueChanges.subscribe((value: any) => {
       if (this.form.valid) {
-        const config = new DataTableCardCardConfig(
-          // Ajoutez les paramètres du constructeur ici
-        );
+        const config = new DataTableCardCardConfig();
+        Object.assign(config, value);
         this.configChange.emit(config);
       }
     });
@@ -37,17 +43,19 @@ export class DataTableCardCardConfigurationComponent implements OnInit {
   ngOnInit() {
     if (this.card.configuration) {
       this.form.patchValue({
-        // Ajoutez vos propriétés de formulaire ici
-      }, { emitEvent: false }); // Ne pas émettre lors de l'initialisation
+        datasource: this.card.configuration.datasource
+      }, { emitEvent: false });
     }
   }
 
-  // Méthode pour la sauvegarde finale
+  onDatasourceChange(datasource: DatasourceConfig) {
+    this.form.patchValue({ datasource }, { emitEvent: true });
+  }
+
   onSave() {
     if (this.form.valid) {
-      const config = new DataTableCardCardConfig(
-        // Ajoutez les paramètres du constructeur ici
-      );
+      const config = new DataTableCardCardConfig();
+      Object.assign(config, this.form.value);
       this.save.emit(config);
     }
   }

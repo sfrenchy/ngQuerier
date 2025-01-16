@@ -1,0 +1,87 @@
+<div class="flex flex-col gap-4 p-4" *ngIf="config">
+  <div class="flex flex-col">
+    <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.TYPE' | translate }}</label>
+    <select 
+      class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+      [(ngModel)]="config.type" 
+      (ngModelChange)="onTypeChange()">
+      <option *ngFor="let type of datasourceTypes" [value]="type" class="bg-gray-700 text-white">
+        {{ 'DATASOURCE.TYPES.' + type | translate }}
+      </option>
+    </select>
+  </div>
+
+  <!-- API Configuration -->
+  <ng-container *ngIf="config.type === 'API'">
+    <div class="flex flex-col">
+      <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.CONNECTION' | translate }}</label>
+      <select 
+        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+        [(ngModel)]="config.connection" 
+        (ngModelChange)="onConnectionChange($event)">
+        <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
+        <option *ngFor="let connection of connections" [ngValue]="connection" class="bg-gray-700 text-white">
+          {{ connection.name }}
+        </option>
+      </select>
+    </div>
+
+    <div class="flex flex-col" *ngIf="config.connection">
+      <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.CONTROLLER' | translate }}</label>
+      <select 
+        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+        [(ngModel)]="config.controller" 
+        (ngModelChange)="onControllerChange($event)">
+        <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
+        <option *ngFor="let controller of controllers" [ngValue]="controller" class="bg-gray-700 text-white">
+          {{ controller.name }}
+        </option>
+      </select>
+    </div>
+  </ng-container>
+
+  <!-- EntityFramework Configuration -->
+  <ng-container *ngIf="config.type === 'EntityFramework'">
+    <div class="flex flex-col">
+      <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.CONTEXT' | translate }}</label>
+      <select 
+        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+        [(ngModel)]="config.context" 
+        (ngModelChange)="onContextChange($event)">
+        <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
+        <option *ngFor="let context of contexts" [ngValue]="context" class="bg-gray-700 text-white">
+          {{ context }}
+        </option>
+      </select>
+    </div>
+
+    <div class="flex flex-col" *ngIf="config.context">
+      <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.ENTITY' | translate }}</label>
+      <select 
+        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+        [(ngModel)]="config.entity" 
+        (ngModelChange)="onEntityChange($event)">
+        <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
+        <option *ngFor="let entity of entities" [ngValue]="entity" class="bg-gray-700 text-white">
+          {{ entity.name }}
+        </option>
+      </select>
+    </div>
+  </ng-container>
+
+  <!-- SQL Query Configuration -->
+  <ng-container *ngIf="config.type === 'SQLQuery'">
+    <div class="flex flex-col">
+      <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.QUERY' | translate }}</label>
+      <select 
+        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+        [(ngModel)]="config.query" 
+        (ngModelChange)="onQueryChange($event)">
+        <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
+        <option *ngFor="let query of queries" [ngValue]="query" class="bg-gray-700 text-white">
+          {{ query.name }}
+        </option>
+      </select>
+    </div>
+  </ng-container>
+</div> 

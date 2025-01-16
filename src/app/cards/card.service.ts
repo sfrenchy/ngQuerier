@@ -29,9 +29,11 @@ export class CardService {
 
     const configType = metadata.configType as any;
     if (typeof configType.fromJson === 'function') {
+      const { backgroundColor, textColor, headerBackgroundColor, headerTextColor, displayHeader, displayFooter, icon, ...specificConfig } = card.configuration;
+      
       return {
         ...card,
-        configuration: configType.fromJson(card.configuration)
+        configuration: configType.fromJson(specificConfig)
       };
     }
 

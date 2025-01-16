@@ -1,10 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { <%= classify(name) %>CardConfig } from './<%= dasherize(name) %>-card.component';
 import { CardDto } from '@models/api.models';
-import { BaseCardConfigurationComponent } from '../base-card-configuration.component';
 
 @Component({
   selector: 'app-<%= dasherize(name) %>-card-configuration',
@@ -12,6 +11,44 @@ import { BaseCardConfigurationComponent } from '../base-card-configuration.compo
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, TranslateModule]
 })
-export class <%= classify(name) %>CardConfigurationComponent extends BaseCardConfigurationComponent {
-  @Input() override card: CardDto<<%= classify(name) %>CardConfig> = {} as CardDto<<%= classify(name) %>CardConfig>;
+export class <%= classify(name) %>CardConfigurationComponent implements OnInit {
+  @Input() card!: CardDto<<%= classify(name) %>CardConfig>;
+  @Output() save = new EventEmitter<<%= classify(name) %>CardConfig>();
+  @Output() configChange = new EventEmitter<<%= classify(name) %>CardConfig>();
+
+  form: FormGroup;
+
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      // Ajoutez vos contrôles de formulaire ici
+    });
+
+    // Émettre les changements dès que le formulaire change
+    this.form.valueChanges.subscribe((value: any) => {
+      if (this.form.valid) {
+        const config = new <%= classify(name) %>CardConfig(
+          // Ajoutez les paramètres du constructeur ici
+        );
+        this.configChange.emit(config);
+      }
+    });
+  }
+
+  ngOnInit() {
+    if (this.card.configuration) {
+      this.form.patchValue({
+        // Ajoutez vos propriétés de formulaire ici
+      }, { emitEvent: false }); // Ne pas émettre lors de l'initialisation
+    }
+  }
+
+  // Méthode pour la sauvegarde finale
+  onSave() {
+    if (this.form.valid) {
+      const config = new <%= classify(name) %>CardConfig(
+        // Ajoutez les paramètres du constructeur ici
+      );
+      this.save.emit(config);
+    }
+  }
 } 

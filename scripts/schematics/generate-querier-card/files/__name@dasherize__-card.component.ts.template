@@ -7,18 +7,22 @@ import { BaseCardConfig } from '@models/api.models';
 import { BaseCardComponent } from '../base-card.component';
 
 export class <%= classify(name) %>CardConfig extends BaseCardConfig {
-  constructor() {
+  constructor(
+    // Ajoutez les paramètres du constructeur ici
+  ) {
     super();
   }
 
   toJson(): any {
     return {
-      // Add your properties here
+      // Ajoutez vos propriétés spécifiques ici
     };
   }
 
   static fromJson(json: any): <%= classify(name) %>CardConfig {
-    return new <%= classify(name) %>CardConfig();
+    return new <%= classify(name) %>CardConfig(
+      // Ajoutez les paramètres du constructeur ici
+    );
   }
 }
 

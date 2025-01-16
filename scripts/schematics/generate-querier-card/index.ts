@@ -25,7 +25,7 @@ export function generateQuerierCard(_options: any): Rule {
       (tree: Tree) => {
         const availableCardsPath = 'src/app/cards/available-cards.ts';
         const cardName = strings.dasherize(_options.name);
-        const importLine = `import './${cardName}-card/${cardName}-card.component';\n`;
+        const importLine = `import '@cards/${cardName}-card/${cardName}-card.component';\n`;
         
         const content = tree.read(availableCardsPath);
         if (content) {

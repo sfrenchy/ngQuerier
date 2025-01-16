@@ -23,7 +23,7 @@ function generateQuerierCard(_options) {
             (tree) => {
                 const availableCardsPath = 'src/app/cards/available-cards.ts';
                 const cardName = core_1.strings.dasherize(_options.name);
-                const importLine = `import './${cardName}-card/${cardName}-card.component';\n`;
+                const importLine = `import '@cards/${cardName}-card/${cardName}-card.component';\n`;
                 const content = tree.read(availableCardsPath);
                 if (content) {
                     const strContent = content.toString();

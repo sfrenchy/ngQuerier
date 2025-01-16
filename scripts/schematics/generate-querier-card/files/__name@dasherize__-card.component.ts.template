@@ -1,10 +1,10 @@
 import { Component, Type } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { Card } from '../card.decorator';
+import { Card } from '@cards/card.decorator';
 import { <%= classify(name) %>CardConfigurationComponent } from './<%= dasherize(name) %>-card-configuration.component';
 import { BaseCardConfig } from '@models/api.models';
-import { BaseCardComponent } from '../base-card.component';
+import { BaseCardComponent } from '@cards/base-card.component';
 
 export class <%= classify(name) %>CardConfig extends BaseCardConfig {
   constructor(

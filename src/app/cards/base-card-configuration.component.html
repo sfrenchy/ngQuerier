@@ -24,7 +24,37 @@
       <form [formGroup]="form" class="space-y-6">
         <!-- Title -->
         <app-tile title="Titre">
-          <app-translatable-string-form formControlName="title"></app-translatable-string-form>
+          <div class="space-y-4">
+            <!-- Title input -->
+            <app-translatable-string-form formControlName="title"></app-translatable-string-form>
+
+            <!-- Icon selector -->
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Icône</label>
+              <app-icon-selector formControlName="icon"></app-icon-selector>
+            </div>
+
+            <!-- Display toggles -->
+            <div class="flex gap-4">
+              <!-- Header toggle -->
+              <div class="flex items-center">
+                <input type="checkbox" id="displayHeader" formControlName="displayHeader"
+                       class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500">
+                <label for="displayHeader" class="ml-2 text-sm font-medium text-gray-300">
+                  Afficher l'en-tête
+                </label>
+              </div>
+
+              <!-- Footer toggle -->
+              <div class="flex items-center">
+                <input type="checkbox" id="displayFooter" formControlName="displayFooter"
+                       class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500">
+                <label for="displayFooter" class="ml-2 text-sm font-medium text-gray-300">
+                  Afficher le pied de page
+                </label>
+              </div>
+            </div>
+          </div>
         </app-tile>
 
         <!-- Layout and Colors -->

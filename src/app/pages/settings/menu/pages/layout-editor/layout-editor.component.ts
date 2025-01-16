@@ -195,7 +195,10 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       headerTextColor: hexToUint('#000000'), // noir
       headerBackgroundColor: hexToUint('#f3f4f6'), // gris clair
       rowId: event.rowId,
-      configuration
+      configuration: configuration,
+      displayHeader: true,
+      displayFooter: false,
+      icon: 'fa-solid fa-circle-plus'
     };
 
     const updatedRows = [...this.layout.rows];

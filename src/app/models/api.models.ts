@@ -280,15 +280,17 @@ export interface ApiUserUpdateDto {
   roles: RoleDto[];
 }
 
-export abstract class BaseCardConfig {
-  backgroundColor: number = 0xFFFFFF;
-  textColor: number = 0;
-  headerBackgroundColor: number = 0xF3F4F6;
-  headerTextColor: number = 0;
-  displayHeader: boolean = true;
-  displayFooter: boolean = false;
-  icon: string = '';
+export interface BaseCardProperties {
+  backgroundColor: number;
+  textColor: number;
+  headerBackgroundColor: number;
+  headerTextColor: number;
+  displayHeader: boolean;
+  displayFooter: boolean;
+  icon: string;
+}
 
+export abstract class BaseCardConfig {
   abstract toJson(): any;
 }
 
@@ -363,18 +365,13 @@ export function mapCardsFromApi<T extends BaseCardConfig>(
 
 // Fonction utilitaire pour mapper une CardDto vers le format JSON pour l'API
 export function mapCardToApi<T extends BaseCardConfig>(card: CardDto<T>): any {
+  // Extraire les propriétés de base
+  const { configuration, ...baseProperties } = card;
+
+  // Retourner l'objet avec la configuration spécifique séparée
   return {
-    id: card.id,
-    type: card.type,
-    title: card.title,
-    order: card.order,
-    gridWidth: card.gridWidth,
-    backgroundColor: card.backgroundColor,
-    textColor: card.textColor,
-    headerTextColor: card.headerTextColor,
-    headerBackgroundColor: card.headerBackgroundColor,
-    rowId: card.rowId,
-    configuration: card.configuration?.toJson()
+    ...baseProperties,
+    configuration: configuration?.toJson() // toJson() ne retourne que les propriétés spécifiques
   };
 }
 

@@ -6,6 +6,7 @@ import { TranslatableStringFormComponent } from '@shared/components/translatable
 import { TileComponent } from '@shared/components/tile/tile.component';
 import { CardRegistry } from './card.registry';
 import { hexToUint, uintToHex } from '../shared/utils/color.utils';
+import { IconSelectorComponent } from '@shared/components/icon-selector/icon-selector.component';
 
 @Component({
   selector: 'app-base-card-configuration',
@@ -15,7 +16,8 @@ import { hexToUint, uintToHex } from '../shared/utils/color.utils';
     CommonModule,
     ReactiveFormsModule,
     TranslatableStringFormComponent,
-    TileComponent
+    TileComponent,
+    IconSelectorComponent
   ]
 })
 export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
@@ -37,6 +39,9 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
   ngOnInit() {
     this.form = this.fb.group({
       title: [this.card.title],
+      icon: [this.card.icon],
+      displayHeader: [this.card.displayHeader],
+      displayFooter: [this.card.displayFooter],
       gridWidth: [this.card.gridWidth, [Validators.required, Validators.min(1)]],
       backgroundColor: [this.convertUintToHex(this.card.backgroundColor)],
       textColor: [this.convertUintToHex(this.card.textColor)],
@@ -111,14 +116,22 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
     if (this.form.valid) {
       const formValues = this.form.value;
 
-      const updatedCard: CardDto = {
-        ...this.card,
+      // Séparer les propriétés de base de la configuration spécifique
+      const baseProperties = {
         title: formValues.title,
+        icon: formValues.icon,
+        displayHeader: formValues.displayHeader,
+        displayFooter: formValues.displayFooter,
         gridWidth: formValues.gridWidth,
         backgroundColor: this.convertHexToUint(formValues.backgroundColor),
         textColor: this.convertHexToUint(formValues.textColor),
         headerTextColor: this.convertHexToUint(formValues.headerTextColor),
         headerBackgroundColor: this.convertHexToUint(formValues.headerBackgroundColor)
+      };
+
+      const updatedCard: CardDto = {
+        ...this.card,
+        ...baseProperties
       };
 
       this.save.emit(updatedCard);
@@ -130,9 +143,10 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
   }
 
   onCardConfigSave(configuration: any) {
+    // Ne pas inclure les propriétés de base dans la configuration
     const updatedCard: CardDto = {
       ...this.card,
-      configuration
+      configuration: configuration.toJson() // toJson() ne retourne que les propriétés spécifiques
     };
     this.save.emit(updatedCard);
   }

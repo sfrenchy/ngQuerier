@@ -19,6 +19,7 @@ import { DatasourceConfig } from '@models/datasource.models';
 export class DatasourceConfigurationComponent implements OnInit {
   @Input() config: DatasourceConfig = { type: 'API' };
   @Output() configChange = new EventEmitter<DatasourceConfig>();
+  @Output() schemaChange = new EventEmitter<string>();
 
   datasourceTypes = ['API', 'EntityFramework', 'SQLQuery'];
   connections: DBConnectionDto[] = [];
@@ -194,5 +195,26 @@ export class DatasourceConfigurationComponent implements OnInit {
 
   private emitChange() {
     this.configChange.emit(this.config);
+    this.emitSchema();
+  }
+
+  private emitSchema() {
+    let schema: string | undefined;
+
+    switch (this.config.type) {
+      case 'API':
+        schema = this.config.controller?.httpGetJsonSchema;
+        break;
+      case 'EntityFramework':
+        schema = this.config.entity?.jsonSchema;
+        break;
+      case 'SQLQuery':
+        schema = this.config.query?.outputDescription;
+        break;
+    }
+
+    if (schema) {
+      this.schemaChange.emit(schema);
+    }
   }
 } 

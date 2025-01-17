@@ -26,6 +26,7 @@ export class DataTableCardCardConfigurationComponent implements OnInit {
   @Output() configChange = new EventEmitter<DataTableCardCardConfig>();
 
   form: FormGroup;
+  jsonSchema: string | null = null;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -51,6 +52,12 @@ export class DataTableCardCardConfigurationComponent implements OnInit {
 
   onDatasourceChange(datasource: DatasourceConfig) {
     this.form.patchValue({ datasource }, { emitEvent: true });
+  }
+
+  onSchemaChange(schema: string) {
+    this.jsonSchema = schema;
+    console.log(JSON.parse(this.jsonSchema));
+    // TODO: Utiliser ce schéma pour configurer les colonnes de la table
   }
 
   onSave() {

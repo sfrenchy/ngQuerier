@@ -2,7 +2,8 @@
   <app-tile [title]="'DATASOURCE.TITLE' | translate">
     <app-datasource-configuration
       [config]="form.getRawValue().datasource"
-      (configChange)="onDatasourceChange($event)">
+      (configChange)="onDatasourceChange($event)"
+      (schemaChange)="onSchemaChange($event)">
     </app-datasource-configuration>
   </app-tile>
 </div> 

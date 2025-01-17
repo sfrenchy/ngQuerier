@@ -7,22 +7,45 @@ import { BaseCardConfig } from '@models/api.models';
 import { BaseCardComponent } from '@cards/base-card.component';
 import { DatasourceConfig } from '@models/datasource.models';
 
+export interface ColumnConfig {
+  key: string;
+  type: string;
+  label: { [key: string]: string };
+  alignment: 'left' | 'center' | 'right';
+  visible: boolean;
+  decimals?: number;
+  isNavigation?: boolean;
+  navigationType?: string;
+  isCollection?: boolean;
+  elementType?: string;
+}
+
 export class DataTableCardCardConfig extends BaseCardConfig {
-  datasource?: DatasourceConfig;
+  datasource: DatasourceConfig;
+  columns?: ColumnConfig[];
 
   constructor() {
     super();
+    this.datasource = {
+      type: 'API'
+    };
   }
 
   toJson(): any {
     return {
-      datasource: this.datasource
+      datasource: this.datasource,
+      columns: this.columns
     };
   }
 
   static fromJson(json: any): DataTableCardCardConfig {
     const config = new DataTableCardCardConfig();
-    Object.assign(config, json);
+    if (json.datasource) {
+      config.datasource = json.datasource;
+    }
+    if (json.columns) {
+      config.columns = json.columns;
+    }
     return config;
   }
 }

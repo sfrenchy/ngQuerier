@@ -396,5 +396,16 @@
       "EntityFramework": "Entity Framework",
       "SQLQuery": "Requête SQL"
     }
+  },
+  "COLUMNS": {
+    "TITLE": "Configuration des colonnes",
+    "LABEL_EN": "Libellé (Anglais)",
+    "LABEL_FR": "Libellé (Français)",
+    "ALIGNMENT": "Alignement",
+    "ALIGN_LEFT": "Gauche",
+    "ALIGN_CENTER": "Centre",
+    "ALIGN_RIGHT": "Droite",
+    "DECIMALS": "Décimales",
+    "VISIBLE": "Visible"
   }
 } 

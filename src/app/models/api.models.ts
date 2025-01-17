@@ -384,7 +384,7 @@ export interface DataRequestParametersDto {
   pageSize: number;
   orderBy: OrderByParameterDto[];
   globalSearch: string;
-  columnSearch: ColumnSearchDto[];
+  columnSearches: ColumnSearchDto[];
 }
 
 export interface ColumnSearchDto {

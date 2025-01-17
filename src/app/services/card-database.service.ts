@@ -52,7 +52,7 @@ export class CardDatabaseService {
     pageNumber: number = 1,
     pageSize: number = 0
   ): Observable<PaginatedResultDto<any>> {
-    return this.apiService.executeQuery(queryName, { pageNumber, pageSize, orderBy: [], globalSearch: '', columnSearch: [] });
+    return this.apiService.executeQuery(queryName, { pageNumber, pageSize, orderBy: [], globalSearch: '', columnSearches: [] });
   }
 
   getDatabaseSchema(id: number): Observable<DBConnectionDatabaseSchemaDto> {
@@ -79,16 +79,16 @@ export class CardDatabaseService {
    */
   fetchData(
     config: DatasourceConfig,
-    paginationParameters: DataRequestParametersDto = { pageNumber: 1, pageSize: 10, orderBy: [], globalSearch: '', columnSearch: [] }
+    paginationParameters: DataRequestParametersDto = { pageNumber: 1, pageSize: 10, orderBy: [], globalSearch: '', columnSearches: [] }
   ): Observable<PaginatedResultDto<any>> {
     switch (config.type) {
       case 'API':
         if (!config.connection || !config.controller) {
           throw new Error('API configuration requires both connection and controller');
         }
-        return this.apiService.get<PaginatedResultDto<any>>(
-          `${config.controller.route.replace("api/v1/", "")}`,
-          { pageNumber: paginationParameters.pageNumber, pageSize: paginationParameters.pageSize }
+        return this.apiService.post<PaginatedResultDto<any>>(
+          `${config.controller.route.replace("api/v1/", "")}/records`,
+          paginationParameters
         );
 
       case 'EntityFramework':

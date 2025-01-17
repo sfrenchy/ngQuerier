@@ -35,7 +35,7 @@ export class DataTableCardCardService {
         loading: false,
         config,
         pageNumber: 1,
-        pageSize: 10
+        pageSize: 0
       }));
     }
     return this.dataStateMap.get(key)!;
@@ -71,24 +71,28 @@ export class DataTableCardCardService {
 
     state$.next({ ...currentState, loading: true });
 
-    this.cardDatabaseService
-      .fetchData(config, { pageNumber, pageSize, orderBy: [], globalSearch: '', columnSearch: [] })
-      .subscribe({
-        next: (response) => {
-          state$.next({
-            items: response.items,
-            total: response.total,
-            loading: false,
-            config,
-            pageNumber,
-            pageSize
-          });
-        },
-        error: (error) => {
-          console.error('Error fetching data:', error);
-          state$.next({ ...currentState, loading: false });
-        }
-      });
+    this.cardDatabaseService.fetchData(config, { 
+      pageNumber, 
+      pageSize, 
+      orderBy: [], 
+      globalSearch: '', 
+      columnSearches: [] 
+    }).subscribe({
+      next: (response) => {
+        state$.next({
+          items: response.items,
+          total: response.total,
+          loading: false,
+          config,
+          pageNumber,
+          pageSize
+        });
+      },
+      error: (error) => {
+        console.error('Error fetching data:', error);
+        state$.next({ ...currentState, loading: false });
+      }
+    });
   }
 
   clearData(config: DatasourceConfig): void {

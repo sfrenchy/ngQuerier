@@ -276,6 +276,25 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
     return true;
   }
 
+  canBeFixedRight(index: number): boolean {
+    const visibleColumns = this.columns.filter(c => c.visible);
+    const currentVisibleIndex = visibleColumns.findIndex(c => c === this.columns[index]);
+    
+    // Si la colonne n'est pas visible, elle ne peut pas être fixée
+    if (currentVisibleIndex === -1) return false;
+    
+    // La dernière colonne visible peut toujours être fixée
+    if (currentVisibleIndex === visibleColumns.length - 1) return true;
+    
+    // Pour les autres colonnes visibles, vérifier si toutes les colonnes visibles suivantes sont fixées à droite
+    for (let i = visibleColumns.length - 1; i > currentVisibleIndex; i--) {
+      if (!visibleColumns[i].isFixedRight) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   handleColumnFixedChange(index: number, event: Event) {
     this.onCheckboxChange(event, (checked) => {
       // Si la colonne n'est pas visible, on ne peut pas la fixer
@@ -293,6 +312,33 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
         }
       } else {
         this.columns[index].isFixed = true;
+        // Si on fixe une colonne à gauche, on s'assure qu'elle n'est pas fixée à droite
+        this.columns[index].isFixedRight = false;
+      }
+      
+      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+    });
+  }
+
+  handleColumnFixedRightChange(index: number, event: Event) {
+    this.onCheckboxChange(event, (checked) => {
+      // Si la colonne n'est pas visible, on ne peut pas la fixer
+      if (!this.columns[index].visible) {
+        return;
+      }
+
+      const visibleColumns = this.columns.filter(c => c.visible);
+      const currentVisibleIndex = visibleColumns.findIndex(c => c === this.columns[index]);
+      
+      // Si on désactive une colonne fixe à droite, on désactive aussi toutes les colonnes visibles précédentes
+      if (!checked) {
+        for (let i = currentVisibleIndex; i >= 0; i--) {
+          visibleColumns[i].isFixedRight = false;
+        }
+      } else {
+        this.columns[index].isFixedRight = true;
+        // Si on fixe une colonne à droite, on s'assure qu'elle n'est pas fixée à gauche
+        this.columns[index].isFixed = false;
       }
       
       this.form.patchValue({ columns: this.columns }, { emitEvent: true });

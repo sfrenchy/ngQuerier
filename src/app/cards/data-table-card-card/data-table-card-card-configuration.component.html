@@ -142,18 +142,34 @@
             </div>
 
             <!-- Colonne fixe -->
-            <div *ngIf="column.visible">
-              <label class="flex items-center space-x-2">
-                <input type="checkbox"
-                       [checked]="column.isFixed"
-                       [disabled]="!canBeFixed(i)"
-                       (change)="handleColumnFixedChange(i, $event)"
-                       class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-2">
-                <span class="text-sm font-medium text-gray-300">{{ 'COLUMNS.FIXED' | translate }}</span>
-              </label>
-              <p *ngIf="!canBeFixed(i)" class="text-xs text-gray-400 mt-1">
-                {{ 'COLUMNS.FIXED_DISABLED_HINT' | translate }}
-              </p>
+            <div *ngIf="column.visible" class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox"
+                         [checked]="column.isFixed"
+                         [disabled]="!canBeFixed(i)"
+                         (change)="handleColumnFixedChange(i, $event)"
+                         class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-2">
+                  <span class="text-sm font-medium text-gray-300">{{ 'COLUMNS.FIXED_LEFT' | translate }}</span>
+                </label>
+                <p *ngIf="!canBeFixed(i)" class="text-xs text-gray-400 mt-1">
+                  {{ 'COLUMNS.FIXED_LEFT_DISABLED_HINT' | translate }}
+                </p>
+              </div>
+
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox"
+                         [checked]="column.isFixedRight"
+                         [disabled]="!canBeFixedRight(i)"
+                         (change)="handleColumnFixedRightChange(i, $event)"
+                         class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-2">
+                  <span class="text-sm font-medium text-gray-300">{{ 'COLUMNS.FIXED_RIGHT' | translate }}</span>
+                </label>
+                <p *ngIf="!canBeFixedRight(i)" class="text-xs text-gray-400 mt-1">
+                  {{ 'COLUMNS.FIXED_RIGHT_DISABLED_HINT' | translate }}
+                </p>
+              </div>
             </div>
           </div>
         </div>

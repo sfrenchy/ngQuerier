@@ -398,19 +398,18 @@
     }
   },
   "COLUMNS": {
-    "TITLE": "Configuration des colonnes",
+    "TITLE": "Colonnes",
     "LABEL_EN": "Libellé (Anglais)",
     "LABEL_FR": "Libellé (Français)",
-    "ALIGNMENT": "Alignement",
-    "ALIGN_LEFT": "Gauche",
-    "ALIGN_CENTER": "Centre",
-    "ALIGN_RIGHT": "Droite",
     "DECIMALS": "Décimales",
-    "VISIBLE": "Visible",
     "DATE_FORMAT": "Format de date",
-    "DATE_FORMAT_DATE": "Date uniquement",
-    "DATE_FORMAT_TIME": "Heure uniquement",
-    "DATE_FORMAT_DATETIME": "Date et heure"
+    "DATE_FORMAT_DATE": "Date",
+    "DATE_FORMAT_TIME": "Heure",
+    "DATE_FORMAT_DATETIME": "Date et heure",
+    "FIXED_LEFT": "Fixer à gauche",
+    "FIXED_RIGHT": "Fixer à droite",
+    "FIXED_LEFT_DISABLED_HINT": "Pour fixer cette colonne à gauche, toutes les colonnes visibles précédentes doivent être fixées",
+    "FIXED_RIGHT_DISABLED_HINT": "Pour fixer cette colonne à droite, toutes les colonnes visibles suivantes doivent être fixées"
   },
   "TABLE_APPEARANCE": {
     "TITLE": "Apparence de la table",

@@ -24,6 +24,7 @@ export interface ColumnConfig {
   isCollection?: boolean;
   elementType?: string;
   isFixed?: boolean;
+  isFixedRight?: boolean;
   entityMetadata?: {
     isPrimaryKey?: boolean;
     isIdentity?: boolean;
@@ -329,6 +330,21 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
       }
     }
     return `${left}px`;
+  }
+
+  getFixedColumnRight(column: ColumnConfig): string | null {
+    if (!column.isFixedRight) return null;
+    
+    let right = 0;
+    const visibleColumns = this.getVisibleColumns();
+    for (let i = visibleColumns.length - 1; i >= 0; i--) {
+      const col = visibleColumns[i];
+      if (col === column) break;
+      if (col.isFixedRight) {
+        right += this.columnWidths.get(col.key) || 0;
+      }
+    }
+    return `${right}px`;
   }
 
   getRowBackgroundColor(index: number): string {

@@ -378,10 +378,12 @@
   },
   "TABLE_APPEARANCE": {
     "TITLE": "Table Appearance",
-    "HEADER_BG_COLOR": "Header Background Color",
-    "ROW_BG_COLOR": "Row Background Color",
+    "HEADER_BACKGROUND_COLOR": "Header Background Color",
+    "ROW_BACKGROUND_COLOR": "Row Background Color",
     "HEADER_TEXT_COLOR": "Header Text Color",
     "ROW_TEXT_COLOR": "Row Text Color",
-    "COMPACT_MODE": "Compact Mode"
+    "COMPACT_MODE": "Compact Mode",
+    "ALTERNATE_ROWS": "Alternate Row Colors",
+    "ALTERNATE_ROWS_BRIGHTNESS": "Brightness difference"
   }
 } 

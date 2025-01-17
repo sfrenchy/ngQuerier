@@ -176,7 +176,7 @@
       </div>
 
       <!-- Mode compact -->
-      <div>
+      <div class="flex items-center justify-between">
         <label class="relative inline-flex items-center cursor-pointer">
           <input type="checkbox" 
                  [checked]="form.getRawValue().visualConfig.isCompactMode"
@@ -185,6 +185,35 @@
           <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
           <span class="ml-3 text-sm font-medium text-gray-300">{{ 'TABLE_APPEARANCE.COMPACT_MODE' | translate }}</span>
         </label>
+      </div>
+
+      <!-- Lignes alternées -->
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" 
+                   [checked]="form.getRawValue().visualConfig.alternateRowColors"
+                   (change)="handleVisualConfigChange('alternateRowColors', $event)"
+                   class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <span class="ml-3 text-sm font-medium text-gray-300">{{ 'TABLE_APPEARANCE.ALTERNATE_ROWS' | translate }}</span>
+          </label>
+        </div>
+        
+        <!-- Contrôle du pourcentage d'éclaircissement -->
+        <div *ngIf="form.getRawValue().visualConfig.alternateRowColors" class="flex flex-col gap-1 ml-14">
+          <label class="text-sm font-medium text-gray-300">{{ 'TABLE_APPEARANCE.ALTERNATE_ROWS_BRIGHTNESS' | translate }}</label>
+          <div class="flex gap-2 items-center">
+            <input type="range" 
+                   [value]="form.getRawValue().visualConfig.alternateRowsBrightness" 
+                   (input)="handleVisualConfigChange('alternateRowsBrightness', $event)"
+                   min="0" 
+                   max="100" 
+                   step="5"
+                   class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            <span class="text-sm text-gray-300 min-w-[3rem]">{{ form.getRawValue().visualConfig.alternateRowsBrightness }}%</span>
+          </div>
+        </div>
       </div>
     </div>
   </app-tile>

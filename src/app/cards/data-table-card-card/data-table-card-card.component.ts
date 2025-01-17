@@ -44,6 +44,8 @@ export interface TableVisualConfig {
   headerTextColor: string;
   rowTextColor: string;
   isCompactMode: boolean;
+  alternateRowColors: boolean;
+  alternateRowsBrightness: number;
 }
 
 export class DataTableCardCardConfig extends BaseCardConfig {
@@ -61,7 +63,9 @@ export class DataTableCardCardConfig extends BaseCardConfig {
       rowBackgroundColor: '#111827',    // bg-gray-900
       headerTextColor: '#d1d5db',       // text-gray-300
       rowTextColor: '#d1d5db',          // text-gray-300
-      isCompactMode: false
+      isCompactMode: false,
+      alternateRowColors: false,
+      alternateRowsBrightness: 80       // Valeur par défaut de 80%
     };
   }
 
@@ -115,6 +119,7 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   pageSize: number = 10;
   loading: boolean = false;
   currentLanguage: string;
+  hoveredRow: number = -1;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -135,8 +140,6 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
         .subscribe(items => {
           // Créer une nouvelle référence pour forcer la détection de changements
           this.data = [...items];
-          console.log('Données reçues:', this.data);
-          console.log('Configuration des colonnes:', this.card.configuration?.columns);
           
           // Force la détection de changements immédiatement
           setTimeout(() => {
@@ -173,9 +176,7 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   }
 
   getVisibleColumns(): ColumnConfig[] {
-    const columns = this.card.configuration?.columns?.filter((c: ColumnConfig) => c.visible) || [];
-    console.log('Colonnes visibles:', columns);
-    return columns;
+    return this.card.configuration?.columns?.filter((c: ColumnConfig) => c.visible) || [];
   }
 
   getVisibleColumnsCount(): number {
@@ -201,13 +202,11 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
 
   getColumnValue(item: any, column: ColumnConfig): any {
     if (!item || !column.key) {
-      console.log('Item ou clé manquant:', { item, columnKey: column?.key });
       return '';
     }
     
     // Convertir la clé en camelCase
     const camelCaseKey = column.key.charAt(0).toLowerCase() + column.key.slice(1);
-    console.log(`Conversion de clé: ${column.key} -> ${camelCaseKey}`);
     
     // Gestion des propriétés imbriquées avec notation par points
     const keys = camelCaseKey.split('.');
@@ -215,7 +214,6 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
     
     for (const key of keys) {
       if (value === null || value === undefined) {
-        console.log(`Valeur null/undefined pour la clé ${key}:`, { value, item, column });
         return '';
       }
       value = value[key];
@@ -240,7 +238,41 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
       return Number(value).toFixed(column.decimals);
     }
 
-    console.log(`Valeur pour la colonne ${camelCaseKey}:`, value);
     return value;
+  }
+
+  /**
+   * Adjusts a color's brightness
+   * @param color The base color in hex format
+   * @param percent The percentage to adjust (-100 to 100, negative for darker, positive for lighter)
+   */
+  adjustColor(color: string, percent: number): string {
+    if (!color || percent === 0) return color;
+    
+    // Convert hex to RGB
+    const R = parseInt(color.substring(1,3), 16);
+    const G = parseInt(color.substring(3,5), 16);
+    const B = parseInt(color.substring(5,7), 16);
+
+    // Pour l'assombrissement (percent négatif), on mélange avec du noir (0,0,0)
+    // Pour l'éclaircissement (percent positif), on mélange avec du blanc (255,255,255)
+    const blendR = percent > 0 ? 255 : 0;
+    const blendG = percent > 0 ? 255 : 0;
+    const blendB = percent > 0 ? 255 : 0;
+
+    // On utilise la valeur absolue du pourcentage pour le calcul
+    const ratio = Math.abs(percent) / 100;
+
+    // Blend with target color
+    const mixR = Math.round(R * (1 - ratio) + blendR * ratio);
+    const mixG = Math.round(G * (1 - ratio) + blendG * ratio);
+    const mixB = Math.round(B * (1 - ratio) + blendB * ratio);
+
+    // Convert back to hex
+    const RR = ((mixR.toString(16).length === 1) ? "0" + mixR.toString(16) : mixR.toString(16));
+    const GG = ((mixG.toString(16).length === 1) ? "0" + mixG.toString(16) : mixG.toString(16));
+    const BB = ((mixB.toString(16).length === 1) ? "0" + mixB.toString(16) : mixB.toString(16));
+
+    return "#" + RR + GG + BB;
   }
 } 

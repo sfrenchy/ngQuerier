@@ -414,10 +414,12 @@
   },
   "TABLE_APPEARANCE": {
     "TITLE": "Apparence de la table",
-    "HEADER_BG_COLOR": "Couleur de fond de l'entête",
-    "ROW_BG_COLOR": "Couleur de fond des lignes",
+    "HEADER_BACKGROUND_COLOR": "Couleur de fond de l'entête",
+    "ROW_BACKGROUND_COLOR": "Couleur de fond des lignes",
     "HEADER_TEXT_COLOR": "Couleur du texte de l'entête",
     "ROW_TEXT_COLOR": "Couleur du texte des lignes",
-    "COMPACT_MODE": "Mode compact"
+    "COMPACT_MODE": "Mode compact",
+    "ALTERNATE_ROWS": "Alterner la couleur des lignes",
+    "ALTERNATE_ROWS_BRIGHTNESS": "Différence de luminosité"
   }
 } 

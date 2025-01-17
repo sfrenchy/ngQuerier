@@ -1,6 +1,25 @@
 <div class="card-content h-full flex flex-col">
   <div class="flex-1 overflow-hidden flex flex-col">
     <div class="flex-1 overflow-auto">
+      <style>
+        .hover-highlight {
+          position: relative;
+        }
+        .hover-highlight::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(255, 255, 255, 0);
+          pointer-events: none;
+          transition: background-color 0.1s ease;
+        }
+        .hover-highlight:hover::after {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+      </style>
       <table class="min-w-full divide-y divide-gray-700 h-full">
         <thead [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor">
           <tr>
@@ -29,20 +48,22 @@
               {{ 'NO_DATA' | translate }}
             </td>
           </tr>
-          <tr *ngFor="let item of data" 
-              [style.background-color]="card.configuration?.visualConfig.rowBackgroundColor"
-              class="hover:bg-opacity-80">
+          <tr *ngFor="let row of data; let i = index" 
+              [ngStyle]="{ 
+                'background-color': card.configuration?.visualConfig.alternateRowColors && card.configuration?.visualConfig.alternateRowsBrightness > 0 && i % 2 === 0 ? adjustColor(card.configuration?.visualConfig.rowBackgroundColor, card.configuration?.visualConfig.alternateRowsBrightness) : card.configuration?.visualConfig.rowBackgroundColor,
+                'color': card.configuration?.visualConfig.alternateRowColors && card.configuration?.visualConfig.alternateRowsBrightness > 0 && i % 2 === 0 ? adjustColor(card.configuration?.visualConfig.rowTextColor, -card.configuration?.visualConfig.alternateRowsBrightness) : card.configuration?.visualConfig.rowTextColor
+              }"
+              class="border-b border-gray-700 hover-highlight">
             <td *ngFor="let column of getVisibleColumns()" 
                 [ngClass]="{
                   'text-left': column.alignment === 'left',
                   'text-center': column.alignment === 'center',
                   'text-right': column.alignment === 'right'
                 }"
-                [style.color]="card.configuration?.visualConfig.rowTextColor"
                 [class.py-4]="!card.configuration?.visualConfig.isCompactMode"
                 [class.py-1]="card.configuration?.visualConfig.isCompactMode"
                 class="px-6 whitespace-nowrap text-sm">
-              {{ getColumnValue(item, column) }}
+              {{ getColumnValue(row, column) }}
             </td>
           </tr>
         </tbody>

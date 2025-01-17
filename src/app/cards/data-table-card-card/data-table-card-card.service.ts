@@ -76,7 +76,6 @@ export class DataTableCardCardService {
       .fetchData(config, { pageNumber, pageSize })
       .subscribe({
         next: (response) => {
-          console.log('Données reçues du service:', response);
           state$.next({
             items: response.items,
             total: response.total,

@@ -1,26 +1,26 @@
-<div class="card-content h-full flex flex-col">
-  <div class="flex-1 overflow-hidden flex flex-col">
-    <div class="flex-1 overflow-auto">
-      <style>
-        .hover-highlight {
-          position: relative;
-        }
-        .hover-highlight::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background-color: rgba(255, 255, 255, 0);
-          pointer-events: none;
-          transition: background-color 0.1s ease;
-        }
-        .hover-highlight:hover::after {
-          background-color: rgba(255, 255, 255, 0.1);
-        }
-      </style>
-      <table class="min-w-full divide-y divide-gray-700 h-full">
+<div class="h-full flex flex-col">
+  <style>
+    .hover-highlight {
+      position: relative;
+    }
+    .hover-highlight::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(255, 255, 255, 0);
+      pointer-events: none;
+      transition: background-color 0.1s ease;
+    }
+    .hover-highlight:hover::after {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+  <div class="flex-1 min-h-0 relative">
+    <div class="absolute inset-0 table-container overflow-auto">
+      <table class="min-w-full divide-y divide-gray-700">
         <thead [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor">
           <tr>
             <th *ngFor="let column of getVisibleColumns()" 

@@ -62,11 +62,9 @@ export class DataTableCardCardService {
     const state$ = this.getOrCreateState(config);
     const currentState = state$.getValue();
 
-    // Si les données sont déjà chargées, ne pas recharger
     if (currentState.items.length > 0 && 
         currentState.pageNumber === pageNumber && 
         currentState.pageSize === pageSize) {
-      console.log('Données déjà chargées:', currentState.items);
       return;
     }
 

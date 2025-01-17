@@ -42,7 +42,8 @@
       <app-droppable-row *ngFor="let row of layout.rows"
                         [row]="row"
                         (deleteRow)="deleteRow(row.id)"
-                        (startResize)="startResize($event.event, $event.rowId)"
+                        (startResize)="startResize($event)"
+                        (endResize)="endResize($event)"
                         (cardDrop)="onCardDrop($event)"
                         (deleteCard)="deleteCard($event.rowId, $event.cardId)"
                         (configureCard)="configureCard($event.rowId, $event.cardId)">

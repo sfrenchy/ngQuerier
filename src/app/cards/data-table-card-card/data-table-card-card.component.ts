@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Card } from '@cards/card.decorator';
@@ -46,6 +46,7 @@ export interface TableVisualConfig {
   isCompactMode: boolean;
   alternateRowColors: boolean;
   alternateRowsBrightness: number;
+  rowCount?: number;
 }
 
 export class DataTableCardCardConfig extends BaseCardConfig {
@@ -65,7 +66,8 @@ export class DataTableCardCardConfig extends BaseCardConfig {
       rowTextColor: '#d1d5db',          // text-gray-300
       isCompactMode: false,
       alternateRowColors: false,
-      alternateRowsBrightness: 80       // Valeur par défaut de 80%
+      alternateRowsBrightness: 80,      // Valeur par défaut de 80%
+      rowCount: undefined               // Pas de valeur par défaut
     };
   }
 
@@ -121,6 +123,12 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   currentLanguage: string;
   hoveredRow: number = -1;
   private destroy$ = new Subject<void>();
+  private resizeObserver: ResizeObserver;
+  private tableContainer: HTMLElement | null = null;
+  private rowHeight: number = 0;
+  private lastOptimalSize: number = 0;
+  private isAdjusting: boolean = false;
+  @Output() configurationChanged = new EventEmitter<any>();
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -130,21 +138,30 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   ) {
     super(cardDatabaseService);
     this.currentLanguage = this.translateService.currentLang;
+    this.resizeObserver = new ResizeObserver(this.onResize.bind(this));
   }
 
   ngOnInit() {
     if (this.card.configuration?.datasource) {
+      // Utiliser le nombre de lignes de la configuration si disponible
+      if (this.card.configuration.visualConfig.rowCount) {
+        this.pageSize = this.card.configuration.visualConfig.rowCount;
+      }
+
       // S'abonner aux changements de données
       this.dataService.getData(this.card.configuration.datasource)
         .pipe(takeUntil(this.destroy$))
         .subscribe(items => {
-          // Créer une nouvelle référence pour forcer la détection de changements
           this.data = [...items];
           
-          // Force la détection de changements immédiatement
-          setTimeout(() => {
-            this.cdr.detectChanges();
-          });
+          // Après le chargement des données, vérifier si la taille est optimale
+          // seulement si rowCount n'est pas défini
+          if (!this.card.configuration?.visualConfig.rowCount) {
+            setTimeout(() => {
+              this.checkOptimalSize();
+              this.cdr.detectChanges();
+            });
+          }
         });
 
       this.dataService.getTotal(this.card.configuration.datasource)
@@ -170,9 +187,98 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
     }
   }
 
+  ngAfterViewInit() {
+    // Observer la taille du conteneur
+    this.tableContainer = document.querySelector('.table-container');
+    if (this.tableContainer) {
+      this.resizeObserver.observe(this.tableContainer);
+      // Attendre que les données soient chargées pour mesurer la hauteur
+      setTimeout(() => {
+        this.measureRowHeight();
+        this.checkOptimalSize();
+      }, 100);
+    }
+  }
+
+  private measureRowHeight() {
+    if (!this.tableContainer) return;
+    
+    // Sélectionner spécifiquement une ligne de données (pas le header)
+    const dataRow = this.tableContainer.querySelector('tbody tr:not(.animate-pulse)') as HTMLElement;
+    if (dataRow) {
+      this.rowHeight = dataRow.offsetHeight;
+    }
+  }
+
+  private checkOptimalSize() {
+    if (!this.tableContainer || this.isAdjusting) {
+      return;
+    }
+
+    // Mesurer la hauteur de ligne si pas encore fait
+    if (!this.rowHeight) {
+      this.measureRowHeight();
+      if (!this.rowHeight) return;
+    }
+
+    const availableHeight = this.tableContainer.clientHeight;
+    const headerHeight = this.tableContainer.querySelector('thead')?.offsetHeight || 0;
+    const availableRowSpace = availableHeight - headerHeight;
+    
+    // Calculer le nombre optimal de lignes en tenant compte de la bordure
+    const rowWithBorderHeight = this.rowHeight + 1; // +1 pour la bordure
+    const optimalRows = Math.floor(availableRowSpace / rowWithBorderHeight);
+    
+    // Si le nombre total d'éléments est inférieur à la taille optimale, on ajuste
+    const targetSize = Math.min(optimalRows, this.totalItems);
+
+    // Vérifier si on peut ajouter au moins une ligne
+    const currentTotalHeight = headerHeight + (this.pageSize * rowWithBorderHeight);
+    const hasSpaceForMore = availableHeight - currentTotalHeight >= rowWithBorderHeight;
+
+    // Ajuster si on peut ajouter des lignes ou si on a trop de lignes
+    if (hasSpaceForMore || targetSize < this.pageSize) {
+      this.isAdjusting = true;
+      this.pageSize = targetSize;
+      
+      // Sauvegarder le nombre de lignes dans la configuration
+      if (this.card.configuration) {
+        this.card.configuration.visualConfig.rowCount = targetSize;
+        // Émettre le changement de configuration
+        this.configurationChanged.emit(this.card);
+      }
+
+      this.loadData();
+      
+      // Réinitialiser le flag après le chargement
+      setTimeout(() => {
+        this.isAdjusting = false;
+      }, 200);
+    }
+  }
+
   ngOnDestroy() {
+    if (this.tableContainer) {
+      this.resizeObserver.unobserve(this.tableContainer);
+    }
+    this.resizeObserver.disconnect();
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private onResize() {
+    // Attendre que le DOM soit stable
+    setTimeout(() => this.checkOptimalSize(), 0);
+  }
+
+  private loadData() {
+    if (this.card.configuration?.datasource) {
+      this.dataService.loadData(
+        this.card.configuration.datasource,
+        this.currentPage,
+        this.pageSize
+      );
+    }
   }
 
   getVisibleColumns(): ColumnConfig[] {

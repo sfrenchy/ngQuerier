@@ -2,14 +2,14 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LayoutDto, RowDto, CardDto } from '@models/api.models';
 import { DroppableRowComponent } from './rows/droppable-row.component';
-import { BaseCardComponent } from '../../../../../cards/base-card.component';
-import { BaseCardConfigurationComponent } from '../../../../../cards/base-card-configuration.component';
-import { CardService } from '../../../../../cards/card.service';
-import { CardMetadata } from '../../../../../cards/card.decorator';
+import { BaseCardComponent } from '@cards/base-card.component';
+import { BaseCardConfigurationComponent } from '@cards/base-card-configuration.component';
+import { CardService } from '@cards/card.service';
+import { CardMetadata } from '@cards/card.decorator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import '../../../../../cards/available-cards';
-import { CardRegistry } from '../../../../../cards/card.registry';
-import { hexToUint } from '../../../../../shared/utils/color.utils';
+import '@cards/available-cards';
+import { CardRegistry } from '@cards/card.registry';
+import { hexToUint } from '@shared/utils/color.utils';
 
 interface CardMetadataWithSafeIcon extends CardMetadata {
   safeIcon: SafeHtml;
@@ -91,14 +91,9 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   constructor(
     private cardService: CardService,
     private sanitizer: DomSanitizer
-  ) {
-    this.onMouseMove = this.onMouseMove.bind(this);
-    this.onMouseUp = this.onMouseUp.bind(this);
-  }
+  ) {}
 
   ngOnInit() {
-    document.addEventListener('mousemove', this.onMouseMove);
-    document.addEventListener('mouseup', this.onMouseUp);
     this.availableCards = this.cardService.getAvailableCards().map(card => ({
       ...card,
       safeIcon: this.sanitizer.bypassSecurityTrustHtml(card.icon)
@@ -106,8 +101,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    document.removeEventListener('mousemove', this.onMouseMove);
-    document.removeEventListener('mouseup', this.onMouseUp);
   }
 
   onDragStart(event: DragEvent, cardMetadata?: CardMetadata) {
@@ -292,37 +285,23 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     this.isFullscreen = !this.isFullscreen;
   }
 
-  startResize(event: MouseEvent, rowId: number) {
-    this.resizing = true;
-    this.currentRowId = rowId;
-    this.startY = event.clientY;
-    const row = this.layout.rows.find(r => r.id === rowId);
-    if (row) {
-      this.startHeight = row.height;
-    }
+  startResize(event: { event: MouseEvent, rowId: number }) {
+    // Ne rien faire ici, le DroppableRowComponent gère le redimensionnement
   }
 
-  private onMouseMove(event: MouseEvent) {
-    if (!this.resizing || this.currentRowId === null) return;
-
-    const deltaY = event.clientY - this.startY;
-    const rowIndex = this.layout.rows.findIndex(r => r.id === this.currentRowId);
+  endResize(event: { rowId: number, newHeight: number }) {
+    const rowIndex = this.layout.rows.findIndex(r => r.id === event.rowId);
     if (rowIndex !== -1) {
       const updatedRows = [...this.layout.rows];
       updatedRows[rowIndex] = {
         ...updatedRows[rowIndex],
-        height: Math.max(100, this.startHeight + deltaY)
+        height: event.newHeight
       };
       this.layout = {
         ...this.layout,
         rows: updatedRows
       };
     }
-  }
-
-  private onMouseUp() {
-    this.resizing = false;
-    this.currentRowId = null;
   }
 
   getCardToEdit(): CardDto | null {

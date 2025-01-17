@@ -1,44 +1,32 @@
-<div class="relative" [class.no-select]="isResizing">
+<div class="row relative bg-gray-100 rounded-lg border border-gray-200" [class.dragging-over]="isDraggingCard" [style.height.px]="height">
   <!-- Row header -->
-  <div class="flex items-center justify-between mb-2">
-    <div class="flex items-center gap-2">
-      <button class="p-1 text-gray-400 hover:text-gray-600">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-        </svg>
-      </button>
-      <span class="text-sm font-medium text-gray-700">Ligne {{row.id}}</span>
-    </div>
-    <div class="flex items-center gap-2">
-      <button (click)="onDeleteRow()" class="p-1 text-gray-400 hover:text-red-600">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
-        </svg>
-      </button>
-    </div>
+  <div class="absolute top-2 right-2 flex gap-2 z-10">
+    <button class="p-1 rounded hover:bg-gray-700 text-gray-600 hover:text-white" (click)="onConfigureRow()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+      </svg>
+    </button>
+    <button class="p-1 rounded hover:bg-gray-700 text-gray-600 hover:text-white" (click)="onDeleteRow()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+      </svg>
+    </button>
   </div>
 
-  <!-- Row content -->
-  <div class="p-4 rounded-lg border border-gray-200 transition-colors"
-       [class.bg-gray-50]="!isDraggingCard"
-       [class.bg-gray-100]="isDraggingCard"
-       [style.height.px]="row.height"
-       (dragover)="onDragOver($event)"
-       (dragenter)="onDragEnter($event)"
-       (dragleave)="onDragLeave($event)"
-       (drop)="onDrop($event)">
-    <!-- Grid container -->
-    <div class="grid gap-4 h-full" [ngStyle]="{'grid-template-columns': 'repeat(12, 1fr)'}">
-      <!-- Cards -->
+  <div class="flex flex-col h-full">
+    <!-- Contenu de la row -->
+    <div class="flex-1 grid grid-cols-12 gap-4 p-4" 
+         (dragover)="onDragOver($event)"
+         (dragenter)="onDragEnter($event)"
+         (dragleave)="onDragLeave($event)"
+         (drop)="onDrop($event)">
       <ng-container *ngFor="let card of row.cards">
-        <div [ngStyle]="{'grid-column': 'span ' + (card.gridWidth || 4)}">
-          <app-base-card [card]="card" 
-                        [isEditing]="true"
-                        (delete)="onCardDelete(card.id)"
-                        (configure)="onCardConfigure(card.id)">
+        <div class="col-span-12 h-full">
+          <app-base-card [card]="card" [isEditing]="true" (delete)="onCardDelete(card.id)" (configure)="onCardConfigure(card.id)">
             <ng-container body>
-              <ng-container *ngComponentOutlet="getCardComponent(card.type)!; 
-                                              inputs: { card: card }">
+              <ng-container *ngComponentOutlet="getCardComponent(card).component; 
+                                            injector: moduleRef.injector;
+                                            inputs: getCardComponent(card).inputs">
               </ng-container>
             </ng-container>
           </app-base-card>
@@ -52,9 +40,30 @@
     </div>
   </div>
 
-  <!-- Resize handle -->
-  <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 cursor-row-resize"
+  <!-- Poignée de redimensionnement -->
+  <div class="resize-handle absolute bottom-0 left-0 right-0 h-2 cursor-row-resize bg-transparent hover:bg-blue-500/20 transition-colors"
        (mousedown)="onResizeStart($event)">
-    <div class="w-8 h-1.5 bg-gray-300 rounded-full"></div>
+    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-1 bg-gray-600 rounded-full"></div>
   </div>
 </div>
+
+<style>
+  .dragging-over {
+    @apply ring-2 ring-blue-500 ring-inset;
+  }
+
+  .resize-handle:hover .resize-indicator {
+    @apply bg-blue-500;
+  }
+
+  .resize-ghost {
+    pointer-events: none !important;
+    user-select: none !important;
+    will-change: height;
+    position: fixed !important;
+    z-index: 9999 !important;
+    background-color: rgba(59, 130, 246, 0.2) !important;
+    border: 2px dashed rgb(59, 130, 246) !important;
+    transition: height 0.05s linear;
+  }
+</style>

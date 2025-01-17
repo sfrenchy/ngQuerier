@@ -66,6 +66,7 @@ export class DataTableCardCardService {
     if (currentState.items.length > 0 && 
         currentState.pageNumber === pageNumber && 
         currentState.pageSize === pageSize) {
+      console.log('Données déjà chargées:', currentState.items);
       return;
     }
 
@@ -75,6 +76,7 @@ export class DataTableCardCardService {
       .fetchData(config, { pageNumber, pageSize })
       .subscribe({
         next: (response) => {
+          console.log('Données reçues du service:', response);
           state$.next({
             items: response.items,
             total: response.total,

@@ -109,22 +109,29 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
       this.dataService.getData(this.card.configuration.datasource)
         .pipe(takeUntil(this.destroy$))
         .subscribe(items => {
-          this.data = items;
-          this.cdr.markForCheck();
+          // Créer une nouvelle référence pour forcer la détection de changements
+          this.data = [...items];
+          console.log('Données reçues:', this.data);
+          console.log('Configuration des colonnes:', this.card.configuration?.columns);
+          
+          // Force la détection de changements immédiatement
+          setTimeout(() => {
+            this.cdr.detectChanges();
+          });
         });
 
       this.dataService.getTotal(this.card.configuration.datasource)
         .pipe(takeUntil(this.destroy$))
         .subscribe(total => {
           this.totalItems = total;
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         });
 
       this.dataService.isLoading(this.card.configuration.datasource)
         .pipe(takeUntil(this.destroy$))
         .subscribe(loading => {
           this.loading = loading;
-          this.cdr.markForCheck();
+          this.cdr.detectChanges();
         });
 
       // Charger les données initiales
@@ -142,7 +149,9 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   }
 
   getVisibleColumns(): ColumnConfig[] {
-    return this.card.configuration?.columns?.filter((c: ColumnConfig) => c.visible) || [];
+    const columns = this.card.configuration?.columns?.filter((c: ColumnConfig) => c.visible) || [];
+    console.log('Colonnes visibles:', columns);
+    return columns;
   }
 
   getVisibleColumnsCount(): number {
@@ -154,6 +163,33 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   }
 
   getColumnValue(item: any, column: ColumnConfig): any {
-    return item[column.key];
+    if (!item || !column.key) {
+      console.log('Item ou clé manquant:', { item, columnKey: column?.key });
+      return '';
+    }
+    
+    // Convertir la clé en camelCase
+    const camelCaseKey = column.key.charAt(0).toLowerCase() + column.key.slice(1);
+    console.log(`Conversion de clé: ${column.key} -> ${camelCaseKey}`);
+    
+    // Gestion des propriétés imbriquées avec notation par points
+    const keys = camelCaseKey.split('.');
+    let value = item;
+    
+    for (const key of keys) {
+      if (value === null || value === undefined) {
+        console.log(`Valeur null/undefined pour la clé ${key}:`, { value, item, column });
+        return '';
+      }
+      value = value[key];
+    }
+
+    // Formatage des nombres décimaux si spécifié
+    if (column.type === 'number' && column.decimals !== undefined && value !== null && value !== undefined) {
+      return Number(value).toFixed(column.decimals);
+    }
+
+    console.log(`Valeur pour la colonne ${camelCaseKey}:`, value);
+    return value;
   }
 } 

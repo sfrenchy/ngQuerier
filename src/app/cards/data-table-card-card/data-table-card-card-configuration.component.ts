@@ -78,17 +78,31 @@ export class DataTableCardCardConfigurationComponent implements OnInit {
         .filter(([_, prop]: [string, any]) => !prop['x-entity-metadata']?.isNavigation)
         .map(([key, prop]: [string, any]) => {
           const existingColumn = existingColumns.find(c => c.key === key);
+          const isPrimaryOrForeignKey = prop['x-entity-metadata']?.isPrimaryKey || prop['x-entity-metadata']?.isForeignKey;
           return {
             key,
             type: this.getColumnType(prop),
             label: existingColumn?.label || { en: key, fr: key },
             alignment: existingColumn?.alignment || this.getDefaultAlignment(prop.type),
-            visible: existingColumn?.visible ?? true,
+            visible: existingColumn?.visible ?? !isPrimaryOrForeignKey,
             decimals: existingColumn?.decimals ?? (prop.type === 'number' ? 2 : undefined),
             isNavigation: prop['x-entity-metadata']?.isNavigation || false,
             navigationType: prop['x-entity-metadata']?.navigationType,
             isCollection: prop['x-entity-metadata']?.isCollection || false,
-            elementType: prop['x-entity-metadata']?.elementType
+            elementType: prop['x-entity-metadata']?.elementType,
+            entityMetadata: prop['x-entity-metadata'] ? {
+              isPrimaryKey: prop['x-entity-metadata'].isPrimaryKey,
+              isIdentity: prop['x-entity-metadata'].isIdentity,
+              columnName: prop['x-entity-metadata'].columnName,
+              columnType: prop['x-entity-metadata'].columnType,
+              defaultValue: prop['x-entity-metadata'].defaultValue,
+              isRequired: prop['x-entity-metadata'].isRequired,
+              isForeignKey: prop['x-entity-metadata'].isForeignKey,
+              foreignKeyTable: prop['x-entity-metadata'].foreignKeyTable,
+              foreignKeyColumn: prop['x-entity-metadata'].foreignKeyColumn,
+              foreignKeyConstraintName: prop['x-entity-metadata'].foreignKeyConstraintName,
+              maxLength: prop['x-entity-metadata'].maxLength
+            } : undefined
           };
         });
 

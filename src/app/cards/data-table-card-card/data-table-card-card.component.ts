@@ -18,6 +18,19 @@ export interface ColumnConfig {
   navigationType?: string;
   isCollection?: boolean;
   elementType?: string;
+  entityMetadata?: {
+    isPrimaryKey?: boolean;
+    isIdentity?: boolean;
+    columnName?: string;
+    columnType?: string;
+    defaultValue?: any;
+    isRequired?: boolean;
+    isForeignKey?: boolean;
+    foreignKeyTable?: string;
+    foreignKeyColumn?: string;
+    foreignKeyConstraintName?: string;
+    maxLength?: number;
+  };
 }
 
 export class DataTableCardCardConfig extends BaseCardConfig {

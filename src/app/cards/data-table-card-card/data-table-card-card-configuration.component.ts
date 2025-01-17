@@ -32,6 +32,7 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
   jsonSchema: string | null = null;
   columns: ColumnConfig[] = [];
   expandedColumnIndex: number | null = null;
+  draggedColumnIndex: number | null = null;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -149,14 +150,36 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
     this.expandedColumnIndex = this.expandedColumnIndex === index ? null : index;
   }
 
-  moveColumn(index: number, direction: 'up' | 'down') {
-    const newIndex = direction === 'up' ? index - 1 : index + 1;
-    if (newIndex >= 0 && newIndex < this.columns.length) {
-      const column = this.columns[index];
-      this.columns.splice(index, 1);
-      this.columns.splice(newIndex, 0, column);
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+  onDragStart(event: DragEvent, index: number) {
+    this.draggedColumnIndex = index;
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
     }
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  onDrop(event: DragEvent, targetIndex: number) {
+    event.preventDefault();
+    
+    if (this.draggedColumnIndex === null || this.draggedColumnIndex === targetIndex) {
+      return;
+    }
+
+    // Réorganiser les colonnes
+    const column = this.columns[this.draggedColumnIndex];
+    this.columns.splice(this.draggedColumnIndex, 1);
+    this.columns.splice(targetIndex, 0, column);
+
+    // Mettre à jour le formulaire
+    this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+    
+    this.draggedColumnIndex = null;
   }
 
   onInputChange(event: Event, callback: (value: string) => void) {

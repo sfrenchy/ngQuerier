@@ -371,5 +371,13 @@
     "ALIGN_RIGHT": "Right",
     "DECIMALS": "Decimals",
     "VISIBLE": "Visible"
+  },
+  "TABLE_APPEARANCE": {
+    "TITLE": "Table Appearance",
+    "HEADER_BG_COLOR": "Header Background Color",
+    "ROW_BG_COLOR": "Row Background Color",
+    "HEADER_TEXT_COLOR": "Header Text Color",
+    "ROW_TEXT_COLOR": "Row Text Color",
+    "COMPACT_MODE": "Compact Mode"
   }
 } 

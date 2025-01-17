@@ -109,4 +109,72 @@
       </div>
     </div>
   </app-tile>
+
+  <app-tile [title]="'TABLE_APPEARANCE.TITLE' | translate">
+    <div class="space-y-4">
+      <!-- Couleur de fond de l'entête -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'TABLE_APPEARANCE.HEADER_BG_COLOR' | translate }}</label>
+        <div class="flex gap-2">
+          <input type="color" [value]="form.getRawValue().visualConfig.headerBackgroundColor" 
+                 (change)="handleVisualConfigChange('headerBackgroundColor', $event)"
+                 class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
+          <input type="text" [value]="form.getRawValue().visualConfig.headerBackgroundColor" 
+                 (input)="handleVisualConfigChange('headerBackgroundColor', $event)"
+                 class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        </div>
+      </div>
+
+      <!-- Couleur de fond des lignes -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'TABLE_APPEARANCE.ROW_BG_COLOR' | translate }}</label>
+        <div class="flex gap-2">
+          <input type="color" [value]="form.getRawValue().visualConfig.rowBackgroundColor" 
+                 (change)="handleVisualConfigChange('rowBackgroundColor', $event)"
+                 class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
+          <input type="text" [value]="form.getRawValue().visualConfig.rowBackgroundColor" 
+                 (input)="handleVisualConfigChange('rowBackgroundColor', $event)"
+                 class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        </div>
+      </div>
+
+      <!-- Couleur du texte de l'entête -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'TABLE_APPEARANCE.HEADER_TEXT_COLOR' | translate }}</label>
+        <div class="flex gap-2">
+          <input type="color" [value]="form.getRawValue().visualConfig.headerTextColor" 
+                 (change)="handleVisualConfigChange('headerTextColor', $event)"
+                 class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
+          <input type="text" [value]="form.getRawValue().visualConfig.headerTextColor" 
+                 (input)="handleVisualConfigChange('headerTextColor', $event)"
+                 class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        </div>
+      </div>
+
+      <!-- Couleur du texte des lignes -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'TABLE_APPEARANCE.ROW_TEXT_COLOR' | translate }}</label>
+        <div class="flex gap-2">
+          <input type="color" [value]="form.getRawValue().visualConfig.rowTextColor" 
+                 (change)="handleVisualConfigChange('rowTextColor', $event)"
+                 class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
+          <input type="text" [value]="form.getRawValue().visualConfig.rowTextColor" 
+                 (input)="handleVisualConfigChange('rowTextColor', $event)"
+                 class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        </div>
+      </div>
+
+      <!-- Mode compact -->
+      <div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" 
+                 [checked]="form.getRawValue().visualConfig.isCompactMode"
+                 (change)="handleVisualConfigChange('isCompactMode', $event)"
+                 class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          <span class="ml-3 text-sm font-medium text-gray-300">{{ 'TABLE_APPEARANCE.COMPACT_MODE' | translate }}</span>
+        </label>
+      </div>
+    </div>
+  </app-tile>
 </div> 

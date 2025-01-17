@@ -1,12 +1,14 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DataTableCardCardConfig, ColumnConfig } from './data-table-card-card.component';
+import { DataTableCardCardConfig, ColumnConfig, TableVisualConfig } from './data-table-card-card.component';
 import { CardDto } from '@models/api.models';
 import { TileComponent } from '@shared/components/tile/tile.component';
 import { DatasourceConfig } from '@models/datasource.models';
 import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-data-table-card-card-configuration',
@@ -20,7 +22,7 @@ import { DatasourceConfigurationComponent } from '@shared/components/datasource-
     DatasourceConfigurationComponent
   ]
 })
-export class DataTableCardCardConfigurationComponent implements OnInit {
+export class DataTableCardCardConfigurationComponent implements OnInit, OnDestroy {
   @Input() card!: CardDto<DataTableCardCardConfig>;
   @Output() save = new EventEmitter<DataTableCardCardConfig>();
   @Output() configChange = new EventEmitter<DataTableCardCardConfig>();
@@ -29,29 +31,50 @@ export class DataTableCardCardConfigurationComponent implements OnInit {
   jsonSchema: string | null = null;
   columns: ColumnConfig[] = [];
   expandedColumnIndex: number | null = null;
+  private destroy$ = new Subject<void>();
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       datasource: [null],
-      columns: [[]]
+      columns: [[]],
+      visualConfig: [null]
     });
 
     this.form.valueChanges.subscribe((value: any) => {
       if (this.form.valid) {
-        const config = new DataTableCardCardConfig();
-        Object.assign(config, value);
-        this.configChange.emit(config);
+        this.emitConfig(value);
       }
     });
+  }
+
+  private emitConfig(formValue: any) {
+    const config = new DataTableCardCardConfig();
+    if (formValue.datasource) {
+      config.datasource = formValue.datasource;
+    }
+    if (formValue.columns) {
+      config.columns = formValue.columns;
+    }
+    if (formValue.visualConfig) {
+      config.visualConfig = formValue.visualConfig;
+    }
+    this.configChange.emit(config);
   }
 
   ngOnInit() {
     if (this.card.configuration) {
       this.form.patchValue({
         datasource: this.card.configuration.datasource,
-        columns: this.card.configuration.columns || []
+        columns: this.card.configuration.columns || [],
+        visualConfig: this.card.configuration.visualConfig
       }, { emitEvent: false });
       this.columns = this.card.configuration.columns || [];
+    } else {
+      // Initialiser avec les valeurs par défaut si pas de configuration
+      const defaultConfig = new DataTableCardCardConfig();
+      this.form.patchValue({
+        visualConfig: defaultConfig.visualConfig
+      }, { emitEvent: false });
     }
   }
 
@@ -193,8 +216,40 @@ export class DataTableCardCardConfigurationComponent implements OnInit {
   onSave() {
     if (this.form.valid) {
       const config = new DataTableCardCardConfig();
-      Object.assign(config, this.form.value);
+      const formValue = this.form.value;
+      if (formValue.datasource) {
+        config.datasource = formValue.datasource;
+      }
+      if (formValue.columns) {
+        config.columns = formValue.columns;
+      }
+      if (formValue.visualConfig) {
+        config.visualConfig = formValue.visualConfig;
+      }
       this.save.emit(config);
     }
+  }
+
+  handleVisualConfigChange(property: keyof TableVisualConfig, event: Event) {
+    const currentVisualConfig = this.form.getRawValue().visualConfig;
+    let value: string | boolean;
+
+    if (property === 'isCompactMode') {
+      value = (event.target as HTMLInputElement).checked;
+    } else {
+      value = (event.target as HTMLInputElement).value;
+    }
+
+    const newVisualConfig = {
+      ...currentVisualConfig,
+      [property]: value
+    };
+
+    this.form.patchValue({ visualConfig: newVisualConfig });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 } 

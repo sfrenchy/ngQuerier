@@ -37,21 +37,38 @@ export interface ColumnConfig {
   };
 }
 
+export interface TableVisualConfig {
+  headerBackgroundColor: string;
+  rowBackgroundColor: string;
+  headerTextColor: string;
+  rowTextColor: string;
+  isCompactMode: boolean;
+}
+
 export class DataTableCardCardConfig extends BaseCardConfig {
   datasource: DatasourceConfig;
   columns?: ColumnConfig[];
+  visualConfig: TableVisualConfig;
 
   constructor() {
     super();
     this.datasource = {
       type: 'API'
     };
+    this.visualConfig = {
+      headerBackgroundColor: '#1f2937', // bg-gray-800
+      rowBackgroundColor: '#111827',    // bg-gray-900
+      headerTextColor: '#d1d5db',       // text-gray-300
+      rowTextColor: '#d1d5db',          // text-gray-300
+      isCompactMode: false
+    };
   }
 
   toJson(): any {
     return {
       datasource: this.datasource,
-      columns: this.columns
+      columns: this.columns,
+      visualConfig: this.visualConfig
     };
   }
 
@@ -62,6 +79,12 @@ export class DataTableCardCardConfig extends BaseCardConfig {
     }
     if (json.columns) {
       config.columns = json.columns;
+    }
+    if (json.visualConfig) {
+      config.visualConfig = {
+        ...config.visualConfig,
+        ...json.visualConfig
+      };
     }
     return config;
   }

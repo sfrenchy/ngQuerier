@@ -9,6 +9,7 @@ import { DatasourceConfig } from '@models/datasource.models';
 import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { DataTableCardCardService } from './data-table-card-card.service';
 
 @Component({
   selector: 'app-data-table-card-card-configuration',
@@ -33,7 +34,10 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
   expandedColumnIndex: number | null = null;
   private destroy$ = new Subject<void>();
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private dataTableService: DataTableCardCardService
+  ) {
     this.form = this.fb.group({
       datasource: [null],
       columns: [[]],
@@ -134,22 +138,11 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
   }
 
   private getColumnType(prop: any): string {
-    if (prop['x-entity-metadata']?.navigationType) {
-      return prop['x-entity-metadata'].navigationType;
-    }
-    return prop.type;
+    return this.dataTableService.getColumnType(prop);
   }
 
   private getDefaultAlignment(type: string): 'left' | 'center' | 'right' {
-    switch (type) {
-      case 'number':
-      case 'integer':
-        return 'right';
-      case 'boolean':
-        return 'center';
-      default:
-        return 'left';
-    }
+    return this.dataTableService.getDefaultAlignment(type);
   }
 
   toggleColumnExpand(index: number) {
@@ -256,16 +249,11 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
   }
 
   isDateColumn(column: ColumnConfig): boolean {
-    return !!column.entityMetadata?.columnType?.toLowerCase().includes('date');
+    return this.dataTableService.isDateColumn(column);
   }
 
   isNumberColumn(column: ColumnConfig): boolean {
-    const type = column.entityMetadata?.columnType?.toLowerCase() || '';
-    return type.includes('int') || 
-           type.includes('decimal') || 
-           type.includes('float') || 
-           type.includes('double') || 
-           type.includes('number');
+    return this.dataTableService.isNumberColumn(column);
   }
 
   ngOnDestroy() {

@@ -290,16 +290,11 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   }
 
   isDateColumn(column: ColumnConfig): boolean {
-    return !!column.entityMetadata?.columnType?.toLowerCase().includes('date');
+    return this.dataService.isDateColumn(column);
   }
 
   isNumberColumn(column: ColumnConfig): boolean {
-    const type = column.entityMetadata?.columnType?.toLowerCase() || '';
-    return type.includes('int') || 
-           type.includes('decimal') || 
-           type.includes('float') || 
-           type.includes('double') || 
-           type.includes('number');
+    return this.dataService.isNumberColumn(column);
   }
 
   getColumnLabel(column: ColumnConfig): string {
@@ -307,44 +302,7 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   }
 
   getColumnValue(item: any, column: ColumnConfig): any {
-    if (!item || !column.key) {
-      return '';
-    }
-    
-    // Convertir la clé en camelCase
-    const camelCaseKey = column.key.charAt(0).toLowerCase() + column.key.slice(1);
-    
-    // Gestion des propriétés imbriquées avec notation par points
-    const keys = camelCaseKey.split('.');
-    let value = item;
-    
-    for (const key of keys) {
-      if (value === null || value === undefined) {
-        return '';
-      }
-      value = value[key];
-    }
-
-    // Formatage des dates selon la configuration
-    if (this.isDateColumn(column) && value) {
-      const date = new Date(value);
-      switch (column.dateFormat) {
-        case 'date':
-          return date.toLocaleDateString(this.currentLanguage);
-        case 'time':
-          return date.toLocaleTimeString(this.currentLanguage);
-        case 'datetime':
-        default:
-          return date.toLocaleString(this.currentLanguage);
-      }
-    }
-
-    // Formatage des nombres décimaux si spécifié
-    if (this.isNumberColumn(column) && column.decimals !== undefined && value !== null && value !== undefined) {
-      return Number(value).toFixed(column.decimals);
-    }
-
-    return value;
+    return this.dataService.getColumnValue(item, column, this.currentLanguage);
   }
 
   /**

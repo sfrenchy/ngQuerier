@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DatasourceConfig } from '@models/datasource.models';
+import { ColumnConfig } from './data-table-card-card.component';
 import { CardDatabaseService } from '@services/card-database.service';
 
 interface DataState {
@@ -93,5 +94,89 @@ export class DataTableCardCardService {
   clearData(config: DatasourceConfig): void {
     const key = this.getStateKey(config);
     this.dataStateMap.delete(key);
+  }
+
+  // Méthodes utilitaires pour les colonnes
+  isDateColumn(column: ColumnConfig): boolean {
+    return !!column.entityMetadata?.columnType?.toLowerCase().includes('date');
+  }
+
+  isNumberColumn(column: ColumnConfig): boolean {
+    const type = column.entityMetadata?.columnType?.toLowerCase() || '';
+    return type.includes('int') || 
+           type.includes('decimal') || 
+           type.includes('float') || 
+           type.includes('double') || 
+           type.includes('money') || 
+           type.includes('number');
+  }
+
+  getDefaultAlignment(type: string): 'left' | 'center' | 'right' {
+    switch (type) {
+      case 'number':
+      case 'integer':
+        return 'right';
+      case 'boolean':
+        return 'center';
+      default:
+        return 'left';
+    }
+  }
+
+  getColumnType(prop: any): string {
+    if (prop['x-entity-metadata']?.navigationType) {
+      return prop['x-entity-metadata'].navigationType;
+    }
+    return prop.type;
+  }
+
+  // Méthodes de formatage des valeurs
+  formatColumnValue(value: any, column: ColumnConfig, locale: string): any {
+    if (value === null || value === undefined) {
+      return '';
+    }
+
+    // Formatage des dates selon la configuration
+    if (this.isDateColumn(column) && value) {
+      const date = new Date(value);
+      switch (column.dateFormat) {
+        case 'date':
+          return date.toLocaleDateString(locale);
+        case 'time':
+          return date.toLocaleTimeString(locale);
+        case 'datetime':
+        default:
+          return date.toLocaleString(locale);
+      }
+    }
+
+    // Formatage des nombres décimaux si spécifié
+    if (this.isNumberColumn(column) && column.decimals !== undefined && value !== null && value !== undefined) {
+      return Number(value).toFixed(column.decimals);
+    }
+
+    return value;
+  }
+
+  getColumnValue(item: any, column: ColumnConfig, locale: string): any {
+    if (!item || !column.key) {
+      return '';
+    }
+    
+    // Convertir la clé en camelCase
+    const camelCaseKey = column.key.charAt(0).toLowerCase() + column.key.slice(1);
+    
+    // Gestion des propriétés imbriquées avec notation par points
+    const keys = camelCaseKey.split('.');
+    let value = item;
+    
+    for (const key of keys) {
+      if (value === null || value === undefined) {
+        return '';
+      }
+      value = value[key];
+    }
+
+    return this.formatColumnValue(value, column, locale);
   }
 } 

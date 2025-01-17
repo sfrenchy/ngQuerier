@@ -180,19 +180,6 @@ export interface PageCreateDto {
   menuId: number;
 }
 
-export interface EntityDefinitionDto {
-  name: string;
-  displayName: string;
-  properties: EntityPropertyDto[];
-}
-
-export interface EntityPropertyDto {
-  name: string;
-  type: string;
-  options: ["IsReadOnly" | "IsForeignKey" | "IsKey" | "IsNullable"];
-  availableItems: PropertyItemDefinitionDto[];
-}
-
 export interface PropertyItemDefinitionDto {
   key: string;
   label: string;
@@ -427,4 +414,19 @@ export interface DBConnectionEndpointRequestInfoDto {
   isRequired: boolean;
   source: string;
   jsonSchema: string;
+}
+
+export interface DataStructureDefinitionDto {
+  name: string;
+  description: string;
+  type: string;
+  sourceType: DataSourceType;
+  jsonSchema: string;
+}
+
+export enum DataSourceType {
+  Entity = 0,
+  StoredProcedure = 1,
+  View = 2,
+  Query = 3
 }

@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardDatabaseService } from '@services/card-database.service';
-import { DBConnectionDto, DBConnectionControllerInfoDto, EntityDefinitionDto, SQLQueryDto } from '@models/api.models';
+import { DBConnectionDto, DBConnectionControllerInfoDto, SQLQueryDto, DataStructureDefinitionDto } from '@models/api.models';
 import { TranslateModule } from '@ngx-translate/core';
 import { DatasourceConfig } from '@models/datasource.models';
 
@@ -24,7 +24,7 @@ export class DatasourceConfigurationComponent implements OnInit {
   connections: DBConnectionDto[] = [];
   controllers: DBConnectionControllerInfoDto[] = [];
   contexts: string[] = [];
-  entities: EntityDefinitionDto[] = [];
+  entities: DataStructureDefinitionDto[] = [];
   queries: SQLQueryDto[] = [];
 
   constructor(private cardDatabaseService: CardDatabaseService) {}
@@ -49,7 +49,19 @@ export class DatasourceConfigurationComponent implements OnInit {
       case 'EntityFramework':
         this.loadContexts();
         if (this.config.context) {
-          this.loadEntities(this.config.context);
+          const savedEntity = this.config.entity;
+          this.cardDatabaseService.getDatasourceContextEntities(this.config.context).subscribe(
+            entities => {
+              this.entities = entities;
+              if (savedEntity) {
+                const matchingEntity = entities.find(e => e.name === savedEntity.name);
+                if (matchingEntity) {
+                  this.config.entity = matchingEntity;
+                  this.emitChange();
+                }
+              }
+            }
+          );
         }
         break;
       case 'SQLQuery':
@@ -109,12 +121,27 @@ export class DatasourceConfigurationComponent implements OnInit {
 
   onContextChange(context: string) {
     this.config.context = context;
-    this.config.entity = undefined;
+    const savedEntity = this.config.entity;
     this.loadEntities(context);
-    this.emitChange();
+    
+    if (savedEntity) {
+      this.cardDatabaseService.getDatasourceContextEntities(context).subscribe(
+        entities => {
+          this.entities = entities;
+          const matchingEntity = entities.find(e => e.name === savedEntity.name);
+          if (matchingEntity) {
+            this.config.entity = matchingEntity;
+            this.emitChange();
+          }
+        }
+      );
+    } else {
+      this.loadEntities(context);
+      this.emitChange();
+    }
   }
 
-  onEntityChange(entity: EntityDefinitionDto) {
+  onEntityChange(entity: DataStructureDefinitionDto) {
     this.config.entity = entity;
     this.emitChange();
   }

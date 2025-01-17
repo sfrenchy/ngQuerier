@@ -27,7 +27,7 @@ import {
   MenuCreateDto,
   PageCreateDto,
   LayoutDto,
-  EntityDefinitionDto,
+  DataStructureDefinitionDto,
   PaginationParametersDto,
   PaginatedResultDto,
   SQLQueryDto,
@@ -408,8 +408,8 @@ export class ApiService {
     );
   }
 
-  getDatasourceContextEntities(contextName: string): Observable<EntityDefinitionDto[]> {
-    return this.http.get<EntityDefinitionDto[]>(
+  getDatasourceContextEntities(contextName: string): Observable<DataStructureDefinitionDto[]> {
+    return this.http.get<DataStructureDefinitionDto[]>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
         ApiEndpoints.replaceUrlParams(ApiEndpoints.datasourceContextEntities, {
@@ -422,8 +422,8 @@ export class ApiService {
   getDatasourceContextEntity(
     contextName: string,
     entityName: string
-  ): Observable<EntityDefinitionDto> {
-    return this.http.get<EntityDefinitionDto>(
+  ): Observable<DataStructureDefinitionDto> {
+    return this.http.get<DataStructureDefinitionDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.datasourceContextEntity, {
           contextName: contextName,
           entityName: entityName

@@ -4,7 +4,7 @@ import { ApiService } from './api.service';
 import {
   DBConnectionDatabaseSchemaDto,
   DBConnectionDto,
-  EntityDefinitionDto,
+  DataStructureDefinitionDto,
   PaginationParametersDto,
   PaginatedResultDto,
   SQLQueryDto,
@@ -23,11 +23,11 @@ export class CardDatabaseService {
     return this.apiService.getDatasourceContexts();
   }
 
-  getDatasourceContextEntities(contextName: string): Observable<EntityDefinitionDto[]> {
+  getDatasourceContextEntities(contextName: string): Observable<DataStructureDefinitionDto[]> {
     return this.apiService.getDatasourceContextEntities(contextName);
   }
 
-  getDatasourceContextEntity(contextName: string, entityName: string): Observable<EntityDefinitionDto> {
+  getDatasourceContextEntity(contextName: string, entityName: string): Observable<DataStructureDefinitionDto> {
     return this.apiService.getDatasourceContextEntity(contextName, entityName);
   }
 

@@ -1,12 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { DataTableCardCardConfig } from './data-table-card-card.component';
 import { CardDto } from '@models/api.models';
 import { TileComponent } from '@shared/components/tile/tile.component';
-import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
 import { DatasourceConfig } from '@models/datasource.models';
+import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
 
 @Component({
   selector: 'app-data-table-card-card-configuration',
@@ -29,7 +29,7 @@ export class DataTableCardCardConfigurationComponent implements OnInit {
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      datasource: [null, Validators.required]
+      datasource: [null]
     });
 
     this.form.valueChanges.subscribe((value: any) => {

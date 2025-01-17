@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-4">
   <app-tile [title]="'DATASOURCE.TITLE' | translate">
     <app-datasource-configuration
-      [config]="form.get('datasource')?.value"
+      [config]="form.getRawValue().datasource"
       (configChange)="onDatasourceChange($event)">
     </app-datasource-configuration>
   </app-tile>

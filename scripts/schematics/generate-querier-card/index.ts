@@ -1,5 +1,5 @@
-import { Rule, SchematicContext, Tree, apply, url, template, move, mergeWith, chain } from '@angular-devkit/schematics';
-import { strings } from '@angular-devkit/core';
+import { Rule, SchematicContext, Tree, apply, url, template, move, mergeWith, chain, forEach } from '@angular-devkit/schematics';
+import { strings, normalize } from '@angular-devkit/core';
 
 export function generateQuerierCard(_options: any): Rule {
   return (_tree: Tree, _context: SchematicContext) => {
@@ -9,11 +9,20 @@ export function generateQuerierCard(_options: any): Rule {
         ..._options,
         ...strings
       }),
-      move(`ngQuerier/src/app/cards/${strings.dasherize(_options.name)}-card`)
+      forEach((entry) => {
+        if (entry.path.endsWith('.template')) {
+          return {
+            content: entry.content,
+            path: normalize(entry.path.slice(0, -9))
+          };
+        }
+        return entry;
+      }),
+      move(`src/app/cards/${strings.dasherize(_options.name)}-card`)
     ]);
 
     const updateAvailableCards = () => {
-      const availableCardsPath = 'ngQuerier/src/app/cards/available-cards.ts';
+      const availableCardsPath = 'src/app/cards/available-cards.ts';
       const cardName = strings.dasherize(_options.name);
       const importLine = `import '@cards/${cardName}-card/${cardName}-card.component';\n`;
       

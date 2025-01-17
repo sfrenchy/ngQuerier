@@ -8,10 +8,19 @@ function generateQuerierCard(_options) {
         const sourceTemplates = (0, schematics_1.url)('./files');
         const sourceParametrizedTemplates = (0, schematics_1.apply)(sourceTemplates, [
             (0, schematics_1.template)(Object.assign(Object.assign({}, _options), core_1.strings)),
-            (0, schematics_1.move)(`ngQuerier/src/app/cards/${core_1.strings.dasherize(_options.name)}-card`)
+            (0, schematics_1.forEach)((entry) => {
+                if (entry.path.endsWith('.template')) {
+                    return {
+                        content: entry.content,
+                        path: (0, core_1.normalize)(entry.path.slice(0, -9))
+                    };
+                }
+                return entry;
+            }),
+            (0, schematics_1.move)(`src/app/cards/${core_1.strings.dasherize(_options.name)}-card`)
         ]);
         const updateAvailableCards = () => {
-            const availableCardsPath = 'ngQuerier/src/app/cards/available-cards.ts';
+            const availableCardsPath = 'src/app/cards/available-cards.ts';
             const cardName = core_1.strings.dasherize(_options.name);
             const importLine = `import '@cards/${cardName}-card/${cardName}-card.component';\n`;
             const content = _tree.read(availableCardsPath);

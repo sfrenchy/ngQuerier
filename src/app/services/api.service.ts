@@ -28,12 +28,13 @@ import {
   PageCreateDto,
   LayoutDto,
   DataStructureDefinitionDto,
-  PaginationParametersDto,
   PaginatedResultDto,
   SQLQueryDto,
   SQLQueryCreateDto,
   DBConnectionControllerInfoDto,
-  DBConnectionEndpointRequestInfoDto
+  DBConnectionEndpointRequestInfoDto,
+  DataRequestParametersDto,
+  DataRequestDataRequestParametersWithSQLParametersDto
 } from '@models/api.models';
 
 @Injectable({
@@ -435,9 +436,8 @@ export class ApiService {
   getEntityRecords(
     contextName: string,
     entityName: string,
-    paginationParameters: PaginationParametersDto,
-    orderBy: string = ''
-  ): Observable<{ items: any[]; total: number }> {
+    paginationParameters: DataRequestParametersDto
+  ): Observable<PaginatedResultDto<any>> {
 
     return this.http.post<PaginatedResultDto<any>>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.datasourceContextEntityRecords, {
@@ -510,9 +510,8 @@ export class ApiService {
 
   executeQuery(
     queryName: string,
-    pageNumber: number = 1,
-    pageSize: number = 0
-  ): Observable<{ items: any[]; total: number }> {
+    paginationParameters: DataRequestParametersDto
+  ): Observable<PaginatedResultDto<any>> {
     return this.getSQLQueries().pipe(
       map(queries => {
         const query = queries.find(q => q.name === queryName);
@@ -522,19 +521,19 @@ export class ApiService {
         return query;
       }),
       switchMap(query => {
-        const params = new HttpParams()
-          .set('pageNumber', pageNumber.toString())
-          .set('pageSize', pageSize.toString());
+        const dataRequestParametersWithSQLParameters: DataRequestDataRequestParametersWithSQLParametersDto = {
+          dataRequestParameters: paginationParameters,
+          sqlParameters: {}
+        };
 
-        return this.http.post<{ items: any[]; total: number }>(
+        return this.http.post<PaginatedResultDto<any>>(
           ApiEndpoints.buildUrl(
             this.baseUrl,
             ApiEndpoints.replaceUrlParams(ApiEndpoints.executeSqlQuery, {
               id: query.id.toString()
             })
           ),
-          {},
-          { params }
+          { dataRequestParametersWithSQLParameters }
         );
       })
     );

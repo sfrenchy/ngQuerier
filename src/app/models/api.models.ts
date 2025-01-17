@@ -374,14 +374,33 @@ export interface LayoutDto {
   rows: RowDto[];
 }
 
-export interface PaginationParametersDto {
+export interface DataRequestDataRequestParametersWithSQLParametersDto {
+  dataRequestParameters: DataRequestParametersDto;
+  sqlParameters: { [key: string]: string };
+}
+
+export interface DataRequestParametersDto {
   pageNumber: number;
   pageSize: number;
+  orderBy: OrderByParameterDto[];
+  globalSearch: string;
+  columnSearch: ColumnSearchDto[];
+}
+
+export interface ColumnSearchDto {
+  column: string;
+  value: string;
+}
+
+export interface OrderByParameterDto {
+  column: string;
+  isDescending: boolean;
 }
 
 export interface PaginatedResultDto<T> {
   items: T[];
   total: number;
+  requestParameters: DataRequestParametersDto;
 }
 
 export interface DBConnectionControllerInfoDto {

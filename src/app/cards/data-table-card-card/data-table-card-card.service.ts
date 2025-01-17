@@ -72,7 +72,7 @@ export class DataTableCardCardService {
     state$.next({ ...currentState, loading: true });
 
     this.cardDatabaseService
-      .fetchData(config, { pageNumber, pageSize })
+      .fetchData(config, { pageNumber, pageSize, orderBy: [], globalSearch: '', columnSearch: [] })
       .subscribe({
         next: (response) => {
           state$.next({

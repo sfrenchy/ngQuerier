@@ -5,11 +5,11 @@ import {
   DBConnectionDatabaseSchemaDto,
   DBConnectionDto,
   DataStructureDefinitionDto,
-  PaginationParametersDto,
   PaginatedResultDto,
   SQLQueryDto,
   DBConnectionControllerInfoDto,
-  DBConnectionEndpointRequestInfoDto
+  DBConnectionEndpointRequestInfoDto,
+  DataRequestParametersDto
 } from '@models/api.models';
 import { DatasourceConfig } from '@models/datasource.models';
 
@@ -34,10 +34,9 @@ export class CardDatabaseService {
   getEntityRecords(
     contextName: string,
     entityName: string,
-    paginationParameters: PaginationParametersDto,
-    orderBy: string = ''
+    paginationParameters: DataRequestParametersDto
   ): Observable<PaginatedResultDto<any>> {
-    return this.apiService.getEntityRecords(contextName, entityName, paginationParameters, orderBy);
+    return this.apiService.getEntityRecords(contextName, entityName, paginationParameters);
   }
 
   getSQLQueries(): Observable<SQLQueryDto[]> {
@@ -53,7 +52,7 @@ export class CardDatabaseService {
     pageNumber: number = 1,
     pageSize: number = 0
   ): Observable<PaginatedResultDto<any>> {
-    return this.apiService.executeQuery(queryName, pageNumber, pageSize);
+    return this.apiService.executeQuery(queryName, { pageNumber, pageSize, orderBy: [], globalSearch: '', columnSearch: [] });
   }
 
   getDatabaseSchema(id: number): Observable<DBConnectionDatabaseSchemaDto> {
@@ -80,7 +79,7 @@ export class CardDatabaseService {
    */
   fetchData(
     config: DatasourceConfig,
-    paginationParameters: PaginationParametersDto = { pageNumber: 1, pageSize: 10 }
+    paginationParameters: DataRequestParametersDto = { pageNumber: 1, pageSize: 10, orderBy: [], globalSearch: '', columnSearch: [] }
   ): Observable<PaginatedResultDto<any>> {
     switch (config.type) {
       case 'API':

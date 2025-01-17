@@ -1,46 +1,40 @@
-import { Rule, SchematicContext, Tree, apply, url, template, move, mergeWith, chain, forEach } from '@angular-devkit/schematics';
-import { strings, normalize } from '@angular-devkit/core';
+import { Rule, SchematicContext, Tree, apply, url, template, move, mergeWith, chain } from '@angular-devkit/schematics';
+import { strings } from '@angular-devkit/core';
 
 export function generateQuerierCard(_options: any): Rule {
-  return (tree: Tree, _context: SchematicContext) => {
-    const templateSource = apply(url('./files'), [
+  return (_tree: Tree, _context: SchematicContext) => {
+    const sourceTemplates = url('./files');
+    const sourceParametrizedTemplates = apply(sourceTemplates, [
       template({
-        ...strings,
         ..._options,
+        ...strings
       }),
-      forEach((fileEntry) => {
-        if (fileEntry.path.endsWith('.template')) {
-          return {
-            content: fileEntry.content,
-            path: normalize(fileEntry.path.slice(0, -9)), // Remove .template
-          };
-        }
-        return fileEntry;
-      }),
-      move(`src/app/cards/${strings.dasherize(_options.name)}-card`)
+      move(`ngQuerier/src/app/cards/${strings.dasherize(_options.name)}-card`)
     ]);
 
-    return chain([
-      mergeWith(templateSource),
-      (tree: Tree) => {
-        const availableCardsPath = 'src/app/cards/available-cards.ts';
-        const cardName = strings.dasherize(_options.name);
-        const importLine = `import '@cards/${cardName}-card/${cardName}-card.component';\n`;
-        
-        const content = tree.read(availableCardsPath);
-        if (content) {
-          const strContent = content.toString();
-          const importIndex = strContent.indexOf('import { getRegisteredCards }');
-          if (importIndex !== -1) {
-            const nextLineIndex = strContent.indexOf('\n', importIndex) + 1;
-            const newContent = strContent.slice(0, nextLineIndex) + 
-              '\n' + importLine +
-              strContent.slice(nextLineIndex);
-            tree.overwrite(availableCardsPath, newContent);
-          }
+    const updateAvailableCards = () => {
+      const availableCardsPath = 'ngQuerier/src/app/cards/available-cards.ts';
+      const cardName = strings.dasherize(_options.name);
+      const importLine = `import '@cards/${cardName}-card/${cardName}-card.component';\n`;
+      
+      const content = _tree.read(availableCardsPath);
+      if (content) {
+        const strContent = content.toString();
+        const importIndex = strContent.indexOf('import { getRegisteredCards }');
+        if (importIndex !== -1) {
+          const nextLineIndex = strContent.indexOf('\n', importIndex) + 1;
+          const newContent = strContent.slice(0, nextLineIndex) + 
+            importLine +
+            strContent.slice(nextLineIndex);
+          _tree.overwrite(availableCardsPath, newContent);
         }
-        return tree;
       }
-    ])(tree, _context);
+      return _tree;
+    };
+
+    return chain([
+      mergeWith(sourceParametrizedTemplates),
+      updateAvailableCards
+    ]);
   };
 } 

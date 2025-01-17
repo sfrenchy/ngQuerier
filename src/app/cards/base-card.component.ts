@@ -14,7 +14,12 @@ import { CardDatabaseService } from '../services/card-database.service';
 export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> {
   @Input() card!: CardDto;
   @Input() isEditing: boolean = false;
-  
+  protected _hasFooter = false;
+
+  get hasFooter(): boolean {
+    return this._hasFooter;
+  }
+
   protected _isResizing = false;
   @Input() 
   get isResizing(): boolean {

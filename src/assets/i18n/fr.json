@@ -420,5 +420,8 @@
     "COMPACT_MODE": "Mode compact",
     "ALTERNATE_ROWS": "Alterner la couleur des lignes",
     "ALTERNATE_ROWS_BRIGHTNESS": "Différence de luminosité"
+  },
+  "TABLE": {
+    "ITEMS": "éléments"
   }
 } 

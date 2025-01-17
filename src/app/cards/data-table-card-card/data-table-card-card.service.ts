@@ -59,7 +59,7 @@ export class DataTableCardCardService {
     );
   }
 
-  loadData(config: DatasourceConfig, pageNumber: number = 1, pageSize: number = 10): void {
+  loadData(config: DatasourceConfig, pageNumber: number = 1, pageSize: number = 10, showLoading: boolean = false): void {
     const state$ = this.getOrCreateState(config);
     const currentState = state$.getValue();
 
@@ -69,7 +69,7 @@ export class DataTableCardCardService {
       return;
     }
 
-    state$.next({ ...currentState, loading: true });
+    state$.next({ ...currentState, loading: showLoading });
 
     this.cardDatabaseService.fetchData(config, { 
       pageNumber, 

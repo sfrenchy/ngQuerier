@@ -1,58 +1,59 @@
-<div class="h-full flex flex-col">
-  <style>
-    .hover-highlight {
-      position: relative;
-    }
-    .hover-highlight::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(255, 255, 255, 0);
-      pointer-events: none;
-      transition: background-color 0.1s ease;
-    }
-    .hover-highlight:hover::after {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
+<style>
+  .hover-highlight {
+    position: relative;
+  }
+  .hover-highlight::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0);
+    pointer-events: none;
+    transition: background-color 0.1s ease;
+  }
+  .hover-highlight:hover::after {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
 
-    .sticky {
-      position: sticky;
-      z-index: 1;
-    }
+  .sticky {
+    position: sticky;
+    z-index: 1;
+  }
 
-    .sticky.fixed-left::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: 1px;
-      box-shadow: 1px 0 0 0 rgb(55, 65, 81);
-      pointer-events: none;
-    }
+  .sticky.fixed-left::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 1px;
+    box-shadow: 1px 0 0 0 rgb(55, 65, 81);
+    pointer-events: none;
+  }
 
-    .sticky.fixed-right::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      width: 1px;
-      box-shadow: -1px 0 0 0 rgb(55, 65, 81);
-      pointer-events: none;
-    }
+  .sticky.fixed-right::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 1px;
+    box-shadow: -1px 0 0 0 rgb(55, 65, 81);
+    pointer-events: none;
+  }
 
-    .sticky-shadow.fixed-left {
-      box-shadow: 4px 0 4px -2px rgba(0, 0, 0, 0.2);
-    }
+  .sticky-shadow.fixed-left {
+    box-shadow: 4px 0 4px -2px rgba(0, 0, 0, 0.2);
+  }
 
-    .sticky-shadow.fixed-right {
-      box-shadow: -4px 0 4px -2px rgba(0, 0, 0, 0.2);
-    }
-  </style>
+  .sticky-shadow.fixed-right {
+    box-shadow: -4px 0 4px -2px rgba(0, 0, 0, 0.2);
+  }
+</style>
+
+<div body class="h-full flex flex-col">
   <div class="flex-1 min-h-0 relative">
     <div class="absolute inset-0 table-container overflow-auto">
       <div class="relative min-w-full">
@@ -83,9 +84,11 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-700">
-            <tr *ngIf="loading" class="animate-pulse">
-              <td [attr.colspan]="getVisibleColumnsCount()" class="px-6 py-4">
-                <div class="h-4 bg-gray-700 rounded w-3/4"></div>
+            <tr *ngIf="loading">
+              <td [attr.colspan]="getVisibleColumnsCount()" class="h-48">
+                <div class="flex items-center justify-center h-full">
+                  <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+                </div>
               </td>
             </tr>
             <tr *ngIf="!loading && (!data || data.length === 0)" class="text-center">
@@ -123,6 +126,45 @@
           </tbody>
         </table>
       </div>
+    </div>
+  </div>
+</div>
+
+<div footer>
+  <div class="flex justify-between items-center">
+    <div class="text-sm text-gray-400">
+      {{ totalItems }} {{ 'TABLE.ITEMS' | translate }}
+    </div>
+    <div class="flex items-center gap-2">
+      <button 
+        class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed"
+        [disabled]="currentPage === 1"
+        (click)="onPageChange(currentPage - 1)">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg>
+      </button>
+
+      <div class="flex items-center gap-1 text-sm text-gray-400">
+        <select 
+          [ngModel]="currentPage"
+          (ngModelChange)="onPageChange($event)"
+          class="bg-gray-800 border border-gray-700 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option *ngFor="let page of getTotalPages()" [value]="page">
+            {{ page }}
+          </option>
+        </select>
+        <span>/ {{ getTotalPages().length }}</span>
+      </div>
+
+      <button 
+        class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed"
+        [disabled]="currentPage === getTotalPages().length"
+        (click)="onPageChange(currentPage + 1)">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+        </svg>
+      </button>
     </div>
   </div>
 </div> 

@@ -10,6 +10,7 @@ import { CardDatabaseService } from '@services/card-database.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataTableCardCardService } from './data-table-card-card.service';
+import { FormsModule } from '@angular/forms';
 
 export interface ColumnConfig {
   key: string;
@@ -113,7 +114,7 @@ export class DataTableCardCardConfig extends BaseCardConfig {
   selector: 'app-data-table-card-card',
   templateUrl: './data-table-card-card.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardCardConfig> implements OnInit, OnDestroy {
@@ -130,6 +131,7 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   private rowHeight: number = 0;
   private lastOptimalSize: number = 0;
   private isAdjusting: boolean = false;
+  private initialLoadDone: boolean = false;
   @Output() configurationChanged = new EventEmitter<any>();
   private columnWidths = new Map<string, number>();
 
@@ -140,6 +142,7 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
     private dataService: DataTableCardCardService
   ) {
     super(cardDatabaseService);
+    this._hasFooter = true;
     this.currentLanguage = this.translateService.currentLang;
     this.resizeObserver = new ResizeObserver(this.onResize.bind(this));
   }
@@ -156,21 +159,8 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
         .pipe(takeUntil(this.destroy$))
         .subscribe(items => {
           this.data = [...items];
-          
-          // Après le chargement des données, vérifier si la taille est optimale
-          // seulement si rowCount n'est pas défini
-          if (!this.card.configuration?.visualConfig.rowCount) {
-            setTimeout(() => {
-              this.checkOptimalSize();
-              this.updateColumnWidths();
-              this.cdr.detectChanges();
-            });
-          } else {
-            setTimeout(() => {
-              this.updateColumnWidths();
-              this.cdr.detectChanges();
-            });
-          }
+          this.updateColumnWidths();
+          this.cdr.detectChanges();
         });
 
       this.dataService.getTotal(this.card.configuration.datasource)
@@ -186,13 +176,6 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
           this.loading = loading;
           this.cdr.detectChanges();
         });
-
-      // Charger les données initiales
-      this.dataService.loadData(
-        this.card.configuration.datasource,
-        this.currentPage,
-        this.pageSize
-      );
     }
   }
 
@@ -200,36 +183,32 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
     // Observer la taille du conteneur
     this.tableContainer = document.querySelector('.table-container');
     if (this.tableContainer) {
-      this.resizeObserver.observe(this.tableContainer);
-      // Attendre que les données soient chargées pour mesurer la hauteur
+      // Attendre que le DOM soit stable
       setTimeout(() => {
         this.measureRowHeight();
-        this.checkOptimalSize();
+        
+        // Si rowCount est défini dans la configuration, on l'utilise
+        if (this.card.configuration?.visualConfig.rowCount) {
+          this.pageSize = this.card.configuration.visualConfig.rowCount;
+          this.loadData();
+        } else {
+          // Sinon on calcule la taille optimale
+          this.calculateAndSetOptimalSize();
+        }
+        
         this.updateColumnWidths();
+        this.initialLoadDone = true;
+        
+        // On n'observe les redimensionnements qu'après le chargement initial
+        if (this.tableContainer) {  // Vérification supplémentaire pour le type
+          this.resizeObserver.observe(this.tableContainer);
+        }
       }, 100);
     }
   }
 
-  private measureRowHeight() {
-    if (!this.tableContainer) return;
-    
-    // Sélectionner spécifiquement une ligne de données (pas le header)
-    const dataRow = this.tableContainer.querySelector('tbody tr:not(.animate-pulse)') as HTMLElement;
-    if (dataRow) {
-      this.rowHeight = dataRow.offsetHeight;
-    }
-  }
-
-  private checkOptimalSize() {
-    if (!this.tableContainer || this.isAdjusting) {
-      return;
-    }
-
-    // Mesurer la hauteur de ligne si pas encore fait
-    if (!this.rowHeight) {
-      this.measureRowHeight();
-      if (!this.rowHeight) return;
-    }
+  private calculateAndSetOptimalSize() {
+    if (!this.tableContainer || !this.rowHeight) return;
 
     const availableHeight = this.tableContainer.clientHeight;
     const headerHeight = this.tableContainer.querySelector('thead')?.offsetHeight || 0;
@@ -240,30 +219,27 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
     const optimalRows = Math.floor(availableRowSpace / rowWithBorderHeight);
     
     // Si le nombre total d'éléments est inférieur à la taille optimale, on ajuste
-    const targetSize = Math.min(optimalRows, this.totalItems);
+    const targetSize = Math.min(optimalRows, this.totalItems || optimalRows);
+    const newPageSize = Math.max(1, targetSize);
 
-    // Vérifier si on peut ajouter au moins une ligne
-    const currentTotalHeight = headerHeight + (this.pageSize * rowWithBorderHeight);
-    const hasSpaceForMore = availableHeight - currentTotalHeight >= rowWithBorderHeight;
+    this.pageSize = newPageSize;
+    
+    // Sauvegarder le nombre de lignes dans la configuration
+    if (this.card.configuration) {
+      this.card.configuration.visualConfig.rowCount = newPageSize;
+      this.configurationChanged.emit(this.card);
+    }
 
-    // Ajuster si on peut ajouter des lignes ou si on a trop de lignes
-    if (hasSpaceForMore || targetSize < this.pageSize) {
-      this.isAdjusting = true;
-      this.pageSize = targetSize;
-      
-      // Sauvegarder le nombre de lignes dans la configuration
-      if (this.card.configuration) {
-        this.card.configuration.visualConfig.rowCount = targetSize;
-        // Émettre le changement de configuration
-        this.configurationChanged.emit(this.card);
-      }
+    this.loadData();
+  }
 
-      this.loadData();
-      
-      // Réinitialiser le flag après le chargement
-      setTimeout(() => {
-        this.isAdjusting = false;
-      }, 200);
+  private measureRowHeight() {
+    if (!this.tableContainer) return;
+    
+    // Sélectionner spécifiquement une ligne de données (pas le header)
+    const dataRow = this.tableContainer.querySelector('tbody tr:not(.animate-pulse)') as HTMLElement;
+    if (dataRow) {
+      this.rowHeight = dataRow.offsetHeight;
     }
   }
 
@@ -277,11 +253,18 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   }
 
   private onResize() {
+    // Ignorer les événements de resize avant le chargement initial
+    // ou si on a une taille configurée
+    if (this.isAdjusting || !this.initialLoadDone || this.card.configuration?.visualConfig.rowCount) return;
+    
+    this.isAdjusting = true;
     // Attendre que le DOM soit stable
     setTimeout(() => {
-      this.checkOptimalSize();
+      this.measureRowHeight();
+      this.calculateAndSetOptimalSize();
       this.updateColumnWidths();
-    }, 0);
+      this.isAdjusting = false;
+    }, 200);
   }
 
   private loadData() {
@@ -289,7 +272,8 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
       this.dataService.loadData(
         this.card.configuration.datasource,
         this.currentPage,
-        this.pageSize
+        this.pageSize,
+        false // Ne pas afficher le chargement lors des changements de page
       );
     }
   }
@@ -391,5 +375,19 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
         this.columnWidths.set(column.key, (cell as HTMLElement).offsetWidth);
       }
     });
+  }
+
+  getTotalPages(): number[] {
+    const totalPages = Math.ceil(this.totalItems / this.pageSize);
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  onPageChange(page: number) {
+    if (page < 1 || page > this.getTotalPages().length) {
+      return;
+    }
+    
+    this.currentPage = page;
+    this.loadData();
   }
 } 

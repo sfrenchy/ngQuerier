@@ -384,5 +384,8 @@
     "COMPACT_MODE": "Compact Mode",
     "ALTERNATE_ROWS": "Alternate Row Colors",
     "ALTERNATE_ROWS_BRIGHTNESS": "Brightness difference"
+  },
+  "TABLE": {
+    "ITEMS": "items"
   }
 } 

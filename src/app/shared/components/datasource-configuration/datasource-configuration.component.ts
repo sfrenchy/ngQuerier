@@ -41,11 +41,31 @@ export class DatasourceConfigurationComponent implements OnInit {
     
     switch (this.config.type) {
       case 'API':
-        this.loadConnections();
-        if (this.config.connection) {
-          this.loadControllers(this.config.connection.id);
-        }
+        const savedConnection = this.config.connection;
+        const savedController = this.config.controller;
+        
+        this.cardDatabaseService.getDBConnections().subscribe(connections => {
+          this.connections = connections;
+          if (savedConnection) {
+            const matchingConnection = connections.find(c => c.id === savedConnection.id);
+            if (matchingConnection) {
+              this.config.connection = matchingConnection;
+              
+              this.cardDatabaseService.getControllers(matchingConnection.id).subscribe(controllers => {
+                this.controllers = controllers;
+                if (savedController) {
+                  const matchingController = controllers.find(c => c.name === savedController.name);
+                  if (matchingController) {
+                    this.config.controller = matchingController;
+                    this.emitChange();
+                  }
+                }
+              });
+            }
+          }
+        });
         break;
+
       case 'EntityFramework':
         this.loadContexts();
         if (this.config.context) {
@@ -64,8 +84,19 @@ export class DatasourceConfigurationComponent implements OnInit {
           );
         }
         break;
+
       case 'SQLQuery':
-        this.loadQueries();
+        const savedQuery = this.config.query;
+        this.cardDatabaseService.getSQLQueries().subscribe(queries => {
+          this.queries = queries;
+          if (savedQuery) {
+            const matchingQuery = queries.find(q => q.id === savedQuery.id);
+            if (matchingQuery) {
+              this.config.query = matchingQuery;
+              this.emitChange();
+            }
+          }
+        });
         break;
     }
   }
@@ -109,9 +140,19 @@ export class DatasourceConfigurationComponent implements OnInit {
 
   onConnectionChange(connection: DBConnectionDto) {
     this.config.connection = connection;
+    const savedController = this.config.controller;
     this.config.controller = undefined;
-    this.loadControllers(connection.id);
-    this.emitChange();
+    
+    this.cardDatabaseService.getControllers(connection.id).subscribe(controllers => {
+      this.controllers = controllers;
+      if (savedController) {
+        const matchingController = controllers.find(c => c.name === savedController.name);
+        if (matchingController) {
+          this.config.controller = matchingController;
+        }
+      }
+      this.emitChange();
+    });
   }
 
   onControllerChange(controller: DBConnectionControllerInfoDto) {

@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, Output, NgModuleRef } from '@angular/core';
+import { CommonModule, NgComponentOutlet } from '@angular/common';
 import { CardDto, RowDto } from '@models/api.models';
 import { BaseCardComponent } from '../../../../../../cards/base-card.component';
 import { CardService } from '../../../../../../cards/card.service';
@@ -8,7 +8,7 @@ import { CardService } from '../../../../../../cards/card.service';
   selector: 'app-droppable-row',
   templateUrl: './droppable-row.component.html',
   standalone: true,
-  imports: [CommonModule, BaseCardComponent]
+  imports: [CommonModule, BaseCardComponent, NgComponentOutlet]
 })
 export class DroppableRowComponent {
   @Input() row!: RowDto;
@@ -21,10 +21,18 @@ export class DroppableRowComponent {
   isDraggingCard = false;
   isResizing = false;
 
-  constructor(private cardService: CardService) {}
+  private cardComponents = new Map<string, any>();
+
+  constructor(
+    private cardService: CardService,
+    public moduleRef: NgModuleRef<any>
+  ) {}
 
   getCardComponent(type: string) {
-    return this.cardService.getCardByType(type);
+    if (!this.cardComponents.has(type)) {
+      this.cardComponents.set(type, this.cardService.getCardByType(type));
+    }
+    return this.cardComponents.get(type);
   }
 
   onDeleteRow() {

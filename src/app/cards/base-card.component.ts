@@ -11,13 +11,23 @@ import { CardDatabaseService } from '../services/card-database.service';
   standalone: true,
   imports: [CommonModule]
 })
-export class BaseCardComponent<T extends BaseCardConfig> {
-  @Input() card!: CardDto<T>;
-  @Input() isEditing = false;
-  @Output() configure = new EventEmitter<void>();
-  @Output() delete = new EventEmitter<void>();
+export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> {
+  @Input() card!: CardDto;
+  @Input() isEditing: boolean = false;
+  
+  protected _isResizing = false;
+  @Input() 
+  get isResizing(): boolean {
+    return this._isResizing;
+  }
+  set isResizing(value: boolean) {
+    this._isResizing = value;
+  }
 
-  constructor(protected cardDatabaseService: CardDatabaseService) {}
+  @Output() delete = new EventEmitter<void>();
+  @Output() configure = new EventEmitter<void>();
+
+  constructor(protected cardDatabaseService?: CardDatabaseService) {}
 
   get backgroundColor(): string {
     return uintToHex(this.card.backgroundColor);

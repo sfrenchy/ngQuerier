@@ -37,7 +37,8 @@
                         (delete)="onCardDelete(card.id)"
                         (configure)="onCardConfigure(card.id)">
             <ng-container body>
-              <ng-container *ngComponentOutlet="getCardComponent(card.type)!; inputs: { card: card }">
+              <ng-container *ngComponentOutlet="getCardComponent(card.type)!; 
+                                              inputs: { card: card }">
               </ng-container>
             </ng-container>
           </app-base-card>

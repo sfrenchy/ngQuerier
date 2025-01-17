@@ -87,9 +87,10 @@ export class CardDatabaseService {
         if (!config.connection || !config.controller) {
           throw new Error('API configuration requires both connection and controller');
         }
-        // TODO: Implémenter l'appel API via le contrôleur sélectionné
-        // Pour l'instant, on retourne un Observable vide
-        throw new Error('API calls not implemented yet');
+        return this.apiService.get<PaginatedResultDto<any>>(
+          `${config.controller.route.replace("api/v1/", "")}`,
+          { pageNumber: paginationParameters.pageNumber, pageSize: paginationParameters.pageSize }
+        );
 
       case 'EntityFramework':
         if (!config.context || !config.entity) {

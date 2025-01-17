@@ -17,57 +17,91 @@
     .hover-highlight:hover::after {
       background-color: rgba(255, 255, 255, 0.1);
     }
+
+    .sticky {
+      position: sticky;
+      z-index: 1;
+    }
+
+    .sticky::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 1px;
+      box-shadow: 1px 0 0 0 rgb(55, 65, 81);
+      pointer-events: none;
+    }
+
+    .sticky-shadow {
+      box-shadow: 4px 0 4px -2px rgba(0, 0, 0, 0.2);
+    }
   </style>
   <div class="flex-1 min-h-0 relative">
     <div class="absolute inset-0 table-container overflow-auto">
-      <table class="min-w-full divide-y divide-gray-700">
-        <thead [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor">
-          <tr>
-            <th *ngFor="let column of getVisibleColumns()" 
-                [ngClass]="{
-                  'text-left': column.alignment === 'left',
-                  'text-center': column.alignment === 'center',
-                  'text-right': column.alignment === 'right'
+      <div class="relative min-w-full">
+        <table class="min-w-full divide-y divide-gray-700">
+          <thead [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor">
+            <tr>
+              <th *ngFor="let column of getVisibleColumns(); let isFirst = first"
+                  scope="col"
+                  [class.sticky]="column.isFixed"
+                  [style.left]="getFixedColumnLeft(column)"
+                  [class.z-10]="column.isFixed"
+                  [class.sticky-shadow]="column.isFixed"
+                  [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor"
+                  [ngClass]="{
+                    'text-left': column.alignment === 'left',
+                    'text-center': column.alignment === 'center',
+                    'text-right': column.alignment === 'right'
+                  }"
+                  [style.color]="card.configuration?.visualConfig.headerTextColor"
+                  [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
+                  [class.py-1]="card.configuration?.visualConfig.isCompactMode"
+                  class="px-6 text-xs font-medium uppercase tracking-wider">
+                {{ getColumnLabel(column) }}
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-700">
+            <tr *ngIf="loading" class="animate-pulse">
+              <td [attr.colspan]="getVisibleColumnsCount()" class="px-6 py-4">
+                <div class="h-4 bg-gray-700 rounded w-3/4"></div>
+              </td>
+            </tr>
+            <tr *ngIf="!loading && (!data || data.length === 0)" class="text-center">
+              <td [attr.colspan]="getVisibleColumnsCount()" class="px-6 py-4 text-gray-400">
+                {{ 'NO_DATA' | translate }}
+              </td>
+            </tr>
+            <tr *ngFor="let row of data; let i = index" 
+                [ngStyle]="{ 
+                  'background-color': getRowBackgroundColor(i),
+                  'color': card.configuration?.visualConfig.rowTextColor
                 }"
-                [style.color]="card.configuration?.visualConfig.headerTextColor"
-                [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
-                [class.py-1]="card.configuration?.visualConfig.isCompactMode"
-                class="px-6 text-xs font-medium uppercase tracking-wider">
-              {{ getColumnLabel(column) }}
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-700">
-          <tr *ngIf="loading" class="animate-pulse">
-            <td [attr.colspan]="getVisibleColumnsCount()" class="px-6 py-4">
-              <div class="h-4 bg-gray-700 rounded w-3/4"></div>
-            </td>
-          </tr>
-          <tr *ngIf="!loading && (!data || data.length === 0)" class="text-center">
-            <td [attr.colspan]="getVisibleColumnsCount()" class="px-6 py-4 text-gray-400">
-              {{ 'NO_DATA' | translate }}
-            </td>
-          </tr>
-          <tr *ngFor="let row of data; let i = index" 
-              [ngStyle]="{ 
-                'background-color': card.configuration?.visualConfig.alternateRowColors && card.configuration?.visualConfig.alternateRowsBrightness > 0 && i % 2 === 0 ? adjustColor(card.configuration?.visualConfig.rowBackgroundColor, card.configuration?.visualConfig.alternateRowsBrightness) : card.configuration?.visualConfig.rowBackgroundColor,
-                'color': card.configuration?.visualConfig.alternateRowColors && card.configuration?.visualConfig.alternateRowsBrightness > 0 && i % 2 === 0 ? adjustColor(card.configuration?.visualConfig.rowTextColor, -card.configuration?.visualConfig.alternateRowsBrightness) : card.configuration?.visualConfig.rowTextColor
-              }"
-              class="border-b border-gray-700 hover-highlight">
-            <td *ngFor="let column of getVisibleColumns()" 
-                [ngClass]="{
-                  'text-left': column.alignment === 'left',
-                  'text-center': column.alignment === 'center',
-                  'text-right': column.alignment === 'right'
-                }"
-                [class.py-4]="!card.configuration?.visualConfig.isCompactMode"
-                [class.py-1]="card.configuration?.visualConfig.isCompactMode"
-                class="px-6 whitespace-nowrap text-sm">
-              {{ getColumnValue(row, column) }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                class="border-b border-gray-700 hover-highlight">
+              <td *ngFor="let column of getVisibleColumns(); let isFirst = first"
+                  [class.sticky]="column.isFixed"
+                  [style.left]="getFixedColumnLeft(column)"
+                  [class.z-10]="column.isFixed"
+                  [class.sticky-shadow]="column.isFixed"
+                  [style.background-color]="column.isFixed ? card.configuration?.visualConfig.headerBackgroundColor : getRowBackgroundColor(i)"
+                  [style.color]="column.isFixed ? card.configuration?.visualConfig.headerTextColor : card.configuration?.visualConfig.rowTextColor"
+                  [ngClass]="{
+                    'text-left': column.alignment === 'left',
+                    'text-center': column.alignment === 'center',
+                    'text-right': column.alignment === 'right'
+                  }"
+                  [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
+                  [class.py-1]="card.configuration?.visualConfig.isCompactMode"
+                  class="px-6 whitespace-nowrap text-sm">
+                {{ getColumnValue(row, column) }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div> 

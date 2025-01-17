@@ -23,6 +23,7 @@ export interface ColumnConfig {
   navigationType?: string;
   isCollection?: boolean;
   elementType?: string;
+  isFixed?: boolean;
   entityMetadata?: {
     isPrimaryKey?: boolean;
     isIdentity?: boolean;
@@ -129,6 +130,7 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   private lastOptimalSize: number = 0;
   private isAdjusting: boolean = false;
   @Output() configurationChanged = new EventEmitter<any>();
+  private columnWidths = new Map<string, number>();
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -159,6 +161,12 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
           if (!this.card.configuration?.visualConfig.rowCount) {
             setTimeout(() => {
               this.checkOptimalSize();
+              this.updateColumnWidths();
+              this.cdr.detectChanges();
+            });
+          } else {
+            setTimeout(() => {
+              this.updateColumnWidths();
               this.cdr.detectChanges();
             });
           }
@@ -196,6 +204,7 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
       setTimeout(() => {
         this.measureRowHeight();
         this.checkOptimalSize();
+        this.updateColumnWidths();
       }, 100);
     }
   }
@@ -268,7 +277,10 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
 
   private onResize() {
     // Attendre que le DOM soit stable
-    setTimeout(() => this.checkOptimalSize(), 0);
+    setTimeout(() => {
+      this.checkOptimalSize();
+      this.updateColumnWidths();
+    }, 0);
   }
 
   private loadData() {
@@ -305,38 +317,63 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
     return this.dataService.getColumnValue(item, column, this.currentLanguage);
   }
 
-  /**
-   * Adjusts a color's brightness
-   * @param color The base color in hex format
-   * @param percent The percentage to adjust (-100 to 100, negative for darker, positive for lighter)
-   */
-  adjustColor(color: string, percent: number): string {
-    if (!color || percent === 0) return color;
+  getFixedColumnLeft(column: ColumnConfig): string | null {
+    if (!column.isFixed) return null;
     
-    // Convert hex to RGB
-    const R = parseInt(color.substring(1,3), 16);
-    const G = parseInt(color.substring(3,5), 16);
-    const B = parseInt(color.substring(5,7), 16);
+    let left = 0;
+    for (const col of this.getVisibleColumns()) {
+      if (col === column) break;
+      if (col.isFixed) {
+        // Utiliser la largeur réelle de la colonne
+        left += this.columnWidths.get(col.key) || 0;
+      }
+    }
+    return `${left}px`;
+  }
 
-    // Pour l'assombrissement (percent négatif), on mélange avec du noir (0,0,0)
-    // Pour l'éclaircissement (percent positif), on mélange avec du blanc (255,255,255)
-    const blendR = percent > 0 ? 255 : 0;
-    const blendG = percent > 0 ? 255 : 0;
-    const blendB = percent > 0 ? 255 : 0;
+  getRowBackgroundColor(index: number): string {
+    const baseColor = this.card.configuration?.visualConfig.rowBackgroundColor || '#111827';
+    
+    if (this.card.configuration?.visualConfig.alternateRowColors && 
+        this.card.configuration?.visualConfig.alternateRowsBrightness > 0 && 
+        index % 2 === 0) {
+      return this.adjustColor(baseColor, this.card.configuration.visualConfig.alternateRowsBrightness);
+    }
+    
+    return baseColor;
+  }
 
-    // On utilise la valeur absolue du pourcentage pour le calcul
-    const ratio = Math.abs(percent) / 100;
+  private adjustColor(color: string, brightness: number): string {
+    // Convertir la couleur hex en RGB
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substr(0, 2), 16);
+    const g = parseInt(hex.substr(2, 2), 16);
+    const b = parseInt(hex.substr(4, 2), 16);
 
-    // Blend with target color
-    const mixR = Math.round(R * (1 - ratio) + blendR * ratio);
-    const mixG = Math.round(G * (1 - ratio) + blendG * ratio);
-    const mixB = Math.round(B * (1 - ratio) + blendB * ratio);
+    // Ajuster la luminosité
+    const factor = (brightness || 0) / 100;
+    const newR = Math.min(255, r + (255 - r) * factor);
+    const newG = Math.min(255, g + (255 - g) * factor);
+    const newB = Math.min(255, b + (255 - b) * factor);
 
-    // Convert back to hex
-    const RR = ((mixR.toString(16).length === 1) ? "0" + mixR.toString(16) : mixR.toString(16));
-    const GG = ((mixG.toString(16).length === 1) ? "0" + mixG.toString(16) : mixG.toString(16));
-    const BB = ((mixB.toString(16).length === 1) ? "0" + mixB.toString(16) : mixB.toString(16));
+    // Convertir en hex
+    const toHex = (n: number) => {
+      const hex = Math.round(n).toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    };
 
-    return "#" + RR + GG + BB;
+    return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
+  }
+
+  private updateColumnWidths() {
+    if (!this.tableContainer) return;
+
+    const headerCells = Array.from(this.tableContainer.querySelectorAll('thead th'));
+    headerCells.forEach((cell, index) => {
+      const column = this.getVisibleColumns()[index];
+      if (column) {
+        this.columnWidths.set(column.key, (cell as HTMLElement).offsetWidth);
+      }
+    });
   }
 } 

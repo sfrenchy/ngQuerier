@@ -225,6 +225,27 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
   handleColumnVisibilityChange(index: number, event: Event) {
     this.onCheckboxChange(event, (checked) => {
       this.columns[index].visible = checked;
+      
+      // Si on cache une colonne fixe, on doit mettre à jour l'état des colonnes fixes
+      if (!checked && this.columns[index].isFixed) {
+        this.columns[index].isFixed = false;
+        
+        // Vérifier si les colonnes suivantes peuvent rester fixes
+        const visibleColumns = this.columns.filter(c => c.visible);
+        let shouldUnfix = true;
+        
+        for (const column of this.columns) {
+          if (column === this.columns[index]) {
+            shouldUnfix = true;
+            continue;
+          }
+          
+          if (shouldUnfix && column.isFixed) {
+            column.isFixed = false;
+          }
+        }
+      }
+      
       this.form.patchValue({ columns: this.columns }, { emitEvent: true });
     });
   }
@@ -232,6 +253,48 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
   handleColumnDateFormatChange(index: number, event: Event) {
     this.onSelectChange(event, (value) => {
       this.columns[index].dateFormat = value as 'date' | 'time' | 'datetime';
+      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+    });
+  }
+
+  canBeFixed(index: number): boolean {
+    const visibleColumns = this.columns.filter(c => c.visible);
+    const currentVisibleIndex = visibleColumns.findIndex(c => c === this.columns[index]);
+    
+    // Si la colonne n'est pas visible, elle ne peut pas être fixée
+    if (currentVisibleIndex === -1) return false;
+    
+    // La première colonne visible peut toujours être fixée
+    if (currentVisibleIndex === 0) return true;
+    
+    // Pour les autres colonnes visibles, vérifier si toutes les colonnes visibles précédentes sont fixées
+    for (let i = 0; i < currentVisibleIndex; i++) {
+      if (!visibleColumns[i].isFixed) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  handleColumnFixedChange(index: number, event: Event) {
+    this.onCheckboxChange(event, (checked) => {
+      // Si la colonne n'est pas visible, on ne peut pas la fixer
+      if (!this.columns[index].visible) {
+        return;
+      }
+
+      const visibleColumns = this.columns.filter(c => c.visible);
+      const currentVisibleIndex = visibleColumns.findIndex(c => c === this.columns[index]);
+      
+      // Si on désactive une colonne fixe, on désactive aussi toutes les colonnes visibles suivantes
+      if (!checked) {
+        for (let i = currentVisibleIndex; i < visibleColumns.length; i++) {
+          visibleColumns[i].isFixed = false;
+        }
+      } else {
+        this.columns[index].isFixed = true;
+      }
+      
       this.form.patchValue({ columns: this.columns }, { emitEvent: true });
     });
   }

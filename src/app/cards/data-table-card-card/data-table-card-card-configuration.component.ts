@@ -213,6 +213,13 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
     });
   }
 
+  handleColumnDateFormatChange(index: number, event: Event) {
+    this.onSelectChange(event, (value) => {
+      this.columns[index].dateFormat = value as 'date' | 'time' | 'datetime';
+      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+    });
+  }
+
   onSave() {
     if (this.form.valid) {
       const config = new DataTableCardCardConfig();
@@ -246,6 +253,19 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
     };
 
     this.form.patchValue({ visualConfig: newVisualConfig });
+  }
+
+  isDateColumn(column: ColumnConfig): boolean {
+    return !!column.entityMetadata?.columnType?.toLowerCase().includes('date');
+  }
+
+  isNumberColumn(column: ColumnConfig): boolean {
+    const type = column.entityMetadata?.columnType?.toLowerCase() || '';
+    return type.includes('int') || 
+           type.includes('decimal') || 
+           type.includes('float') || 
+           type.includes('double') || 
+           type.includes('number');
   }
 
   ngOnDestroy() {

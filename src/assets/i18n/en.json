@@ -370,7 +370,11 @@
     "ALIGN_CENTER": "Center",
     "ALIGN_RIGHT": "Right",
     "DECIMALS": "Decimals",
-    "VISIBLE": "Visible"
+    "VISIBLE": "Visible",
+    "DATE_FORMAT": "Date Format",
+    "DATE_FORMAT_DATE": "Date only",
+    "DATE_FORMAT_TIME": "Time only",
+    "DATE_FORMAT_DATETIME": "Date and Time"
   },
   "TABLE_APPEARANCE": {
     "TITLE": "Table Appearance",

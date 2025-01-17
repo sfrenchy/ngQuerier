@@ -18,6 +18,7 @@ export interface ColumnConfig {
   alignment: 'left' | 'center' | 'right';
   visible: boolean;
   decimals?: number;
+  dateFormat?: 'date' | 'time' | 'datetime';
   isNavigation?: boolean;
   navigationType?: string;
   isCollection?: boolean;
@@ -181,6 +182,19 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
     return this.getVisibleColumns().length;
   }
 
+  isDateColumn(column: ColumnConfig): boolean {
+    return !!column.entityMetadata?.columnType?.toLowerCase().includes('date');
+  }
+
+  isNumberColumn(column: ColumnConfig): boolean {
+    const type = column.entityMetadata?.columnType?.toLowerCase() || '';
+    return type.includes('int') || 
+           type.includes('decimal') || 
+           type.includes('float') || 
+           type.includes('double') || 
+           type.includes('number');
+  }
+
   getColumnLabel(column: ColumnConfig): string {
     return column.label[this.currentLanguage] || column.label['en'] || column.key;
   }
@@ -207,8 +221,22 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
       value = value[key];
     }
 
+    // Formatage des dates selon la configuration
+    if (this.isDateColumn(column) && value) {
+      const date = new Date(value);
+      switch (column.dateFormat) {
+        case 'date':
+          return date.toLocaleDateString(this.currentLanguage);
+        case 'time':
+          return date.toLocaleTimeString(this.currentLanguage);
+        case 'datetime':
+        default:
+          return date.toLocaleString(this.currentLanguage);
+      }
+    }
+
     // Formatage des nombres décimaux si spécifié
-    if (column.type === 'number' && column.decimals !== undefined && value !== null && value !== undefined) {
+    if (this.isNumberColumn(column) && column.decimals !== undefined && value !== null && value !== undefined) {
       return Number(value).toFixed(column.decimals);
     }
 

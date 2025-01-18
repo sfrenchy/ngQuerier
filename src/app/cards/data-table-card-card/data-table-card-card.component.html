@@ -1,10 +1,10 @@
 <app-base-card [card]="card" [isEditing]="isEditing">
   <div body class="h-full flex flex-col">
-    <div class="flex-1 min-h-0 relative overflow-hidden">
-      <div #tableContainer tablecontainer class="data-table-container absolute inset-0 overflow-x-scroll overflow-y-hidden"
+    <div class="flex-1 min-h-0 flex flex-col">
+      <div #tableContainer tablecontainer class="data-table-container flex-1 overflow-x-scroll overflow-y-hidden"
            (scroll)="onTableScroll($event)">
-        <div class="relative min-w-full">
-          <table class="min-w-full divide-y divide-gray-700">
+        <div class="relative min-w-full h-full">
+          <table class="min-w-full h-full divide-y divide-gray-700">
             <thead class="data-table-header" [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor">
               <tr>
                 <th *ngFor="let column of getVisibleColumns(); let isFirst = first"
@@ -71,55 +71,55 @@
           </table>
         </div>
       </div>
-    </div>
 
-    <div class="w-full px-2 py-2 bg-gray-800/50">
-      <div #customScroll class="w-full h-2 bg-gray-700/50 rounded-full relative cursor-pointer" 
-           (mousedown)="onScrollbarClick($event)">
-        <div class="absolute top-0 bottom-0 bg-gray-400/50 hover:bg-gray-400/70 active:bg-gray-400/90 rounded-full transition-colors cursor-grab active:cursor-grabbing"
-             [style.width.%]="getScrollThumbWidth()"
-             [style.left.%]="getScrollThumbPosition()"
-             (mousedown)="onThumbMouseDown($event)">
+      <div class="w-full px-2 py-2 bg-gray-800/50 custom-scrollbar">
+        <div #customScroll class="w-full h-2 bg-gray-700/50 rounded-full relative cursor-pointer" 
+             (mousedown)="onScrollbarClick($event)">
+          <div class="absolute top-0 bottom-0 bg-gray-400/50 hover:bg-gray-400/70 active:bg-gray-400/90 rounded-full transition-colors cursor-grab active:cursor-grabbing"
+               [style.width.%]="getScrollThumbWidth()"
+               [style.left.%]="getScrollThumbPosition()"
+               (mousedown)="onThumbMouseDown($event)">
+          </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div footer class="data-table-footer">
-      <div class="flex justify-between items-center">
-        <div class="text-sm text-gray-400">
-          {{ totalItems }} {{ 'TABLE.ITEMS' | translate }}
+  <div footer class="data-table-footer">
+    <div class="flex justify-between items-center">
+      <div class="text-sm text-gray-400">
+        {{ totalItems }} {{ 'TABLE.ITEMS' | translate }}
+      </div>
+      <div class="flex items-center gap-2">
+        <button 
+          class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed"
+          [disabled]="currentPage === 1"
+          (click)="onPageChange(currentPage - 1)">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        <div class="flex items-center gap-1 text-sm text-gray-400">
+          <select 
+            [ngModel]="currentPage"
+            (ngModelChange)="onPageChange($event)"
+            class="bg-gray-800 border border-gray-700 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <option *ngFor="let page of getTotalPages()" [value]="page">
+              {{ page }}
+            </option>
+          </select>
+          <span>/ {{ getTotalPages().length }}</span>
         </div>
-        <div class="flex items-center gap-2">
-          <button 
-            class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed"
-            [disabled]="currentPage === 1"
-            (click)="onPageChange(currentPage - 1)">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-            </svg>
-          </button>
 
-          <div class="flex items-center gap-1 text-sm text-gray-400">
-            <select 
-              [ngModel]="currentPage"
-              (ngModelChange)="onPageChange($event)"
-              class="bg-gray-800 border border-gray-700 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option *ngFor="let page of getTotalPages()" [value]="page">
-                {{ page }}
-              </option>
-            </select>
-            <span>/ {{ getTotalPages().length }}</span>
-          </div>
-
-          <button 
-            class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed"
-            [disabled]="currentPage === getTotalPages().length"
-            (click)="onPageChange(currentPage + 1)">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-            </svg>
-          </button>
-        </div>
+        <button 
+          class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed"
+          [disabled]="currentPage === getTotalPages().length"
+          (click)="onPageChange(currentPage + 1)">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+          </svg>
+        </button>
       </div>
     </div>
   </div>

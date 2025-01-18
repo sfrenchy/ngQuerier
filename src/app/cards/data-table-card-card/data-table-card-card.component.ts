@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Card } from '@cards/card.decorator';
@@ -138,7 +138,14 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   private isAdjusting: boolean = false;
   private resizeTimeout: any = null;
   private columnWidths = new Map<string, number>();
+  private tableWidth: number = 0;
   @Output() configurationChanged = new EventEmitter<any>();
+  @ViewChild('tableContainer') tableContainerRef!: ElementRef;
+  @ViewChild('customScroll') customScrollRef!: ElementRef;
+  private isScrolling = false;
+  private isDragging = false;
+  private startX = 0;
+  private scrollLeft = 0;
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -211,19 +218,19 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
 
   ngAfterViewInit() {
     try {
-      if (this.isValidConfiguration()) {
+            if (this.isValidConfiguration()) {
         // Récupérer les références aux éléments
         this.tableContainer = document.querySelector('.data-table-container');
         this.tableHeader = document.querySelector('.data-table-header');
         this.tableFooter = document.querySelector('.data-table-footer');
         
         this.calculateAndSetOptimalSize(true);
-        this.initialLoadDone = true;
-      }
-    } catch (error) {
-      console.error('Error in DataTableCardCard initialization:', error);
-      this.cdr.detectChanges();
-    }
+              this.initialLoadDone = true;
+            }
+          } catch (error) {
+            console.error('Error in DataTableCardCard initialization:', error);
+            this.cdr.detectChanges();
+          }
   }
 
   protected override onHeightChange() {
@@ -294,18 +301,18 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
             ancien: this.pageSize,
             nouveau: newPageSize
           });
-          this.pageSize = newPageSize;
-          
-          // Sauvegarder le nombre de lignes dans la configuration
-          if (this.card.configuration) {
-            this.card.configuration.visualConfig.rowCount = newPageSize;
-            this.configurationChanged.emit(this.card);
-          }
+      this.pageSize = newPageSize;
+      
+      // Sauvegarder le nombre de lignes dans la configuration
+      if (this.card.configuration) {
+        this.card.configuration.visualConfig.rowCount = newPageSize;
+        this.configurationChanged.emit(this.card);
+      }
 
           // Ne recharger les données que si demandé et si la taille a changé
           if (shouldReloadData) {
             console.log('[DataTable] Rechargement des données');
-            this.loadData();
+      this.loadData();
           }
         }
 
@@ -420,15 +427,30 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   }
 
   private updateColumnWidths() {
-    if (!this.tableContainer) return;
+    if (!this.tableContainerRef?.nativeElement) return;
 
-    const headerCells = Array.from(this.tableContainer.querySelectorAll('thead th'));
+    const headerCells = Array.from(this.tableContainerRef.nativeElement.querySelectorAll('thead th'));
+    let totalWidth = 0;
+
     headerCells.forEach((cell, index) => {
       const column = this.getVisibleColumns()[index];
+      const width = (cell as HTMLElement).offsetWidth;
       if (column) {
-        this.columnWidths.set(column.key, (cell as HTMLElement).offsetWidth);
+        this.columnWidths.set(column.key, width);
+        totalWidth += width;
       }
     });
+
+    this.tableWidth = Math.max(totalWidth, this.tableContainerRef.nativeElement.clientWidth);
+  }
+
+  getTableWidth(): string {
+    return `${this.tableWidth}px`;
+  }
+
+  ngAfterViewChecked() {
+    // Mettre à jour les largeurs quand le contenu change
+    this.updateColumnWidths();
   }
 
   getTotalPages(): number[] {
@@ -459,5 +481,91 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
     }
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  onTableScroll(event: Event) {
+    if (this.isScrolling) return;
+    this.isScrolling = true;
+
+    const tableContainer = event.target as HTMLElement;
+    if (this.customScrollRef?.nativeElement) {
+      this.customScrollRef.nativeElement.scrollLeft = tableContainer.scrollLeft;
+    }
+
+    this.isScrolling = false;
+    this.cdr.detectChanges(); // Force la mise à jour du thumb
+  }
+
+  getScrollThumbWidth(): number {
+    if (!this.tableContainerRef?.nativeElement) return 100;
+    const container = this.tableContainerRef.nativeElement;
+    const ratio = container.clientWidth / container.scrollWidth;
+    return Math.max(ratio * 100, 10); // Au moins 10% de largeur pour le thumb
+  }
+
+  getScrollThumbPosition(): number {
+    if (!this.tableContainerRef?.nativeElement) return 0;
+    const container = this.tableContainerRef.nativeElement;
+    const maxScroll = container.scrollWidth - container.clientWidth;
+    return maxScroll <= 0 ? 0 : (container.scrollLeft / maxScroll) * (100 - this.getScrollThumbWidth());
+  }
+
+  onScrollbarClick(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (!this.tableContainerRef?.nativeElement || event.target !== event.currentTarget) return;
+    
+    const container = this.tableContainerRef.nativeElement;
+    const scrollbar = event.currentTarget as HTMLElement;
+    const rect = scrollbar.getBoundingClientRect();
+    const thumbWidth = this.getScrollThumbWidth();
+    
+    // Ajuster la position de clic en fonction de la largeur du thumb
+    const thumbOffset = (thumbWidth / 100) * rect.width / 2;
+    const clickPosition = event.clientX - rect.left - thumbOffset;
+    const scrollRatio = clickPosition / (rect.width - (thumbWidth / 100) * rect.width);
+    
+    const targetScroll = (container.scrollWidth - container.clientWidth) * scrollRatio;
+    container.scrollLeft = Math.max(0, Math.min(container.scrollWidth - container.clientWidth, targetScroll));
+    this.cdr.detectChanges();
+  }
+
+  onThumbMouseDown(event: MouseEvent) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (!this.tableContainerRef?.nativeElement) return;
+    
+    const container = this.tableContainerRef.nativeElement;
+    const thumb = event.target as HTMLElement;
+    const scrollbar = thumb.parentElement as HTMLElement;
+    const startX = event.clientX;
+    const startScrollLeft = container.scrollLeft;
+    const maxScroll = container.scrollWidth - container.clientWidth;
+    const scrollbarRect = scrollbar.getBoundingClientRect();
+    
+    // Calculer le ratio de défilement en fonction de la largeur totale de la table
+    const scrollRatio = container.scrollWidth / scrollbarRect.width;
+    
+    const onMouseMove = (e: MouseEvent) => {
+      if (!this.tableContainerRef?.nativeElement) return;
+      
+      const deltaX = e.clientX - startX;
+      // Appliquer un multiplicateur pour augmenter la sensibilité
+      const scrollDelta = deltaX * scrollRatio * 1.5;
+      const newScroll = startScrollLeft + scrollDelta;
+      
+      container.scrollLeft = Math.max(0, Math.min(maxScroll, newScroll));
+      this.cdr.detectChanges();
+    };
+    
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+    
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
   }
 } 

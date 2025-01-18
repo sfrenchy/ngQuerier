@@ -132,6 +132,8 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   private readonly ROW_HEIGHT = 30;      // Hauteur de base d'une ligne
   private readonly ROW_BORDER = 1;       // Bordure entre les lignes
   private readonly CELL_PADDING = 12;    // Padding vertical des cellules (6px haut + 6px bas)
+  private readonly TABLE_BORDER = 1;     // Bordure de la table
+  private readonly SCROLLBAR_HEIGHT = 8; // Hauteur du scrollbar (2px) + padding (2px haut + 2px bas)
   private readonly ROW_TOTAL_HEIGHT = this.ROW_HEIGHT + this.ROW_BORDER + this.CELL_PADDING;
   adjustedRowHeight: number = this.ROW_HEIGHT;
   private initialLoadDone: boolean = false;
@@ -272,17 +274,21 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
         return;
       }
 
-      // Calculer le nombre optimal de lignes
-      const optimalRows = Math.floor(availableHeight / this.ROW_TOTAL_HEIGHT);
+      // Calculer le nombre optimal de lignes en tenant compte de la bordure du bas et du scrollbar
+      const availableHeightForRows = availableHeight - this.TABLE_BORDER - this.SCROLLBAR_HEIGHT;
+      const optimalRows = Math.floor(availableHeightForRows / this.ROW_TOTAL_HEIGHT);
       const targetSize = Math.min(optimalRows, this.totalItems || optimalRows);
       const newPageSize = Math.max(1, targetSize);
 
       // Calculer la hauteur ajustée des lignes pour remplir l'espace
-      const totalSpace = availableHeight - ((newPageSize - 1) * this.ROW_BORDER);
+      const totalSpace = availableHeightForRows - ((newPageSize - 1) * this.ROW_BORDER);
       const newRowHeight = Math.floor(totalSpace / newPageSize) - this.CELL_PADDING;
       
       console.log('[DataTable] Calcul de la taille optimale:', {
         containerHeight: availableHeight,
+        availableHeightForRows,
+        tableBorder: this.TABLE_BORDER,
+        scrollbarHeight: this.SCROLLBAR_HEIGHT,
         optimalRows,
         newPageSize,
         newRowHeight,

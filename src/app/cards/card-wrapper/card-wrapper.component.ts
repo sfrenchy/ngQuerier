@@ -17,7 +17,6 @@ export class CardWrapperComponent {
   private _height: number = 0;
   @Input()
   set height(value: number) {
-    console.log('[CardWrapper] Nouvelle hauteur reçue:', value);
     this._height = value;
   }
   get height(): number {

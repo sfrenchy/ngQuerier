@@ -236,7 +236,6 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   }
 
   protected override onHeightChange() {
-    console.log('[DataTable] onHeightChange appelé, hauteur:', this.height);
     if (this.height > 0) {
       // Attendre que le DOM soit stable
       setTimeout(() => {
@@ -248,26 +247,19 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   private calculateAndSetOptimalSize(shouldReloadData: boolean = true) {
     try {
       if (!this.isValidConfiguration() || this.height <= 0) {
-        console.log('[DataTable] Impossible de calculer la taille optimale:', {
-          height: this.height,
-          isValidConfig: this.isValidConfiguration()
-        });
         return;
       }
 
       // Récupérer la hauteur disponible du conteneur de la table
       const tableContainer = document.querySelector('[tablecontainer]') as HTMLElement;
       if (!tableContainer) {
-        console.log('[DataTable] Conteneur de table non trouvé');
         return;
       }
 
       const availableHeight = tableContainer.clientHeight;
-      console.log('[DataTable] Hauteur disponible du conteneur:', availableHeight);
 
       // Si la hauteur n'est pas encore disponible, réessayer plus tard
       if (availableHeight <= 0) {
-        console.log('[DataTable] Hauteur non disponible, nouvel essai dans 100ms');
         setTimeout(() => {
           this.calculateAndSetOptimalSize(shouldReloadData);
         }, 100);
@@ -283,19 +275,6 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
       // Calculer la hauteur ajustée des lignes pour remplir l'espace
       const totalSpace = availableHeightForRows - ((newPageSize - 1) * this.ROW_BORDER);
       const newRowHeight = Math.floor(totalSpace / newPageSize) - this.CELL_PADDING;
-      
-      console.log('[DataTable] Calcul de la taille optimale:', {
-        containerHeight: availableHeight,
-        availableHeightForRows,
-        tableBorder: this.TABLE_BORDER,
-        scrollbarHeight: this.SCROLLBAR_HEIGHT,
-        optimalRows,
-        newPageSize,
-        newRowHeight,
-        currentHeight: this.adjustedRowHeight,
-        totalItems: this.totalItems,
-        shouldReloadData
-      });
 
       // Ne mettre à jour que si nous avons une hauteur valide
       if (newRowHeight > 0) {
@@ -303,10 +282,6 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
         
         // Si le nombre de lignes a changé
         if (this.pageSize !== newPageSize && newPageSize > 0) {
-          console.log('[DataTable] Changement du nombre de lignes:', {
-            ancien: this.pageSize,
-            nouveau: newPageSize
-          });
       this.pageSize = newPageSize;
       
       // Sauvegarder le nombre de lignes dans la configuration
@@ -317,7 +292,6 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
 
           // Ne recharger les données que si demandé et si la taille a changé
           if (shouldReloadData) {
-            console.log('[DataTable] Rechargement des données');
       this.loadData();
           }
         }
@@ -460,12 +434,39 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   }
 
   getTotalPages(): number[] {
+    if (this.pageSize <= 0) return [1];
+    
     const totalPages = Math.ceil(this.totalItems / this.pageSize);
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
+    // Limiter à un maximum raisonnable de pages (par exemple 10000)
+    const safeTotal = Math.min(Math.max(1, totalPages), 10000);
+    
+    try {
+      return Array.from({ length: safeTotal }, (_, i) => i + 1);
+    } catch (error) {
+      console.warn('[DataTable] Erreur lors de la création du tableau de pages:', {
+        totalItems: this.totalItems,
+        pageSize: this.pageSize,
+        calculatedTotal: totalPages,
+        safeTotal
+      });
+      return [1];
+    }
   }
 
   onPageChange(page: number) {
-    if (page < 1 || page > this.getTotalPages().length) {
+    if (!this.pageSize || this.pageSize <= 0) {
+      console.warn('[DataTable] Impossible de changer de page: taille de page invalide');
+      return;
+    }
+
+    const totalPages = Math.ceil(this.totalItems / this.pageSize);
+    if (page < 1 || page > totalPages) {
+      console.warn('[DataTable] Page demandée hors limites:', {
+        page,
+        totalPages,
+        totalItems: this.totalItems,
+        pageSize: this.pageSize
+      });
       return;
     }
     

@@ -15,7 +15,6 @@ import { RowWrapperComponent } from './row-wrapper.component';
 export class DroppableRowComponent implements OnInit {
   @Input() row!: RowDto;
   @Input() set height(value: number) {
-    console.log('[DroppableRow] Nouvelle hauteur reçue:', value);
     this._height = value;
   }
   get height(): number {

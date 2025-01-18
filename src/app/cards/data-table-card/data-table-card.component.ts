@@ -7,8 +7,8 @@ import { BaseCardConfig } from '@models/api.models';
 import { BaseCardComponent } from '@cards/base-card.component';
 import { DatasourceConfig } from '@models/datasource.models';
 import { CardDatabaseService } from '@services/card-database.service';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs';
+import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DataTableCardService } from './data-table-card.service';
 import { FormsModule } from '@angular/forms';
 
@@ -161,7 +161,9 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   private scrollLeft = 0;
   isScrollbarNeeded: boolean = false;
   protected canGoFullscreen = true;
-  isSearchVisible = false;
+  globalSearch: string = '';
+  public searchSubject = new Subject<string>();
+  private searchSubscription: Subscription;
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -171,6 +173,16 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   ) {
     super(cardDatabaseService);
     this.currentLanguage = this.translateService.currentLang;
+
+    // Configuration de la recherche
+    this.searchSubscription = this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe((searchTerm) => {
+      this.globalSearch = searchTerm;
+      this.currentPage = 1; // Retour à la première page lors d'une recherche
+      this.loadData();
+    });
   }
 
   ngOnInit() {
@@ -355,7 +367,9 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
         this.dataService.loadData(
           this.card.configuration.datasource,
           this.currentPage,
-          this.pageSize
+          this.pageSize,
+          true,
+          this.globalSearch
         );
       }
     } catch (error) {
@@ -535,6 +549,9 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     this.destroy$.next();
     this.destroy$.complete();
     super.ngOnDestroy(); // Appeler la méthode du parent pour nettoyer les listeners de fullscreen
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
   }
 
   onTableScroll(event: Event) {
@@ -639,9 +656,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     }, 100);
   }
 
-  toggleSearch() {
-    console.log('Toggle search clicked');
-    this.isSearchVisible = !this.isSearchVisible;
-    console.log('isSearchVisible:', this.isSearchVisible);
+  ngOnChanges() {
+    this.searchSubject.next(this.globalSearch);
   }
 } 

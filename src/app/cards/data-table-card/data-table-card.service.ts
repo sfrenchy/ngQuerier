@@ -12,6 +12,7 @@ interface DataState {
   config?: DatasourceConfig;
   pageNumber: number;
   pageSize: number;
+  globalSearch: string;
 }
 
 @Injectable({
@@ -35,7 +36,8 @@ export class DataTableCardService {
         loading: false,
         config,
         pageNumber: 1,
-        pageSize: 0
+        pageSize: 0,
+        globalSearch: ''
       }));
     }
     return this.dataStateMap.get(key)!;
@@ -59,33 +61,41 @@ export class DataTableCardService {
     );
   }
 
-  loadData(config: DatasourceConfig, pageNumber: number = 1, pageSize: number = 10, showLoading: boolean = false): void {
-    const state$ = this.getOrCreateState(config);
+  loadData(
+    datasource: DatasourceConfig,
+    pageNumber: number,
+    pageSize: number,
+    showLoading: boolean = true,
+    globalSearch: string = ''
+  ) {
+    const state$ = this.getOrCreateState(datasource);
     const currentState = state$.getValue();
 
     if (currentState.items.length > 0 && 
         currentState.pageNumber === pageNumber && 
-        currentState.pageSize === pageSize) {
+        currentState.pageSize === pageSize &&
+        currentState.globalSearch === globalSearch) {
       return;
     }
 
     state$.next({ ...currentState, loading: showLoading });
 
-    this.cardDatabaseService.fetchData(config, { 
-      pageNumber, 
-      pageSize, 
-      orderBy: [], 
-      globalSearch: '', 
-      columnSearches: [] 
+    this.cardDatabaseService.fetchData(datasource, {
+      pageNumber,
+      pageSize,
+      orderBy: [],
+      globalSearch,
+      columnSearches: []
     }).subscribe({
       next: (response) => {
         state$.next({
           items: response.items,
           total: response.total,
           loading: false,
-          config,
-          pageNumber,
-          pageSize
+          config: datasource,
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          globalSearch: globalSearch
         });
       },
       error: (error) => {

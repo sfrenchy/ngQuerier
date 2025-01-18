@@ -149,7 +149,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     if (!event.dataTransfer) return;
 
     const type = event.dataTransfer.getData('text/plain');
-    console.log('Drop type:', type);
     if (type === 'row') {
       const newRow: RowDto = {
         id: this.nextRowId++,
@@ -157,7 +156,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
         height: 300,
         cards: []
       };
-      console.log('Adding new row:', newRow);
       this.layout = {
         ...this.layout,
         rows: [...this.layout.rows, newRow]
@@ -262,8 +260,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       gridWidth: updatedCard.gridWidth || 12, // Assure que gridWidth est défini
       configuration: updatedCard.configuration?.toJson()
     };
-
-    console.log('Updating card with gridWidth:', cardWithSerializedConfig.gridWidth);
 
     updatedRows[rowIndex] = {
       ...updatedRows[rowIndex],

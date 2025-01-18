@@ -253,23 +253,19 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   private calculateAndSetOptimalSize(shouldReloadData: boolean = true) {
     try {
       if (!this.isValidConfiguration() || this.height <= 0) {
-        console.log('[DataTable] Configuration invalide ou hauteur <= 0:', { height: this.height });
         return;
       }
 
       // Utiliser la référence ViewChild pour le conteneur de table
       const tableContainer = this.tableContainerRef?.nativeElement;
       if (!tableContainer) {
-        console.log('[DataTable] Pas de référence au conteneur de table');
         return;
       }
 
       const availableHeight = tableContainer.clientHeight;
-      console.log('[DataTable] Hauteur disponible:', availableHeight);
 
       // Si la hauteur n'est pas encore disponible, réessayer plus tard
       if (availableHeight <= 0) {
-        console.log('[DataTable] Hauteur disponible <= 0, réessai programmé');
         setTimeout(() => {
           this.calculateAndSetOptimalSize(shouldReloadData);
         }, 100);
@@ -280,7 +276,7 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
       const availableHeightForRows = availableHeight - this.TABLE_BORDER;
 
       // 2. Calculer le nombre de lignes qui peuvent tenir avec la hauteur de base
-      const baseRowTotalHeight = this.ROW_HEIGHT + this.ROW_BORDER + this.CELL_PADDING;
+      const baseRowTotalHeight = this.ROW_HEIGHT + this.ROW_BORDER;
       const optimalRows = Math.floor(availableHeightForRows / baseRowTotalHeight);
       
       // 3. Déterminer le nombre final de lignes (en tenant compte du nombre total d'items)
@@ -290,19 +286,6 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
       // 4. Calculer l'espace restant à distribuer
       const totalSpace = availableHeightForRows - (newPageSize * this.ROW_BORDER) - (newPageSize * this.CELL_PADDING);
       const newRowHeight = Math.floor(totalSpace / newPageSize);
-
-      console.log('[DataTable] Calcul des lignes:', {
-        availableHeightForRows,
-        baseRowTotalHeight,
-        baseRowHeight: this.ROW_HEIGHT,
-        ROW_BORDER: this.ROW_BORDER,
-        CELL_PADDING: this.CELL_PADDING,
-        optimalRows,
-        newPageSize,
-        totalSpace,
-        newRowHeight,
-        isCompactMode: this.card.configuration?.visualConfig.isCompactMode
-      });
 
       // Ne mettre à jour que si nous avons une hauteur valide
       if (newRowHeight > 0) {

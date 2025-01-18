@@ -3,14 +3,14 @@
   <div class="flex items-center justify-between px-4 py-2" [style.background-color]="headerBackgroundColor">
     <h3 class="text-sm font-medium" [style.color]="headerTextColor">
       <ng-container *ngFor="let title of card.title">
-        <span *ngIf="title.languageCode === 'fr'">{{title.value}}</span>
+        <span *ngIf="title.languageCode === 'fr'">{{ title.value }}</span>
       </ng-container>
     </h3>
     <ng-content select="[header]"></ng-content>
   </div>
 
   <!-- Body -->
-  <div class="flex-1" [style.color]="textColor">
+  <div class="flex-1 overflow-auto" [style.color]="textColor">
     <ng-content select="[body]"></ng-content>
   </div>
 
@@ -18,4 +18,4 @@
   <div class="px-4 py-2 border-t border-gray-200" [style.color]="textColor">
     <ng-content select="[footer]"></ng-content>
   </div>
-</div> 
+</div>

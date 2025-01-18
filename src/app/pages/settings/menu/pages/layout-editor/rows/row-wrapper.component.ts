@@ -111,7 +111,6 @@ export class RowWrapperComponent implements OnDestroy, OnInit {
     this.resizeGhost = null;
     this.isResizing = false;
     
-    console.log('[RowWrapper] Fin du redimensionnement, nouvelle hauteur:', newHeight);
     this.endResize.emit({
       rowId: this.row.id,
       newHeight

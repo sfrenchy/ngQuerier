@@ -43,11 +43,52 @@ import {
 export class ApiService {
   private baseUrl: string = '';
   private menuUpdated = new Subject<void>();
+  private tokenExpirationTimer: any;
 
   menuUpdated$ = this.menuUpdated.asObservable();
 
   constructor(private http: HttpClient) {
     this.baseUrl = localStorage.getItem('baseUrl') || '';
+    this.setupTokenRenewal();
+  }
+
+  private setupTokenRenewal() {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      this.scheduleTokenRenewal(token);
+    }
+  }
+
+  private scheduleTokenRenewal(token: string) {
+    try {
+      const tokenData = JSON.parse(atob(token.split('.')[1]));
+      const expiresIn = (tokenData.exp * 1000) - Date.now();
+      const renewalTime = expiresIn - (60 * 1000); // Renew 1 minute before expiration
+
+      if (this.tokenExpirationTimer) {
+        clearTimeout(this.tokenExpirationTimer);
+      }
+
+      if (renewalTime > 0) {
+        this.tokenExpirationTimer = setTimeout(() => {
+          const refreshToken = localStorage.getItem('refresh_token');
+          if (refreshToken) {
+            this.refreshToken({ token, refreshToken }).subscribe({
+              next: (result) => {
+                localStorage.setItem('access_token', result.token);
+                localStorage.setItem('refresh_token', result.refreshToken);
+                this.scheduleTokenRenewal(result.token);
+              },
+              error: () => {
+                // Handle error - could emit an event or redirect to login
+              }
+            });
+          }
+        }, renewalTime);
+      }
+    } catch (e) {
+      console.error('Error scheduling token renewal:', e);
+    }
   }
 
   setBaseUrl(url: string): void {
@@ -88,6 +129,12 @@ export class ApiService {
     return this.http.post<SignUpResultDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.signIn),
       dto
+    ).pipe(
+      tap(result => {
+        if (result.token) {
+          this.scheduleTokenRenewal(result.token);
+        }
+      })
     );
   }
 

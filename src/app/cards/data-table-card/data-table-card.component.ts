@@ -160,6 +160,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   private startX = 0;
   private scrollLeft = 0;
   isScrollbarNeeded: boolean = false;
+  protected canGoFullscreen = true;
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -229,7 +230,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     return !!(this.card.configuration?.datasource?.connection && this.card.configuration?.datasource?.controller);
   }
 
-  override ngAfterViewInit() {
+  ngAfterViewInit() {
     console.log('ngAfterViewInit - Début du calcul initial');
     if (this.isValidConfiguration()) {
       this.isCalculatingRows = true;
@@ -273,8 +274,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       console.log('Dimensions actuelles:', {
         containerHeight: tableContainer.clientHeight,
         containerWidth: tableContainer.clientWidth,
-        componentHeight: this.height,
-        bodyMaxHeight: this.bodyMaxHeight
+        componentHeight: this.height
       });
 
       // Calculer la hauteur disponible
@@ -527,12 +527,13 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     };
   }
 
-  ngOnDestroy() {
+  override ngOnDestroy() {
     if (this.resizeTimeout) {
       clearTimeout(this.resizeTimeout);
     }
     this.destroy$.next();
     this.destroy$.complete();
+    super.ngOnDestroy(); // Appeler la méthode du parent pour nettoyer les listeners de fullscreen
   }
 
   onTableScroll(event: Event) {

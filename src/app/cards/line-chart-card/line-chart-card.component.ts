@@ -67,7 +67,7 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
     //   });
   }
 
-  ngOnDestroy() {
+  override ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }

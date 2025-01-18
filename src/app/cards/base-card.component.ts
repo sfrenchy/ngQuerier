@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardDto, BaseCardConfig } from '@models/api.models';
 import { uintToHex } from '../shared/utils/color.utils';
@@ -11,20 +11,19 @@ import { CardDatabaseService } from '../services/card-database.service';
   standalone: true,
   imports: [CommonModule]
 })
-export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implements AfterViewInit {
+export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implements OnDestroy {
   @Input() card!: CardDto;
   @Input() isEditing: boolean = false;
+  @Input() showFullscreenButton: boolean = false;
   protected _height: number = 0;
+  isFullscreen: boolean = false;
 
-  @ViewChild('headerElement') headerElement!: ElementRef;
-  @ViewChild('footerElement') footerElement!: ElementRef;
-  bodyMaxHeight: number = 0;
+  @ViewChild('cardContainer') cardContainer!: ElementRef;
 
   @Input()
   set height(value: number) {
     if (this._height !== value) {
       this._height = value;
-      this.updateBodyMaxHeight();
       this.onHeightChange();
     }
   }
@@ -44,9 +43,18 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implem
   @Output() delete = new EventEmitter<void>();
   @Output() configure = new EventEmitter<void>();
 
-  constructor(protected cardDatabaseService?: CardDatabaseService) {}
+  constructor(protected cardDatabaseService?: CardDatabaseService) {
+    document.addEventListener('fullscreenchange', this.handleFullscreenChange.bind(this));
+  }
 
-  // Cette méthode peut être surchargée par les composants enfants
+  ngOnDestroy() {
+    document.removeEventListener('fullscreenchange', this.handleFullscreenChange.bind(this));
+  }
+
+  private handleFullscreenChange() {
+    this.isFullscreen = !!document.fullscreenElement;
+  }
+
   protected onHeightChange() {
   }
 
@@ -74,15 +82,15 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implem
     this.delete.emit();
   }
 
-  ngAfterViewInit() {
-    this.updateBodyMaxHeight();
-  }
-
-  private updateBodyMaxHeight() {
-    if (this.headerElement && this.footerElement) {
-      const headerHeight = this.headerElement.nativeElement.offsetHeight;
-      const footerHeight = this.footerElement.nativeElement.offsetHeight;
-      this.bodyMaxHeight = this._height - headerHeight - footerHeight;
+  async toggleFullscreen() {
+    try {
+      if (!this.isFullscreen) {
+        await this.cardContainer.nativeElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (err) {
+      console.error('Error toggling fullscreen:', err);
     }
   }
 } 

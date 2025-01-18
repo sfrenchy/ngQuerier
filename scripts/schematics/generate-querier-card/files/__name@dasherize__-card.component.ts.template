@@ -43,7 +43,7 @@ export class <%= classify(name) %>CardConfig extends BaseCardConfig {
   selector: 'app-<%= dasherize(name) %>-card',
   templateUrl: './<%= dasherize(name) %>-card.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, BaseCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class <%= classify(name) %>CardComponent extends BaseCardComponent<<%= classify(name) %>CardConfig> implements OnInit, OnDestroy {

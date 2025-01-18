@@ -149,13 +149,15 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     if (!event.dataTransfer) return;
 
     const type = event.dataTransfer.getData('text/plain');
+    console.log('Drop type:', type);
     if (type === 'row') {
       const newRow: RowDto = {
         id: this.nextRowId++,
         order: this.layout.rows.length,
-        height: 200,
+        height: 300,
         cards: []
       };
+      console.log('Adding new row:', newRow);
       this.layout = {
         ...this.layout,
         rows: [...this.layout.rows, newRow]
@@ -254,11 +256,14 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     const cardIndex = updatedRows[rowIndex].cards.findIndex(c => c.id === data.cardId);
     if (cardIndex === -1) return;
 
-    // S'assurer que la configuration est correctement sérialisée
+    // S'assurer que la configuration est correctement sérialisée et que gridWidth est préservé
     const cardWithSerializedConfig = {
       ...updatedCard,
+      gridWidth: updatedCard.gridWidth || 12, // Assure que gridWidth est défini
       configuration: updatedCard.configuration?.toJson()
     };
+
+    console.log('Updating card with gridWidth:', cardWithSerializedConfig.gridWidth);
 
     updatedRows[rowIndex] = {
       ...updatedRows[rowIndex],
@@ -287,7 +292,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   }
 
   startResize(event: { event: MouseEvent, rowId: number }) {
-    // Ne rien faire ici, le DroppableRowComponent gère le redimensionnement
   }
 
   endResize(event: { rowId: number, newHeight: number }) {

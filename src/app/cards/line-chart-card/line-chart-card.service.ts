@@ -2,15 +2,15 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-interface LineChartCardState {
+interface LineChartState {
   // Add your state properties here
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class LineChartCardCardService {
-  private stateMap = new Map<string, BehaviorSubject<LineChartCardState>>();
+export class LineChartCardService {
+  private stateMap = new Map<string, BehaviorSubject<LineChartState>>();
 
   constructor() {}
 
@@ -18,10 +18,10 @@ export class LineChartCardCardService {
     return JSON.stringify(config);
   }
 
-  private getOrCreateState(config: any): BehaviorSubject<LineChartCardState> {
+  private getOrCreateState(config: any): BehaviorSubject<LineChartState> {
     const key = this.getStateKey(config);
     if (!this.stateMap.has(key)) {
-      this.stateMap.set(key, new BehaviorSubject<LineChartCardState>({
+      this.stateMap.set(key, new BehaviorSubject<LineChartState>({
         // Initialize your state here
       }));
     }

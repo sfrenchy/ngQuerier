@@ -32,13 +32,13 @@
   </div>
 
   <!-- Editing zone -->
-  <div class="flex-1 flex flex-col p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[500px] overflow-y-auto transition-colors"
+  <div class="flex-1 p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[500px] overflow-y-auto transition-colors"
        [class.bg-gray-100]="!isDraggingRow && !isDraggingCard"
        [class.bg-gray-200]="isDraggingRow || isDraggingCard"
        (dragover)="onDragOver($event)"
        (dragleave)="onDragLeave($event)"
        (drop)="onDrop($event)">
-    <div class="flex flex-col gap-4">
+    <div class="space-y-4 w-full">
       <app-droppable-row *ngFor="let row of layout.rows"
                         [row]="row"
                         (deleteRow)="deleteRow(row.id)"
@@ -51,7 +51,7 @@
     </div>
 
     <!-- Empty state -->
-    <div *ngIf="layout.rows.length === 0" class="flex items-center justify-center flex-1">
+    <div *ngIf="layout.rows.length === 0" class="flex items-center justify-center h-full">
       <span class="text-gray-500">Glissez-déposez des lignes depuis la toolbox</span>
     </div>
   </div>

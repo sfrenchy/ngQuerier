@@ -2,19 +2,19 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { LineChartCardCardConfig } from './line-chart-card-card.component';
+import { LineChartCardConfig } from './line-chart-card.component';
 import { CardDto } from '@models/api.models';
 
 @Component({
-  selector: 'app-line-chart-card-card-configuration',
-  templateUrl: './line-chart-card-card-configuration.component.html',
+  selector: 'app-line-chart-card-configuration',
+  templateUrl: './line-chart-card-configuration.component.html',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, TranslateModule]
 })
-export class LineChartCardCardConfigurationComponent implements OnInit {
-  @Input() card!: CardDto<LineChartCardCardConfig>;
-  @Output() save = new EventEmitter<LineChartCardCardConfig>();
-  @Output() configChange = new EventEmitter<LineChartCardCardConfig>();
+export class LineChartCardConfigurationComponent implements OnInit {
+  @Input() card!: CardDto<LineChartCardConfig>;
+  @Output() save = new EventEmitter<LineChartCardConfig>();
+  @Output() configChange = new EventEmitter<LineChartCardConfig>();
 
   form: FormGroup;
 
@@ -26,7 +26,7 @@ export class LineChartCardCardConfigurationComponent implements OnInit {
     // Émettre les changements dès que le formulaire change
     this.form.valueChanges.subscribe((value: any) => {
       if (this.form.valid) {
-        const config = new LineChartCardCardConfig(
+        const config = new LineChartCardConfig(
           // Ajoutez les paramètres du constructeur ici
         );
         this.configChange.emit(config);
@@ -45,7 +45,7 @@ export class LineChartCardCardConfigurationComponent implements OnInit {
   // Méthode pour la sauvegarde finale
   onSave() {
     if (this.form.valid) {
-      const config = new LineChartCardCardConfig(
+      const config = new LineChartCardConfig(
         // Ajoutez les paramètres du constructeur ici
       );
       this.save.emit(config);

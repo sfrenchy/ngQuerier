@@ -159,6 +159,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   private isDragging = false;
   private startX = 0;
   private scrollLeft = 0;
+  isScrollbarNeeded: boolean = false;
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -251,6 +252,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       setTimeout(() => {
         console.log('onHeightChange - Timeout expiré, recalcul');
         this.calculateAndSetOptimalSize(true);
+        this.updateScrollbarVisibility();
       });
     }
   }
@@ -464,6 +466,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     });
 
     this.tableWidth = Math.max(totalWidth, this.tableContainerRef.nativeElement.clientWidth);
+    this.updateScrollbarVisibility();
   }
 
   getTableWidth(): string {
@@ -471,7 +474,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   ngAfterViewChecked() {
-    // Mettre à jour les largeurs quand le contenu change
+    // Mettre à jour les largeurs et la visibilité du scrollbar quand le contenu change
     this.updateColumnWidths();
   }
 
@@ -616,5 +619,13 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
+  }
+
+  private updateScrollbarVisibility() {
+    if (!this.tableContainerRef?.nativeElement) return;
+    
+    const container = this.tableContainerRef.nativeElement;
+    this.isScrollbarNeeded = container.scrollWidth > container.clientWidth;
+    this.cdr.detectChanges();
   }
 } 

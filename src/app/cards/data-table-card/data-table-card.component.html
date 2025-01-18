@@ -74,8 +74,8 @@
         </div>
       </div>
 
-      <div class="w-full px-2 py-2 bg-gray-800/50 custom-scrollbar">
-        <div #customScroll class="w-full h-2 bg-gray-700/50 rounded-full relative cursor-pointer" 
+      <div *ngIf="isScrollbarNeeded" class="w-full px-2 py-2 bg-transparent custom-scrollbar">
+        <div #customScroll class="w-full h-2 bg-transparent rounded-full relative cursor-pointer" 
              (mousedown)="onScrollbarClick($event)">
           <div class="absolute top-0 bottom-0 bg-gray-400/50 hover:bg-gray-400/70 active:bg-gray-400/90 rounded-full transition-colors cursor-grab active:cursor-grabbing"
                [style.width.%]="getScrollThumbWidth()"

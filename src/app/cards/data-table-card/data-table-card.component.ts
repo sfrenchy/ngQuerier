@@ -303,9 +303,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
         this.adjustedRowHeight = newRowHeight;
         
         if (this.pageSize !== newPageSize && newPageSize > 0) {
-            ancien: this.pageSize,
-            nouveau: newPageSize
-          });
           this.pageSize = newPageSize;
           
           if (this.card.configuration) {

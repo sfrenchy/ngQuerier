@@ -14,6 +14,16 @@ export class CardWrapperComponent {
   @Output() delete = new EventEmitter<void>();
   @Output() configure = new EventEmitter<void>();
 
+  private _height: number = 0;
+  @Input()
+  set height(value: number) {
+    console.log('[CardWrapper] Nouvelle hauteur reçue:', value);
+    this._height = value;
+  }
+  get height(): number {
+    return this._height;
+  }
+
   onDelete() {
     this.delete.emit();
   }

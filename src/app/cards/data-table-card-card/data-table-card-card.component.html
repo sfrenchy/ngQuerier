@@ -1,10 +1,10 @@
 <app-base-card [card]="card" [isEditing]="isEditing">
   <div body class="h-full flex flex-col">
     <div class="flex-1 min-h-0 relative">
-      <div class="absolute inset-0 table-container overflow-auto">
-        <div class="relative min-w-full">
+      <div tablecontainer class="data-table-container absolute inset-0 overflow-auto">
+        <div  class="relative min-w-full">
           <table class="min-w-full divide-y divide-gray-700">
-            <thead [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor">
+            <thead class="data-table-header" [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor">
               <tr>
                 <th *ngFor="let column of getVisibleColumns(); let isFirst = first"
                     scope="col"
@@ -43,10 +43,7 @@
                 </td>
               </tr>
               <tr *ngFor="let row of data; let i = index" 
-                  [ngStyle]="{ 
-                    'background-color': getRowBackgroundColor(i),
-                    'color': card.configuration?.visualConfig.rowTextColor
-                  }"
+                  [ngStyle]="getRowStyle(i)"
                   class="border-b border-gray-700 hover-highlight">
                 <td *ngFor="let column of getVisibleColumns(); let isFirst = first"
                     [class.sticky]="column.isFixed || column.isFixedRight"
@@ -76,7 +73,7 @@
     </div>
   </div>
 
-  <div footer>
+  <div footer class="data-table-footer">
     <div class="flex justify-between items-center">
       <div class="text-sm text-gray-400">
         {{ totalItems }} {{ 'TABLE.ITEMS' | translate }}

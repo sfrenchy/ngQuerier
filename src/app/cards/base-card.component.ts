@@ -15,6 +15,19 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> {
   @Input() card!: CardDto;
   @Input() isEditing: boolean = false;
   protected _hasFooter = false;
+  protected _height: number = 0;
+
+  @Input()
+  set height(value: number) {
+    console.log('[BaseCard] Nouvelle hauteur reçue:', value);
+    if (this._height !== value) {
+      this._height = value;
+      this.onHeightChange();
+    }
+  }
+  get height(): number {
+    return this._height;
+  }
 
   get hasFooter(): boolean {
     return this._hasFooter;
@@ -33,6 +46,11 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> {
   @Output() configure = new EventEmitter<void>();
 
   constructor(protected cardDatabaseService?: CardDatabaseService) {}
+
+  // Cette méthode peut être surchargée par les composants enfants
+  protected onHeightChange() {
+    console.log('[BaseCard] onHeightChange appelé, hauteur:', this._height);
+  }
 
   get backgroundColor(): string {
     return uintToHex(this.card.backgroundColor);

@@ -15,6 +15,7 @@ import { RowWrapperComponent } from './row-wrapper.component';
 export class DroppableRowComponent implements OnInit {
   @Input() row!: RowDto;
   @Input() set height(value: number) {
+    console.log('[DroppableRow] Nouvelle hauteur reçue:', value);
     this._height = value;
   }
   get height(): number {
@@ -52,14 +53,16 @@ export class DroppableRowComponent implements OnInit {
         component,
         inputs: {
           card: card,
-          isEditing: true
+          isEditing: true,
+          height: this.height
         }
       });
     } else {
       const cardComponent = this.cardComponents.get(type);
       cardComponent.inputs = {
         card: card,
-        isEditing: true
+        isEditing: true,
+        height: this.height
       };
     }
     return this.cardComponents.get(type);

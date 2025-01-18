@@ -121,19 +121,24 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
   data: any[] = [];
   totalItems: number = 0;
   currentPage: number = 1;
-  pageSize: number = 10;
+  pageSize: number = 0;
   loading: boolean = false;
   currentLanguage: string;
   hoveredRow: number = -1;
   private destroy$ = new Subject<void>();
-  private resizeObserver: ResizeObserver;
   private tableContainer: HTMLElement | null = null;
-  private rowHeight: number = 0;
-  private lastOptimalSize: number = 0;
-  private isAdjusting: boolean = false;
+  private tableHeader: HTMLElement | null = null;
+  private tableFooter: HTMLElement | null = null;
+  private readonly ROW_HEIGHT = 30;      // Hauteur de base d'une ligne
+  private readonly ROW_BORDER = 1;       // Bordure entre les lignes
+  private readonly CELL_PADDING = 12;    // Padding vertical des cellules (6px haut + 6px bas)
+  private readonly ROW_TOTAL_HEIGHT = this.ROW_HEIGHT + this.ROW_BORDER + this.CELL_PADDING;
+  adjustedRowHeight: number = this.ROW_HEIGHT;
   private initialLoadDone: boolean = false;
-  @Output() configurationChanged = new EventEmitter<any>();
+  private isAdjusting: boolean = false;
+  private resizeTimeout: any = null;
   private columnWidths = new Map<string, number>();
+  @Output() configurationChanged = new EventEmitter<any>();
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -144,24 +149,17 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
     super(cardDatabaseService);
     this._hasFooter = true;
     this.currentLanguage = this.translateService.currentLang;
-    this.resizeObserver = new ResizeObserver(this.onResize.bind(this));
   }
 
   ngOnInit() {
     try {
       if (this.card.configuration?.datasource && this.isValidConfiguration()) {
-        // Utiliser le nombre de lignes de la configuration si disponible
-        if (this.card.configuration.visualConfig.rowCount) {
-          this.pageSize = this.card.configuration.visualConfig.rowCount;
-        }
-
         // S'abonner aux changements de données
         this.dataService.getData(this.card.configuration.datasource)
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: (items) => {
               this.data = [...items];
-              this.updateColumnWidths();
               this.cdr.detectChanges();
             },
             error: (error) => {
@@ -198,6 +196,8 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
               this.cdr.detectChanges();
             }
           });
+
+        // Ne pas charger les données ici, attendre le calcul de la taille optimale
       }
     } catch (error) {
       console.error('Error in ngOnInit:', error);
@@ -211,108 +211,110 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
 
   ngAfterViewInit() {
     try {
-      // Observer la taille du conteneur
-      this.tableContainer = document.querySelector('.table-container');
-      if (this.tableContainer) {
-        // Attendre que le DOM soit stable
-        setTimeout(() => {
-          try {
-            this.measureRowHeight();
-            
-            // Ne procéder au chargement que si la configuration est valide
-            if (this.isValidConfiguration()) {
-              // Si rowCount est défini dans la configuration, on l'utilise
-              if (this.card.configuration?.visualConfig.rowCount) {
-                this.pageSize = this.card.configuration.visualConfig.rowCount;
-                this.loadData();
-              } else {
-                // Sinon on calcule la taille optimale
-                this.calculateAndSetOptimalSize();
-              }
-              
-              this.updateColumnWidths();
-              this.initialLoadDone = true;
-              
-              // On n'observe les redimensionnements qu'après le chargement initial
-              if (this.tableContainer) {  // Vérification supplémentaire pour le type
-                this.resizeObserver.observe(this.tableContainer);
-              }
-            }
-          } catch (error) {
-            console.error('Error in DataTableCardCard initialization:', error);
-            this.cdr.detectChanges();
-          }
-        }, 100);
+      if (this.isValidConfiguration()) {
+        // Récupérer les références aux éléments
+        this.tableContainer = document.querySelector('.data-table-container');
+        this.tableHeader = document.querySelector('.data-table-header');
+        this.tableFooter = document.querySelector('.data-table-footer');
+        
+        this.calculateAndSetOptimalSize(true);
+        this.initialLoadDone = true;
       }
     } catch (error) {
-      console.error('Error in DataTableCardCard view initialization:', error);
+      console.error('Error in DataTableCardCard initialization:', error);
       this.cdr.detectChanges();
     }
   }
 
-  private calculateAndSetOptimalSize() {
-    try {
-      if (!this.tableContainer || !this.rowHeight || !this.isValidConfiguration()) return;
+  protected override onHeightChange() {
+    console.log('[DataTable] onHeightChange appelé, hauteur:', this.height);
+    if (this.height > 0) {
+      // Attendre que le DOM soit stable
+      setTimeout(() => {
+        this.calculateAndSetOptimalSize(true);
+      });
+    }
+  }
 
-      const availableHeight = this.tableContainer.clientHeight;
-      const headerHeight = this.tableContainer.querySelector('thead')?.offsetHeight || 0;
-      const availableRowSpace = availableHeight - headerHeight;
-      
-      // Calculer le nombre optimal de lignes en tenant compte de la bordure
-      const rowWithBorderHeight = this.rowHeight + 1; // +1 pour la bordure
-      const optimalRows = Math.floor(availableRowSpace / rowWithBorderHeight);
-      
-      // Si le nombre total d'éléments est inférieur à la taille optimale, on ajuste
+  private calculateAndSetOptimalSize(shouldReloadData: boolean = true) {
+    try {
+      if (!this.isValidConfiguration() || this.height <= 0) {
+        console.log('[DataTable] Impossible de calculer la taille optimale:', {
+          height: this.height,
+          isValidConfig: this.isValidConfiguration()
+        });
+        return;
+      }
+
+      // Récupérer la hauteur disponible du conteneur de la table
+      const tableContainer = document.querySelector('[tablecontainer]') as HTMLElement;
+      if (!tableContainer) {
+        console.log('[DataTable] Conteneur de table non trouvé');
+        return;
+      }
+
+      const availableHeight = tableContainer.clientHeight;
+      console.log('[DataTable] Hauteur disponible du conteneur:', availableHeight);
+
+      // Si la hauteur n'est pas encore disponible, réessayer plus tard
+      if (availableHeight <= 0) {
+        console.log('[DataTable] Hauteur non disponible, nouvel essai dans 100ms');
+        setTimeout(() => {
+          this.calculateAndSetOptimalSize(shouldReloadData);
+        }, 100);
+        return;
+      }
+
+      // Calculer le nombre optimal de lignes
+      const optimalRows = Math.floor(availableHeight / this.ROW_TOTAL_HEIGHT);
       const targetSize = Math.min(optimalRows, this.totalItems || optimalRows);
       const newPageSize = Math.max(1, targetSize);
 
-      this.pageSize = newPageSize;
+      // Calculer la hauteur ajustée des lignes pour remplir l'espace
+      const totalSpace = availableHeight - ((newPageSize - 1) * this.ROW_BORDER);
+      const newRowHeight = Math.floor(totalSpace / newPageSize) - this.CELL_PADDING;
       
-      // Sauvegarder le nombre de lignes dans la configuration
-      if (this.card.configuration) {
-        this.card.configuration.visualConfig.rowCount = newPageSize;
-        this.configurationChanged.emit(this.card);
-      }
+      console.log('[DataTable] Calcul de la taille optimale:', {
+        containerHeight: availableHeight,
+        optimalRows,
+        newPageSize,
+        newRowHeight,
+        currentHeight: this.adjustedRowHeight,
+        totalItems: this.totalItems,
+        shouldReloadData
+      });
 
-      this.loadData();
+      // Ne mettre à jour que si nous avons une hauteur valide
+      if (newRowHeight > 0) {
+        this.adjustedRowHeight = newRowHeight;
+        
+        // Si le nombre de lignes a changé
+        if (this.pageSize !== newPageSize && newPageSize > 0) {
+          console.log('[DataTable] Changement du nombre de lignes:', {
+            ancien: this.pageSize,
+            nouveau: newPageSize
+          });
+          this.pageSize = newPageSize;
+          
+          // Sauvegarder le nombre de lignes dans la configuration
+          if (this.card.configuration) {
+            this.card.configuration.visualConfig.rowCount = newPageSize;
+            this.configurationChanged.emit(this.card);
+          }
+
+          // Ne recharger les données que si demandé et si la taille a changé
+          if (shouldReloadData) {
+            console.log('[DataTable] Rechargement des données');
+            this.loadData();
+          }
+        }
+
+        this.cdr.detectChanges();
+      }
     } catch (error) {
       console.error('Error in calculateAndSetOptimalSize:', error);
       this.cdr.detectChanges();
     }
-  }
-
-  private measureRowHeight() {
-    if (!this.tableContainer) return;
-    
-    // Sélectionner spécifiquement une ligne de données (pas le header)
-    const dataRow = this.tableContainer.querySelector('tbody tr:not(.animate-pulse)') as HTMLElement;
-    if (dataRow) {
-      this.rowHeight = dataRow.offsetHeight;
-    }
-  }
-
-  ngOnDestroy() {
-    if (this.tableContainer) {
-      this.resizeObserver.unobserve(this.tableContainer);
-    }
-    this.resizeObserver.disconnect();
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  private onResize() {
-    // Ignorer les événements de resize avant le chargement initial
-    // ou si on a une taille configurée
-    if (this.isAdjusting || !this.initialLoadDone || this.card.configuration?.visualConfig.rowCount) return;
-    
-    this.isAdjusting = true;
-    // Attendre que le DOM soit stable
-    setTimeout(() => {
-      this.measureRowHeight();
-      this.calculateAndSetOptimalSize();
-      this.updateColumnWidths();
-      this.isAdjusting = false;
-    }, 200);
   }
 
   private loadData() {
@@ -441,5 +443,21 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
     
     this.currentPage = page;
     this.loadData();
+  }
+
+  getRowStyle(index: number): any {
+    return {
+      'height.px': this.adjustedRowHeight + this.CELL_PADDING,
+      'background-color': this.getRowBackgroundColor(index),
+      'color': this.card.configuration?.visualConfig.rowTextColor
+    };
+  }
+
+  ngOnDestroy() {
+    if (this.resizeTimeout) {
+      clearTimeout(this.resizeTimeout);
+    }
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 } 

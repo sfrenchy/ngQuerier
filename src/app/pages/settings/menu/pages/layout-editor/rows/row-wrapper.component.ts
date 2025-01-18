@@ -12,6 +12,7 @@ export class RowWrapperComponent implements OnDestroy, OnInit {
   @Input() row!: RowDto;
   @Input() isEditing = false;
   @Input() set height(value: number) {
+    console.log('[RowWrapper] Nouvelle hauteur reçue:', value);
     this._height = value;
   }
   get height(): number {
@@ -111,6 +112,7 @@ export class RowWrapperComponent implements OnDestroy, OnInit {
     this.resizeGhost = null;
     this.isResizing = false;
     
+    console.log('[RowWrapper] Fin du redimensionnement, nouvelle hauteur:', newHeight);
     this.endResize.emit({
       rowId: this.row.id,
       newHeight

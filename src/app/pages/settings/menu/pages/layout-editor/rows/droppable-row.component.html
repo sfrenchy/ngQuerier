@@ -8,7 +8,7 @@
        [class.dragging-over]="isDraggingCard">
     <ng-container *ngFor="let card of row.cards">
       <div [style.grid-column]="'span ' + (card.gridWidth || 12)" class="h-full">
-        <app-card-wrapper [card]="card" [isEditing]="true" (delete)="onCardDelete(card.id)" (configure)="onCardConfigure(card.id)">
+        <app-card-wrapper [card]="card" [height]="height" [isEditing]="true" (delete)="onCardDelete(card.id)" (configure)="onCardConfigure(card.id)">
           <ng-container *ngComponentOutlet="getCardComponent(card).component; 
                                         injector: moduleRef.injector;
                                         inputs: getCardComponent(card).inputs">

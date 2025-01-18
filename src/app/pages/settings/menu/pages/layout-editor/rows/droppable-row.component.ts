@@ -1,14 +1,14 @@
 import { Component, EventEmitter, Input, Output, NgModuleRef, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, NgComponentOutlet } from '@angular/common';
 import { CardDto, RowDto } from '@models/api.models';
-import { BaseCardComponent } from '../../../../../../cards/base-card.component';
-import { CardService } from '../../../../../../cards/card.service';
+import { CardService } from '@cards/card.service';
+import { CardWrapperComponent } from '@cards/card-wrapper/card-wrapper.component';
 
 @Component({
   selector: 'app-droppable-row',
   templateUrl: './droppable-row.component.html',
   standalone: true,
-  imports: [CommonModule, BaseCardComponent, NgComponentOutlet]
+  imports: [CommonModule, NgComponentOutlet, CardWrapperComponent]
 })
 export class DroppableRowComponent implements OnInit, OnChanges {
   @Input() row!: RowDto;
@@ -67,12 +67,17 @@ export class DroppableRowComponent implements OnInit, OnChanges {
       this.cardComponents.set(type, {
         component,
         inputs: {
-          card: card
+          card: card,
+          isEditing: true
         }
       });
     } else {
       // Mettre à jour les inputs si la carte a changé
-      this.cardComponents.get(type).inputs = { card: card };
+      const cardComponent = this.cardComponents.get(type);
+      cardComponent.inputs = {
+        card: card,
+        isEditing: true
+      };
     }
     return this.cardComponents.get(type);
   }
@@ -190,17 +195,6 @@ export class DroppableRowComponent implements OnInit, OnChanges {
     });
   }
 
-  ngOnDestroy() {
-    // Nettoyer les écouteurs si nécessaire
-    if (this.isResizing) {
-      document.removeEventListener('mousemove', this.onResizeMove);
-      document.removeEventListener('mouseup', this.onResizeEnd);
-      if (this.resizeGhost) {
-        this.resizeGhost.remove();
-      }
-    }
-  }
-
   onCardDelete(cardId: number) {
     this.deleteCard.emit({
       rowId: this.row.id,
@@ -217,5 +211,16 @@ export class DroppableRowComponent implements OnInit, OnChanges {
 
   onConfigureRow() {
     this.configureRow.emit(this.row.id);
+  }
+
+  ngOnDestroy() {
+    // Nettoyer les écouteurs si nécessaire
+    if (this.isResizing) {
+      document.removeEventListener('mousemove', this.onResizeMove);
+      document.removeEventListener('mouseup', this.onResizeEnd);
+      if (this.resizeGhost) {
+        this.resizeGhost.remove();
+      }
+    }
   }
 } 

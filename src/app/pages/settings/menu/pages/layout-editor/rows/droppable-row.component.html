@@ -22,14 +22,12 @@
          (drop)="onDrop($event)">
       <ng-container *ngFor="let card of row.cards">
         <div class="col-span-12 h-full">
-          <app-base-card [card]="card" [isEditing]="true" (delete)="onCardDelete(card.id)" (configure)="onCardConfigure(card.id)">
-            <ng-container body>
-              <ng-container *ngComponentOutlet="getCardComponent(card).component; 
-                                            injector: moduleRef.injector;
-                                            inputs: getCardComponent(card).inputs">
-              </ng-container>
+          <app-card-wrapper [card]="card" [isEditing]="true" (delete)="onCardDelete(card.id)" (configure)="onCardConfigure(card.id)">
+            <ng-container *ngComponentOutlet="getCardComponent(card).component; 
+                                        injector: moduleRef.injector;
+                                        inputs: getCardComponent(card).inputs">
             </ng-container>
-          </app-base-card>
+          </app-card-wrapper>
         </div>
       </ng-container>
 

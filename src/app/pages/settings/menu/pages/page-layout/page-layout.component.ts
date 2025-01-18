@@ -28,7 +28,7 @@ export class PageLayoutComponent implements OnInit {
   }
 
   ngOnInit() {
-    const pageId = this.route.snapshot.paramMap.get('id');
+    const pageId = this.route.snapshot.paramMap.get('pageId');
     if (pageId) {
       this.pageId = +pageId;
       this.loadLayout(this.pageId);

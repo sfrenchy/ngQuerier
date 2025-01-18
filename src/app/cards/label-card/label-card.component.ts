@@ -34,6 +34,6 @@ export class LabelCardConfig extends BaseCardConfig {
   selector: 'app-label-card',
   templateUrl: './label-card.component.html',
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, BaseCardComponent]
 })
 export class LabelCardComponent extends BaseCardComponent<LabelCardConfig> {} 

@@ -1,6 +1,6 @@
 <div #cardContainer class="flex flex-col h-full rounded-lg overflow-hidden" [style.background-color]="backgroundColor">
   <!-- Header -->
-  <div class="flex items-center justify-between px-4 py-2" [style.background-color]="headerBackgroundColor">
+  <div class="flex items-center justify-between px-4 py-3" [style.background-color]="headerBackgroundColor">
     <div class="flex items-center flex-1">
       <h3 class="text-sm font-medium" [style.color]="headerTextColor">
         <ng-container *ngFor="let title of card.title">
@@ -14,11 +14,11 @@
     <button *ngIf="showFullscreenButton"
       (click)="toggleFullscreen()"
       class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors ml-2">
-      <svg *ngIf="!isFullscreen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M3 4a1 1 0 011-1h4a1 1 0 010 2H6.414l2.293 2.293a1 1 0 11-1.414 1.414L5 6.414V8a1 1 0 01-2 0V4zm5 10a1 1 0 01-1 1H3a1 1 0 01-1-1v-4a1 1 0 112 0v1.586l2.293-2.293a1 1 0 111.414 1.414L5.414 14H7a1 1 0 011 1zm7-10a1 1 0 01.707.293l2.293 2.293V4a1 1 0 112 0v4a1 1 0 01-1 1h-4a1 1 0 110-2h1.586l-2.293-2.293A1 1 0 0115 4zm0 10a1 1 0 011-1h1.586l-2.293-2.293a1 1 0 111.414-1.414L19 11.586V10a1 1 0 112 0v4a1 1 0 01-1 1h-4a1 1 0 010-2z"/>
+      <svg *ngIf="!isFullscreen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
       </svg>
-      <svg *ngIf="isFullscreen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M3 3a1 1 0 00-1 1v4a1 1 0 102 0V5.414l2.293 2.293a1 1 0 001.414-1.414L5.414 4H7a1 1 0 100-2H3zm5 10a1 1 0 00-1 1v1.586l-2.293-2.293a1 1 0 00-1.414 1.414L5.586 17H4a1 1 0 100 2h4a1 1 0 001-1v-4a1 1 0 00-1-1zm7-10a1 1 0 00.707.293l2.293 2.293V4a1 1 0 10-2 0v1.586L13.707 3.293A1 1 0 1012.293 4.707L14.586 7H13a1 1 0 100 2h4a1 1 0 001-1V4a1 1 0 00-1-1h-4a1 1 0 000 2zm0 10a1 1 0 00-1 1v1.586l-2.293-2.293a1 1 0 10-1.414 1.414L13.586 17H12a1 1 0 100 2h4a1 1 0 001-1v-4a1 1 0 00-1-1z"/>
+      <svg *ngIf="isFullscreen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
       </svg>
     </button>
   </div>

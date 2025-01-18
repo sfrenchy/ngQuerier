@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DatasourceConfig } from '@models/datasource.models';
-import { ColumnConfig } from './data-table-card-card.component';
+import { ColumnConfig } from './data-table-card.component';
 import { CardDatabaseService } from '@services/card-database.service';
 
 interface DataState {
@@ -17,7 +17,7 @@ interface DataState {
 @Injectable({
   providedIn: 'root'
 })
-export class DataTableCardCardService {
+export class DataTableCardService {
   private dataStateMap = new Map<string, BehaviorSubject<DataState>>();
 
   constructor(private cardDatabaseService: CardDatabaseService) {}

@@ -2,18 +2,18 @@ import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DataTableCardCardConfig, ColumnConfig, TableVisualConfig } from './data-table-card-card.component';
+import { DataTableCardConfig, ColumnConfig, TableVisualConfig } from './data-table-card.component';
 import { CardDto } from '@models/api.models';
 import { TileComponent } from '@shared/components/tile/tile.component';
 import { DatasourceConfig } from '@models/datasource.models';
 import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { DataTableCardCardService } from './data-table-card-card.service';
+import { DataTableCardService } from './data-table-card.service';
 
 @Component({
-  selector: 'app-data-table-card-card-configuration',
-  templateUrl: './data-table-card-card-configuration.component.html',
+  selector: 'app-data-table-card-configuration',
+  templateUrl: './data-table-card-configuration.component.html',
   standalone: true,
   imports: [
     CommonModule,
@@ -23,10 +23,10 @@ import { DataTableCardCardService } from './data-table-card-card.service';
     DatasourceConfigurationComponent
   ]
 })
-export class DataTableCardCardConfigurationComponent implements OnInit, OnDestroy {
-  @Input() card!: CardDto<DataTableCardCardConfig>;
-  @Output() save = new EventEmitter<DataTableCardCardConfig>();
-  @Output() configChange = new EventEmitter<DataTableCardCardConfig>();
+export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
+  @Input() card!: CardDto<DataTableCardConfig>;
+  @Output() save = new EventEmitter<DataTableCardConfig>();
+  @Output() configChange = new EventEmitter<DataTableCardConfig>();
 
   form: FormGroup;
   jsonSchema: string | null = null;
@@ -37,7 +37,7 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
 
   constructor(
     private fb: FormBuilder,
-    private dataTableService: DataTableCardCardService
+    private dataTableService: DataTableCardService
   ) {
     this.form = this.fb.group({
       datasource: [null],
@@ -53,7 +53,7 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
   }
 
   private emitConfig(formValue: any) {
-    const config = new DataTableCardCardConfig();
+    const config = new DataTableCardConfig();
     if (formValue.datasource) {
       config.datasource = formValue.datasource;
     }
@@ -76,7 +76,7 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
       this.columns = this.card.configuration.columns || [];
     } else {
       // Initialiser avec les valeurs par défaut si pas de configuration
-      const defaultConfig = new DataTableCardCardConfig();
+      const defaultConfig = new DataTableCardConfig();
       this.form.patchValue({
         visualConfig: defaultConfig.visualConfig
       }, { emitEvent: false });
@@ -347,7 +347,7 @@ export class DataTableCardCardConfigurationComponent implements OnInit, OnDestro
 
   onSave() {
     if (this.form.valid) {
-      const config = new DataTableCardCardConfig();
+      const config = new DataTableCardConfig();
       const formValue = this.form.value;
       if (formValue.datasource) {
         config.datasource = formValue.datasource;

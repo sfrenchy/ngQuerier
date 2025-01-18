@@ -2,14 +2,14 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Card } from '@cards/card.decorator';
-import { DataTableCardCardConfigurationComponent } from './data-table-card-card-configuration.component';
+import { DataTableCardConfigurationComponent } from './data-table-card-configuration.component';
 import { BaseCardConfig } from '@models/api.models';
 import { BaseCardComponent } from '@cards/base-card.component';
 import { DatasourceConfig } from '@models/datasource.models';
 import { CardDatabaseService } from '@services/card-database.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { DataTableCardCardService } from './data-table-card-card.service';
+import { DataTableCardService } from './data-table-card.service';
 import { FormsModule } from '@angular/forms';
 
 export interface ColumnConfig {
@@ -52,7 +52,7 @@ export interface TableVisualConfig {
   rowCount?: number;
 }
 
-export class DataTableCardCardConfig extends BaseCardConfig {
+export class DataTableCardConfig extends BaseCardConfig {
   datasource: DatasourceConfig;
   columns?: ColumnConfig[];
   visualConfig: TableVisualConfig;
@@ -82,8 +82,8 @@ export class DataTableCardCardConfig extends BaseCardConfig {
     };
   }
 
-  static fromJson(json: any): DataTableCardCardConfig {
-    const config = new DataTableCardCardConfig();
+  static fromJson(json: any): DataTableCardConfig {
+    const config = new DataTableCardConfig();
     if (json.datasource) {
       config.datasource = json.datasource;
     }
@@ -106,18 +106,18 @@ export class DataTableCardCardConfig extends BaseCardConfig {
     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
     <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
   </svg>`,
-  configComponent: DataTableCardCardConfigurationComponent,
-  configType: DataTableCardCardConfig,
-  defaultConfig: () => new DataTableCardCardConfig()
+  configComponent: DataTableCardConfigurationComponent,
+  configType: DataTableCardConfig,
+  defaultConfig: () => new DataTableCardConfig()
 })
 @Component({
-  selector: 'app-data-table-card-card',
-  templateUrl: './data-table-card-card.component.html',
+  selector: 'app-data-table-card',
+  templateUrl: './data-table-card.component.html',
   standalone: true,
   imports: [CommonModule, TranslateModule, FormsModule, BaseCardComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardCardConfig> implements OnInit, OnDestroy {
+export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfig> implements OnInit, OnDestroy {
   data: any[] = [];
   totalItems: number = 0;
   currentPage: number = 1;
@@ -163,7 +163,7 @@ export class DataTableCardCardComponent extends BaseCardComponent<DataTableCardC
     protected override cardDatabaseService: CardDatabaseService,
     private translateService: TranslateService,
     private cdr: ChangeDetectorRef,
-    private dataService: DataTableCardCardService
+    private dataService: DataTableCardService
   ) {
     super(cardDatabaseService);
     this.currentLanguage = this.translateService.currentLang;

@@ -1,7 +1,7 @@
 import { Injectable, ApplicationRef, createComponent, EnvironmentInjector, Type } from '@angular/core';
 import { getRegisteredCards } from '@cards/card.decorator';
 import '@cards/line-chart-card/line-chart-card.component';
-import '@cards/data-table-card-card/data-table-card-card.component';
+import '@cards/data-table-card/data-table-card.component';
 
 import './label-card/label-card.component';
 

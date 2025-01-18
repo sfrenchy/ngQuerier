@@ -42,6 +42,7 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implem
 
   @Output() delete = new EventEmitter<void>();
   @Output() configure = new EventEmitter<void>();
+  @Output() fullscreenChange = new EventEmitter<boolean>();
 
   constructor(protected cardDatabaseService?: CardDatabaseService) {
     document.addEventListener('fullscreenchange', this.handleFullscreenChange.bind(this));
@@ -53,6 +54,7 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implem
 
   private handleFullscreenChange() {
     this.isFullscreen = !!document.fullscreenElement;
+    this.fullscreenChange.emit(this.isFullscreen);
   }
 
   protected onHeightChange() {

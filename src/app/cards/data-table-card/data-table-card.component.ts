@@ -629,4 +629,12 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     this.isScrollbarNeeded = container.scrollWidth > container.clientWidth;
     this.cdr.detectChanges();
   }
+
+  onFullscreenChange(isFullscreen: boolean) {
+    // Attendre que le changement de taille soit effectif
+    setTimeout(() => {
+      this.calculateAndSetOptimalSize(true);
+      this.updateScrollbarVisibility();
+    }, 100);
+  }
 } 

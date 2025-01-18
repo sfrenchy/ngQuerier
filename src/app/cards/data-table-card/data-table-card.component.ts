@@ -161,6 +161,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   private scrollLeft = 0;
   isScrollbarNeeded: boolean = false;
   protected canGoFullscreen = true;
+  isSearchVisible = false;
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -636,5 +637,11 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       this.calculateAndSetOptimalSize(true);
       this.updateScrollbarVisibility();
     }, 100);
+  }
+
+  toggleSearch() {
+    console.log('Toggle search clicked');
+    this.isSearchVisible = !this.isSearchVisible;
+    console.log('isSearchVisible:', this.isSearchVisible);
   }
 } 

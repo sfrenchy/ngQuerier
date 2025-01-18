@@ -244,27 +244,22 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   ngAfterViewInit() {
-    console.log('ngAfterViewInit - Début du calcul initial');
     if (this.isValidConfiguration()) {
       this.isCalculatingRows = true;
       this.cdr.detectChanges();
       
       setTimeout(() => {
-        console.log('Timeout expiré, début du calcul');
         this.calculateAndSetOptimalSize(true);
         this.isCalculatingRows = false;
         this.initialLoadDone = true;
         this.cdr.detectChanges();
-        console.log('Calcul initial terminé');
       }, 1000);
     }
   }
 
   protected override onHeightChange() {
-    console.log('onHeightChange - Nouvelle hauteur:', this.height);
     if (this.height > 0) {
       setTimeout(() => {
-        console.log('onHeightChange - Timeout expiré, recalcul');
         this.calculateAndSetOptimalSize(true);
         this.updateScrollbarVisibility();
       });
@@ -274,45 +269,27 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   private calculateAndSetOptimalSize(shouldReloadData: boolean = true) {
     try {
       if (!this.isValidConfiguration()) {
-        console.log('Configuration invalide');
         return;
       }
 
       const tableContainer = this.tableContainerRef?.nativeElement;
       if (!tableContainer) {
-        console.log('Conteneur de table non trouvé');
         return;
       }
-
-      console.log('Dimensions actuelles:', {
-        containerHeight: tableContainer.clientHeight,
-        containerWidth: tableContainer.clientWidth,
-        componentHeight: this.height
-      });
 
       // Calculer la hauteur disponible
       const availableHeight = tableContainer.clientHeight;
 
       if (availableHeight <= 0) {
-        console.log('Hauteur disponible invalide:', availableHeight);
         return;
       }
 
       // 1. Calculer la hauteur disponible pour les lignes
       const availableHeightForRows = availableHeight - this.TABLE_BORDER;
-      console.log('Hauteur disponible pour les lignes:', availableHeightForRows);
 
       // 2. Calculer le nombre de lignes qui peuvent tenir
       const rowTotalSpace = this.ROW_HEIGHT + this.ROW_BORDER + (this.CELL_PADDING * 2); // Hauteur + bordure + padding haut et bas
       const optimalRows = Math.floor(availableHeightForRows / rowTotalSpace);
-      console.log('Calcul des lignes:', {
-        rowHeight: this.ROW_HEIGHT,
-        rowBorder: this.ROW_BORDER,
-        cellPadding: this.CELL_PADDING,
-        rowTotalSpace,
-        optimalRows,
-        totalItems: this.totalItems
-      });
       
       // 3. Déterminer le nombre final de lignes
       const targetSize = Math.min(optimalRows, this.totalItems || optimalRows);
@@ -322,22 +299,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       const totalSpace = availableHeightForRows - (newPageSize * this.ROW_BORDER) - (newPageSize * (this.CELL_PADDING * 2));
       const newRowHeight = Math.floor(totalSpace / newPageSize);
 
-      console.log('Résultat final:', {
-        targetSize,
-        newPageSize,
-        totalSpace,
-        newRowHeight,
-        currentPageSize: this.pageSize,
-        currentRowHeight: this.adjustedRowHeight,
-        availableHeight,
-        calculatedTotalHeight: (newRowHeight * newPageSize) + (newPageSize * this.ROW_BORDER) + (newPageSize * (this.CELL_PADDING * 2))
-      });
-
       if (newRowHeight > 0) {
         this.adjustedRowHeight = newRowHeight;
         
         if (this.pageSize !== newPageSize && newPageSize > 0) {
-          console.log('Mise à jour de la taille de page:', {
             ancien: this.pageSize,
             nouveau: newPageSize
           });

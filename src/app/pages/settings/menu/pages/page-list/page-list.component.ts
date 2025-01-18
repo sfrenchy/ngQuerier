@@ -8,18 +8,21 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { CdkDragDrop, moveItemInArray, DragDropModule } from '@angular/cdk/drag-drop';
+import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-page-list',
   templateUrl: './page-list.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FontAwesomeModule, DragDropModule, RouterModule]
+  imports: [CommonModule, TranslateModule, FontAwesomeModule, DragDropModule, RouterModule, ConfirmationDialogComponent]
 })
 export class PageListComponent implements OnInit {
   pages: PageDto[] = [];
   menu?: MenuDto;
   isLoading = false;
   error: string | null = null;
+  showConfirmDialog = false;
+  pageToDelete: PageDto | null = null;
 
   constructor(
     private apiService: ApiService,
@@ -32,7 +35,7 @@ export class PageListComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const categoryId = this.route.snapshot.paramMap.get('categoryId');
+    const categoryId = this.route.snapshot.paramMap.get('id');
     if (categoryId) {
       this.loadMenu(+categoryId);
       this.loadPages(+categoryId);
@@ -66,32 +69,47 @@ export class PageListComponent implements OnInit {
   }
 
   onAddClick(): void {
-    if (this.menu) {
+    const menuId = this.route.snapshot.paramMap.get('id');
+    if (menuId) {
       this.router.navigate(['new'], { relativeTo: this.route });
     }
   }
 
   onEditClick(page: PageDto): void {
-    this.router.navigate(['edit', page.id], { relativeTo: this.route });
+    this.router.navigate([page.id], { relativeTo: this.route });
   }
 
   onLayoutClick(page: PageDto): void {
-    this.router.navigate(['layout', page.id], { relativeTo: this.route });
+    this.router.navigate([page.id, 'layout'], { relativeTo: this.route });
   }
 
   onDeleteClick(page: PageDto): void {
-    if (confirm(this.translate.instant('COMMON.CONFIRMATION.DELETE_PAGE', { name: this.getLocalizedName(page) }))) {
-      this.apiService.deletePage(page.id).subscribe({
+    this.pageToDelete = page;
+    this.showConfirmDialog = true;
+  }
+
+  onConfirmDelete(): void {
+    if (this.pageToDelete) {
+      this.apiService.deletePage(this.pageToDelete.id).subscribe({
         next: () => {
           if (this.menu) {
             this.loadPages(this.menu.id);
           }
+          this.showConfirmDialog = false;
+          this.pageToDelete = null;
         },
         error: (error) => {
           this.error = error.message;
+          this.showConfirmDialog = false;
+          this.pageToDelete = null;
         }
       });
     }
+  }
+
+  onCancelDelete(): void {
+    this.showConfirmDialog = false;
+    this.pageToDelete = null;
   }
 
   getLocalizedName(item: PageDto | MenuDto): string {

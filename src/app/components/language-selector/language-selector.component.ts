@@ -19,20 +19,20 @@ interface Language {
         [title]="getCurrentLanguage().name">
         <span class="text-lg leading-none">{{ getCurrentLanguage().flag }}</span>
       </button>
-
-      <!-- Dropdown Menu -->
-      <div *ngIf="isOpen" 
-           class="absolute right-0 mt-2 py-1 bg-background rounded-lg shadow-lg z-50 border border-border">
-        <button *ngFor="let lang of languages"
-                (click)="setLanguage(lang.code)"
-                class="block p-1.5 hover:bg-background-hover transition-colors w-full"
-                [title]="lang.name">
-          <span class="text-lg leading-none">{{ lang.flag }}</span>
-        </button>
+      <div *ngIf="isOpen" class="absolute right-0 mt-2 bg-background border border-border rounded-lg shadow-lg z-50">
+        <div class="py-1">
+          <button
+            *ngFor="let lang of languages"
+            (click)="setLanguage(lang.code); isOpen = false"
+            class="flex items-center w-full px-4 py-2 text-sm hover:bg-background-hover transition-colors"
+            [class.font-semibold]="lang.code === currentLang">
+            <span class="text-lg mr-2">{{ lang.flag }}</span>
+            <span>{{ lang.name }}</span>
+          </button>
+        </div>
       </div>
     </div>
   `,
-  styles: [],
   standalone: true,
   imports: [CommonModule, TranslateModule]
 })

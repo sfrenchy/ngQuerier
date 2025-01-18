@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { LayoutDto, RowDto, CardDto } from '@models/api.models';
 import { DroppableRowComponent } from './rows/droppable-row.component';
-import { BaseCardComponent } from '@cards/base-card.component';
 import { BaseCardConfigurationComponent } from '@cards/base-card-configuration.component';
 import { CardService } from '@cards/card.service';
 import { CardMetadata } from '@cards/card.decorator';
@@ -22,6 +22,7 @@ interface CardMetadataWithSafeIcon extends CardMetadata {
   standalone: true,
   imports: [
     CommonModule,
+    DragDropModule,
     DroppableRowComponent,
     BaseCardConfigurationComponent
   ]

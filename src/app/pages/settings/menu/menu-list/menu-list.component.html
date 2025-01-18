@@ -109,3 +109,11 @@
     </div>
   </div>
 </div>
+
+<app-confirmation-dialog
+  *ngIf="showConfirmDialog"
+  [titleKey]="'COMMON.CONFIRM_DELETE'"
+  [messageKey]="'COMMON.CONFIRMATION.DELETE_GENERIC'"
+  (confirm)="onConfirmDelete()"
+  (cancel)="onCancelDelete()">
+</app-confirmation-dialog>

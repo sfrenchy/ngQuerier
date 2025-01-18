@@ -1,26 +1,30 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from '@services/api.service';
 import { MenuDto } from '@models/api.models';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-menu-list',
   templateUrl: './menu-list.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FontAwesomeModule, DragDropModule]
+  imports: [CommonModule, TranslateModule, FontAwesomeModule, DragDropModule, ConfirmationDialogComponent]
 })
 export class MenuListComponent {
   menus: MenuDto[] = [];
   isLoading = false;
   error: string | null = null;
+  showConfirmDialog = false;
+  menuToDelete: MenuDto | null = null;
 
   constructor(
     private apiService: ApiService,
     private router: Router,
+    private route: ActivatedRoute,
     private translate: TranslateService
   ) { }
 
@@ -49,28 +53,42 @@ export class MenuListComponent {
   }
 
   onAddClick(): void {
-    this.router.navigate(['/settings/menu/new']);
+    this.router.navigate(['new'], { relativeTo: this.route });
   }
 
   onEditClick(menu: MenuDto): void {
-    this.router.navigate(['/settings/menu/edit', menu.id]);
+    this.router.navigate(['edit', menu.id], { relativeTo: this.route });
   }
 
   onPagesClick(menu: MenuDto): void {
-    this.router.navigate(['/settings/menu/category', menu.id, 'pages']);
+    this.router.navigate([menu.id, 'pages'], { relativeTo: this.route });
   }
 
   onDeleteClick(menu: MenuDto): void {
-    if (confirm(this.translate.instant('COMMON.CONFIRMATION.DELETE_MENU_CATEGORY', { name: this.getLocalizedName(menu) }))) {
-      this.apiService.deleteMenu(menu.id).subscribe({
+    this.menuToDelete = menu;
+    this.showConfirmDialog = true;
+  }
+
+  onConfirmDelete(): void {
+    if (this.menuToDelete) {
+      this.apiService.deleteMenu(this.menuToDelete.id).subscribe({
         next: () => {
           this.loadMenuCategories();
+          this.showConfirmDialog = false;
+          this.menuToDelete = null;
         },
         error: (error) => {
           this.error = error.message;
+          this.showConfirmDialog = false;
+          this.menuToDelete = null;
         }
       });
     }
+  }
+
+  onCancelDelete(): void {
+    this.showConfirmDialog = false;
+    this.menuToDelete = null;
   }
 
   onVisibilityChange(menu: MenuDto, isVisible: boolean): void {

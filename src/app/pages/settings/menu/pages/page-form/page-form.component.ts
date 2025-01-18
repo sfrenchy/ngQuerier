@@ -43,12 +43,12 @@ export class PageFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadRoles();
-    this.menuId = Number(this.route.snapshot.paramMap.get('categoryId'));
+    this.menuId = Number(this.route.snapshot.paramMap.get('id'));
 
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
+    const pageId = this.route.snapshot.paramMap.get('pageId');
+    if (pageId) {
       this.isEditMode = true;
-      this.pageId = Number(id);
+      this.pageId = Number(pageId);
       this.loadPage(this.pageId);
     } else {
       // Initialiser avec les langues par défaut
@@ -113,7 +113,7 @@ export class PageFormComponent implements OnInit {
 
       request.subscribe({
         next: () => {
-          this.router.navigate(['/settings', 'menu', 'category', this.menuId, 'pages']);
+          this.router.navigate(['..'], { relativeTo: this.route });
         },
         error: (error) => {
           console.error('Error saving page:', error);
@@ -125,7 +125,7 @@ export class PageFormComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/settings', 'menu', 'category', this.menuId, 'pages']);
+    this.router.navigate(['..'], { relativeTo: this.route });
   }
 
   onRoleChange(role: RoleDto, event: Event): void {

@@ -115,4 +115,13 @@
   </div>
 </div>
 
+<app-confirmation-dialog
+  *ngIf="showConfirmDialog"
+  [titleKey]="'MENU.PAGES.DELETE'"
+  [messageKey]="'COMMON.CONFIRMATION.DELETE_GENERIC'"
+  [messageParams]="{ name: pageToDelete ? getLocalizedName(pageToDelete) : '' }"
+  (confirm)="onConfirmDelete()"
+  (cancel)="onCancelDelete()">
+</app-confirmation-dialog>
+
 <router-outlet></router-outlet> 

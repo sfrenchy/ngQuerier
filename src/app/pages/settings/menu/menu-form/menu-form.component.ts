@@ -146,7 +146,7 @@ export class MenuFormComponent implements OnInit {
     this.isLoading = true;
     this.apiService.createMenu(menuData).subscribe({
       next: () => {
-        this.router.navigate(['/settings/menu']);
+        this.router.navigate(['/home/contents']);
       },
       error: (error) => {
         console.error('Error creating menu:', error);
@@ -160,7 +160,7 @@ export class MenuFormComponent implements OnInit {
     this.isLoading = true;
     this.apiService.updateMenu(this.categoryId!, menuData).subscribe({
       next: () => {
-        this.router.navigate(['/settings/menu']);
+        this.router.navigate(['/home/contents']);
       },
       error: (error) => {
         console.error('Error updating menu:', error);
@@ -171,7 +171,7 @@ export class MenuFormComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/settings/menu']);
+    this.router.navigate(['/home/contents']);
   }
 
   handleRoleChange(role: RoleDto, event: Event): void {

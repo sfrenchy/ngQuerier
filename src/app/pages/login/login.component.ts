@@ -104,7 +104,7 @@ export class LoginComponent implements OnInit {
       this.authService.login(email, password).subscribe({
         next: (success: boolean) => {
           if (success) {
-            this.router.navigate(['/']);
+            this.router.navigate(['/home']);
           }
           this.isLoading = false;
         },

@@ -94,6 +94,7 @@ export class DynamicFormComponent implements OnInit {
 
   form!: FormGroup;
   fields: DynamicFormField[] = [];
+  private identityFields: { key: string; defaultValue: any; }[] = [];
 
   constructor(private fb: FormBuilder) {}
 
@@ -105,8 +106,25 @@ export class DynamicFormComponent implements OnInit {
     const formGroup: any = {};
     const properties = this.jsonSchema.properties;
 
+    // Stocker les champs Identity/PrimaryKey
+    this.identityFields = Object.keys(properties)
+      .filter(key => {
+        const metadata = properties[key]['x-entity-metadata'];
+        return metadata?.isPrimaryKey && metadata?.isIdentity;
+      })
+      .map(key => ({
+        key,
+        defaultValue: properties[key]['x-entity-metadata']?.defaultValue ?? null
+      }));
+
+    // Filtrer les champs pour le formulaire (exclure Identity/PrimaryKey)
     this.fields = Object.keys(properties)
-      .filter(key => !properties[key]['x-entity-metadata']?.isNavigation && !properties[key]['x-entity-metadata']?.isCollection)
+      .filter(key => {
+        const metadata = properties[key]['x-entity-metadata'];
+        return !metadata?.isNavigation && 
+               !metadata?.isCollection && 
+               !(metadata?.isPrimaryKey && metadata?.isIdentity);
+      })
       .map(key => {
         const prop = properties[key];
         const metadata = prop['x-entity-metadata'];
@@ -132,7 +150,6 @@ export class DynamicFormComponent implements OnInit {
         const defaultValue = metadata?.defaultValue ?? null;
         formGroup[key] = [defaultValue, validators];
 
-        // Retourner la configuration du champ
         return {
           key,
           label: this.formatLabel(key),
@@ -143,7 +160,9 @@ export class DynamicFormComponent implements OnInit {
           isNavigation: metadata?.isNavigation || false,
           defaultValue: defaultValue,
           nullable: prop.nullable,
-          metadata: metadata
+          metadata: metadata,
+          minimum: prop.minimum,
+          maximum: prop.maximum
         };
       });
 
@@ -218,18 +237,27 @@ export class DynamicFormComponent implements OnInit {
   onSubmit() {
     if (this.form.valid) {
       const formValue = this.form.value;
-      // Formatter les dates si nécessaires
+
+      // Ajouter les valeurs par défaut des champs Identity
+      this.identityFields.forEach(field => {
+        formValue[field.key] = field.defaultValue;
+      });
+
+      // Formatter les dates et gérer les valeurs nulles
       Object.keys(formValue).forEach(key => {
         const field = this.fields.find(f => f.key === key);
         if (field?.inputType === 'datetime-local' && formValue[key]) {
           formValue[key] = new Date(formValue[key]).toISOString();
         }
-        // Gérer les valeurs nulles
         if (formValue[key] === '') {
           formValue[key] = null;
         }
       });
-      this.formSubmit.emit({ schema: this.jsonSchema, formData: formValue });
+
+      this.formSubmit.emit({ 
+        schema: this.jsonSchema,
+        formData: formValue 
+      });
     }
   }
 

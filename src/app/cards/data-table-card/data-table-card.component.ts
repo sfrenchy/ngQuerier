@@ -781,8 +781,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onFormSubmit(formData: FormDataSubmit) {
-    // TODO: Implémenter l'appel API pour créer l'enregistrement
-    console.log('Form submitted:', formData);
     this.dataService.createData(this.card.configuration.datasource!, formData).subscribe(response => {
       console.log('Data created:', response);
       this.loadData();
@@ -806,5 +804,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   onDeleteRow(row: any): void {
     // TODO: Implémenter la logique de suppression
     console.log('Delete action triggered for row:', row);
+
   }
 } 

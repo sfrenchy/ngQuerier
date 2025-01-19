@@ -194,28 +194,20 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
     // Ajouter le listener de clic sur le document
     this.documentClickListener = (event: MouseEvent) => {
-      console.log('[Filter] Document click event', {
-        target: event.target,
-        isButton: (event.target as HTMLElement).closest('button'),
-        hasIcon: (event.target as HTMLElement).closest('button')?.querySelector('svg')
-      });
 
       // Ne pas fermer si on clique sur un bouton de filtre
       const target = event.target as HTMLElement;
       const filterButton = target.closest('button');
       if (filterButton && filterButton.querySelector('svg')) {
-        console.log('[Filter] Click on filter button, keeping popover open');
         return;
       }
 
       // Ne pas fermer si on clique dans le popover
       const popover = document.querySelector('app-column-filter-popover');
       if (popover && (popover.contains(target) || popover === target)) {
-        console.log('[Filter] Click inside popover, keeping it open');
         return;
       }
 
-      console.log('[Filter] Closing popover from document click');
       this.closeFilterPopover();
     };
     document.addEventListener('click', this.documentClickListener);
@@ -364,20 +356,24 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       return;
     }
 
-    // Construire les paramètres de recherche
-    const searchParams = this.dataService.buildSearchParameters(this.activeFilters, this.globalSearch);
-
-    // Construire les paramètres de pagination
-    const paginationParameters: DataRequestParametersDto = {
+    this.loading = true;
+    const parameters: DataRequestParametersDto = {
       pageNumber: this.currentPage,
       pageSize: this.pageSize,
       orderBy: this.sortConfig,
-      globalSearch: searchParams.globalSearch,
-      columnSearches: searchParams.columnSearches
+      globalSearch: this.globalSearch,
+      columnSearches: Array.from(this.activeFilters.entries()).flatMap(([column, values]) =>
+        Array.from(values).map(value => ({
+          column,
+          value
+        }))
+      )
     };
 
-    // Charger les données avec les paramètres de pagination
-    this.dataService.loadData(this.card.configuration.datasource, paginationParameters);
+    this.dataService.loadData(
+      this.card.configuration.datasource,
+      parameters
+    );
   }
 
   getVisibleColumns(): ColumnConfig[] {
@@ -673,44 +669,27 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   // Méthode modifiée pour gérer le type EventTarget
   toggleFilterPopover(column: ColumnConfig, button: HTMLElement, event: MouseEvent) {
-    console.log('[Filter] Toggle filter popover', {
-      column: column.key,
-      button,
-      currentPopover: this.activeFilterPopover?.column.key
-    });
-
     event.stopPropagation();
     event.preventDefault();
 
     if (this.activeFilterPopover?.column === column) {
-      console.log('[Filter] Closing popover for same column');
       this.closeFilterPopover();
       return;
     }
 
-    console.log('[Filter] Opening popover for column', column.key);
     this.closeFilterPopover();
     this.activeFilterPopover = { column, element: button };
     
     // Charger les valeurs uniques si pas déjà fait
     if (!this.columnValues.has(column.key)) {
-      console.log('[Filter] Loading unique values for column', column.key);
       this.loadUniqueValues(column);
     }
 
     // Forcer la détection de changements
     this.cdr.detectChanges();
-    console.log('[Filter] Popover state after toggle', {
-      activeColumn: this.activeFilterPopover?.column.key,
-      hasValues: this.columnValues.has(column.key),
-      valueCount: this.columnValues.get(column.key)?.length
-    });
   }
 
   closeFilterPopover() {
-    console.log('[Filter] Closing popover', {
-      wasActive: this.activeFilterPopover?.column.key
-    });
     this.activeFilterPopover = null;
     this.cdr.detectChanges();
   }
@@ -718,20 +697,16 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   // Charger les valeurs uniques pour une colonne
   private loadUniqueValues(column: ColumnConfig) {
     if (!this.card.configuration?.datasource) {
-      console.warn('[Filter] No datasource configured');
       return;
     }
 
-    console.log('[Filter] Loading unique values from API for column', column.key);
     this.dataService.getColumnValues(this.card.configuration.datasource, column.key)
       .subscribe({
         next: (values) => {
-          console.log('[Filter] Received values from API:', values);
           this.columnValues.set(column.key, values);
           // Forcer la détection de changements après avoir mis à jour les valeurs
           setTimeout(() => {
             this.cdr.detectChanges();
-            console.log('[Filter] Values updated and change detection triggered');
           });
         },
         error: (error) => {
@@ -744,12 +719,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
               localValues.add(value.toString());
             }
           });
-          console.log('[Filter] Using local values as fallback:', localValues);
           this.columnValues.set(column.key, Array.from(localValues).sort());
           // Forcer la détection de changements après avoir mis à jour les valeurs
           setTimeout(() => {
             this.cdr.detectChanges();
-            console.log('[Filter] Fallback values updated and change detection triggered');
           });
         }
       });
@@ -770,5 +743,73 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   // Méthode pour vérifier si une colonne a des filtres actifs
   hasActiveFilter(column: ColumnConfig): boolean {
     return this.activeFilters.has(column.key);
+  }
+
+  // Méthode pour obtenir l'index de tri d'une colonne (-1 si non triée)
+  getSortIndex(column: ColumnConfig): number {
+    return this.sortConfig.findIndex(sort => sort.column === column.key);
+  }
+
+  // Méthode pour obtenir la direction de tri d'une colonne
+  getSortDirection(column: ColumnConfig): boolean | undefined {
+    const sortItem = this.sortConfig.find(sort => sort.column === column.key);
+    return sortItem?.isDescending;
+  }
+
+  // Méthode pour gérer le tri
+  toggleSort(event: MouseEvent, column: ColumnConfig) {
+    event.stopPropagation();
+    
+    const currentIndex = this.getSortIndex(column);
+    const isShiftPressed = event.shiftKey;
+
+    let newSortConfig: OrderByParameterDto[] = [];
+
+    if (!isShiftPressed) {
+      // Sans Shift : gestion d'une seule colonne
+      if (currentIndex === -1) {
+        // Nouveau tri ascendant
+        newSortConfig = [{
+          column: column.key,
+          isDescending: false
+        }];
+      } else {
+        const currentSort = this.sortConfig[currentIndex];
+        if (!currentSort.isDescending) {
+          // Passer en descendant
+          newSortConfig = [{
+            column: column.key,
+            isDescending: true
+          }];
+        }
+        // Si c'était déjà descendant, on laisse newSortConfig vide (pas de tri)
+      }
+    } else {
+      // Avec Shift : tri multiple
+      newSortConfig = [...this.sortConfig]; // Copie de la configuration existante
+      if (currentIndex === -1) {
+        // Ajouter un nouveau tri
+        newSortConfig.push({
+          column: column.key,
+          isDescending: false
+        });
+      } else {
+        const currentSort = newSortConfig[currentIndex];
+        if (!currentSort.isDescending) {
+          // Passer en descendant
+          newSortConfig[currentIndex] = {
+            ...currentSort,
+            isDescending: true
+          };
+        } else {
+          // Supprimer le tri
+          newSortConfig.splice(currentIndex, 1);
+        }
+      }
+    }
+    
+    // Assigner la nouvelle configuration et recharger
+    this.sortConfig = newSortConfig;
+    this.loadData();
   }
 } 

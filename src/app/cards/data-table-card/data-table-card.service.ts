@@ -5,6 +5,7 @@ import { DatasourceConfig } from '@models/datasource.models';
 import { ColumnSearchDto } from '@models/api.models';
 import { CardDatabaseService } from '@services/card-database.service';
 import { DataRequestParametersDto } from '@models/api.models';
+import { OrderByParameterDto } from '@models/api.models';
 
 export interface ColumnConfig {
   key: string;
@@ -44,6 +45,7 @@ interface DataState {
   pageSize: number;
   globalSearch: string;
   columnSearches: ColumnSearchDto[];
+  orderBy?: OrderByParameterDto[];
 }
 
 @Injectable({
@@ -100,33 +102,57 @@ export class DataTableCardService {
     const state$ = this.getOrCreateState(datasource);
     const currentState = state$.getValue();
 
-    if (currentState.items.length > 0 && 
-        currentState.pageNumber === parameters.pageNumber && 
-        currentState.pageSize === parameters.pageSize &&
-        currentState.globalSearch === parameters.globalSearch &&
-        JSON.stringify(currentState.columnSearches) === JSON.stringify(parameters.columnSearches)) {
+    // Vérifier si les données doivent être rechargées
+    const shouldReload = 
+      currentState.items.length === 0 ||
+      currentState.pageNumber !== parameters.pageNumber ||
+      currentState.pageSize !== parameters.pageSize ||
+      currentState.globalSearch !== parameters.globalSearch ||
+      JSON.stringify(currentState.columnSearches) !== JSON.stringify(parameters.columnSearches) ||
+      !this.areOrderByEqual(currentState.orderBy, parameters.orderBy);
+
+    if (!shouldReload) {
       return;
     }
 
-    state$.next({ ...currentState, loading: true });
+    // Mettre à jour l'état immédiatement avec les nouveaux paramètres
+    state$.next({ 
+      ...currentState, 
+      loading: true,
+      pageNumber: parameters.pageNumber,
+      pageSize: parameters.pageSize,
+      globalSearch: parameters.globalSearch,
+      columnSearches: parameters.columnSearches,
+      orderBy: parameters.orderBy
+    });
 
     this.cardDatabaseService.fetchData(datasource, parameters).subscribe({
       next: (response) => {
         state$.next({
+          ...state$.getValue(),
           items: response.items,
           total: response.total,
-          loading: false,
-          config: datasource,
-          pageNumber: parameters.pageNumber,
-          pageSize: parameters.pageSize,
-          globalSearch: parameters.globalSearch,
-          columnSearches: parameters.columnSearches
+          loading: false
         });
       },
       error: (error) => {
         console.error('Error fetching data:', error);
-        state$.next({ ...currentState, loading: false });
+        state$.next({ ...state$.getValue(), loading: false });
       }
+    });
+  }
+
+  private areOrderByEqual(current?: OrderByParameterDto[], next?: OrderByParameterDto[]): boolean {
+    const currentArr = current || [];
+    const nextArr = next || [];
+
+    if (currentArr.length !== nextArr.length) {
+      return false;
+    }
+
+    return currentArr.every((sort, index) => {
+      const nextSort = nextArr[index];
+      return sort.column === nextSort.column && sort.isDescending === nextSort.isDescending;
     });
   }
 

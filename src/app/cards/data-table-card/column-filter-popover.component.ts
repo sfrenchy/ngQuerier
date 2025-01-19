@@ -89,13 +89,11 @@ export class ColumnFilterPopoverComponent implements AfterViewInit, OnInit, OnCh
   }
 
   ngOnInit() {
-    console.log('[Filter] Initializing popover with values:', this.values);
     this.filteredValues = [...this.values];
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['values'] && !changes['values'].firstChange) {
-      console.log('[Filter] Values changed:', changes['values'].currentValue);
       this.filteredValues = [...changes['values'].currentValue];
     }
   }

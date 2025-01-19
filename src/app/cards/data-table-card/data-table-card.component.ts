@@ -136,6 +136,11 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   ngOnInit() {
     try {
       if (this.card.configuration?.datasource && this.isValidConfiguration()) {
+        // Précharger le schéma du formulaire uniquement si on peut ajouter ou modifier
+        if (this.canAdd() || this.canUpdate()) {
+          this.dataService.preloadAddFormSchema(this.card.configuration.datasource);
+        }
+
         // S'abonner aux changements de données
         this.dataService.getData(this.card.configuration.datasource)
           .pipe(takeUntil(this.destroy$))
@@ -178,8 +183,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
               this.cdr.detectChanges();
             }
           });
-
-        // Ne pas charger les données ici, attendre le calcul de la taille optimale
       }
     } catch (error) {
       console.error('Error in ngOnInit:', error);
@@ -771,13 +774,23 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   // Gestionnaires d'événements CRUD
   onAdd(): void {
-    this.dataService.getAddActionParameterDefinition(this.card.configuration.datasource!).subscribe(parameters => {
-      if (parameters.length === 1) {
-        this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
-        this.showAddForm = true;
-        this.cdr.detectChanges();
-      }
-    });
+    if (!this.card.configuration?.datasource) return;
+
+    // Le schéma devrait déjà être en cache grâce au préchargement
+    this.dataService.getAddActionParameterDefinition(this.card.configuration.datasource)
+      .subscribe({
+        next: (parameters) => {
+          if (parameters.length === 1) {
+            this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
+            this.showAddForm = true;
+            this.cdr.detectChanges();
+          }
+        },
+        error: (error) => {
+          console.error('Error loading add form schema:', error);
+          // TODO: Afficher un message d'erreur à l'utilisateur
+        }
+      });
   }
 
   onFormSubmit(formData: FormDataSubmit) {

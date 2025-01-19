@@ -16,6 +16,7 @@ import { FormDataSubmit } from './dynamic-form.component';
 export class DataTableCardService {
   
   private dataStateMap = new Map<string, BehaviorSubject<DataState>>();
+  private addFormSchemaCache = new Map<string, any>();
 
   constructor(private cardDatabaseService: CardDatabaseService) {}
 
@@ -62,9 +63,49 @@ export class DataTableCardService {
   }
 
   getAddActionParameterDefinition(config: DatasourceConfig): Observable<DBConnectionEndpointRequestInfoDto[]> {
-    return this.cardDatabaseService.getDatabaseEndpoints(config.connection!.id, config.controller?.name + "Controller" || '', 'Create').pipe(
-      map(endpoints => endpoints.flatMap(endpoint => endpoint.parameters))
-  );
+    const cacheKey = `${config.connection!.id}_${config.controller?.name}`;
+    
+    // Si déjà en cache, retourner directement
+    if (this.addFormSchemaCache.has(cacheKey)) {
+      return of([{
+        jsonSchema: this.addFormSchemaCache.get(cacheKey)
+      }] as DBConnectionEndpointRequestInfoDto[]);
+    }
+
+    // Sinon, faire l'appel API et mettre en cache
+    return this.cardDatabaseService.getDatabaseEndpoints(
+      config.connection!.id, 
+      config.controller?.name + "Controller" || '', 
+      'Create'
+    ).pipe(
+      map(endpoints => {
+        const parameters = endpoints.flatMap(endpoint => endpoint.parameters);
+        if (parameters.length > 0) {
+          this.addFormSchemaCache.set(cacheKey, parameters[0].jsonSchema);
+        }
+        return parameters;
+      })
+    );
+  }
+
+  // Méthode pour précharger le schéma
+  preloadAddFormSchema(config: DatasourceConfig): void {
+    if (!config?.connection?.id || !config?.controller?.name) return;
+
+    const cacheKey = `${config.connection.id}_${config.controller.name}`;
+    if (!this.addFormSchemaCache.has(cacheKey)) {
+      this.getAddActionParameterDefinition(config).subscribe();
+    }
+  }
+
+  // Méthode pour vider le cache si nécessaire
+  clearAddFormSchemaCache(config?: DatasourceConfig): void {
+    if (config) {
+      const cacheKey = `${config.connection!.id}_${config.controller?.name}`;
+      this.addFormSchemaCache.delete(cacheKey);
+    } else {
+      this.addFormSchemaCache.clear();
+    }
   }
 
   isLoading(config: DatasourceConfig): Observable<boolean> {

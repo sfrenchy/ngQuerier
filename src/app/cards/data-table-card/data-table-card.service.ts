@@ -76,6 +76,7 @@ export class DataTableCardService {
     return this.cardDatabaseService.getDatabaseEndpoints(
       config.connection!.id, 
       config.controller?.name + "Controller" || '', 
+      '',
       'Create'
     ).pipe(
       map(endpoints => {

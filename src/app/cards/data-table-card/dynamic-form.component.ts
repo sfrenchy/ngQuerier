@@ -13,90 +13,101 @@ export interface FormDataSubmit {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   template: `
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4 p-4">
-      <div *ngFor="let field of fields" class="space-y-2">
-        <label [for]="field.key" class="block text-sm font-medium text-gray-200">
-          {{field.label}}
-          <span *ngIf="field.required" class="text-red-500">*</span>
-        </label>
+    <div [class]="isFullscreen ? 'fixed inset-0 z-50 p-4' : 'relative h-[600px]'" class="flex">
+      <div class="flex flex-col w-full bg-gray-800 rounded-lg shadow-lg">
+        <!-- Zone de défilement pour les champs -->
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex-1 min-h-0 overflow-auto">
+          <div class="space-y-4 p-4">
+            <div *ngFor="let field of fields" class="space-y-2">
+              <label [for]="field.key" class="block text-sm font-medium text-gray-200">
+                {{field.label}}
+                <span *ngIf="field.required" class="text-red-500">*</span>
+              </label>
 
-        <!-- Select pour les clés étrangères -->
-        <select *ngIf="field.metadata?.isForeignKey && !field.isNavigation"
-          [id]="field.key"
-          [formControlName]="field.key"
-          class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          [class.border-red-500]="form.get(field.key)?.invalid && form.get(field.key)?.touched">
-          <option [ngValue]="null" *ngIf="field.nullable">Sélectionnez une valeur...</option>
-          <option *ngFor="let option of getForeignKeyOptions(field.metadata?.foreignKeyTable)" [ngValue]="option.value">
-            {{ option.label }}
-          </option>
-        </select>
+              <!-- Select pour les clés étrangères -->
+              <select *ngIf="field.metadata?.isForeignKey && !field.isNavigation"
+                [id]="field.key"
+                [formControlName]="field.key"
+                class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                [class.border-red-500]="form.get(field.key)?.invalid && form.get(field.key)?.touched">
+                <option [ngValue]="null" *ngIf="field.nullable">Sélectionnez une valeur...</option>
+                <option *ngFor="let option of getForeignKeyOptions(field.metadata?.foreignKeyTable)" [ngValue]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
 
-        <!-- Input pour les champs texte -->
-        <input *ngIf="field.type === 'string' && !field.isNavigation && !field.metadata?.isForeignKey"
-          [id]="field.key"
-          [type]="field.inputType"
-          [formControlName]="field.key"
-          [maxLength]="field.maxLength"
-          [placeholder]="getPlaceholder(field)"
-          class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          [class.border-red-500]="form.get(field.key)?.invalid && form.get(field.key)?.touched"
-        >
+              <!-- Input pour les champs texte -->
+              <input *ngIf="field.type === 'string' && !field.isNavigation && !field.metadata?.isForeignKey"
+                [id]="field.key"
+                [type]="field.inputType"
+                [formControlName]="field.key"
+                [maxLength]="field.maxLength"
+                [placeholder]="getPlaceholder(field)"
+                class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                [class.border-red-500]="form.get(field.key)?.invalid && form.get(field.key)?.touched"
+              >
 
-        <!-- Input pour les champs nombre -->
-        <input *ngIf="(field.type === 'number' || field.type === 'integer') && !field.metadata?.isForeignKey"
-          [id]="field.key"
-          type="number"
-          [formControlName]="field.key"
-          [step]="field.type === 'number' ? '0.01' : '1'"
-          [placeholder]="getPlaceholder(field)"
-          class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          [class.border-red-500]="form.get(field.key)?.invalid && form.get(field.key)?.touched"
-        >
+              <!-- Input pour les champs nombre -->
+              <input *ngIf="(field.type === 'number' || field.type === 'integer') && !field.metadata?.isForeignKey"
+                [id]="field.key"
+                type="number"
+                [formControlName]="field.key"
+                [step]="field.type === 'number' ? '0.01' : '1'"
+                [placeholder]="getPlaceholder(field)"
+                class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                [class.border-red-500]="form.get(field.key)?.invalid && form.get(field.key)?.touched"
+              >
 
-        <!-- Input pour les dates -->
-        <input *ngIf="field.type === 'date' && !field.metadata?.isForeignKey"
-          [id]="field.key"
-          type="datetime-local"
-          [formControlName]="field.key"
-          class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          [class.border-red-500]="form.get(field.key)?.invalid && form.get(field.key)?.touched"
-        >
+              <!-- Input pour les dates -->
+              <input *ngIf="field.type === 'date' && !field.metadata?.isForeignKey"
+                [id]="field.key"
+                type="datetime-local"
+                [formControlName]="field.key"
+                class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                [class.border-red-500]="form.get(field.key)?.invalid && form.get(field.key)?.touched"
+              >
 
-        <!-- Message d'erreur -->
-        <div *ngIf="form.get(field.key)?.invalid && form.get(field.key)?.touched" 
-             class="text-sm text-red-500 mt-1">
-          <span *ngIf="form.get(field.key)?.errors?.['required']">Ce champ est requis</span>
-          <span *ngIf="form.get(field.key)?.errors?.['maxlength']">
-            La longueur maximale est de {{field.maxLength}} caractères
-          </span>
-          <span *ngIf="form.get(field.key)?.errors?.['min']">
-            La valeur minimale est {{getMinValue(field)}}
-          </span>
-          <span *ngIf="form.get(field.key)?.errors?.['max']">
-            La valeur maximale est {{getMaxValue(field)}}
-          </span>
-        </div>
+              <!-- Message d'erreur -->
+              <div *ngIf="form.get(field.key)?.invalid && form.get(field.key)?.touched" 
+                   class="text-sm text-red-500 mt-1">
+                <span *ngIf="form.get(field.key)?.errors?.['required']">Ce champ est requis</span>
+                <span *ngIf="form.get(field.key)?.errors?.['maxlength']">
+                  La longueur maximale est de {{field.maxLength}} caractères
+                </span>
+                <span *ngIf="form.get(field.key)?.errors?.['min']">
+                  La valeur minimale est {{getMinValue(field)}}
+                </span>
+                <span *ngIf="form.get(field.key)?.errors?.['max']">
+                  La valeur maximale est {{getMaxValue(field)}}
+                </span>
+              </div>
 
-        <!-- Description du champ -->
-        <div *ngIf="getFieldDescription(field)" class="text-xs text-gray-400 mt-1">
-          {{ getFieldDescription(field) }}
+              <!-- Description du champ -->
+              <div *ngIf="getFieldDescription(field)" class="text-xs text-gray-400 mt-1">
+                {{ getFieldDescription(field) }}
+              </div>
+            </div>
+          </div>
+        </form>
+
+        <!-- Pied de page fixe -->
+        <div class="flex-none p-4 border-t border-gray-700 bg-gray-800">
+          <div class="flex justify-end space-x-3">
+            <button type="button" 
+                    (click)="onCancel()"
+                    class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
+              Annuler
+            </button>
+            <button type="submit"
+                    (click)="onSubmit()"
+                    [disabled]="!form.valid"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+              Enregistrer
+            </button>
+          </div>
         </div>
       </div>
-
-      <div class="flex justify-end space-x-3 mt-6">
-        <button type="button" 
-                (click)="onCancel()"
-                class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-          Annuler
-        </button>
-        <button type="submit"
-                [disabled]="!form.valid"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
-          Enregistrer
-        </button>
-      </div>
-    </form>
+    </div>
   `
 })
 export class DynamicFormComponent implements OnInit {
@@ -105,10 +116,12 @@ export class DynamicFormComponent implements OnInit {
   @Input() foreignKeyConfigs?: { [key: string]: any };
   @Output() formSubmit = new EventEmitter<FormDataSubmit>();
   @Output() formCancel = new EventEmitter<void>();
+  @Output() fullscreenChange = new EventEmitter<boolean>();
 
   form!: FormGroup;
   fields: DynamicFormField[] = [];
   private identityFields: { key: string; defaultValue: any; }[] = [];
+  isFullscreen = false;
 
   constructor(private fb: FormBuilder) {}
 
@@ -363,5 +376,10 @@ export class DynamicFormComponent implements OnInit {
       return this.foreignKeyConfigs[field.metadata.foreignKeyTable];
     }
     return undefined;
+  }
+
+  toggleFullscreen() {
+    this.isFullscreen = !this.isFullscreen;
+    this.fullscreenChange.emit(this.isFullscreen);
   }
 } 

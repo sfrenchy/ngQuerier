@@ -98,6 +98,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   addFormForeignKeyData: { [key: string]: any[] } = {};
   addFormForeignKeyConfigs: { [key: string]: any } = {};
 
+  modalTitle: string = '';
+
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
     private translateService: TranslateService,
@@ -792,6 +794,15 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             this.loadForeignKeyData();
             
             this.showAddForm = true;
+            this.modalTitle = `Ajouter un enregistrement 
+              <button (click)="onFormFullscreenChange()" class="p-2 text-gray-400 hover:text-white focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path *ngIf="!isFormFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+                  <path *ngIf="isFormFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M4 4l5 5m11-5l-5 5M4 20l5-5m11 5l-5-5"/>
+                </svg>
+              </button>`;
             this.cdr.detectChanges();
           }
         },
@@ -800,6 +811,20 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
           // TODO: Afficher un message d'erreur à l'utilisateur
         }
       });
+  }
+
+  isFormFullscreen = false;
+
+  onFormFullscreenChange() {
+    this.isFormFullscreen = !this.isFormFullscreen;
+    const formElement = document.querySelector('app-dynamic-form') as HTMLElement;
+    if (formElement) {
+      if (this.isFormFullscreen) {
+        formElement.classList.add('fixed', 'inset-0', 'z-50', 'p-4');
+      } else {
+        formElement.classList.remove('fixed', 'inset-0', 'z-50', 'p-4');
+      }
+    }
   }
 
   private loadForeignKeyData(): void {

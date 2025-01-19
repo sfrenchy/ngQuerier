@@ -227,4 +227,14 @@ export class DataTableCardService {
 
     return this.formatColumnValue(value, column, locale);
   }
+
+  /**
+   * Récupère les valeurs uniques d'une colonne
+   * @param config Configuration de la source de données
+   * @param columnName Nom de la colonne
+   * @returns Observable des valeurs uniques
+   */
+  getColumnValues(config: DatasourceConfig, columnName: string): Observable<string[]> {
+    return this.cardDatabaseService.getColumnValues(config, columnName);
+  }
 } 

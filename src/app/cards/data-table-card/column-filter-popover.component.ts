@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ElementRef, AfterViewInit, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ColumnConfig } from './data-table-card.component';
@@ -12,7 +12,7 @@ import { ColumnConfig } from './data-table-card.component';
     'class': 'fixed'  // Pour s'assurer que le popover est positionné par rapport au viewport
   }
 })
-export class ColumnFilterPopoverComponent implements AfterViewInit {
+export class ColumnFilterPopoverComponent implements AfterViewInit, OnInit, OnChanges {
   @Input() column!: ColumnConfig;
   @Input() values: string[] = [];
   @Input() selectedValues: Set<string> = new Set<string>();
@@ -89,7 +89,15 @@ export class ColumnFilterPopoverComponent implements AfterViewInit {
   }
 
   ngOnInit() {
+    console.log('[Filter] Initializing popover with values:', this.values);
     this.filteredValues = [...this.values];
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['values'] && !changes['values'].firstChange) {
+      console.log('[Filter] Values changed:', changes['values'].currentValue);
+      this.filteredValues = [...changes['values'].currentValue];
+    }
   }
 
   onSearch(term: string) {

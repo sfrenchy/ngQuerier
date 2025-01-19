@@ -715,15 +715,42 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   // Charger les valeurs uniques pour une colonne
   private loadUniqueValues(column: ColumnConfig) {
-    const values = new Set<string>();
-    this.data.forEach(item => {
-      const value = this.dataService.getColumnValue(item, column, this.currentLanguage);
-      if (value !== null && value !== undefined && value !== '') {
-        values.add(value.toString());
-      }
-    });
-    this.columnValues.set(column.key, Array.from(values).sort());
-    this.cdr.detectChanges();
+    if (!this.card.configuration?.datasource) {
+      console.warn('[Filter] No datasource configured');
+      return;
+    }
+
+    console.log('[Filter] Loading unique values from API for column', column.key);
+    this.dataService.getColumnValues(this.card.configuration.datasource, column.key)
+      .subscribe({
+        next: (values) => {
+          console.log('[Filter] Received values from API:', values);
+          this.columnValues.set(column.key, values);
+          // Forcer la détection de changements après avoir mis à jour les valeurs
+          setTimeout(() => {
+            this.cdr.detectChanges();
+            console.log('[Filter] Values updated and change detection triggered');
+          });
+        },
+        error: (error) => {
+          console.error('[Filter] Error loading unique values:', error);
+          // En cas d'erreur, on utilise les valeurs locales comme fallback
+          const localValues = new Set<string>();
+          this.data.forEach(item => {
+            const value = this.dataService.getColumnValue(item, column, this.currentLanguage);
+            if (value !== null && value !== undefined && value !== '') {
+              localValues.add(value.toString());
+            }
+          });
+          console.log('[Filter] Using local values as fallback:', localValues);
+          this.columnValues.set(column.key, Array.from(localValues).sort());
+          // Forcer la détection de changements après avoir mis à jour les valeurs
+          setTimeout(() => {
+            this.cdr.detectChanges();
+            console.log('[Filter] Fallback values updated and change detection triggered');
+          });
+        }
+      });
   }
 
   // Gérer le changement de filtre

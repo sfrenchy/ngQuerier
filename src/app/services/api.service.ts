@@ -651,20 +651,9 @@ export class ApiService {
   getQueries(): Observable<SQLQueryDto[]> {
     return this.http.get<SQLQueryDto[]>(`${this.baseUrl}/SQLQuery`);
   }
-/*
-  getQuery(id: number): Observable<SQLQueryDto> {
-    return this.http.get<SQLQueryDto>(`${this.baseUrl}/SQLQuery/${id}`);
-  }
 
-  createQuery(query: SQLQueryDto): Observable<SQLQueryDto> {
-    return this.http.post<SQLQueryDto>(`${this.baseUrl}/SQLQuery`, query);
+  // Méthode pour récupérer les valeurs uniques d'une colonne
+  getColumnValues(route: string, columnName: string): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/${route}/columns/${columnName}/values`);
   }
-
-  updateQuery(id: number, query: SQLQueryDto): Observable<SQLQueryDto> {
-    return this.http.put<SQLQueryDto>(`${this.baseUrl}/SQLQuery/${id}`, query);
-  }
-
-  deleteQuery(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/SQLQuery/${id}`);
-  }*/
 } 

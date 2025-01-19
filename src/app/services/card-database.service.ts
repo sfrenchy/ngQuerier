@@ -115,4 +115,17 @@ export class CardDatabaseService {
         throw new Error(`Unsupported datasource type: ${config.type}`);
     }
   }
+
+  /**
+   * Récupère les valeurs uniques d'une colonne
+   * @param config Configuration de la source de données
+   * @param columnName Nom de la colonne
+   * @returns Observable des valeurs uniques
+   */
+  getColumnValues(config: DatasourceConfig, columnName: string): Observable<string[]> {
+    if (!config.controller) {
+      throw new Error('API configuration requires a controller');
+    }
+    return this.apiService.getColumnValues(config.controller.route.replace("api/v1/", ""), columnName);
+  }
 } 

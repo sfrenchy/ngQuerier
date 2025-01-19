@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DataTableCardConfig, ColumnConfig, TableVisualConfig } from './data-table-card.component';
+import { DataTableCardConfig, ColumnConfig, TableVisualConfig, CrudConfig } from './data-table-card.models';
 import { CardDto } from '@models/api.models';
 import { TileComponent } from '@shared/components/tile/tile.component';
 import { DatasourceConfig } from '@models/datasource.models';
@@ -42,7 +42,8 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     this.form = this.fb.group({
       datasource: [null],
       columns: [[]],
-      visualConfig: [null]
+      visualConfig: [null],
+      crudConfig: [null]
     });
 
     this.form.valueChanges.subscribe((value: any) => {
@@ -63,6 +64,9 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     if (formValue.visualConfig) {
       config.visualConfig = formValue.visualConfig;
     }
+    if (formValue.crudConfig) {
+      config.crudConfig = formValue.crudConfig;
+    }
     this.configChange.emit(config);
   }
 
@@ -71,14 +75,16 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       this.form.patchValue({
         datasource: this.card.configuration.datasource,
         columns: this.card.configuration.columns || [],
-        visualConfig: this.card.configuration.visualConfig
+        visualConfig: this.card.configuration.visualConfig,
+        crudConfig: this.card.configuration.crudConfig
       }, { emitEvent: false });
       this.columns = this.card.configuration.columns || [];
     } else {
       // Initialiser avec les valeurs par défaut si pas de configuration
       const defaultConfig = new DataTableCardConfig();
       this.form.patchValue({
-        visualConfig: defaultConfig.visualConfig
+        visualConfig: defaultConfig.visualConfig,
+        crudConfig: defaultConfig.crudConfig
       }, { emitEvent: false });
     }
   }
@@ -386,6 +392,23 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
   isNumberColumn(column: ColumnConfig): boolean {
     return this.dataTableService.isNumberColumn(column);
+  }
+
+  handleCrudConfigChange(property: keyof CrudConfig, event: Event) {
+    const currentCrudConfig = this.form.getRawValue().crudConfig;
+    const value = (event.target as HTMLInputElement).checked;
+
+    const newCrudConfig = {
+      ...currentCrudConfig,
+      [property]: value
+    };
+
+    this.form.patchValue({ crudConfig: newCrudConfig });
+  }
+
+  canEnableCrud(): boolean {
+    const datasource = this.form.getRawValue().datasource;
+    return datasource?.type === 'API' || datasource?.type === 'EntityFramework';
   }
 
   ngOnDestroy() {

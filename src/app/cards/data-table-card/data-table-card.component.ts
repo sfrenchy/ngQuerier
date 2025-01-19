@@ -1,105 +1,18 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Card } from '@cards/card.decorator';
-import { DataTableCardConfigurationComponent } from './data-table-card-configuration.component';
-import { BaseCardConfig, ColumnSearchDto, OrderByParameterDto, DataRequestParametersDto } from '@models/api.models';
-import { BaseCardComponent } from '@cards/base-card.component';
-import { DatasourceConfig } from '@models/datasource.models';
-import { CardDatabaseService } from '@services/card-database.service';
-import { Subject, Subscription } from 'rxjs';
-import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { DataTableCardService } from './data-table-card.service';
 import { FormsModule } from '@angular/forms';
+import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { Card } from '@cards/card.decorator';
+import { BaseCardComponent } from '@cards/base-card.component';
+import { CardDatabaseService } from '@services/card-database.service';
+import { DataTableCardService } from './data-table-card.service';
 import { ColumnFilterPopoverComponent } from './column-filter-popover.component';
-
-export interface ColumnConfig {
-  key: string;
-  type: string;
-  label: { [key: string]: string };
-  alignment: 'left' | 'center' | 'right';
-  visible: boolean;
-  decimals?: number;
-  dateFormat?: 'date' | 'time' | 'datetime';
-  isNavigation?: boolean;
-  navigationType?: string;
-  isCollection?: boolean;
-  elementType?: string;
-  isFixed?: boolean;
-  isFixedRight?: boolean;
-  entityMetadata?: {
-    isPrimaryKey?: boolean;
-    isIdentity?: boolean;
-    columnName?: string;
-    columnType?: string;
-    defaultValue?: any;
-    isRequired?: boolean;
-    isForeignKey?: boolean;
-    foreignKeyTable?: string;
-    foreignKeyColumn?: string;
-    foreignKeyConstraintName?: string;
-    maxLength?: number;
-  };
-}
-
-export interface TableVisualConfig {
-  headerBackgroundColor: string;
-  rowBackgroundColor: string;
-  headerTextColor: string;
-  rowTextColor: string;
-  isCompactMode: boolean;
-  alternateRowColors: boolean;
-  alternateRowsBrightness: number;
-  rowCount?: number;
-}
-
-export class DataTableCardConfig extends BaseCardConfig {
-  datasource: DatasourceConfig;
-  columns?: ColumnConfig[];
-  visualConfig: TableVisualConfig;
-
-  constructor() {
-    super();
-    this.datasource = {
-      type: 'API',
-    };
-    this.visualConfig = {
-      headerBackgroundColor: '#1f2937', // bg-gray-800
-      rowBackgroundColor: '#111827',    // bg-gray-900
-      headerTextColor: '#d1d5db',       // text-gray-300
-      rowTextColor: '#d1d5db',          // text-gray-300
-      isCompactMode: false,
-      alternateRowColors: false,
-      alternateRowsBrightness: 80,      // Valeur par défaut de 80%
-      rowCount: undefined               // Pas de valeur par défaut
-    };
-  }
-
-  toJson(): any {
-    return {
-      datasource: this.datasource,
-      columns: this.columns,
-      visualConfig: this.visualConfig
-    };
-  }
-
-  static fromJson(json: any): DataTableCardConfig {
-    const config = new DataTableCardConfig();
-    if (json.datasource) {
-      config.datasource = json.datasource;
-    }
-    if (json.columns) {
-      config.columns = json.columns;
-    }
-    if (json.visualConfig) {
-      config.visualConfig = {
-        ...config.visualConfig,
-        ...json.visualConfig
-      };
-    }
-    return config;
-  }
-}
+import { DataTableCardConfigurationComponent } from './data-table-card-configuration.component';
+import { DataTableCardConfig, ColumnConfig } from './data-table-card.models';
+import { OrderByParameterDto, DataRequestParametersDto } from '@models/api.models';
 
 @Card({
   name: 'DataTableCard',
@@ -172,6 +85,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   activeFilterPopover: { column: ColumnConfig, element: HTMLElement } | null = null;
   private documentClickListener: ((event: MouseEvent) => void) | null = null;
   sortConfig: OrderByParameterDto[] = [];
+
+  private actionsColumnWidth: number = 0;
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -414,11 +329,49 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     return `${left}px`;
   }
 
+  private updateColumnWidths() {
+    if (!this.tableContainerRef?.nativeElement) return;
+
+    const headerCells = this.tableContainerRef.nativeElement.querySelectorAll('thead th');
+    let totalWidth = 0;
+
+    // Update actions column width if it exists
+    const actionsCell = Array.from(headerCells).find(cell => (cell as HTMLElement).classList.contains('actions-column'));
+    if (actionsCell) {
+      this.actionsColumnWidth = (actionsCell as HTMLElement).offsetWidth;
+    }
+
+    headerCells.forEach((cell: Element, index: number) => {
+      const htmlCell = cell as HTMLElement;
+      if (!htmlCell.classList.contains('actions-column')) {
+        const column = this.getVisibleColumns()[index];
+        const width = htmlCell.offsetWidth;
+        if (column) {
+          this.columnWidths.set(column.key, width);
+          totalWidth += width;
+        }
+      }
+    });
+
+    if (this.hasActions()) {
+      totalWidth += this.actionsColumnWidth;
+    }
+
+    this.tableWidth = Math.max(totalWidth, this.tableContainerRef.nativeElement.clientWidth);
+    this.updateScrollbarVisibility();
+  }
+
   getFixedColumnRight(column: ColumnConfig): string | null {
     if (!column.isFixedRight) return null;
     
     let right = 0;
     const visibleColumns = this.getVisibleColumns();
+
+    // If we have actions, add their width to the initial right position
+    if (this.hasActions()) {
+      right += this.actionsColumnWidth;
+    }
+    
     for (let i = visibleColumns.length - 1; i >= 0; i--) {
       const col = visibleColumns[i];
       if (col === column) break;
@@ -461,25 +414,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     };
 
     return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
-  }
-
-  private updateColumnWidths() {
-    if (!this.tableContainerRef?.nativeElement) return;
-
-    const headerCells = Array.from(this.tableContainerRef.nativeElement.querySelectorAll('thead th'));
-    let totalWidth = 0;
-
-    headerCells.forEach((cell, index) => {
-      const column = this.getVisibleColumns()[index];
-      const width = (cell as HTMLElement).offsetWidth;
-      if (column) {
-        this.columnWidths.set(column.key, width);
-        totalWidth += width;
-      }
-    });
-
-    this.tableWidth = Math.max(totalWidth, this.tableContainerRef.nativeElement.clientWidth);
-    this.updateScrollbarVisibility();
   }
 
   getTableWidth(): string {
@@ -811,5 +745,38 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     // Assigner la nouvelle configuration et recharger
     this.sortConfig = newSortConfig;
     this.loadData();
+  }
+
+  // Méthodes pour vérifier les permissions CRUD
+  canAdd(): boolean {
+    return this.card.configuration?.crudConfig?.canAdd && this.isValidConfiguration();
+  }
+
+  canUpdate(): boolean {
+    return this.card.configuration?.crudConfig?.canUpdate && this.isValidConfiguration();
+  }
+
+  canDelete(): boolean {
+    return this.card.configuration?.crudConfig?.canDelete && this.isValidConfiguration();
+  }
+
+  hasActions(): boolean {
+    return this.canUpdate() || this.canDelete();
+  }
+
+  // Gestionnaires d'événements CRUD
+  onAdd(): void {
+    // TODO: Implémenter la logique d'ajout
+    console.log('Add action triggered');
+  }
+
+  onUpdate(row: any): void {
+    // TODO: Implémenter la logique de mise à jour
+    console.log('Update action triggered for row:', row);
+  }
+
+  onDeleteRow(row: any): void {
+    // TODO: Implémenter la logique de suppression
+    console.log('Delete action triggered for row:', row);
   }
 } 

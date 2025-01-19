@@ -423,5 +423,11 @@
   },
   "TABLE": {
     "ITEMS": "éléments"
+  },
+  "CRUD_OPTIONS": {
+    "TITLE": "Options CRUD",
+    "CAN_ADD": "Autoriser l'ajout",
+    "CAN_UPDATE": "Autoriser la modification",
+    "CAN_DELETE": "Autoriser la suppression"
   }
 } 

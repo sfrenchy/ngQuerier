@@ -387,5 +387,11 @@
   },
   "TABLE": {
     "ITEMS": "items"
+  },
+  "CRUD_OPTIONS": {
+    "TITLE": "CRUD Options",
+    "CAN_ADD": "Allow adding",
+    "CAN_UPDATE": "Allow updating",
+    "CAN_DELETE": "Allow deleting"
   }
 } 

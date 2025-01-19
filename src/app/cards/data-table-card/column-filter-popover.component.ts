@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ElementRef, AfterViewInit, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ColumnConfig } from './data-table-card.component';
+import { ColumnConfig } from './data-table-card.models';
 
 @Component({
   selector: 'app-column-filter-popover',

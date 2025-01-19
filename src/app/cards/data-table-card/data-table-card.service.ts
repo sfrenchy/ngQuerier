@@ -2,8 +2,37 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DatasourceConfig } from '@models/datasource.models';
-import { ColumnConfig } from './data-table-card.component';
+import { ColumnSearchDto } from '@models/api.models';
 import { CardDatabaseService } from '@services/card-database.service';
+
+export interface ColumnConfig {
+  key: string;
+  type: string;
+  label: { [key: string]: string };
+  alignment: 'left' | 'center' | 'right';
+  visible: boolean;
+  decimals?: number;
+  dateFormat?: 'date' | 'time' | 'datetime';
+  isNavigation?: boolean;
+  navigationType?: string;
+  isCollection?: boolean;
+  elementType?: string;
+  isFixed?: boolean;
+  isFixedRight?: boolean;
+  entityMetadata?: {
+    isPrimaryKey?: boolean;
+    isIdentity?: boolean;
+    columnName?: string;
+    columnType?: string;
+    defaultValue?: any;
+    isRequired?: boolean;
+    isForeignKey?: boolean;
+    foreignKeyTable?: string;
+    foreignKeyColumn?: string;
+    foreignKeyConstraintName?: string;
+    maxLength?: number;
+  };
+}
 
 interface DataState {
   items: any[];
@@ -13,6 +42,7 @@ interface DataState {
   pageNumber: number;
   pageSize: number;
   globalSearch: string;
+  columnSearches: ColumnSearchDto[];
 }
 
 @Injectable({
@@ -37,7 +67,8 @@ export class DataTableCardService {
         config,
         pageNumber: 1,
         pageSize: 0,
-        globalSearch: ''
+        globalSearch: '',
+        columnSearches: []
       }));
     }
     return this.dataStateMap.get(key)!;
@@ -66,7 +97,8 @@ export class DataTableCardService {
     pageNumber: number,
     pageSize: number,
     showLoading: boolean = true,
-    globalSearch: string = ''
+    globalSearch: string = '',
+    columnSearches: ColumnSearchDto[] = []
   ) {
     const state$ = this.getOrCreateState(datasource);
     const currentState = state$.getValue();
@@ -74,7 +106,8 @@ export class DataTableCardService {
     if (currentState.items.length > 0 && 
         currentState.pageNumber === pageNumber && 
         currentState.pageSize === pageSize &&
-        currentState.globalSearch === globalSearch) {
+        currentState.globalSearch === globalSearch &&
+        JSON.stringify(currentState.columnSearches) === JSON.stringify(columnSearches)) {
       return;
     }
 
@@ -85,7 +118,7 @@ export class DataTableCardService {
       pageSize,
       orderBy: [],
       globalSearch,
-      columnSearches: []
+      columnSearches
     }).subscribe({
       next: (response) => {
         state$.next({
@@ -95,7 +128,8 @@ export class DataTableCardService {
           config: datasource,
           pageNumber: pageNumber,
           pageSize: pageSize,
-          globalSearch: globalSearch
+          globalSearch: globalSearch,
+          columnSearches: columnSearches
         });
       },
       error: (error) => {

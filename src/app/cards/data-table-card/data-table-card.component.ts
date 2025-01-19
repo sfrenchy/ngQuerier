@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Card } from '@cards/card.decorator';
 import { DataTableCardConfigurationComponent } from './data-table-card-configuration.component';
-import { BaseCardConfig } from '@models/api.models';
+import { BaseCardConfig, ColumnSearchDto } from '@models/api.models';
 import { BaseCardComponent } from '@cards/base-card.component';
 import { DatasourceConfig } from '@models/datasource.models';
 import { CardDatabaseService } from '@services/card-database.service';
@@ -11,6 +11,7 @@ import { Subject, Subscription } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DataTableCardService } from './data-table-card.service';
 import { FormsModule } from '@angular/forms';
+import { ColumnFilterPopoverComponent } from './column-filter-popover.component';
 
 export interface ColumnConfig {
   key: string;
@@ -114,7 +115,7 @@ export class DataTableCardConfig extends BaseCardConfig {
   selector: 'app-data-table-card',
   templateUrl: './data-table-card.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, BaseCardComponent],
+  imports: [CommonModule, TranslateModule, FormsModule, BaseCardComponent, ColumnFilterPopoverComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfig> implements OnInit, OnDestroy, AfterViewInit {
@@ -165,6 +166,12 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   public searchSubject = new Subject<string>();
   private searchSubscription: Subscription;
 
+  // Nouvelles propriétés pour la gestion des filtres
+  activeFilters = new Map<string, Set<string>>();
+  columnValues = new Map<string, string[]>();
+  activeFilterPopover: { column: ColumnConfig, element: HTMLElement } | null = null;
+  private documentClickListener: ((event: MouseEvent) => void) | null = null;
+
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
     private translateService: TranslateService,
@@ -180,9 +187,37 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       distinctUntilChanged()
     ).subscribe((searchTerm) => {
       this.globalSearch = searchTerm;
-      this.currentPage = 1; // Retour à la première page lors d'une recherche
+      this.currentPage = 1;
       this.loadData();
     });
+
+    // Ajouter le listener de clic sur le document
+    this.documentClickListener = (event: MouseEvent) => {
+      console.log('[Filter] Document click event', {
+        target: event.target,
+        isButton: (event.target as HTMLElement).closest('button'),
+        hasIcon: (event.target as HTMLElement).closest('button')?.querySelector('svg')
+      });
+
+      // Ne pas fermer si on clique sur un bouton de filtre
+      const target = event.target as HTMLElement;
+      const filterButton = target.closest('button');
+      if (filterButton && filterButton.querySelector('svg')) {
+        console.log('[Filter] Click on filter button, keeping popover open');
+        return;
+      }
+
+      // Ne pas fermer si on clique dans le popover
+      const popover = document.querySelector('app-column-filter-popover');
+      if (popover && (popover.contains(target) || popover === target)) {
+        console.log('[Filter] Click inside popover, keeping it open');
+        return;
+      }
+
+      console.log('[Filter] Closing popover from document click');
+      this.closeFilterPopover();
+    };
+    document.addEventListener('click', this.documentClickListener);
   }
 
   ngOnInit() {
@@ -324,20 +359,23 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   private loadData() {
-    try {
-      if (this.card.configuration?.datasource && this.isValidConfiguration()) {
-        this.dataService.loadData(
-          this.card.configuration.datasource,
-          this.currentPage,
-          this.pageSize,
-          true,
-          this.globalSearch
-        );
-      }
-    } catch (error) {
-      console.error('Error in loadData:', error);
-      this.cdr.detectChanges();
+    if (!this.card.configuration?.datasource || !this.isValidConfiguration()) {
+      return;
     }
+
+    const columnSearches = Array.from(this.activeFilters.entries()).map(([column, values]) => ({
+      column,
+      value: Array.from(values).join(',')
+    }));
+
+    this.dataService.loadData(
+      this.card.configuration.datasource,
+      this.currentPage,
+      this.pageSize,
+      true,
+      this.globalSearch,
+      columnSearches
+    );
   }
 
   getVisibleColumns(): ColumnConfig[] {
@@ -514,6 +552,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     if (this.searchSubscription) {
       this.searchSubscription.unsubscribe();
     }
+    // Nettoyer le listener de clic
+    if (this.documentClickListener) {
+      document.removeEventListener('click', this.documentClickListener);
+    }
   }
 
   onTableScroll(event: Event) {
@@ -620,5 +662,84 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   ngOnChanges() {
     this.searchSubject.next(this.globalSearch);
+  }
+
+  // Helper pour le template
+  getSelectedValues(columnKey: string): Set<string> {
+    return this.activeFilters.get(columnKey) || new Set<string>();
+  }
+
+  // Méthode modifiée pour gérer le type EventTarget
+  toggleFilterPopover(column: ColumnConfig, button: HTMLElement, event: MouseEvent) {
+    console.log('[Filter] Toggle filter popover', {
+      column: column.key,
+      button,
+      currentPopover: this.activeFilterPopover?.column.key
+    });
+
+    event.stopPropagation();
+    event.preventDefault();
+
+    if (this.activeFilterPopover?.column === column) {
+      console.log('[Filter] Closing popover for same column');
+      this.closeFilterPopover();
+      return;
+    }
+
+    console.log('[Filter] Opening popover for column', column.key);
+    this.closeFilterPopover();
+    this.activeFilterPopover = { column, element: button };
+    
+    // Charger les valeurs uniques si pas déjà fait
+    if (!this.columnValues.has(column.key)) {
+      console.log('[Filter] Loading unique values for column', column.key);
+      this.loadUniqueValues(column);
+    }
+
+    // Forcer la détection de changements
+    this.cdr.detectChanges();
+    console.log('[Filter] Popover state after toggle', {
+      activeColumn: this.activeFilterPopover?.column.key,
+      hasValues: this.columnValues.has(column.key),
+      valueCount: this.columnValues.get(column.key)?.length
+    });
+  }
+
+  closeFilterPopover() {
+    console.log('[Filter] Closing popover', {
+      wasActive: this.activeFilterPopover?.column.key
+    });
+    this.activeFilterPopover = null;
+    this.cdr.detectChanges();
+  }
+
+  // Charger les valeurs uniques pour une colonne
+  private loadUniqueValues(column: ColumnConfig) {
+    const values = new Set<string>();
+    this.data.forEach(item => {
+      const value = this.dataService.getColumnValue(item, column, this.currentLanguage);
+      if (value !== null && value !== undefined && value !== '') {
+        values.add(value.toString());
+      }
+    });
+    this.columnValues.set(column.key, Array.from(values).sort());
+    this.cdr.detectChanges();
+  }
+
+  // Gérer le changement de filtre
+  onFilterChange(column: ColumnConfig, selectedValues: Set<string>) {
+    if (selectedValues.size > 0) {
+      this.activeFilters.set(column.key, selectedValues);
+    } else {
+      this.activeFilters.delete(column.key);
+    }
+    
+    this.currentPage = 1; // Retour à la première page
+    this.loadData();
+  }
+
+  // Méthode pour vérifier si une colonne a des filtres actifs
+  hasActiveFilter(column: ColumnConfig): boolean {
+    return this.activeFilters.has(column.key);
   }
 } 

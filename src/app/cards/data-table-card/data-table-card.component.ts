@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Card } from '@cards/card.decorator';
 import { DataTableCardConfigurationComponent } from './data-table-card-configuration.component';
-import { BaseCardConfig, ColumnSearchDto } from '@models/api.models';
+import { BaseCardConfig, ColumnSearchDto, OrderByParameterDto, DataRequestParametersDto } from '@models/api.models';
 import { BaseCardComponent } from '@cards/base-card.component';
 import { DatasourceConfig } from '@models/datasource.models';
 import { CardDatabaseService } from '@services/card-database.service';
@@ -171,6 +171,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   columnValues = new Map<string, string[]>();
   activeFilterPopover: { column: ColumnConfig, element: HTMLElement } | null = null;
   private documentClickListener: ((event: MouseEvent) => void) | null = null;
+  sortConfig: OrderByParameterDto[] = [];
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -363,19 +364,20 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       return;
     }
 
-    const columnSearches = Array.from(this.activeFilters.entries()).map(([column, values]) => ({
-      column,
-      value: Array.from(values).join(',')
-    }));
+    // Construire les paramètres de recherche
+    const searchParams = this.dataService.buildSearchParameters(this.activeFilters, this.globalSearch);
 
-    this.dataService.loadData(
-      this.card.configuration.datasource,
-      this.currentPage,
-      this.pageSize,
-      true,
-      this.globalSearch,
-      columnSearches
-    );
+    // Construire les paramètres de pagination
+    const paginationParameters: DataRequestParametersDto = {
+      pageNumber: this.currentPage,
+      pageSize: this.pageSize,
+      orderBy: this.sortConfig,
+      globalSearch: searchParams.globalSearch,
+      columnSearches: searchParams.columnSearches
+    };
+
+    // Charger les données avec les paramètres de pagination
+    this.dataService.loadData(this.card.configuration.datasource, paginationParameters);
   }
 
   getVisibleColumns(): ColumnConfig[] {

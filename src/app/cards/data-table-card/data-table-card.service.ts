@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { DatasourceConfig } from '@models/datasource.models';
 import { ColumnSearchDto } from '@models/api.models';
 import { CardDatabaseService } from '@services/card-database.service';
+import { DataRequestParametersDto } from '@models/api.models';
 
 export interface ColumnConfig {
   key: string;
@@ -94,42 +95,32 @@ export class DataTableCardService {
 
   loadData(
     datasource: DatasourceConfig,
-    pageNumber: number,
-    pageSize: number,
-    showLoading: boolean = true,
-    globalSearch: string = '',
-    columnSearches: ColumnSearchDto[] = []
+    parameters: DataRequestParametersDto
   ) {
     const state$ = this.getOrCreateState(datasource);
     const currentState = state$.getValue();
 
     if (currentState.items.length > 0 && 
-        currentState.pageNumber === pageNumber && 
-        currentState.pageSize === pageSize &&
-        currentState.globalSearch === globalSearch &&
-        JSON.stringify(currentState.columnSearches) === JSON.stringify(columnSearches)) {
+        currentState.pageNumber === parameters.pageNumber && 
+        currentState.pageSize === parameters.pageSize &&
+        currentState.globalSearch === parameters.globalSearch &&
+        JSON.stringify(currentState.columnSearches) === JSON.stringify(parameters.columnSearches)) {
       return;
     }
 
-    state$.next({ ...currentState, loading: showLoading });
+    state$.next({ ...currentState, loading: true });
 
-    this.cardDatabaseService.fetchData(datasource, {
-      pageNumber,
-      pageSize,
-      orderBy: [],
-      globalSearch,
-      columnSearches
-    }).subscribe({
+    this.cardDatabaseService.fetchData(datasource, parameters).subscribe({
       next: (response) => {
         state$.next({
           items: response.items,
           total: response.total,
           loading: false,
           config: datasource,
-          pageNumber: pageNumber,
-          pageSize: pageSize,
-          globalSearch: globalSearch,
-          columnSearches: columnSearches
+          pageNumber: parameters.pageNumber,
+          pageSize: parameters.pageSize,
+          globalSearch: parameters.globalSearch,
+          columnSearches: parameters.columnSearches
         });
       },
       error: (error) => {
@@ -236,5 +227,31 @@ export class DataTableCardService {
    */
   getColumnValues(config: DatasourceConfig, columnName: string): Observable<string[]> {
     return this.cardDatabaseService.getColumnValues(config, columnName);
+  }
+
+  /**
+   * Construit les paramètres de recherche pour la requête
+   * @param filters Map des filtres actifs par colonne
+   * @param globalSearch Terme de recherche global
+   * @returns Paramètres de recherche
+   */
+  buildSearchParameters(filters: Map<string, Set<string>>, globalSearch: string = ''): { columnSearches: ColumnSearchDto[], globalSearch: string } {
+    const columnSearches: ColumnSearchDto[] = [];
+
+    // Pour chaque colonne avec des filtres
+    filters.forEach((values, column) => {
+      // Pour chaque valeur sélectionnée dans le filtre
+      values.forEach(value => {
+        columnSearches.push({
+          column,
+          value
+        });
+      });
+    });
+
+    return {
+      columnSearches,
+      globalSearch
+    };
   }
 } 

@@ -92,7 +92,7 @@ export class CardDatabaseService {
           throw new Error('API configuration requires both connection and controller');
         }
         return this.apiService.post<PaginatedResultDto<any>>(
-          `${config.controller.route.replace("api/v1/", "")}/records`,
+          `${config.controller.route!.replace("api/v1/", "")}/records`,
           paginationParameters
         );
 
@@ -122,7 +122,7 @@ export class CardDatabaseService {
   }
 
   createData(datasource: DatasourceConfig, formData: any): Observable<any[]> {
-    return this.apiService.post<any[]>(`${datasource.controller?.route.replace("api/v1/", "")}`, formData);
+    return this.apiService.post<any[]>(`${datasource.controller?.route!.replace("api/v1/", "")}`, formData);
   }
 
   /**
@@ -135,6 +135,6 @@ export class CardDatabaseService {
     if (!config.controller) {
       throw new Error('API configuration requires a controller');
     }
-    return this.apiService.getColumnValues(config.controller.route.replace("api/v1/", ""), columnName);
+    return this.apiService.getColumnValues(config.controller.route!.replace("api/v1/", ""), columnName);
   }
 } 

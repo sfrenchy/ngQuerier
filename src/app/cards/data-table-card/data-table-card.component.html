@@ -242,6 +242,8 @@
     <app-dynamic-form
       *ngIf="addFormSchema"
       [jsonSchema]="addFormSchema"
+      [foreignKeyData]="addFormForeignKeyData"
+      [foreignKeyConfigs]="addFormForeignKeyConfigs"
       (formSubmit)="onFormSubmit($event)"
       (formCancel)="onFormCancel()">
     </app-dynamic-form>

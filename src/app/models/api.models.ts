@@ -404,9 +404,9 @@ export interface PaginatedResultDto<T> {
 }
 
 export interface DBConnectionControllerInfoDto {
-  name: string;
-  route: string;
-  httpGetJsonSchema: string;
+  name?: string;
+  route?: string;
+  httpGetJsonSchema?: string;
 }
 
 export interface DBConnectionEndpointInfoDto {

@@ -20,8 +20,20 @@ export interface FormDataSubmit {
           <span *ngIf="field.required" class="text-red-500">*</span>
         </label>
 
+        <!-- Select pour les clés étrangères -->
+        <select *ngIf="field.metadata?.isForeignKey && !field.isNavigation"
+          [id]="field.key"
+          [formControlName]="field.key"
+          class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          [class.border-red-500]="form.get(field.key)?.invalid && form.get(field.key)?.touched">
+          <option [ngValue]="null" *ngIf="field.nullable">Sélectionnez une valeur...</option>
+          <option *ngFor="let option of getForeignKeyOptions(field.metadata?.foreignKeyTable)" [ngValue]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+
         <!-- Input pour les champs texte -->
-        <input *ngIf="field.type === 'string' && !field.isNavigation"
+        <input *ngIf="field.type === 'string' && !field.isNavigation && !field.metadata?.isForeignKey"
           [id]="field.key"
           [type]="field.inputType"
           [formControlName]="field.key"
@@ -32,7 +44,7 @@ export interface FormDataSubmit {
         >
 
         <!-- Input pour les champs nombre -->
-        <input *ngIf="field.type === 'number' || field.type === 'integer'"
+        <input *ngIf="(field.type === 'number' || field.type === 'integer') && !field.metadata?.isForeignKey"
           [id]="field.key"
           type="number"
           [formControlName]="field.key"
@@ -43,7 +55,7 @@ export interface FormDataSubmit {
         >
 
         <!-- Input pour les dates -->
-        <input *ngIf="field.type === 'date'"
+        <input *ngIf="field.type === 'date' && !field.metadata?.isForeignKey"
           [id]="field.key"
           type="datetime-local"
           [formControlName]="field.key"
@@ -89,6 +101,8 @@ export interface FormDataSubmit {
 })
 export class DynamicFormComponent implements OnInit {
   @Input() jsonSchema!: DynamicFormSchema;
+  @Input() foreignKeyData?: { [key: string]: any[] };
+  @Input() foreignKeyConfigs?: { [key: string]: any };
   @Output() formSubmit = new EventEmitter<FormDataSubmit>();
   @Output() formCancel = new EventEmitter<void>();
 
@@ -99,6 +113,8 @@ export class DynamicFormComponent implements OnInit {
   constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
+    console.log('Foreign key data:', this.foreignKeyData);
+    console.log('Foreign key configs:', this.foreignKeyConfigs);
     this.initializeForm();
   }
 
@@ -263,5 +279,96 @@ export class DynamicFormComponent implements OnInit {
 
   onCancel() {
     this.formCancel.emit();
+  }
+
+  getForeignKeyOptions(tableName: string | undefined): any[] {
+    if (!tableName || !this.foreignKeyData?.[tableName]) {
+      console.log('No data for table:', tableName);
+      return [];
+    }
+
+    console.log('Raw data for table:', tableName, this.foreignKeyData[tableName]);
+
+    // Pour les tables Order, Customer, etc.
+    const data = this.foreignKeyData[tableName];
+    return data.map(item => {
+      // Log pour déboguer
+      console.log('Processing item:', item);
+      
+      // Si c'est une table Customer
+      if (tableName === 'Customer') {
+        return {
+          value: item.customerId,
+          label: `${item.customerId} - ${item.companyName || ''}`
+        };
+      }
+      
+      // Si c'est une table Employee
+      if (tableName === 'Employee') {
+        return {
+          value: item.employeeId,
+          label: `${item.firstName || ''} ${item.lastName || ''}`
+        };
+      }
+      
+      // Si c'est une table Shipper
+      if (tableName === 'Shipper') {
+        return {
+          value: item.shipperId,
+          label: `${item.companyName || ''}`
+        };
+      }
+
+      // Fallback générique
+      const idField = Object.keys(item).find(key => key.toLowerCase().endsWith('id'));
+      const displayField = Object.keys(item).find(key => 
+        !key.toLowerCase().endsWith('id') && 
+        !key.toLowerCase().endsWith('navigation') &&
+        item[key] !== null &&
+        typeof item[key] !== 'object'
+      );
+
+      return {
+        value: idField ? item[idField] : null,
+        label: displayField ? item[displayField] : (idField ? item[idField] : 'N/A')
+      };
+    });
+  }
+
+  formatForeignKeyLabel(tableName: string, item: any): string {
+    const config = this.foreignKeyConfigs?.[tableName];
+    if (!config?.displayColumns?.length) {
+      // Si pas de configuration, utiliser l'ID comme fallback
+      const tableNameCamel = tableName.charAt(0).toLowerCase() + tableName.slice(1);
+      return item[tableNameCamel + 'Id']?.toString() || '';
+    }
+
+    return config.displayColumns
+      .map((col: string) => item[col])
+      .filter((val: any) => val != null)
+      .join(config.displayFormat || ' - ');
+  }
+
+  getForeignKeyDisplay(option: any, config?: any): string {
+    if (!config?.displayFormat) {
+      // Fallback : afficher la première propriété non technique
+      const firstDisplayableProperty = Object.keys(option).find(key => 
+        !key.toLowerCase().includes('id') && 
+        typeof option[key] === 'string'
+      );
+      if (!firstDisplayableProperty) return option.toString();
+      return option[firstDisplayableProperty];
+    }
+
+    return config.displayFormat.replace(/\{([^}]+)\}/g, (match: string, key: string) => {
+      return option[key] ?? '';
+    });
+  }
+
+  getForeignKeyConfig(field: DynamicFormField): any {
+    if (field.metadata?.foreignKeyTable && this.foreignKeyConfigs) {
+      return this.foreignKeyConfigs[field.metadata.foreignKeyTable];
+    }
+    return undefined;
   }
 } 

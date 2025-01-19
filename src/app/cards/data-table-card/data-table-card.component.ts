@@ -14,6 +14,7 @@ import { DataTableCardConfigurationComponent } from './data-table-card-configura
 import { DataTableCardConfig, ColumnConfig } from './data-table-card.models';
 import { OrderByParameterDto, DataRequestParametersDto } from '@models/api.models';
 import { DynamicFormComponent, FormDataSubmit } from './dynamic-form.component';
+import { DatasourceConfig } from '@models/datasource.models';
 
 @Card({
   name: 'DataTableCard',
@@ -92,6 +93,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   // Ajout des nouvelles propriétés
   showAddForm = false;
   addFormSchema: any = null;
+
+  // Nouvelles propriétés pour les clés étrangères
+  addFormForeignKeyData: { [key: string]: any[] } = {};
+  addFormForeignKeyConfigs: { [key: string]: any } = {};
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -782,6 +787,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
         next: (parameters) => {
           if (parameters.length === 1) {
             this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
+            
+            // Charger les données des clés étrangères
+            this.loadForeignKeyData();
+            
             this.showAddForm = true;
             this.cdr.detectChanges();
           }
@@ -791,6 +800,61 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
           // TODO: Afficher un message d'erreur à l'utilisateur
         }
       });
+  }
+
+  private loadForeignKeyData(): void {
+    if (!this.addFormSchema?.properties) return;
+
+    // Réinitialiser les données
+    this.addFormForeignKeyData = {};
+    this.addFormForeignKeyConfigs = {};
+
+    // Parcourir les propriétés pour trouver les clés étrangères
+    Object.entries(this.addFormSchema.properties).forEach(([key, prop]: [string, any]) => {
+      const metadata = prop['x-entity-metadata'];
+      if (metadata?.isForeignKey && metadata.foreignKeyTable) {
+        const tableName = metadata.foreignKeyTable;
+        
+        // Ajouter la configuration d'affichage si elle existe
+        if (this.card.configuration?.crudConfig?.foreignKeyConfigs?.[tableName]) {
+          this.addFormForeignKeyConfigs[tableName] = this.card.configuration.crudConfig.foreignKeyConfigs[tableName];
+        }
+
+        // Récupérer le contrôleur pour la table étrangère
+        this.cardDatabaseService.getDatabaseEndpoints(
+          this.card.configuration!.datasource!.connection.id,
+          null,
+          tableName,
+          'GetAll'
+        ).subscribe({
+          next: (endpoints) => {
+            if (endpoints && endpoints.length > 0) {
+              const endpoint = endpoints[0];
+              // Créer la configuration de source de données
+              const foreignKeyDatasource: DatasourceConfig = {
+                connection: this.card.configuration!.datasource!.connection,
+                controller: { name: "", route: endpoint.route, httpGetJsonSchema: "" },
+                type: 'API'
+              };
+
+              // Récupérer les données
+              this.cardDatabaseService.fetchData(foreignKeyDatasource).subscribe({
+                next: (response) => {
+                  this.addFormForeignKeyData[tableName] = response.items;
+                  this.cdr.detectChanges();
+                },
+                error: (error) => {
+                  console.error(`Error fetching foreign key data for ${tableName}:`, error);
+                }
+              });
+            }
+          },
+          error: (error) => {
+            console.error(`Error getting endpoints for ${tableName}:`, error);
+          }
+        });
+      }
+    });
   }
 
   onFormSubmit(formData: FormDataSubmit) {

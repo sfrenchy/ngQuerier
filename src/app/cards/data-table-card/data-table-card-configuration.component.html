@@ -313,4 +313,95 @@
       </div>
     </div>
   </app-tile>
+
+  <!-- Configuration des Foreign Keys -->
+  <app-tile [title]="'FOREIGN_KEYS.TITLE' | translate" *ngIf="canEnableCrud() && (form.value.crudConfig?.canAdd || form.value.crudConfig?.canUpdate)">
+    <!-- Liste des tables avec foreign keys -->
+    <div *ngFor="let table of getForeignKeyTables()" class="space-y-4 bg-gray-800 rounded-lg p-4 mb-4">
+      <div class="flex items-center justify-between">
+        <h4 class="text-sm font-medium text-gray-200">{{ table }}</h4>
+        <button type="button"
+                (click)="toggleForeignKeyConfig(table)"
+                class="text-gray-400 hover:text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+      <div *ngIf="isTableConfigExpanded(table)" class="space-y-4 pl-4">
+        <!-- Loading indicator -->
+        <div *ngIf="isTableLoading(table)" class="flex items-center justify-center py-4">
+          <div class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-blue-500 border-r-transparent"></div>
+          <span class="ml-2 text-sm text-gray-400">Chargement du schéma...</span>
+        </div>
+
+        <!-- Content (only shown when not loading) -->
+        <ng-container *ngIf="!isTableLoading(table)">
+        <!-- Format d'affichage -->
+        <div class="space-y-1">
+          <label class="block text-xs font-medium text-gray-300">
+            Format d'affichage
+            <span class="text-xs text-gray-400 ml-1">(ex: {{ '{' }}firstName{{ '}' }} {{ '{' }}lastName{{ '}' }})</span>
+          </label>
+          <p class="text-xs text-gray-400">Définissez comment les données de la clé étrangère seront affichées dans le formulaire</p>
+          <input type="text"
+                 [value]="getForeignKeyConfig(table)?.displayFormat || ''"
+                 (input)="updateDisplayFormat(table, $event)"
+                 class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 text-sm">
+        </div>
+
+        <!-- Colonnes à afficher -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center">
+            <label class="block text-xs font-medium text-gray-300">
+              Colonnes disponibles pour le format d'affichage
+            </label>
+            <span class="text-xs text-gray-400">{{ getForeignKeyConfig(table)?.displayColumns?.length || 0 }} sélectionnée(s)</span>
+          </div>
+          <p class="text-xs text-gray-400">Sélectionnez les colonnes que vous souhaitez utiliser dans le format d'affichage</p>
+          <div class="flex flex-wrap gap-2">
+            <button *ngFor="let column of getAvailableColumns(table)"
+                    type="button"
+                    (click)="toggleDisplayColumn(table, column)"
+                    [class.bg-blue-600]="isColumnSelected(table, column)"
+                    [class.opacity-50]="!isColumnSelected(table, column) && !canSelectMoreDisplayColumns(table)"
+                    [disabled]="!isColumnSelected(table, column) && !canSelectMoreDisplayColumns(table)"
+                    class="px-2 py-1 text-xs rounded-full border border-gray-600 hover:border-gray-500 disabled:cursor-not-allowed">
+              {{ column }}
+            </button>
+          </div>
+          <p *ngIf="!hasMinimumDisplayColumns(table)" class="text-xs text-red-400 mt-1">
+            Sélectionnez au moins une colonne pour l'affichage
+          </p>
+        </div>
+
+        <!-- Colonnes de recherche -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center">
+            <label class="block text-xs font-medium text-gray-300">
+              Colonnes de recherche
+            </label>
+            <span class="text-xs text-gray-400">{{ getForeignKeyConfig(table)?.searchColumns?.length || 0 }} sélectionnée(s)</span>
+          </div>
+          <p class="text-xs text-gray-400">Sélectionnez les colonnes qui seront utilisées pour rechercher des valeurs dans la table liée</p>
+          <div class="flex flex-wrap gap-2">
+            <button *ngFor="let column of getAvailableColumns(table)"
+                    type="button"
+                    (click)="toggleSearchColumn(table, column)"
+                    [class.bg-blue-600]="isSearchColumnSelected(table, column)"
+                    [class.opacity-50]="!isSearchColumnSelected(table, column) && !canSelectMoreSearchColumns(table)"
+                    [disabled]="!isSearchColumnSelected(table, column) && !canSelectMoreSearchColumns(table)"
+                    class="px-2 py-1 text-xs rounded-full border border-gray-600 hover:border-gray-500 disabled:cursor-not-allowed"
+                    [textContent]="column">
+            </button>
+          </div>
+          <p *ngIf="!hasMinimumSearchColumns(table)" class="text-xs text-red-400 mt-1">
+            Sélectionnez au moins une colonne pour la recherche
+          </p>
+        </div>
+        </ng-container>
+      </div>
+    </div>
+  </app-tile>
 </div> 

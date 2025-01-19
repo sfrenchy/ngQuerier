@@ -73,8 +73,8 @@ export class CardDatabaseService {
     return this.apiService.getEndpoints(id);
   }
 
-  getDatabaseEndpoints(id: number, controller: string | null = null, action: string | null = null): Observable<DBConnectionEndpointInfoDto[]> {
-    return this.apiService.getDatabaseEndpoints(id, controller, action);
+  getDatabaseEndpoints(id: number, controller: string | null = null, targetTable: string | null = null, action: string | null = null): Observable<DBConnectionEndpointInfoDto[]> {
+    return this.apiService.getDatabaseEndpoints(id, controller, targetTable, action);
   }
   /**
    * Récupère les données selon la configuration de la source de données

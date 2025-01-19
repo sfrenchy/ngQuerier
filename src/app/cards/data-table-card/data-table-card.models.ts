@@ -1,6 +1,13 @@
 import { BaseCardConfig, ColumnSearchDto, OrderByParameterDto } from '@models/api.models';
 import { DatasourceConfig } from '@models/datasource.models';
 
+export interface ForeignKeyDisplayConfig {
+  table: string;
+  displayColumns: string[];
+  displayFormat?: string;  // Ex: "{firstName} {lastName} ({email})"
+  searchColumns?: string[]; // Colonnes à utiliser pour la recherche
+}
+
 export interface TableVisualConfig {
   headerBackgroundColor: string;
   rowBackgroundColor: string;
@@ -16,6 +23,7 @@ export interface CrudConfig {
   canAdd: boolean;
   canUpdate: boolean;
   canDelete: boolean;
+  foreignKeyConfigs?: { [tableName: string]: ForeignKeyDisplayConfig };
 }
 
 export interface ColumnConfig {
@@ -71,7 +79,8 @@ export class DataTableCardConfig extends BaseCardConfig {
     this.crudConfig = {
       canAdd: false,
       canUpdate: false,
-      canDelete: false
+      canDelete: false,
+      foreignKeyConfigs: {}
     };
   }
 
@@ -101,7 +110,8 @@ export class DataTableCardConfig extends BaseCardConfig {
     if (json.crudConfig) {
       config.crudConfig = {
         ...config.crudConfig,
-        ...json.crudConfig
+        ...json.crudConfig,
+        foreignKeyConfigs: json.crudConfig.foreignKeyConfigs || {}
       };
     }
     return config;

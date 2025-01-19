@@ -411,6 +411,7 @@ export interface DBConnectionControllerInfoDto {
 
 export interface DBConnectionEndpointInfoDto {
   controller: string;
+  targetTable: string;
   action: string;
   route: string;
   httpMethod: string;

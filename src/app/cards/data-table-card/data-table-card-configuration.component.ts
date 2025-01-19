@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { DataTableCardConfig, ColumnConfig, TableVisualConfig, CrudConfig } from './data-table-card.models';
+import { DataTableCardConfig, ColumnConfig, TableVisualConfig, CrudConfig, ForeignKeyDisplayConfig } from './data-table-card.models';
 import { CardDto } from '@models/api.models';
 import { TileComponent } from '@shared/components/tile/tile.component';
 import { DatasourceConfig } from '@models/datasource.models';
@@ -10,6 +10,8 @@ import { DatasourceConfigurationComponent } from '@shared/components/datasource-
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataTableCardService } from './data-table-card.service';
+import { CardDatabaseService } from '@services/card-database.service';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-data-table-card-configuration',
@@ -34,10 +36,15 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   expandedColumnIndex: number | null = null;
   draggedColumnIndex: number | null = null;
   private destroy$ = new Subject<void>();
+  private expandedTables = new Set<string>();
+  private tableSchemaCache = new Map<string, any>();
+  private loadingTables = new Set<string>();
 
   constructor(
     private fb: FormBuilder,
-    private dataTableService: DataTableCardService
+    private dataTableService: DataTableCardService,
+    private cardDatabaseService: CardDatabaseService,
+    private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       datasource: [null],
@@ -414,5 +421,224 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  getForeignKeyTables(): string[] {
+    if (!this.columns) return [];
+    
+    const tables = new Set<string>();
+    this.columns.forEach(column => {
+      if (column.entityMetadata?.isForeignKey && column.entityMetadata?.foreignKeyTable) {
+        tables.add(column.entityMetadata.foreignKeyTable);
+      }
+    });
+    return Array.from(tables);
+  }
+
+  toggleForeignKeyConfig(table: string) {
+    if (this.expandedTables.has(table)) {
+      this.expandedTables.delete(table);
+    } else {
+      this.expandedTables.add(table);
+      // Charger le schéma de la table si pas déjà fait
+      this.loadTableSchema(table);
+    }
+  }
+
+  isTableConfigExpanded(table: string): boolean {
+    return this.expandedTables.has(table);
+  }
+
+  isTableLoading(table: string): boolean {
+    return this.loadingTables.has(table);
+  }
+
+  private loadTableSchema(table: string) {
+    if (this.tableSchemaCache.has(table)) {
+      console.log('Using cached schema for table:', table);
+      return;
+    }
+
+    const datasource = this.form.value.datasource;
+    if (!datasource) {
+      console.log('No datasource configured');
+      return;
+    }
+
+    console.log('Loading schema for table:', table);
+    this.loadingTables.add(table);
+    this.cdr.detectChanges();
+
+    this.cardDatabaseService.getDatabaseEndpoints(
+      datasource.connection.id,
+      null,
+      table,
+      'GetById'
+    ).pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (endpoints: any[]) => {
+          console.log('Received endpoints:', endpoints);
+          const endpoint = endpoints[0];
+          if (endpoint) {
+            const successResponse = endpoint.responses.find((r: any) => r.statusCode === 200);
+            if (successResponse) {
+              try {
+                const schema = JSON.parse(successResponse.jsonSchema);
+                console.log('Parsed schema:', schema);
+                this.tableSchemaCache.set(table, schema);
+              } catch (e) {
+                console.error('Error parsing schema:', e);
+              }
+            }
+          }
+          this.loadingTables.delete(table);
+          this.cdr.detectChanges();
+        },
+        error: (error: Error) => {
+          console.error(`Error loading schema for table ${table}:`, error);
+          this.loadingTables.delete(table);
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  getAvailableColumns(table: string): string[] {
+    const schema = this.tableSchemaCache.get(table);
+    console.log('Schema for table', table, ':', schema);
+    if (!schema?.properties) {
+      console.log('No properties found in schema');
+      return [];
+    }
+
+    const columns = Object.entries(schema.properties)
+      .filter(([_, prop]: [string, any]) => {
+        // Exclure les propriétés de navigation et les collections
+        const metadata = prop['x-entity-metadata'];
+        const isNotNavigation = !metadata?.isNavigation;
+        const isNotCollection = !metadata?.isCollection;
+        const isNotPrimaryKey = !metadata?.isPrimaryKey;
+        const isNotForeignKey = !metadata?.isForeignKey;
+        
+        console.log('Property:', _, 
+          'isNotNavigation:', isNotNavigation, 
+          'isNotCollection:', isNotCollection,
+          'isNotPrimaryKey:', isNotPrimaryKey,
+          'isNotForeignKey:', isNotForeignKey);
+        
+        return isNotNavigation && isNotCollection && isNotPrimaryKey && isNotForeignKey;
+      })
+      .map(([key]) => key);
+    
+    console.log('Available columns:', columns);
+    return columns;
+  }
+
+  getForeignKeyConfig(table: string): ForeignKeyDisplayConfig | undefined {
+    const currentConfig = this.form.getRawValue().crudConfig?.foreignKeyConfigs || {};
+    return currentConfig[table];
+  }
+
+  private ensureForeignKeyConfig(table: string): ForeignKeyDisplayConfig {
+    const currentConfig = this.form.getRawValue().crudConfig || {};
+    const foreignKeyConfigs = currentConfig.foreignKeyConfigs || {};
+    
+    if (!foreignKeyConfigs[table]) {
+      foreignKeyConfigs[table] = {
+        table,
+        displayColumns: [],
+        searchColumns: []
+      };
+      
+      this.form.patchValue({
+        crudConfig: {
+          ...currentConfig,
+          foreignKeyConfigs
+        }
+      });
+    }
+    
+    return foreignKeyConfigs[table];
+  }
+
+  toggleDisplayColumn(table: string, column: string) {
+    const config = this.ensureForeignKeyConfig(table);
+    const index = config.displayColumns.indexOf(column);
+    
+    if (index === -1) {
+      config.displayColumns.push(column);
+    } else {
+      config.displayColumns.splice(index, 1);
+    }
+    
+    this.updateForeignKeyConfig(table, config);
+  }
+
+  toggleSearchColumn(table: string, column: string) {
+    const config = this.ensureForeignKeyConfig(table);
+    if (!config.searchColumns) config.searchColumns = [];
+    
+    const index = config.searchColumns.indexOf(column);
+    
+    if (index === -1) {
+      config.searchColumns.push(column);
+    } else {
+      config.searchColumns.splice(index, 1);
+    }
+    
+    this.updateForeignKeyConfig(table, config);
+  }
+
+  isColumnSelected(table: string, column: string): boolean {
+    const config = this.getForeignKeyConfig(table);
+    return config?.displayColumns?.includes(column) || false;
+  }
+
+  isSearchColumnSelected(table: string, column: string): boolean {
+    const config = this.getForeignKeyConfig(table);
+    return config?.searchColumns?.includes(column) || false;
+  }
+
+  updateDisplayFormat(table: string, event: Event) {
+    const input = event.target as HTMLInputElement;
+    const config = this.ensureForeignKeyConfig(table);
+    config.displayFormat = input.value;
+    this.updateForeignKeyConfig(table, config);
+  }
+
+  private updateForeignKeyConfig(table: string, config: ForeignKeyDisplayConfig) {
+    const currentConfig = this.form.getRawValue().crudConfig;
+    const foreignKeyConfigs = {
+      ...currentConfig.foreignKeyConfigs,
+      [table]: config
+    };
+    
+    this.form.patchValue({
+      crudConfig: {
+        ...currentConfig,
+        foreignKeyConfigs
+      }
+    });
+  }
+
+  hasMinimumDisplayColumns(table: string): boolean {
+    const config = this.getForeignKeyConfig(table);
+    return (config?.displayColumns?.length ?? 0) > 0;
+  }
+
+  hasMinimumSearchColumns(table: string): boolean {
+    const config = this.getForeignKeyConfig(table);
+    return (config?.searchColumns?.length ?? 0) > 0;
+  }
+
+  canSelectMoreDisplayColumns(table: string): boolean {
+    const config = this.getForeignKeyConfig(table);
+    // Pas de limite sur le nombre de colonnes d'affichage
+    return true;
+  }
+
+  canSelectMoreSearchColumns(table: string): boolean {
+    const config = this.getForeignKeyConfig(table);
+    // Pas de limite sur le nombre de colonnes de recherche
+    return true;
   }
 } 

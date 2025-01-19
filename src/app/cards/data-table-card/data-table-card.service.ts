@@ -1,57 +1,20 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DatasourceConfig } from '@models/datasource.models';
-import { ColumnSearchDto } from '@models/api.models';
+import { ColumnSearchDto, DBConnectionEndpointRequestInfoDto } from '@models/api.models';
 import { CardDatabaseService } from '@services/card-database.service';
 import { DataRequestParametersDto } from '@models/api.models';
 import { OrderByParameterDto } from '@models/api.models';
+import { ColumnConfig, DataState, DynamicFormField } from './data-table-card.models';
+import { FormDataSubmit } from './dynamic-form.component';
 
-export interface ColumnConfig {
-  key: string;
-  type: string;
-  label: { [key: string]: string };
-  alignment: 'left' | 'center' | 'right';
-  visible: boolean;
-  decimals?: number;
-  dateFormat?: 'date' | 'time' | 'datetime';
-  isNavigation?: boolean;
-  navigationType?: string;
-  isCollection?: boolean;
-  elementType?: string;
-  isFixed?: boolean;
-  isFixedRight?: boolean;
-  entityMetadata?: {
-    isPrimaryKey?: boolean;
-    isIdentity?: boolean;
-    columnName?: string;
-    columnType?: string;
-    defaultValue?: any;
-    isRequired?: boolean;
-    isForeignKey?: boolean;
-    foreignKeyTable?: string;
-    foreignKeyColumn?: string;
-    foreignKeyConstraintName?: string;
-    maxLength?: number;
-  };
-}
-
-interface DataState {
-  items: any[];
-  total: number;
-  loading: boolean;
-  config?: DatasourceConfig;
-  pageNumber: number;
-  pageSize: number;
-  globalSearch: string;
-  columnSearches: ColumnSearchDto[];
-  orderBy?: OrderByParameterDto[];
-}
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataTableCardService {
+  
   private dataStateMap = new Map<string, BehaviorSubject<DataState>>();
 
   constructor(private cardDatabaseService: CardDatabaseService) {}
@@ -83,10 +46,25 @@ export class DataTableCardService {
     );
   }
 
+  createData(datasource: DatasourceConfig, formData: FormDataSubmit): Observable<any[]> {
+    console.log('Creating data:', formData);
+    let createDto: { [key: string]: any } = {};
+    Object.keys(formData.schema.properties).forEach(key => {
+      createDto[key] = formData.formData[key] !== undefined ? formData.formData[key] : null;
+    });
+    return this.cardDatabaseService.createData(datasource, createDto);
+  }
+
   getTotal(config: DatasourceConfig): Observable<number> {
     return this.getOrCreateState(config).pipe(
       map(state => state.total)
     );
+  }
+
+  getAddActionParameterDefinition(config: DatasourceConfig): Observable<DBConnectionEndpointRequestInfoDto[]> {
+    return this.cardDatabaseService.getDatabaseEndpoints(config.connection!.id, config.controller?.name + "Controller" || '', 'Create').pipe(
+      map(endpoints => endpoints.flatMap(endpoint => endpoint.parameters))
+  );
   }
 
   isLoading(config: DatasourceConfig): Observable<boolean> {

@@ -9,7 +9,8 @@ import {
   SQLQueryDto,
   DBConnectionControllerInfoDto,
   DBConnectionEndpointRequestInfoDto,
-  DataRequestParametersDto
+  DataRequestParametersDto,
+  DBConnectionEndpointInfoDto
 } from '@models/api.models';
 import { DatasourceConfig } from '@models/datasource.models';
 
@@ -17,6 +18,7 @@ import { DatasourceConfig } from '@models/datasource.models';
   providedIn: 'root'
 })
 export class CardDatabaseService {
+  
   constructor(private apiService: ApiService) {}
 
   getDatasourceContexts(): Observable<string[]> {
@@ -71,6 +73,9 @@ export class CardDatabaseService {
     return this.apiService.getEndpoints(id);
   }
 
+  getDatabaseEndpoints(id: number, controller: string | null = null, action: string | null = null): Observable<DBConnectionEndpointInfoDto[]> {
+    return this.apiService.getDatabaseEndpoints(id, controller, action);
+  }
   /**
    * Récupère les données selon la configuration de la source de données
    * @param config Configuration de la source de données
@@ -114,6 +119,10 @@ export class CardDatabaseService {
       default:
         throw new Error(`Unsupported datasource type: ${config.type}`);
     }
+  }
+
+  createData(datasource: DatasourceConfig, formData: any): Observable<any[]> {
+    return this.apiService.post<any[]>(`${datasource.controller?.route.replace("api/v1/", "")}`, formData);
   }
 
   /**

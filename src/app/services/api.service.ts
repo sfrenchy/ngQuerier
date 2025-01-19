@@ -293,9 +293,15 @@ export class ApiService {
     );
   }
 
-  getDatabaseEndpoints(id:number): Observable<DBConnectionEndpointInfoDto[]> {
+  getDatabaseEndpoints(id:number, controller: string | null = null, action: string | null = null): Observable<DBConnectionEndpointInfoDto[]> {
     return this.http.get<DBConnectionEndpointInfoDto[]>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.dbConnectionEndPoints, { id: id.toString() }))
+      ApiEndpoints.buildUrl(
+        this.baseUrl, 
+        ApiEndpoints.replaceUrlParams(
+          ApiEndpoints.dbConnectionEndPoints, 
+          { connectionId: id.toString(), controller: controller || '', action: action || '' }
+        )
+      )
     );
   }
 

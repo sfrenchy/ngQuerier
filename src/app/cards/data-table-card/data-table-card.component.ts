@@ -13,6 +13,7 @@ import { ColumnFilterPopoverComponent } from './column-filter-popover.component'
 import { DataTableCardConfigurationComponent } from './data-table-card-configuration.component';
 import { DataTableCardConfig, ColumnConfig } from './data-table-card.models';
 import { OrderByParameterDto, DataRequestParametersDto } from '@models/api.models';
+import { DynamicFormComponent, FormDataSubmit } from './dynamic-form.component';
 
 @Card({
   name: 'DataTableCard',
@@ -28,7 +29,7 @@ import { OrderByParameterDto, DataRequestParametersDto } from '@models/api.model
   selector: 'app-data-table-card',
   templateUrl: './data-table-card.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, BaseCardComponent, ColumnFilterPopoverComponent],
+  imports: [CommonModule, TranslateModule, FormsModule, BaseCardComponent, ColumnFilterPopoverComponent, DynamicFormComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfig> implements OnInit, OnDestroy, AfterViewInit {
@@ -87,6 +88,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   sortConfig: OrderByParameterDto[] = [];
 
   private actionsColumnWidth: number = 0;
+
+  // Ajout des nouvelles propriétés
+  showAddForm = false;
+  addFormSchema: any = null;
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -766,8 +771,31 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   // Gestionnaires d'événements CRUD
   onAdd(): void {
-    // TODO: Implémenter la logique d'ajout
-    console.log('Add action triggered');
+    this.dataService.getAddActionParameterDefinition(this.card.configuration.datasource!).subscribe(parameters => {
+      if (parameters.length === 1) {
+        this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
+        this.showAddForm = true;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  onFormSubmit(formData: FormDataSubmit) {
+    // TODO: Implémenter l'appel API pour créer l'enregistrement
+    console.log('Form submitted:', formData);
+    this.dataService.createData(this.card.configuration.datasource!, formData).subscribe(response => {
+      console.log('Data created:', response);
+      this.loadData();
+      this.showAddForm = false;
+      this.addFormSchema = null;
+      this.cdr.detectChanges();
+    });
+  }
+
+  onFormCancel() {
+    this.showAddForm = false;
+    this.addFormSchema = null;
+    this.cdr.detectChanges();
   }
 
   onUpdate(row: any): void {

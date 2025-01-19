@@ -1,4 +1,4 @@
-import { BaseCardConfig } from '@models/api.models';
+import { BaseCardConfig, ColumnSearchDto, OrderByParameterDto } from '@models/api.models';
 import { DatasourceConfig } from '@models/datasource.models';
 
 export interface TableVisualConfig {
@@ -107,3 +107,70 @@ export class DataTableCardConfig extends BaseCardConfig {
     return config;
   }
 } 
+
+export interface DataState {
+  items: any[];
+  total: number;
+  loading: boolean;
+  config?: DatasourceConfig;
+  pageNumber: number;
+  pageSize: number;
+  globalSearch: string;
+  columnSearches: ColumnSearchDto[];
+  orderBy?: OrderByParameterDto[];
+}
+
+export interface DynamicFormField {
+  key: string;
+  label: string;
+  type: string;
+  required: boolean;
+  maxLength?: number;
+  inputType: string;
+  isNavigation: boolean;
+  defaultValue?: any;
+  nullable?: boolean;
+  metadata?: {
+    isPrimaryKey?: boolean;
+    isIdentity?: boolean;
+    columnName?: string;
+    columnType?: string;
+    defaultValue?: any;
+    isRequired?: boolean;
+    isForeignKey?: boolean;
+    foreignKeyTable?: string;
+    foreignKeyColumn?: string;
+    foreignKeyConstraintName?: string;
+  };
+  minimum?: number;
+  maximum?: number;
+}
+
+export interface DynamicFormSchema {
+  type: string;
+  title: string;
+  properties: {
+    [key: string]: {
+      type: string;
+      maxLength?: number;
+      nullable?: boolean;
+      minimum?: number;
+      maximum?: number;
+      'x-entity-metadata'?: {
+        isPrimaryKey?: boolean;
+        isIdentity?: boolean;
+        columnName?: string;
+        columnType?: string;
+        defaultValue?: any;
+        isRequired?: boolean;
+        isForeignKey?: boolean;
+        foreignKeyTable?: string;
+        foreignKeyColumn?: string;
+        foreignKeyConstraintName?: string;
+        isNavigation?: boolean;
+        navigationType?: string;
+        isCollection?: boolean;
+      };
+    };
+  };
+}

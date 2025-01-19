@@ -36,7 +36,7 @@ export class ApiEndpoints {
   static readonly dbConnectionSchema = 'dbconnection/{id}/schema';
   static readonly dbConnectionControllers = 'dbconnection/{id}/controllers';
   static readonly analyzeQuery = 'dbconnection/{connectionId}/analyze-query';
-  static readonly dbConnectionEndPoints = 'dbconnection/{connectionId}/endPoints';
+  static readonly dbConnectionEndPoints = 'dbconnection/{connectionId}/endPoints?controller={controller}&action={action}';
 
   // Menu Controller
   static readonly menus = 'menu';

@@ -34,7 +34,8 @@ import {
   DBConnectionControllerInfoDto,
   DBConnectionEndpointRequestInfoDto,
   DataRequestParametersDto,
-  DataRequestDataRequestParametersWithSQLParametersDto
+  DataRequestDataRequestParametersWithSQLParametersDto,
+  DBConnectionEndpointInfoDto
 } from '@models/api.models';
 
 @Injectable({
@@ -289,6 +290,12 @@ export class ApiService {
           id: id.toString()
         })
       )
+    );
+  }
+
+  getDatabaseEndpoints(id:number): Observable<DBConnectionEndpointInfoDto[]> {
+    return this.http.get<DBConnectionEndpointInfoDto[]>(
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.dbConnectionEndPoints, { id: id.toString() }))
     );
   }
 

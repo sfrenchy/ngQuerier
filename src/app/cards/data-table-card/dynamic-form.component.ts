@@ -113,8 +113,6 @@ export class DynamicFormComponent implements OnInit {
   constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
-    console.log('Foreign key data:', this.foreignKeyData);
-    console.log('Foreign key configs:', this.foreignKeyConfigs);
     this.initializeForm();
   }
 
@@ -283,18 +281,13 @@ export class DynamicFormComponent implements OnInit {
 
   getForeignKeyOptions(tableName: string | undefined): any[] {
     if (!tableName || !this.foreignKeyData?.[tableName]) {
-      console.log('No data for table:', tableName);
       return [];
     }
 
-    console.log('Raw data for table:', tableName, this.foreignKeyData[tableName]);
 
     // Pour les tables Order, Customer, etc.
     const data = this.foreignKeyData[tableName];
     return data.map(item => {
-      // Log pour déboguer
-      console.log('Processing item:', item);
-      
       // Si c'est une table Customer
       if (tableName === 'Customer') {
         return {

@@ -859,7 +859,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   onFormSubmit(formData: FormDataSubmit) {
     this.dataService.createData(this.card.configuration.datasource!, formData).subscribe(response => {
-      console.log('Data created:', response);
       this.loadData();
       this.showAddForm = false;
       this.addFormSchema = null;

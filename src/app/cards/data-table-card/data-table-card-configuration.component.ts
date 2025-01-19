@@ -455,17 +455,14 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
   private loadTableSchema(table: string) {
     if (this.tableSchemaCache.has(table)) {
-      console.log('Using cached schema for table:', table);
       return;
     }
 
     const datasource = this.form.value.datasource;
     if (!datasource) {
-      console.log('No datasource configured');
       return;
     }
 
-    console.log('Loading schema for table:', table);
     this.loadingTables.add(table);
     this.cdr.detectChanges();
 
@@ -477,14 +474,12 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     ).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (endpoints: any[]) => {
-          console.log('Received endpoints:', endpoints);
           const endpoint = endpoints[0];
           if (endpoint) {
             const successResponse = endpoint.responses.find((r: any) => r.statusCode === 200);
             if (successResponse) {
               try {
                 const schema = JSON.parse(successResponse.jsonSchema);
-                console.log('Parsed schema:', schema);
                 this.tableSchemaCache.set(table, schema);
               } catch (e) {
                 console.error('Error parsing schema:', e);
@@ -504,9 +499,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
   getAvailableColumns(table: string): string[] {
     const schema = this.tableSchemaCache.get(table);
-    console.log('Schema for table', table, ':', schema);
     if (!schema?.properties) {
-      console.log('No properties found in schema');
       return [];
     }
 
@@ -519,17 +512,10 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         const isNotPrimaryKey = !metadata?.isPrimaryKey;
         const isNotForeignKey = !metadata?.isForeignKey;
         
-        console.log('Property:', _, 
-          'isNotNavigation:', isNotNavigation, 
-          'isNotCollection:', isNotCollection,
-          'isNotPrimaryKey:', isNotPrimaryKey,
-          'isNotForeignKey:', isNotForeignKey);
-        
         return isNotNavigation && isNotCollection && isNotPrimaryKey && isNotForeignKey;
       })
       .map(([key]) => key);
     
-    console.log('Available columns:', columns);
     return columns;
   }
 

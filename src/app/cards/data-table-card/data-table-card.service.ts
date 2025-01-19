@@ -48,7 +48,6 @@ export class DataTableCardService {
   }
 
   createData(datasource: DatasourceConfig, formData: FormDataSubmit): Observable<any[]> {
-    console.log('Creating data:', formData);
     let createDto: { [key: string]: any } = {};
     Object.keys(formData.schema.properties).forEach(key => {
       createDto[key] = formData.formData[key] !== undefined ? formData.formData[key] : null;

@@ -153,75 +153,38 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
           this.dataService.preloadAddFormSchema(this.card.configuration.datasource);
         }
 
-        // S'abonner aux changements de données
-        this.dataService.getData(this.card.configuration.datasource)
+        // S'abonner aux changements d'état
+        this.dataService.getState(this.card.configuration.datasource)
           .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: (items) => {
-              this.data = [...items];
-              this.cdr.detectChanges();
-            },
-            error: (error) => {
-              console.error('Error in getData subscription:', error);
-              this.data = [];
-              this.cdr.detectChanges();
-            }
-          });
-
-        this.dataService.getTotal(this.card.configuration.datasource)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: (total) => {
-              this.totalItems = total;
-              this.cdr.detectChanges();
-            },
-            error: (error) => {
-              console.error('Error in getTotal subscription:', error);
-              this.totalItems = 0;
-              this.cdr.detectChanges();
-            }
-          });
-
-        this.dataService.isLoading(this.card.configuration.datasource)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
-            next: (loading) => {
-              if (loading) {
-                this.isLoadingData = true;
-                if (this.isPageChange) {
-                  // On enregistre le moment où le chargement commence
-                  this.loadingStartTime = Date.now();
-                  // On ne montre pas le loader immédiatement pour les changements de page
-                  this.loading = false;
-                  // On met en place le timer
-                  this.loadingTimer = setTimeout(() => {
-                    if (this.isLoadingData) {
-                      this.loading = true;
-                      this.cdr.detectChanges();
-                    }
-                  }, 1000);
-                } else {
-                  // Pour les autres cas, on affiche le loader immédiatement
-                  this.loading = true;
-                }
-              } else {
-                // Quand le chargement est terminé
-                this.isLoadingData = false;
-                if (this.loadingTimer) {
-                  clearTimeout(this.loadingTimer);
-                  this.loadingTimer = null;
-                }
+          .subscribe(state => {
+            this.data = state.items;
+            this.totalItems = state.total;
+            
+            if (state.loading) {
+              this.isLoadingData = true;
+              if (this.isPageChange) {
+                this.loadingStartTime = Date.now();
                 this.loading = false;
-                this.isPageChange = false;
-                this.loadingStartTime = 0;
+                this.loadingTimer = setTimeout(() => {
+                  if (this.isLoadingData) {
+                    this.loading = true;
+                    this.cdr.detectChanges();
+                  }
+                }, 1000);
+              } else {
+                this.loading = true;
               }
-              this.cdr.detectChanges();
-            },
-            error: (error) => {
-              console.error('Error in isLoading subscription:', error);
+            } else {
+              this.isLoadingData = false;
+              if (this.loadingTimer) {
+                clearTimeout(this.loadingTimer);
+                this.loadingTimer = null;
+              }
               this.loading = false;
-              this.cdr.detectChanges();
+              this.isPageChange = false;
+              this.loadingStartTime = 0;
             }
+            this.cdr.detectChanges();
           });
       }
     } catch (error) {
@@ -240,16 +203,31 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       this.cdr.detectChanges();
       
       setTimeout(() => {
-        this.calculateAndSetOptimalSize(true);
+        // Calculer la taille optimale sans déclencher de rechargement
+        this.calculateAndSetOptimalSize(false);
+
+        // Charger les données une seule fois avec la taille calculée
+        if (this.pageSize > 0) {
+          const parameters: DataRequestParametersDto = {
+            pageNumber: this.currentPage,
+            pageSize: this.pageSize,
+            globalSearch: this.globalSearch,
+            columnSearches: this.getActiveFilters(),
+            orderBy: this.sortConfig
+          };
+
+          this.dataService.loadData(this.card.configuration!.datasource, parameters);
+        }
+        
         this.isCalculatingRows = false;
         this.initialLoadDone = true;
         this.cdr.detectChanges();
-      }, 1000);
+      }, 100);
     }
   }
 
   protected override onHeightChange() {
-    if (this.height > 0) {
+    if (this.height > 0 && this.initialLoadDone) {
       setTimeout(() => {
         this.calculateAndSetOptimalSize(true);
         this.updateScrollbarVisibility();
@@ -300,10 +278,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             this.card.configuration.visualConfig.rowCount = newPageSize;
             this.configurationChanged.emit(this.card);
           }
-
-          if (shouldReloadData) {
-            this.loadData();
-          }
         }
 
         this.cdr.detectChanges();
@@ -314,29 +288,27 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     }
   }
 
-  private loadData() {
-    if (!this.card.configuration?.datasource || !this.isValidConfiguration()) {
-      return;
-    }
+  private getActiveFilters(): { column: string, value: string }[] {
+    return Array.from(this.activeFilters.entries()).flatMap(([column, values]) =>
+      Array.from(values).map(value => ({
+        column,
+        value
+      }))
+    );
+  }
 
-    this.loading = true;
+  private loadData() {
+    if (!this.isValidConfiguration()) return;
+
     const parameters: DataRequestParametersDto = {
       pageNumber: this.currentPage,
       pageSize: this.pageSize,
-      orderBy: this.sortConfig,
       globalSearch: this.globalSearch,
-      columnSearches: Array.from(this.activeFilters.entries()).flatMap(([column, values]) =>
-        Array.from(values).map(value => ({
-          column,
-          value
-        }))
-      )
+      columnSearches: this.getActiveFilters(),
+      orderBy: this.sortConfig
     };
 
-    this.dataService.loadData(
-      this.card.configuration.datasource,
-      parameters
-    );
+    this.dataService.loadData(this.card.configuration!.datasource, parameters);
   }
 
   getVisibleColumns(): ColumnConfig[] {

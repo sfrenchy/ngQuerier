@@ -6,15 +6,13 @@ import { ColumnSearchDto, DBConnectionEndpointRequestInfoDto } from '@models/api
 import { CardDatabaseService } from '@services/card-database.service';
 import { DataRequestParametersDto } from '@models/api.models';
 import { OrderByParameterDto } from '@models/api.models';
-import { ColumnConfig, DataState, DynamicFormField } from './data-table-card.models';
+import { ColumnConfig, DataState } from './data-table-card.models';
 import { FormDataSubmit } from './dynamic-form.component';
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataTableCardService {
-  
   private dataStateMap = new Map<string, BehaviorSubject<DataState>>();
   private addFormSchemaCache = new Map<string, any>();
 
@@ -41,83 +39,15 @@ export class DataTableCardService {
     return this.dataStateMap.get(key)!;
   }
 
-  getData(config: DatasourceConfig): Observable<any[]> {
-    return this.getOrCreateState(config).pipe(
-      map(state => state.items)
-    );
-  }
-
-  createData(datasource: DatasourceConfig, formData: FormDataSubmit): Observable<any[]> {
-    let createDto: { [key: string]: any } = {};
-    Object.keys(formData.schema.properties).forEach(key => {
-      createDto[key] = formData.formData[key] !== undefined ? formData.formData[key] : null;
-    });
-    return this.cardDatabaseService.createData(datasource, createDto);
-  }
-
-  getTotal(config: DatasourceConfig): Observable<number> {
-    return this.getOrCreateState(config).pipe(
-      map(state => state.total)
-    );
-  }
-
-  getAddActionParameterDefinition(config: DatasourceConfig): Observable<DBConnectionEndpointRequestInfoDto[]> {
-    const cacheKey = `${config.connection!.id}_${config.controller?.name}`;
-    
-    // Si déjà en cache, retourner directement
-    if (this.addFormSchemaCache.has(cacheKey)) {
-      return of([{
-        jsonSchema: this.addFormSchemaCache.get(cacheKey)
-      }] as DBConnectionEndpointRequestInfoDto[]);
-    }
-
-    // Sinon, faire l'appel API et mettre en cache
-    return this.cardDatabaseService.getDatabaseEndpoints(
-      config.connection!.id, 
-      config.controller?.name + "Controller" || '', 
-      '',
-      'Create'
-    ).pipe(
-      map(endpoints => {
-        const parameters = endpoints.flatMap(endpoint => endpoint.parameters);
-        if (parameters.length > 0) {
-          this.addFormSchemaCache.set(cacheKey, parameters[0].jsonSchema);
-        }
-        return parameters;
-      })
-    );
-  }
-
-  // Méthode pour précharger le schéma
-  preloadAddFormSchema(config: DatasourceConfig): void {
-    if (!config?.connection?.id || !config?.controller?.name) return;
-
-    const cacheKey = `${config.connection.id}_${config.controller.name}`;
-    if (!this.addFormSchemaCache.has(cacheKey)) {
-      this.getAddActionParameterDefinition(config).subscribe();
-    }
-  }
-
-  // Méthode pour vider le cache si nécessaire
-  clearAddFormSchemaCache(config?: DatasourceConfig): void {
-    if (config) {
-      const cacheKey = `${config.connection!.id}_${config.controller?.name}`;
-      this.addFormSchemaCache.delete(cacheKey);
-    } else {
-      this.addFormSchemaCache.clear();
-    }
-  }
-
-  isLoading(config: DatasourceConfig): Observable<boolean> {
-    return this.getOrCreateState(config).pipe(
-      map(state => state.loading)
-    );
+  getState(config: DatasourceConfig): Observable<DataState> {
+    return this.getOrCreateState(config).asObservable();
   }
 
   loadData(
     datasource: DatasourceConfig,
     parameters: DataRequestParametersDto
   ) {
+
     const state$ = this.getOrCreateState(datasource);
     const currentState = state$.getValue();
 
@@ -134,7 +64,7 @@ export class DataTableCardService {
       return;
     }
 
-    // Mettre à jour l'état immédiatement avec les nouveaux paramètres
+    // Mettre à jour l'état immédiatement avec les nouveaux paramètres et le statut de chargement
     state$.next({ 
       ...currentState, 
       loading: true,
@@ -145,6 +75,12 @@ export class DataTableCardService {
       orderBy: parameters.orderBy
     });
 
+    // Éviter les appels redondants en vérifiant si un appel est déjà en cours
+    if (currentState.loading) {
+      return;
+    }
+
+    // Faire l'appel API et mettre à jour l'état avec les résultats
     this.cardDatabaseService.fetchData(datasource, parameters).subscribe({
       next: (response) => {
         state$.next({
@@ -156,7 +92,12 @@ export class DataTableCardService {
       },
       error: (error) => {
         console.error('Error fetching data:', error);
-        state$.next({ ...state$.getValue(), loading: false });
+        state$.next({ 
+          ...state$.getValue(), 
+          items: [],
+          total: 0,
+          loading: false 
+        });
       }
     });
   }
@@ -175,9 +116,56 @@ export class DataTableCardService {
     });
   }
 
-  clearData(config: DatasourceConfig): void {
-    const key = this.getStateKey(config);
-    this.dataStateMap.delete(key);
+  // Méthodes pour le formulaire d'ajout
+  getAddActionParameterDefinition(config: DatasourceConfig): Observable<DBConnectionEndpointRequestInfoDto[]> {
+    const cacheKey = `${config.connection!.id}_${config.controller?.name}`;
+    
+    if (this.addFormSchemaCache.has(cacheKey)) {
+      return of([{
+        jsonSchema: this.addFormSchemaCache.get(cacheKey)
+      }] as DBConnectionEndpointRequestInfoDto[]);
+    }
+
+    return this.cardDatabaseService.getDatabaseEndpoints(
+      config.connection!.id, 
+      config.controller?.name + "Controller" || '', 
+      '',
+      'Create'
+    ).pipe(
+      map(endpoints => {
+        const parameters = endpoints.flatMap(endpoint => endpoint.parameters);
+        if (parameters.length > 0) {
+          this.addFormSchemaCache.set(cacheKey, parameters[0].jsonSchema);
+        }
+        return parameters;
+      })
+    );
+  }
+
+  preloadAddFormSchema(config: DatasourceConfig): void {
+    if (!config?.connection?.id || !config?.controller?.name) return;
+
+    const cacheKey = `${config.connection.id}_${config.controller.name}`;
+    if (!this.addFormSchemaCache.has(cacheKey)) {
+      this.getAddActionParameterDefinition(config).subscribe();
+    }
+  }
+
+  clearAddFormSchemaCache(config?: DatasourceConfig): void {
+    if (config) {
+      const cacheKey = `${config.connection!.id}_${config.controller?.name}`;
+      this.addFormSchemaCache.delete(cacheKey);
+    } else {
+      this.addFormSchemaCache.clear();
+    }
+  }
+
+  createData(datasource: DatasourceConfig, formData: FormDataSubmit): Observable<any[]> {
+    let createDto: { [key: string]: any } = {};
+    Object.keys(formData.schema.properties).forEach(key => {
+      createDto[key] = formData.formData[key] !== undefined ? formData.formData[key] : null;
+    });
+    return this.cardDatabaseService.createData(datasource, createDto);
   }
 
   // Méthodes utilitaires pour les colonnes
@@ -193,6 +181,54 @@ export class DataTableCardService {
            type.includes('double') || 
            type.includes('money') || 
            type.includes('number');
+  }
+
+  formatColumnValue(value: any, column: ColumnConfig, locale: string): any {
+    if (value === null || value === undefined) {
+      return '';
+    }
+
+    if (this.isDateColumn(column) && value) {
+      const date = new Date(value);
+      switch (column.dateFormat) {
+        case 'date':
+          return date.toLocaleDateString(locale);
+        case 'time':
+          return date.toLocaleTimeString(locale);
+        case 'datetime':
+        default:
+          return date.toLocaleString(locale);
+      }
+    }
+
+    if (this.isNumberColumn(column) && column.decimals !== undefined && value !== null && value !== undefined) {
+      return Number(value).toFixed(column.decimals);
+    }
+
+    return value;
+  }
+
+  getColumnValue(item: any, column: ColumnConfig, locale: string): any {
+    if (!item || !column.key) {
+      return '';
+    }
+    
+    const camelCaseKey = column.key.charAt(0).toLowerCase() + column.key.slice(1);
+    const keys = camelCaseKey.split('.');
+    let value = item;
+    
+    for (const key of keys) {
+      if (value === null || value === undefined) {
+        return '';
+      }
+      value = value[key];
+    }
+
+    return this.formatColumnValue(value, column, locale);
+  }
+
+  getColumnValues(config: DatasourceConfig, columnName: string): Observable<string[]> {
+    return this.cardDatabaseService.getColumnValues(config, columnName);
   }
 
   getDefaultAlignment(type: string): 'left' | 'center' | 'right' {
@@ -212,91 +248,5 @@ export class DataTableCardService {
       return prop['x-entity-metadata'].navigationType;
     }
     return prop.type;
-  }
-
-  // Méthodes de formatage des valeurs
-  formatColumnValue(value: any, column: ColumnConfig, locale: string): any {
-    if (value === null || value === undefined) {
-      return '';
-    }
-
-    // Formatage des dates selon la configuration
-    if (this.isDateColumn(column) && value) {
-      const date = new Date(value);
-      switch (column.dateFormat) {
-        case 'date':
-          return date.toLocaleDateString(locale);
-        case 'time':
-          return date.toLocaleTimeString(locale);
-        case 'datetime':
-        default:
-          return date.toLocaleString(locale);
-      }
-    }
-
-    // Formatage des nombres décimaux si spécifié
-    if (this.isNumberColumn(column) && column.decimals !== undefined && value !== null && value !== undefined) {
-      return Number(value).toFixed(column.decimals);
-    }
-
-    return value;
-  }
-
-  getColumnValue(item: any, column: ColumnConfig, locale: string): any {
-    if (!item || !column.key) {
-      return '';
-    }
-    
-    // Convertir la clé en camelCase
-    const camelCaseKey = column.key.charAt(0).toLowerCase() + column.key.slice(1);
-    
-    // Gestion des propriétés imbriquées avec notation par points
-    const keys = camelCaseKey.split('.');
-    let value = item;
-    
-    for (const key of keys) {
-      if (value === null || value === undefined) {
-        return '';
-      }
-      value = value[key];
-    }
-
-    return this.formatColumnValue(value, column, locale);
-  }
-
-  /**
-   * Récupère les valeurs uniques d'une colonne
-   * @param config Configuration de la source de données
-   * @param columnName Nom de la colonne
-   * @returns Observable des valeurs uniques
-   */
-  getColumnValues(config: DatasourceConfig, columnName: string): Observable<string[]> {
-    return this.cardDatabaseService.getColumnValues(config, columnName);
-  }
-
-  /**
-   * Construit les paramètres de recherche pour la requête
-   * @param filters Map des filtres actifs par colonne
-   * @param globalSearch Terme de recherche global
-   * @returns Paramètres de recherche
-   */
-  buildSearchParameters(filters: Map<string, Set<string>>, globalSearch: string = ''): { columnSearches: ColumnSearchDto[], globalSearch: string } {
-    const columnSearches: ColumnSearchDto[] = [];
-
-    // Pour chaque colonne avec des filtres
-    filters.forEach((values, column) => {
-      // Pour chaque valeur sélectionnée dans le filtre
-      values.forEach(value => {
-        columnSearches.push({
-          column,
-          value
-        });
-      });
-    });
-
-    return {
-      columnSearches,
-      globalSearch
-    };
   }
 } 

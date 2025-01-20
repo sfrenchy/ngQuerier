@@ -114,6 +114,14 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     super(cardDatabaseService);
     this.currentLanguage = this.translateService.currentLang;
 
+    // S'abonner aux changements de langue
+    this.translateService.onLangChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(event => {
+        this.currentLanguage = event.lang;
+        this.cdr.detectChanges();
+      });
+
     // Configuration de la recherche
     this.searchSubscription = this.searchSubject.pipe(
       debounceTime(300),

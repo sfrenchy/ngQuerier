@@ -112,7 +112,7 @@
                 </th>
                 <th *ngIf="hasActions()"
                     scope="col"
-                    class="sticky fixed-right right-0 z-10 sticky-shadow px-6 text-xs font-medium uppercase tracking-wider text-center actions-column"
+                    class="sticky fixed-right right-0 z-10 sticky-shadow px-2 text-xs font-medium uppercase tracking-wider text-center actions-column"
                     [style.background-color]="headerBackgroundColor"
                     [style.color]="headerTextColor"
                     [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
@@ -150,7 +150,7 @@
                   {{ getColumnValue(row, column) }}
                 </td>
                 <td *ngIf="hasActions()"
-                    class="sticky fixed-right right-0 z-10 sticky-shadow px-6 whitespace-nowrap text-sm actions-column"
+                    class="sticky fixed-right right-0 z-10 sticky-shadow px-2 whitespace-nowrap text-sm actions-column"
                     [style.background-color]="headerBackgroundColor"
                     [style.color]="headerTextColor"
                     [class.py-3]="!card.configuration?.visualConfig.isCompactMode"

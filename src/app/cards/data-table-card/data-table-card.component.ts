@@ -260,11 +260,11 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       const rowTotalSpace = this.ROW_HEIGHT + this.ROW_BORDER + (this.CELL_PADDING * 2); // Hauteur + bordure + padding haut et bas
       const optimalRows = Math.floor(availableHeightForRows / rowTotalSpace);
       
-      // 3. Déterminer le nombre final de lignes
-      const targetSize = Math.min(optimalRows, this.totalItems || optimalRows);
+      // 3. Déterminer le nombre final de lignes avec une ligne de sécurité en moins
+      const targetSize = Math.min(optimalRows - 1, this.totalItems || (optimalRows - 1));
       const newPageSize = Math.max(1, targetSize);
 
-      // 4. Calculer la hauteur de ligne ajustée
+      // 4. Calculer la hauteur de ligne ajustée en utilisant le nombre réduit de lignes
       const totalSpace = availableHeightForRows - (newPageSize * this.ROW_BORDER) - (newPageSize * (this.CELL_PADDING * 2));
       const newRowHeight = Math.floor(totalSpace / newPageSize);
 

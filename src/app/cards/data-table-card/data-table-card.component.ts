@@ -100,6 +100,11 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   modalTitle: string = '';
 
+  private loadingTimer: any = null;
+  private isPageChange = false;
+  private isLoadingData = false;
+  private loadingStartTime: number = 0;
+
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
     private translateService: TranslateService,
@@ -181,7 +186,35 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
           .pipe(takeUntil(this.destroy$))
           .subscribe({
             next: (loading) => {
-              this.loading = loading;
+              if (loading) {
+                this.isLoadingData = true;
+                if (this.isPageChange) {
+                  // On enregistre le moment où le chargement commence
+                  this.loadingStartTime = Date.now();
+                  // On ne montre pas le loader immédiatement pour les changements de page
+                  this.loading = false;
+                  // On met en place le timer
+                  this.loadingTimer = setTimeout(() => {
+                    if (this.isLoadingData) {
+                      this.loading = true;
+                      this.cdr.detectChanges();
+                    }
+                  }, 1000);
+                } else {
+                  // Pour les autres cas, on affiche le loader immédiatement
+                  this.loading = true;
+                }
+              } else {
+                // Quand le chargement est terminé
+                this.isLoadingData = false;
+                if (this.loadingTimer) {
+                  clearTimeout(this.loadingTimer);
+                  this.loadingTimer = null;
+                }
+                this.loading = false;
+                this.isPageChange = false;
+                this.loadingStartTime = 0;
+              }
               this.cdr.detectChanges();
             },
             error: (error) => {
@@ -461,22 +494,12 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onPageChange(page: number) {
-    if (!this.pageSize || this.pageSize <= 0) {
-      console.warn('[DataTable] Impossible de changer de page: taille de page invalide');
+    if (page === this.currentPage) {
       return;
     }
-
-    const totalPages = Math.ceil(this.totalItems / this.pageSize);
-    if (page < 1 || page > totalPages) {
-      console.warn('[DataTable] Page demandée hors limites:', {
-        page,
-        totalPages,
-        totalItems: this.totalItems,
-        pageSize: this.pageSize
-      });
-      return;
-    }
-    
+    // Réinitialiser l'état du loader
+    this.loading = false;
+    this.isPageChange = true;
     this.currentPage = page;
     this.loadData();
   }
@@ -493,15 +516,17 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     if (this.resizeTimeout) {
       clearTimeout(this.resizeTimeout);
     }
+    if (this.loadingTimer) {
+      clearTimeout(this.loadingTimer);
+    }
+    if (this.documentClickListener) {
+      document.removeEventListener('click', this.documentClickListener);
+    }
     this.destroy$.next();
     this.destroy$.complete();
     super.ngOnDestroy(); // Appeler la méthode du parent pour nettoyer les listeners de fullscreen
     if (this.searchSubscription) {
       this.searchSubscription.unsubscribe();
-    }
-    // Nettoyer le listener de clic
-    if (this.documentClickListener) {
-      document.removeEventListener('click', this.documentClickListener);
     }
   }
 

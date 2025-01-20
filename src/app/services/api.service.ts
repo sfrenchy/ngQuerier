@@ -149,7 +149,7 @@ export class ApiService {
   refreshToken(refreshToken: RefreshTokenDto): Observable<AuthResultDto> {
     return this.http.post<AuthResultDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.refreshToken),
-      { refreshToken }
+      refreshToken
     );
   }
 

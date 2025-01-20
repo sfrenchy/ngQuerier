@@ -62,6 +62,12 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     return this.card?.configuration?.visualConfig.isCompactMode ? 20 : this.DEFAULT_ROW_HEIGHT;
   }
 
+  private getHeaderHeight(): number {
+    if (!this.tableContainerRef?.nativeElement) return 0;
+    const header = this.tableContainerRef.nativeElement.querySelector('thead');
+    return header ? header.offsetHeight : 0;
+  }
+
   adjustedRowHeight: number = this.DEFAULT_ROW_HEIGHT;
   private initialLoadDone: boolean = false;
   private isAdjusting: boolean = false;
@@ -261,8 +267,9 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
         return;
       }
 
-      // 1. Calculer la hauteur disponible pour les lignes
-      const availableHeightForRows = availableHeight - this.TABLE_BORDER;
+      // 1. Calculer la hauteur disponible pour les lignes en soustrayant la hauteur du header
+      const headerHeight = this.getHeaderHeight();
+      const availableHeightForRows = availableHeight - this.TABLE_BORDER - headerHeight;
 
       // 2. Calculer le nombre de lignes qui peuvent tenir
       const rowTotalSpace = this.ROW_HEIGHT + this.ROW_BORDER + (this.CELL_PADDING * 2); // Hauteur + bordure + padding haut et bas

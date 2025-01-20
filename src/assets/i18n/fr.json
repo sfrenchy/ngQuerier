@@ -429,5 +429,19 @@
     "CAN_ADD": "Autoriser l'ajout",
     "CAN_UPDATE": "Autoriser la modification",
     "CAN_DELETE": "Autoriser la suppression"
+  },
+  "DATA_TABLE": {
+    "SEARCH": "Rechercher...",
+    "NO_DATA": "Aucune donnée",
+    "CALCULATING_ROWS": "Calcul du nombre de lignes..."
+  },
+  "FORM": {
+    "SELECT_VALUE": "Sélectionnez une valeur...",
+    "VALIDATION": {
+      "REQUIRED": "Ce champ est requis",
+      "MAX_LENGTH": "La longueur maximale est de {{max}} caractères",
+      "MIN_VALUE": "La valeur minimale est {{min}}",
+      "MAX_VALUE": "La valeur maximale est {{max}}"
+    }
   }
 } 

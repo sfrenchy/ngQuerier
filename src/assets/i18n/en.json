@@ -393,5 +393,19 @@
     "CAN_ADD": "Allow adding",
     "CAN_UPDATE": "Allow updating",
     "CAN_DELETE": "Allow deleting"
+  },
+  "DATA_TABLE": {
+    "SEARCH": "Search...",
+    "NO_DATA": "No data",
+    "CALCULATING_ROWS": "Calculating number of rows..."
+  },
+  "FORM": {
+    "SELECT_VALUE": "Select a value...",
+    "VALIDATION": {
+      "REQUIRED": "This field is required",
+      "MAX_LENGTH": "Maximum length is {{max}} characters",
+      "MIN_VALUE": "Minimum value is {{min}}",
+      "MAX_VALUE": "Maximum value is {{max}}"
+    }
   }
 } 

@@ -44,20 +44,14 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implem
   @Output() configure = new EventEmitter<void>();
   @Output() fullscreenChange = new EventEmitter<boolean>();
 
-  constructor(protected cardDatabaseService?: CardDatabaseService) {
-    document.addEventListener('fullscreenchange', this.handleFullscreenChange.bind(this));
-  }
+  constructor(protected cardDatabaseService?: CardDatabaseService) {}
 
-  ngOnDestroy() {
-    document.removeEventListener('fullscreenchange', this.handleFullscreenChange.bind(this));
-  }
-
-  private handleFullscreenChange() {
-    this.isFullscreen = !!document.fullscreenElement;
-    this.fullscreenChange.emit(this.isFullscreen);
-  }
+  ngOnDestroy() {}
 
   protected onHeightChange() {
+    if (this.isFullscreen) {
+      this.fullscreenChange.emit(true);
+    }
   }
 
   get backgroundColor(): string {
@@ -84,15 +78,8 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implem
     this.delete.emit();
   }
 
-  async toggleFullscreen() {
-    try {
-      if (!this.isFullscreen) {
-        await this.cardContainer.nativeElement.requestFullscreen();
-      } else {
-        await document.exitFullscreen();
-      }
-    } catch (err) {
-      console.error('Error toggling fullscreen:', err);
-    }
+  toggleFullscreen() {
+    this.isFullscreen = !this.isFullscreen;
+    this.fullscreenChange.emit(this.isFullscreen);
   }
 } 

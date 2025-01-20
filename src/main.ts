@@ -37,6 +37,19 @@ bootstrapApplication(AppComponent, {
           loadComponent: () => import('./app/pages/add-api/add-api.component').then(m => m.AddApiComponent)
         },
         {
+          path: 'configure',
+          children: [
+            {
+              path: 'smtp',
+              loadComponent: () => import('./app/pages/configure-api/smtp-configuration/smtp-configuration.component').then(m => m.SmtpConfigurationComponent)
+            },
+            {
+              path: 'admin',
+              loadComponent: () => import('./app/pages/configure-api/admin-configuration/admin-configuration.component').then(m => m.AdminConfigurationComponent)
+            }
+          ]
+        },
+        {
           path: 'home',
           canActivate: [authGuard],
           loadComponent: () => import('./app/pages/home/home.component').then(m => m.HomeComponent),
@@ -84,19 +97,6 @@ bootstrapApplication(AppComponent, {
                 {
                   path: ':id/pages/:pageId/layout',
                   loadComponent: () => import('./app/pages/settings/menu/pages/page-layout/page-layout.component').then(m => m.PageLayoutComponent)
-                }
-              ]
-            },
-            {
-              path: 'configure-api',
-              children: [
-                {
-                  path: 'smtp',
-                  loadComponent: () => import('./app/pages/configure-api/smtp-configuration/smtp-configuration.component').then(m => m.SmtpConfigurationComponent)
-                },
-                {
-                  path: 'admin',
-                  loadComponent: () => import('./app/pages/configure-api/admin-configuration/admin-configuration.component').then(m => m.AdminConfigurationComponent)
                 }
               ]
             },

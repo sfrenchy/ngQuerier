@@ -113,11 +113,10 @@
                 <th *ngIf="hasActions()"
                     scope="col"
                     class="sticky fixed-right right-0 z-10 sticky-shadow px-6 text-xs font-medium uppercase tracking-wider text-center actions-column"
-                    [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor"
-                    [style.color]="card.configuration?.visualConfig.headerTextColor"
+                    [style.background-color]="headerBackgroundColor"
+                    [style.color]="headerTextColor"
                     [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
                     [class.py-1]="card.configuration?.visualConfig.isCompactMode">
-                  {{ 'COMMON.ACTIONS' | translate }}
                 </th>
               </tr>
             </thead>
@@ -152,8 +151,8 @@
                 </td>
                 <td *ngIf="hasActions()"
                     class="sticky fixed-right right-0 z-10 sticky-shadow px-6 whitespace-nowrap text-sm actions-column"
-                    [style.background-color]="getRowBackgroundColor(i)"
-                    [style.color]="card.configuration?.visualConfig.rowTextColor"
+                    [style.background-color]="headerBackgroundColor"
+                    [style.color]="headerTextColor"
                     [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
                     [class.py-1]="card.configuration?.visualConfig.isCompactMode">
                   <div class="flex items-center justify-center gap-2">

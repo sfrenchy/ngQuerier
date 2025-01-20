@@ -419,7 +419,9 @@
     "ROW_TEXT_COLOR": "Couleur du texte des lignes",
     "COMPACT_MODE": "Mode compact",
     "ALTERNATE_ROWS": "Alterner la couleur des lignes",
-    "ALTERNATE_ROWS_BRIGHTNESS": "Différence de luminosité"
+    "ALTERNATE_ROWS_BRIGHTNESS": "Différence de luminosité",
+    "HEADER_BG_COLOR": "Couleur de fond de l'entête",
+    "ROW_BG_COLOR": "Couleur de fond des lignes"
   },
   "TABLE": {
     "ITEMS": "éléments"
@@ -443,5 +445,8 @@
       "MIN_VALUE": "La valeur minimale est {{min}}",
       "MAX_VALUE": "La valeur maximale est {{max}}"
     }
+  },
+  "FOREIGN_KEYS": {
+    "TITLE": "Configuration des clés étrangères"
   }
 } 

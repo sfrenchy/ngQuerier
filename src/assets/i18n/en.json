@@ -383,7 +383,9 @@
     "ROW_TEXT_COLOR": "Row Text Color",
     "COMPACT_MODE": "Compact Mode",
     "ALTERNATE_ROWS": "Alternate Row Colors",
-    "ALTERNATE_ROWS_BRIGHTNESS": "Brightness difference"
+    "ALTERNATE_ROWS_BRIGHTNESS": "Brightness difference",
+    "HEADER_BG_COLOR": "Header Background Color",
+    "ROW_BG_COLOR": "Row Background Color"
   },
   "TABLE": {
     "ITEMS": "items"
@@ -407,5 +409,8 @@
       "MIN_VALUE": "Minimum value is {{min}}",
       "MAX_VALUE": "Maximum value is {{max}}"
     }
+  },
+  "FOREIGN_KEYS": {
+    "TITLE": "Foreign Keys Configuration"
   }
 } 

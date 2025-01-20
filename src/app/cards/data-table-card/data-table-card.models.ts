@@ -122,7 +122,10 @@ export interface DataState {
   items: any[];
   total: number;
   loading: boolean;
-  config?: DatasourceConfig;
+  error?: any;
+  config?: DatasourceConfig & {
+    columns?: ColumnConfig[];
+  };
   pageNumber: number;
   pageSize: number;
   globalSearch: string;

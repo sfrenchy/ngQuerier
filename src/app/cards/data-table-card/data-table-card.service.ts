@@ -47,7 +47,6 @@ export class DataTableCardService {
     datasource: DatasourceConfig,
     parameters: DataRequestParametersDto
   ) {
-
     const state$ = this.getOrCreateState(datasource);
     const currentState = state$.getValue();
 
@@ -64,6 +63,12 @@ export class DataTableCardService {
       return;
     }
 
+    // Préserver la configuration actuelle, y compris les colonnes
+    const preservedConfig: DatasourceConfig & { columns?: ColumnConfig[] } = {
+      ...datasource,
+      columns: currentState.config?.columns || []
+    };
+
     // Mettre à jour l'état immédiatement avec les nouveaux paramètres et le statut de chargement
     state$.next({ 
       ...currentState, 
@@ -72,7 +77,8 @@ export class DataTableCardService {
       pageSize: parameters.pageSize,
       globalSearch: parameters.globalSearch,
       columnSearches: parameters.columnSearches,
-      orderBy: parameters.orderBy
+      orderBy: parameters.orderBy,
+      config: preservedConfig
     });
 
     // Éviter les appels redondants en vérifiant si un appel est déjà en cours
@@ -87,7 +93,8 @@ export class DataTableCardService {
           ...state$.getValue(),
           items: response.items,
           total: response.total,
-          loading: false
+          loading: false,
+          config: preservedConfig
         });
       },
       error: (error) => {
@@ -96,7 +103,8 @@ export class DataTableCardService {
           ...state$.getValue(), 
           items: [],
           total: 0,
-          loading: false 
+          loading: false,
+          error: error
         });
       }
     });

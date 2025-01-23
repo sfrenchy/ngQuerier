@@ -158,7 +158,11 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
           };
         });
 
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      // Mettre à jour le formulaire avant d'ajouter les colonnes virtuelles
+      this.form.patchValue({ columns: this.columns }, { emitEvent: false });
+
+      // Ajouter les colonnes virtuelles si des configurations de clés étrangères existent
+      this.updateVirtualColumns();
     }
   }
 
@@ -637,5 +641,55 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     const config = this.getForeignKeyConfig(table);
     // Pas de limite sur le nombre de colonnes de recherche
     return true;
+  }
+
+  toggleShowInTable(table: string, event: Event) {
+    const config = this.ensureForeignKeyConfig(table);
+    config.showInTable = (event.target as HTMLInputElement).checked;
+    this.updateForeignKeyConfig(table, config);
+    this.updateVirtualColumns();
+  }
+
+  private updateVirtualColumns() {
+    // Filtrer les colonnes virtuelles existantes
+    this.columns = this.columns.filter(col => !col.isVirtualForeignKey);
+
+    // Ajouter les nouvelles colonnes virtuelles pour les clés étrangères
+    const foreignKeyConfigs = this.form.value.crudConfig?.foreignKeyConfigs;
+    if (foreignKeyConfigs) {
+      Object.entries(foreignKeyConfigs).forEach(([table, rawConfig]) => {
+        const config = rawConfig as ForeignKeyDisplayConfig;
+        if (config.showInTable) {
+          // Trouver la colonne de clé étrangère correspondante
+          const foreignKeyColumn = this.columns.find(col => 
+            col.entityMetadata?.isForeignKey && 
+            col.entityMetadata?.foreignKeyTable === table
+          );
+
+          if (foreignKeyColumn) {
+            // Créer une colonne virtuelle
+            const virtualColumn: ColumnConfig = {
+              key: `${foreignKeyColumn.key}_display`,
+              type: 'string',
+              label: { 
+                en: `${table}`, 
+                fr: `${table}` 
+              },
+              alignment: 'left',
+              visible: false, // Colonne non visible par défaut
+              isFixed: false,
+              isFixedRight: false,
+              isVirtualForeignKey: true,
+              sourceColumn: foreignKeyColumn.key,
+              foreignKeyConfig: config
+            };
+            this.columns.push(virtualColumn);
+          }
+        }
+      });
+    }
+
+    // Mettre à jour le formulaire
+    this.form.patchValue({ columns: this.columns }, { emitEvent: true });
   }
 } 

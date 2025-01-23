@@ -165,7 +165,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     try {
       if (this.card.configuration?.datasource && this.isValidConfiguration()) {
         // Précharger le schéma du formulaire uniquement si on peut ajouter ou modifier
-        if (this.canAdd() || this.canUpdate()) {
+        if (this.canAdd() || this.canUpdate() || this.canDelete()) {
           this.dataService.preloadSchemaDefinitions(this.card.configuration.datasource);
         }
 
@@ -898,6 +898,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   onFormSubmit(formData: FormDataSubmit) {
     this.dataService.createData(this.card.configuration.datasource!, formData).subscribe(response => {
+      // Invalider le cache avant de recharger les données
+      this.dataService.invalidateCache(this.card.configuration.datasource!);
       this.loadData();
       this.showAddForm = false;
       this.addFormSchema = null;
@@ -922,24 +924,37 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     this.showDeleteConfirmation = true;
   }
 
-  onConfirmDelete() : void {
-    /*
-    this.dataService.getDeleteActionParameterDefinition(this.card.configuration.datasource)
-    .subscribe({
-      next: (parameters: DBConnectionEndpointRequestInfoDto[]) => {
-        let keyName = this.convertToCamelCase(parameters[0]['name']);
+  onConfirmDelete(): void {
+    this.dataService.getReadActionParameterDefinition(this.card.configuration.datasource)
+      .subscribe({
+        next: (parameters: DBConnectionEndpointRequestInfoDto[]) => {
+          if (parameters.length > 0) {
+            const schema = JSON.parse(parameters[0].jsonSchema);
+            
+            const primaryKeyProperty = Object.entries(schema.properties)
+              .find(([_, prop]: [string, any]) => prop['x-entity-metadata']?.isPrimaryKey);
 
-        this.dataService.deleteData(this.card.configuration.datasource!, this.rowToDelete[keyName]).subscribe(response => {
-          this.loadData();
-          this.rowToDelete = null;
-          this.showDeleteConfirmation = false;
-        });
-      },
-      error: (error: any) => {
-        console.error('Error loading delete form schema:', error);
-      }
-    });
-    */
+            if (primaryKeyProperty) {
+              const [primaryKeyName] = primaryKeyProperty;
+              const camelCasePrimaryKey = primaryKeyName.charAt(0).toLowerCase() + primaryKeyName.slice(1);
+              const primaryKeyValue = this.rowToDelete[camelCasePrimaryKey];
+              
+              this.dataService.deleteData(this.card.configuration.datasource!, primaryKeyValue).subscribe(response => {
+                // Invalider le cache avant de recharger les données
+                this.dataService.invalidateCache(this.card.configuration.datasource!);
+                this.loadData();
+                this.rowToDelete = null;
+                this.showDeleteConfirmation = false;
+              });
+            } else {
+              console.error('No primary key found in schema');
+            }
+          }
+        },
+        error: (error: any) => {
+          console.error('Error loading delete form schema:', error);
+        }
+      });
   }
 
   onCancelDelete() : void {

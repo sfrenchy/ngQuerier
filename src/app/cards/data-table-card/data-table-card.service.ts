@@ -9,103 +9,92 @@ import { OrderByParameterDto } from '@models/api.models';
 import { ColumnConfig, DataState } from './data-table-card.models';
 import { FormDataSubmit } from './dynamic-form.component';
 
+interface TableState {
+  items: any[];
+  total: number;
+  loading: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class DataTableCardService {
   
-  private dataStateMap = new Map<string, BehaviorSubject<DataState>>();
-  private schemaCache = new Map<string, any>();
+  private stateMap = new Map<string, BehaviorSubject<TableState>>();
+  private cacheMap = new Map<string, { 
+    data: any, 
+    timestamp: number,
+    parameters: DataRequestParametersDto 
+  }>();
+  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes en millisecondes
 
   constructor(private cardDatabaseService: CardDatabaseService) {}
 
-  private getStateKey(config: DatasourceConfig): string {
-    return JSON.stringify(config);
+  private getStateKey(datasource: DatasourceConfig): string {
+    return `${datasource.connection!.id}_${datasource.controller!.route}`;
   }
 
-  private getOrCreateState(config: DatasourceConfig): BehaviorSubject<DataState> {
-    const key = this.getStateKey(config);
-    if (!this.dataStateMap.has(key)) {
-      this.dataStateMap.set(key, new BehaviorSubject<DataState>({
+  private getOrCreateState(datasource: DatasourceConfig): BehaviorSubject<TableState> {
+    const key = this.getStateKey(datasource);
+    if (!this.stateMap.has(key)) {
+      this.stateMap.set(key, new BehaviorSubject<TableState>({
         items: [],
         total: 0,
-        loading: false,
-        config,
-        pageNumber: 1,
-        pageSize: 0,
-        globalSearch: '',
-        columnSearches: []
+        loading: false
       }));
     }
-    return this.dataStateMap.get(key)!;
+    return this.stateMap.get(key)!;
   }
 
-  getState(config: DatasourceConfig): Observable<DataState> {
-    return this.getOrCreateState(config).asObservable();
+  getState(datasource: DatasourceConfig): Observable<TableState> {
+    return this.getOrCreateState(datasource).asObservable();
   }
 
-  loadData(
-    datasource: DatasourceConfig,
-    parameters: DataRequestParametersDto
-  ) {
-    const state$ = this.getOrCreateState(datasource);
-    const currentState = state$.getValue();
+  invalidateCache(datasource: DatasourceConfig): void {
+    const key = this.getStateKey(datasource);
+    this.cacheMap.delete(key);
+  }
 
-    // Vérifier si les données doivent être rechargées
-    const shouldReload = 
-      currentState.items.length === 0 ||
-      currentState.pageNumber !== parameters.pageNumber ||
-      currentState.pageSize !== parameters.pageSize ||
-      currentState.globalSearch !== parameters.globalSearch ||
-      JSON.stringify(currentState.columnSearches) !== JSON.stringify(parameters.columnSearches) ||
-      !this.areOrderByEqual(currentState.orderBy, parameters.orderBy);
-
-    if (!shouldReload) {
+  loadData(datasource: DatasourceConfig, parameters: DataRequestParametersDto): void {
+    const key = this.getStateKey(datasource);
+    const state = this.getOrCreateState(datasource);
+    const currentCache = this.cacheMap.get(key);
+    
+    // Vérifier si nous avons un cache valide avec les mêmes paramètres
+    if (currentCache && 
+        Date.now() - currentCache.timestamp < this.CACHE_DURATION &&
+        JSON.stringify(currentCache.parameters) === JSON.stringify(parameters)) {
+      state.next({
+        items: currentCache.data.items,
+        total: currentCache.data.total,
+        loading: false
+      });
       return;
     }
 
-    // Préserver la configuration actuelle, y compris les colonnes
-    const preservedConfig: DatasourceConfig & { columns?: ColumnConfig[] } = {
-      ...datasource,
-      columns: currentState.config?.columns || []
-    };
+    state.next({ ...state.getValue(), loading: true });
 
-    // Mettre à jour l'état immédiatement avec les nouveaux paramètres et le statut de chargement
-    state$.next({ 
-      ...currentState, 
-      loading: true,
-      pageNumber: parameters.pageNumber,
-      pageSize: parameters.pageSize,
-      globalSearch: parameters.globalSearch,
-      columnSearches: parameters.columnSearches,
-      orderBy: parameters.orderBy,
-      config: preservedConfig
-    });
-
-    // Éviter les appels redondants en vérifiant si un appel est déjà en cours
-    if (currentState.loading) {
-      return;
-    }
-
-    // Faire l'appel API et mettre à jour l'état avec les résultats
     this.cardDatabaseService.fetchData(datasource, parameters).subscribe({
       next: (response) => {
-        state$.next({
-          ...state$.getValue(),
+        // Mettre à jour le cache
+        this.cacheMap.set(key, {
+          data: response,
+          timestamp: Date.now(),
+          parameters
+        });
+
+        state.next({
           items: response.items,
           total: response.total,
-          loading: false,
-          config: preservedConfig
+          loading: false
         });
       },
       error: (error) => {
-        console.error('Error fetching data:', error);
-        state$.next({ 
-          ...state$.getValue(), 
+        console.error('Error loading data:', error);
+        state.next({
           items: [],
           total: 0,
-          loading: false,
-          error: error
+          loading: false
         });
       }
     });
@@ -137,7 +126,7 @@ export class DataTableCardService {
 
     const entitySchemaCacheKey = `${config.connection.id}_${config.controller.name}_entity_schema`;
     
-    if (!this.schemaCache.has(entitySchemaCacheKey)) {
+    if (!this.cacheMap.has(entitySchemaCacheKey)) {
       this.getReadActionParameterDefinition(config).subscribe();
     }
   }
@@ -145,9 +134,9 @@ export class DataTableCardService {
   clearSchemaDefinitions(config?: DatasourceConfig): void {
     if (config) {
       const cacheKey = `${config.connection!.id}_${config.controller?.name}`;
-      this.schemaCache.delete(cacheKey);
+      this.cacheMap.delete(cacheKey);
     } else {
-      this.schemaCache.clear();
+      this.cacheMap.clear();
     }
   }
 

@@ -51,45 +51,10 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implem
   ) {}
 
   ngOnInit() {
-    this.loadCardTranslations();
-  }
-
-  protected loadCardTranslations() {
-    if (this.translateService) {
-      const cardType = this.getCardType();
-      if (cardType) {
-        // Charger les traductions spécifiques à la carte
-        this.translateService.setTranslation(
-          this.translateService.currentLang,
-          { [cardType]: {} },
-          true // Merge avec les traductions existantes
-        );
-
-        // Charger le fichier de traduction de la carte
-        this.translateService
-          .getTranslation(`./assets/i18n/cards/${cardType}/${this.translateService.currentLang}.json`)
-          .subscribe(
-            (translations) => {
-              this.translateService?.setTranslation(
-                this.translateService.currentLang,
-                { [cardType]: translations },
-                true
-              );
-            },
-            (error) => {
-              console.warn(`No translations found for card type ${cardType}`);
-            }
-          );
-      }
+    // Only load translations for derived components
+    if (this.constructor !== BaseCardComponent) {
+      this.loadCardTranslations();
     }
-  }
-
-  protected getCardType(): string | null {
-    if (!this.card) return null;
-    // Extraire le type de carte à partir du nom de la classe du composant
-    const className = this.constructor.name;
-    const match = className.match(/^(\w+)Component$/);
-    return match ? match[1].replace(/([A-Z])/g, '-$1').toLowerCase().substring(1) : null;
   }
 
   ngOnDestroy() {}
@@ -127,5 +92,51 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implem
   toggleFullscreen() {
     this.isFullscreen = !this.isFullscreen;
     this.fullscreenChange.emit(this.isFullscreen);
+  }
+
+  protected loadCardTranslations() {
+    if (!this.translateService) return;
+
+    // Get the actual class name (works with inherited classes)
+    const className = this.constructor.name;
+    
+    // Remove any number suffix and 'Component' from the name
+    const baseName = className.replace(/Component\d*$/, '');
+    
+    // Convert from PascalCase to kebab-case
+    const cardType = baseName
+      .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+      .toLowerCase();
+
+    // Initialize empty translation object for the card type
+    this.translateService.setTranslation(
+      this.translateService.currentLang,
+      { [cardType]: {} },
+      true
+    );
+
+    // Load card-specific translations from its i18n folder
+    fetch(`assets/app/cards/${cardType}/i18n/${this.translateService.currentLang}.json`, {
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(translations => {
+        this.translateService?.setTranslation(
+          this.translateService.currentLang,
+          { [cardType]: translations },
+          true
+        );
+      })
+      .catch(error => {
+        console.warn(`No translations found for card type ${cardType}:`, error);
+      });
   }
 } 

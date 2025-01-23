@@ -17,6 +17,7 @@ import { DynamicFormComponent, FormDataSubmit } from './dynamic-form.component';
 import { DatasourceConfig } from '@models/datasource.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import { FormDataSubmitWithId } from './data-table-card.service';
+import { ForeignKeyService } from './foreign-key.service';
 
 // Modifier l'interface ModalConfig
 interface ModalConfig {
@@ -132,7 +133,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     protected override cardDatabaseService: CardDatabaseService,
     private translateService: TranslateService,
     private cdr: ChangeDetectorRef,
-    private dataService: DataTableCardService
+    private dataService: DataTableCardService,
+    private foreignKeyService: ForeignKeyService
   ) {
     super(cardDatabaseService);
     this.currentLanguage = this.translateService.currentLang;
@@ -862,6 +864,9 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     this.addFormForeignKeyData = {};
     this.addFormForeignKeyConfigs = {};
 
+    // Configurer le service de clés étrangères
+    this.foreignKeyService.setConfig(this.card.configuration);
+
     // Collecter toutes les observables de clés étrangères
     const foreignKeyObservables = Object.entries(this.addFormSchema.properties)
       .filter(([key, prop]: [string, any]) => {
@@ -877,41 +882,16 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
           this.addFormForeignKeyConfigs[tableName] = this.card.configuration.crudConfig.foreignKeyConfigs[tableName];
         }
 
-        // Récupérer le contrôleur pour la table étrangère
-        return this.cardDatabaseService.getDatabaseEndpoints(
-          this.card.configuration!.datasource!.connection.id,
-          null,
+        // Utiliser le service de clés étrangères pour récupérer les options
+        return from(this.foreignKeyService.getForeignKeyOptions(
           tableName,
-          'GetAll'
-        ).pipe(
-          mergeMap(endpoints => {
-            if (endpoints && endpoints.length > 0) {
-              const endpoint = endpoints[0];
-              const foreignKeyDatasource: DatasourceConfig = {
-                type: 'API',
-                connection: this.card.configuration!.datasource!.connection,
-                controller: {
-                  name: tableName,
-                  route: endpoint.route
-                }
-              };
-
-              // Récupérer les données avec une taille de page plus grande pour avoir toutes les options
-              return this.cardDatabaseService.fetchData(foreignKeyDatasource, {
-                pageNumber: 1,
-                pageSize: 1000,
-                orderBy: [],
-                globalSearch: '',
-                columnSearches: []
-              }).pipe(
-                map(response => {
-                  this.addFormForeignKeyData[tableName] = response.items;
-                  this.cdr.detectChanges();
-                  return tableName;
-                })
-              );
-            }
-            return of(tableName);
+          metadata.foreignKeyColumn,
+          this.addFormForeignKeyConfigs[tableName]
+        )).pipe(
+          map(options => {
+            this.addFormForeignKeyData[tableName] = options.map(opt => opt.details);
+            this.cdr.detectChanges();
+            return tableName;
           })
         );
       });

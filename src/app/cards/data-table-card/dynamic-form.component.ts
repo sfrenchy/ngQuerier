@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DynamicFormField, DynamicFormSchema } from './data-table-card.models';
+import { ForeignKeyService } from './foreign-key.service';
 
 export interface FormDataSubmit {
     schema: DynamicFormSchema;
@@ -31,8 +32,8 @@ export interface FormDataSubmit {
                 class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 [class.border-red-500]="form.get(field.key)?.invalid && form.get(field.key)?.touched">
                 <option [ngValue]="null" *ngIf="field.nullable">Sélectionnez une valeur...</option>
-                <option *ngFor="let option of getForeignKeyOptions(field.metadata?.foreignKeyTable)" [ngValue]="option.value">
-                  {{ option.label }}
+                <option *ngFor="let option of getForeignKeyOptions(field)" [ngValue]="option.id">
+                  {{ option.display }}
                 </option>
               </select>
 
@@ -123,8 +124,12 @@ export class DynamicFormComponent implements OnInit {
   fields: DynamicFormField[] = [];
   private identityFields: { key: string; defaultValue: any; }[] = [];
   isFullscreen = false;
+  private foreignKeyOptions: { [key: string]: any[] } = {};
 
-  constructor(private fb: FormBuilder) {}
+  constructor(
+    private fb: FormBuilder,
+    private foreignKeyService: ForeignKeyService
+  ) {}
 
   ngOnInit() {
     this.initializeForm();
@@ -293,51 +298,25 @@ export class DynamicFormComponent implements OnInit {
     this.formCancel.emit();
   }
 
-  getForeignKeyOptions(tableName: string | undefined): any[] {
-    if (!tableName || !this.foreignKeyData?.[tableName]) {
+  getForeignKeyOptions(field: DynamicFormField): any[] {
+    if (!field.metadata?.foreignKeyTable || !field.metadata?.foreignKeyColumn) {
       return [];
     }
 
+    const tableName = field.metadata.foreignKeyTable;
+    const foreignKeyColumn = field.metadata.foreignKeyColumn;
+    const config = this.foreignKeyConfigs?.[tableName];
+    const data = this.foreignKeyData?.[tableName] || [];
 
-    // Pour les tables Order, Customer, etc.
-    const data = this.foreignKeyData[tableName];
     return data.map(item => {
-      // Si c'est une table Customer
-      if (tableName === 'Customer') {
-        return {
-          value: item.customerId,
-          label: `${item.customerId} - ${item.companyName || ''}`
-        };
-      }
-      
-      // Si c'est une table Employee
-      if (tableName === 'Employee') {
-        return {
-          value: item.employeeId,
-          label: `${item.firstName || ''} ${item.lastName || ''}`
-        };
-      }
-      
-      // Si c'est une table Shipper
-      if (tableName === 'Shipper') {
-        return {
-          value: item.shipperId,
-          label: `${item.companyName || ''}`
-        };
-      }
-
-      // Fallback générique
-      const idField = Object.keys(item).find(key => key.toLowerCase().endsWith('id'));
-      const displayField = Object.keys(item).find(key => 
-        !key.toLowerCase().endsWith('id') && 
-        !key.toLowerCase().endsWith('navigation') &&
-        item[key] !== null &&
-        typeof item[key] !== 'object'
-      );
-
+      const id = item && typeof item === 'object' ? item[foreignKeyColumn] : null;
       return {
-        value: idField ? item[idField] : null,
-        label: displayField ? item[displayField] : (idField ? item[idField] : 'N/A')
+        id,
+        display: config ? this.foreignKeyService.formatDisplay(
+          item,
+          config.displayColumns || [],
+          config.displayFormat
+        ) : String(id ?? '')
       };
     });
   }

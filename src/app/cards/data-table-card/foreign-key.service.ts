@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, map, of } from 'rxjs';
 import { CardDatabaseService } from '@services/card-database.service';
+import { DatasourceConfig } from '@models/datasource.models';
+import { DataTableCardConfig } from './data-table-card.models';
 
 export interface ForeignKeyDisplayConfig {
   table: string;
@@ -20,6 +22,7 @@ export interface ForeignKeyOption {
 })
 export class ForeignKeyService {
   private schemaCache = new Map<string, any>();
+  private config: DataTableCardConfig | undefined;
   private readonly CONVENTIONAL_NAMES = [
     'name', 'label', 'title', 'description',
     'firstName', 'lastName', 'email',
@@ -27,6 +30,10 @@ export class ForeignKeyService {
   ];
 
   constructor(private cardDatabaseService: CardDatabaseService) {}
+
+  setConfig(config: DataTableCardConfig) {
+    this.config = config;
+  }
 
   private detectDisplayColumns(tableSchema: any): string[] {
     const properties = tableSchema.properties;
@@ -57,13 +64,27 @@ export class ForeignKeyService {
     return [...new Set(columns)]; // Éliminer les doublons
   }
 
-  private formatDisplay(item: any, columns: string[], format?: string): string {
+  formatDisplay(item: Record<string, any>, columns: string[], format?: string): string {
     if (format) {
-      return format.replace(/\{(\w+)\}/g, (match, column) => item[column] || '');
+      // Créer un map insensible à la casse des propriétés
+      const itemKeys = Object.keys(item).reduce((acc, key) => {
+        acc[key.toLowerCase()] = key;
+        return acc;
+      }, {} as { [key: string]: string });
+
+      return format.replace(/\{(\w+)\}/g, (match, column) => {
+        // Chercher la propriété de manière insensible à la casse
+        const actualKey = itemKeys[column.toLowerCase()] || column;
+        return item[actualKey] || '';
+      });
     }
 
     return columns
-      .map(col => item[col])
+      .map(col => {
+        // Chercher la propriété de manière insensible à la casse
+        const actualKey = Object.keys(item).find(key => key.toLowerCase() === col.toLowerCase()) || col;
+        return item[actualKey] || null;
+      })
       .filter(val => val != null)
       .join(' - ');
   }
@@ -74,37 +95,56 @@ export class ForeignKeyService {
     config?: ForeignKeyDisplayConfig,
     searchTerm?: string
   ): Promise<ForeignKeyOption[]> {
-    // 1. Obtenir le schéma de la table si pas en cache
-    if (!this.schemaCache.has(tableName)) {
-      const schema = await this.cardDatabaseService.getTableSchema(tableName).toPromise();
-      this.schemaCache.set(tableName, schema);
+    if (!this.config?.datasource?.connection?.id) {
+      return [];
     }
-    const tableSchema = this.schemaCache.get(tableName);
 
-    // 2. Déterminer les colonnes à afficher
-    const displayColumns = config?.displayColumns || 
-                         tableSchema['x-entity-metadata']?.displayColumns ||
-                         this.detectDisplayColumns(tableSchema);
+    // 1. Obtenir les endpoints pour la table
+    const endpoints = await this.cardDatabaseService.getDatabaseEndpoints(
+      this.config.datasource.connection.id,
+      null,
+      tableName,
+      'GetAll'
+    ).toPromise();
 
-    // 3. Construire la requête de recherche
-    const searchColumns = config?.searchColumns || displayColumns;
-    const searchParams = searchTerm ? {
-      columns: searchColumns,
-      term: searchTerm
-    } : undefined;
+    if (!endpoints || endpoints.length === 0) {
+      return [];
+    }
+
+    // 2. Créer une configuration de source de données pour la table
+    const foreignKeyDatasource: DatasourceConfig = {
+      type: 'API',
+      connection: this.config.datasource.connection,
+      controller: {
+        name: tableName,
+        route: endpoints[0].route
+      }
+    };
+
+    // 3. Construire les paramètres de recherche
+    const searchParams = {
+      pageNumber: 1,
+      pageSize: 1000,
+      orderBy: [],
+      globalSearch: searchTerm || '',
+      columnSearches: []
+    };
 
     // 4. Récupérer les données
-    const items = await this.cardDatabaseService.getForeignKeyValues(
-      tableName,
-      keyColumn,
+    const response = await this.cardDatabaseService.fetchData(
+      foreignKeyDatasource,
       searchParams
     ).toPromise();
 
+    if (!response?.items) {
+      return [];
+    }
+
     // 5. Formater les résultats
-    return items.map(item => ({
+    return response.items.map((item: Record<string, any>) => ({
       id: item[keyColumn],
-      display: this.formatDisplay(item, displayColumns, config?.displayFormat),
-      details: item // Garder toutes les données pour un affichage détaillé si nécessaire
+      display: this.formatDisplay(item, config?.displayColumns || [], config?.displayFormat),
+      details: item
     }));
   }
 

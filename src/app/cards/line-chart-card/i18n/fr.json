@@ -1,0 +1,15 @@
+{
+  "CARDS": {
+    "LINECHART": {
+      "TITLE": "LineChart",
+      "DESCRIPTION": "Description de la carte LineChart",
+      "CONFIGURATION": {
+        "TITLE": "Configuration de LineChart",
+        "SPECIFIC": {
+          "TITLE": "Configuration spécifique"
+          // Add your specific translations here
+        }
+      }
+    }
+  }
+} 

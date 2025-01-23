@@ -131,12 +131,12 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
-    private translateService: TranslateService,
+    protected override translateService: TranslateService,
     private cdr: ChangeDetectorRef,
     private dataService: DataTableCardService,
     private foreignKeyService: ForeignKeyService
   ) {
-    super(cardDatabaseService);
+    super(cardDatabaseService, translateService);
     this.currentLanguage = this.translateService.currentLang;
 
     // S'abonner aux changements de langue
@@ -178,7 +178,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     document.addEventListener('click', this.documentClickListener);
   }
 
-  ngOnInit() {
+  override ngOnInit() {
+    super.ngOnInit();
     try {
       if (this.card.configuration?.datasource && this.isValidConfiguration()) {
         // Précharger le schéma du formulaire uniquement si on peut ajouter ou modifier
@@ -519,20 +520,14 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   override ngOnDestroy() {
-    if (this.resizeTimeout) {
-      clearTimeout(this.resizeTimeout);
-    }
-    if (this.loadingTimer) {
-      clearTimeout(this.loadingTimer);
+    super.ngOnDestroy();
+    this.destroy$.next();
+    this.destroy$.complete();
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
     }
     if (this.documentClickListener) {
       document.removeEventListener('click', this.documentClickListener);
-    }
-    this.destroy$.next();
-    this.destroy$.complete();
-    super.ngOnDestroy(); // Appeler la méthode du parent pour nettoyer les listeners de fullscreen
-    if (this.searchSubscription) {
-      this.searchSubscription.unsubscribe();
     }
   }
 

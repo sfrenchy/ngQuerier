@@ -199,22 +199,7 @@
       },
       "NO_PAGES": "Aucune page trouvée",
       "LAYOUT_EDITOR": "Éditeur de mise en page",
-      "LAYOUT_SUBTITLE": "Éditer la mise en page de la page \"{{page}}\"",
-      "LAYOUT": {
-        "TITLE": "Mise en page",
-        "COMPONENTS": "Composants",
-        "NEW_ROW": "Nouvelle ligne",
-        "PLACEHOLDER_CARD": "Carte placeholder",
-        "DROP_CARD_HERE": "Déposez une carte ici",
-        "DRAG_ROW_HERE": "Déposez une ligne ici",
-        "EDIT_ROW": "Modifier la ligne",
-        "ROW_HEIGHT": "Hauteur",
-        "ROW_ALIGNMENT": "Alignement",
-        "ROW_SPACING": "Espacement",
-        "ALIGNMENT_START": "Début",
-        "ALIGNMENT_CENTER": "Centre",
-        "ALIGNMENT_END": "Fin"
-      }
+      "LAYOUT_SUBTITLE": "Éditer la mise en page de la page \"{{page}}\""
     },
     "HOME": "Accueil",
     "DATABASES": "Bases de données",
@@ -455,5 +440,43 @@
   },
   "FOREIGN_KEYS": {
     "TITLE": "Configuration des clés étrangères"
+  },
+  "CARDS": {
+    "COMMON": {
+      "TITLE": "Titre",
+      "DESCRIPTION": "Description",
+      "CONFIGURATION": "Configuration",
+      "SAVE": "Enregistrer",
+      "CANCEL": "Annuler",
+      "LOADING": "Chargement...",
+      "NO_DATA": "Aucune donnée disponible",
+      "FULLSCREEN": "Plein écran",
+      "EXIT_FULLSCREEN": "Quitter le plein écran"
+    },
+    "CONFIGURATION": {
+      "TITLE": "Configuration de la carte",
+      "COMMON_CONFIG": "Configuration commune",
+      "SPECIFIC_CONFIG": "Configuration spécifique",
+      "COLORS": "Couleurs",
+      "LAYOUT": "Mise en page",
+      "APPEARANCE": "Apparence",
+      "DIMENSIONS": "Dimensions",
+      "GRID_WIDTH": "Largeur de la grille",
+      "GRID_WIDTH_25": "25%",
+      "GRID_WIDTH_33": "33%",
+      "GRID_WIDTH_50": "50%",
+      "GRID_WIDTH_66": "66%",
+      "GRID_WIDTH_75": "75%",
+      "GRID_WIDTH_100": "100%",
+      "BACKGROUND_COLOR": "Couleur de fond",
+      "TEXT_COLOR": "Couleur du texte",
+      "HEADER": {
+        "SHOW": "Afficher l'en-tête",
+        "TITLE": "Titre",
+        "ICON": "Icône",
+        "BACKGROUND_COLOR": "Couleur de fond",
+        "TEXT_COLOR": "Couleur du texte"
+      }
+    }
   }
 } 

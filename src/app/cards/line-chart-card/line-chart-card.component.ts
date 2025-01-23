@@ -1,6 +1,6 @@
 import { Component, Type, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Card } from '@cards/card.decorator';
 import { LineChartCardConfigurationComponent } from './line-chart-card-configuration.component';
 import { BaseCardConfig } from '@models/api.models';
@@ -8,23 +8,24 @@ import { BaseCardComponent } from '@cards/base-card.component';
 import { LineChartCardService } from './line-chart-card.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { CardDatabaseService } from '@services/card-database.service';
 
 export class LineChartCardConfig extends BaseCardConfig {
   constructor(
-    // Ajoutez les paramètres du constructeur ici
+    // Add constructor parameters here
   ) {
     super();
   }
 
   toJson(): any {
     return {
-      // Ajoutez vos propriétés spécifiques ici
+      // Add your specific properties here
     };
   }
 
   static fromJson(json: any): LineChartCardConfig {
     return new LineChartCardConfig(
-      // Ajoutez les paramètres du constructeur ici
+      // Add constructor parameters here
     );
   }
 }
@@ -48,15 +49,20 @@ export class LineChartCardConfig extends BaseCardConfig {
 })
 export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfig> implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
+  loading = false;
+  hasData = false;
 
   constructor(
     private cardService: LineChartCardService,
+    protected override cardDatabaseService: CardDatabaseService,
+    protected override translateService: TranslateService,
     private cdr: ChangeDetectorRef
   ) {
-    super();
+    super(cardDatabaseService);
   }
 
-  ngOnInit() {
+  override ngOnInit() {
+    super.ngOnInit();
     // Subscribe to state changes from the service
     // Example:
     // this.cardService.getState(this.card.configuration)
@@ -68,6 +74,7 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
   }
 
   override ngOnDestroy() {
+    super.ngOnDestroy();
     this.destroy$.next();
     this.destroy$.complete();
   }

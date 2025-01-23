@@ -1,8 +1,18 @@
 <app-base-card [card]="card" [isEditing]="isEditing">
   <div body class="h-full">
     <div class="card-content">
-      <ng-container *ngFor="let title of card.title">
-        <span *ngIf="title.languageCode === 'fr'" [title]="title.value">{{ title.value }}</span>
+      <ng-container *ngIf="loading">
+        <div class="flex items-center justify-center h-full">
+          <span class="text-gray-500">{{ 'CARDS.COMMON.LOADING' | translate }}</span>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="!loading && !hasData">
+        <div class="flex items-center justify-center h-full">
+          <span class="text-gray-500">{{ 'CARDS.COMMON.NO_DATA' | translate }}</span>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="!loading && hasData">
+        <!-- Add your card content here -->
       </ng-container>
     </div>
   </div>

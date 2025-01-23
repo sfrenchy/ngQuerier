@@ -4,12 +4,22 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { TranslateModule } from '@ngx-translate/core';
 import { LineChartCardConfig } from './line-chart-card.component';
 import { CardDto } from '@models/api.models';
+import { TileComponent } from '@shared/components/tile/tile.component';
+import { IconSelectorComponent } from '@shared/components/icon-selector/icon-selector.component';
+import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
 
 @Component({
   selector: 'app-line-chart-card-configuration',
   templateUrl: './line-chart-card-configuration.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule]
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    TileComponent,
+    IconSelectorComponent,
+    TranslatableStringFormComponent
+  ]
 })
 export class LineChartCardConfigurationComponent implements OnInit {
   @Input() card!: CardDto<LineChartCardConfig>;
@@ -20,14 +30,18 @@ export class LineChartCardConfigurationComponent implements OnInit {
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      // Ajoutez vos contrôles de formulaire ici
+      title: [null, Validators.required],
+      icon: [null, Validators.required],
+      gridWidth: [50, Validators.required],
+      backgroundColor: ['#111827', Validators.required],
+      textColor: ['#ffffff', Validators.required]
     });
 
-    // Émettre les changements dès que le formulaire change
+    // Emit changes when form changes
     this.form.valueChanges.subscribe((value: any) => {
       if (this.form.valid) {
         const config = new LineChartCardConfig(
-          // Ajoutez les paramètres du constructeur ici
+          // Add constructor parameters here
         );
         this.configChange.emit(config);
       }
@@ -37,16 +51,20 @@ export class LineChartCardConfigurationComponent implements OnInit {
   ngOnInit() {
     if (this.card.configuration) {
       this.form.patchValue({
-        // Ajoutez vos propriétés de formulaire ici
-      }, { emitEvent: false }); // Ne pas émettre lors de l'initialisation
+        title: this.card.title,
+        icon: this.card.icon,
+        gridWidth: this.card.gridWidth,
+        backgroundColor: this.card.backgroundColor,
+        textColor: this.card.textColor
+      }, { emitEvent: false }); // Don't emit during initialization
     }
   }
 
-  // Méthode pour la sauvegarde finale
+  // Method for final save
   onSave() {
     if (this.form.valid) {
       const config = new LineChartCardConfig(
-        // Ajoutez les paramètres du constructeur ici
+        // Add constructor parameters here
       );
       this.save.emit(config);
     }

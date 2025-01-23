@@ -1,0 +1,15 @@
+{
+  "CARDS": {
+    "<%= classify(name).toUpperCase() %>": {
+      "TITLE": "<%= classify(name) %>",
+      "DESCRIPTION": "Description de la carte <%= classify(name) %>",
+      "CONFIGURATION": {
+        "TITLE": "Configuration de <%= classify(name) %>",
+        "SPECIFIC": {
+          "TITLE": "Configuration spécifique"
+          // Add your specific translations here
+        }
+      }
+    }
+  }
+} 

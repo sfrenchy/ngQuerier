@@ -13,8 +13,9 @@ import { FormDataSubmit } from './dynamic-form.component';
   providedIn: 'root'
 })
 export class DataTableCardService {
+  
   private dataStateMap = new Map<string, BehaviorSubject<DataState>>();
-  private addFormSchemaCache = new Map<string, any>();
+  private schemaCache = new Map<string, any>();
 
   constructor(private cardDatabaseService: CardDatabaseService) {}
 
@@ -124,47 +125,29 @@ export class DataTableCardService {
     });
   }
 
-  // Méthodes pour le formulaire d'ajout
-  getAddActionParameterDefinition(config: DatasourceConfig): Observable<DBConnectionEndpointRequestInfoDto[]> {
-    const cacheKey = `${config.connection!.id}_${config.controller?.name}`;
-    
-    if (this.addFormSchemaCache.has(cacheKey)) {
-      return of([{
-        jsonSchema: this.addFormSchemaCache.get(cacheKey)
-      }] as DBConnectionEndpointRequestInfoDto[]);
-    }
-
-    return this.cardDatabaseService.getDatabaseEndpoints(
-      config.connection!.id, 
-      config.controller?.name + "Controller" || '', 
-      '',
-      'Create'
-    ).pipe(
-      map(endpoints => {
-        const parameters = endpoints.flatMap(endpoint => endpoint.parameters);
-        if (parameters.length > 0) {
-          this.addFormSchemaCache.set(cacheKey, parameters[0].jsonSchema);
-        }
-        return parameters;
-      })
+  getReadActionParameterDefinition(config: DatasourceConfig): Observable<DBConnectionEndpointRequestInfoDto[]> {
+    const cacheKey = `${config.connection!.id}_${config.controller?.name}_entity_schema`;
+    return this.cardDatabaseService.getDatabaseEndpoints(config.connection!.id, config.controller?.name + "Controller" || '', '', 'Create').pipe(
+      map(endpoints => endpoints.flatMap(endpoint => endpoint.parameters))
     );
   }
 
-  preloadAddFormSchema(config: DatasourceConfig): void {
+  preloadSchemaDefinitions(config: DatasourceConfig): void {
     if (!config?.connection?.id || !config?.controller?.name) return;
 
-    const cacheKey = `${config.connection.id}_${config.controller.name}`;
-    if (!this.addFormSchemaCache.has(cacheKey)) {
-      this.getAddActionParameterDefinition(config).subscribe();
+    const entitySchemaCacheKey = `${config.connection.id}_${config.controller.name}_entity_schema`;
+    
+    if (!this.schemaCache.has(entitySchemaCacheKey)) {
+      this.getReadActionParameterDefinition(config).subscribe();
     }
   }
 
-  clearAddFormSchemaCache(config?: DatasourceConfig): void {
+  clearSchemaDefinitions(config?: DatasourceConfig): void {
     if (config) {
       const cacheKey = `${config.connection!.id}_${config.controller?.name}`;
-      this.addFormSchemaCache.delete(cacheKey);
+      this.schemaCache.delete(cacheKey);
     } else {
-      this.addFormSchemaCache.clear();
+      this.schemaCache.clear();
     }
   }
 
@@ -174,6 +157,10 @@ export class DataTableCardService {
       createDto[key] = formData.formData[key] !== undefined ? formData.formData[key] : null;
     });
     return this.cardDatabaseService.createData(datasource, createDto);
+  }
+
+  deleteData(datasource: DatasourceConfig, id: any): Observable<any> {
+    return this.cardDatabaseService.deleteData(datasource, id);
   }
 
   // Méthodes utilitaires pour les colonnes

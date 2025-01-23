@@ -19,6 +19,7 @@ import { DatasourceConfig } from '@models/datasource.models';
 })
 export class CardDatabaseService {
   
+  
   constructor(private apiService: ApiService) {}
 
   getDatasourceContexts(): Observable<string[]> {
@@ -123,6 +124,10 @@ export class CardDatabaseService {
 
   createData(datasource: DatasourceConfig, formData: any): Observable<any[]> {
     return this.apiService.post<any[]>(`${datasource.controller?.route!.replace("api/v1/", "")}`, formData);
+  }
+
+  deleteData(datasource: DatasourceConfig, id: any): Observable<any> {
+    return this.apiService.delete(`${datasource.controller?.route!.replace("api/v1/", "")}/${id}`);
   }
 
   /**

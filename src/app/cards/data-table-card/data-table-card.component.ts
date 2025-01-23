@@ -12,9 +12,10 @@ import { DataTableCardService } from './data-table-card.service';
 import { ColumnFilterPopoverComponent } from './column-filter-popover.component';
 import { DataTableCardConfigurationComponent } from './data-table-card-configuration.component';
 import { DataTableCardConfig, ColumnConfig } from './data-table-card.models';
-import { OrderByParameterDto, DataRequestParametersDto } from '@models/api.models';
+import { OrderByParameterDto, DataRequestParametersDto, DBConnectionEndpointRequestInfoDto } from '@models/api.models';
 import { DynamicFormComponent, FormDataSubmit } from './dynamic-form.component';
 import { DatasourceConfig } from '@models/datasource.models';
+import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Card({
   name: 'DataTableCard',
@@ -30,7 +31,7 @@ import { DatasourceConfig } from '@models/datasource.models';
   selector: 'app-data-table-card',
   templateUrl: './data-table-card.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FormsModule, BaseCardComponent, ColumnFilterPopoverComponent, DynamicFormComponent],
+  imports: [CommonModule, TranslateModule, FormsModule, BaseCardComponent, ColumnFilterPopoverComponent, DynamicFormComponent, ConfirmationDialogComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfig> implements OnInit, OnDestroy, AfterViewInit {
@@ -86,7 +87,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   globalSearch: string = '';
   public searchSubject = new Subject<string>();
   private searchSubscription: Subscription;
-
+  public showDeleteConfirmation:boolean = false;
+  public rowToDelete:any = null;
   // Nouvelles propriétés pour la gestion des filtres
   activeFilters = new Map<string, Set<string>>();
   columnValues = new Map<string, string[]>();
@@ -164,7 +166,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       if (this.card.configuration?.datasource && this.isValidConfiguration()) {
         // Précharger le schéma du formulaire uniquement si on peut ajouter ou modifier
         if (this.canAdd() || this.canUpdate()) {
-          this.dataService.preloadAddFormSchema(this.card.configuration.datasource);
+          this.dataService.preloadSchemaDefinitions(this.card.configuration.datasource);
         }
 
         // S'abonner aux changements d'état
@@ -218,7 +220,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       
       setTimeout(() => {
         // Calculer la taille optimale sans déclencher de rechargement
-        this.calculateAndSetOptimalSize(false);
+        this.calculateAndSetOptimalSize();
 
         // Charger les données une seule fois avec la taille calculée
         if (this.pageSize > 0) {
@@ -243,13 +245,13 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   protected override onHeightChange() {
     if (this.height > 0 && this.initialLoadDone) {
       setTimeout(() => {
-        this.calculateAndSetOptimalSize(true);
+        this.calculateAndSetOptimalSize();
         this.updateScrollbarVisibility();
       });
     }
   }
 
-  private calculateAndSetOptimalSize(shouldReloadData: boolean = true) {
+  private calculateAndSetOptimalSize() {
     try {
       if (!this.isValidConfiguration()) {
         return;
@@ -614,7 +616,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   onFullscreenChange(isFullscreen: boolean) {
     // Attendre que le changement de taille soit effectif
     setTimeout(() => {
-      this.calculateAndSetOptimalSize(true);
+      this.calculateAndSetOptimalSize();
       this.updateScrollbarVisibility();
     }, 100);
   }
@@ -796,9 +798,9 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     if (!this.card.configuration?.datasource) return;
 
     // Le schéma devrait déjà être en cache grâce au préchargement
-    this.dataService.getAddActionParameterDefinition(this.card.configuration.datasource)
+    this.dataService.getReadActionParameterDefinition(this.card.configuration.datasource)
       .subscribe({
-        next: (parameters) => {
+        next: (parameters: DBConnectionEndpointRequestInfoDto[]) => {
           if (parameters.length === 1) {
             this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
             
@@ -818,7 +820,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             this.cdr.detectChanges();
           }
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('Error loading add form schema:', error);
           // TODO: Afficher un message d'erreur à l'utilisateur
         }
@@ -915,8 +917,37 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onDeleteRow(row: any): void {
-    // TODO: Implémenter la logique de suppression
     console.log('Delete action triggered for row:', row);
+    this.rowToDelete = row;
+    this.showDeleteConfirmation = true;
+  }
 
+  onConfirmDelete() : void {
+    /*
+    this.dataService.getDeleteActionParameterDefinition(this.card.configuration.datasource)
+    .subscribe({
+      next: (parameters: DBConnectionEndpointRequestInfoDto[]) => {
+        let keyName = this.convertToCamelCase(parameters[0]['name']);
+
+        this.dataService.deleteData(this.card.configuration.datasource!, this.rowToDelete[keyName]).subscribe(response => {
+          this.loadData();
+          this.rowToDelete = null;
+          this.showDeleteConfirmation = false;
+        });
+      },
+      error: (error: any) => {
+        console.error('Error loading delete form schema:', error);
+      }
+    });
+    */
+  }
+
+  onCancelDelete() : void {
+    this.showDeleteConfirmation = false;
+  }
+
+  convertToCamelCase(str: string): string {
+    return str.charAt(0).toLowerCase() + str.slice(1);
   }
 } 
+  

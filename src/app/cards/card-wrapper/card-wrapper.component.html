@@ -1,0 +1,35 @@
+<div class="relative h-full">
+  <div *ngIf="isEditing" class="absolute top-0 left-0 right-0 group">
+    <!-- Zone de déclenchement -->
+    <div class="h-2 w-full flex items-center justify-center cursor-pointer">
+      <div class="w-16 h-full rounded-b bg-gray-800/40 backdrop-blur border-x border-b border-white/20 shadow-md hover:bg-gray-800/60 group-hover:bg-gray-800/60 transition-all">
+        <div class="w-8 h-[2px] rounded-full bg-white/40 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 group-hover:bg-white/60 transition-all"></div>
+      </div>
+    </div>
+    
+    <!-- Menu déroulant -->
+    <div class="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute left-1/2 -translate-x-1/2 transform -translate-y-1 group-hover:translate-y-0 transition-all duration-200">
+      <div class="flex gap-1 bg-gray-800/90 backdrop-blur-sm rounded-b-lg shadow-lg px-1 py-1 border border-white/20">
+        <button 
+          class="p-1 rounded hover:bg-white/10 text-gray-300 hover:text-white transition-colors"
+          (click)="onConfigure()"
+          title="Configurer">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+          </svg>
+        </button>
+        <button 
+          class="p-1 rounded hover:bg-white/10 text-gray-300 hover:text-red-500 transition-colors"
+          (click)="onDelete()"
+          title="Supprimer">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="h-full" [style.height.px]="height">
+    <ng-content></ng-content>
+  </div>
+</div> 

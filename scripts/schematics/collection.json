@@ -1,0 +1,11 @@
+{
+  "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "card": {
+      "description": "Generate a new Querier card",
+      "factory": "./generate-querier-card/index#generateQuerierCard",
+      "schema": "./generate-querier-card/schema.json",
+      "aliases": ["querier-card"]
+    }
+  }
+} 

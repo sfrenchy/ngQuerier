@@ -1,111 +1,34 @@
-<div class="flex h-full">
-  <!-- Sidebar -->
-  <div class="w-64 bg-gray-900 p-4 border-r border-gray-700">
-    <h3 class="text-lg font-semibold text-gray-200 mb-4">
-      {{ 'MENU.PAGES.LAYOUT.COMPONENTS' | translate }}
-    </h3>
-    
-    <!-- Row component -->
-    <div cdkDropList
-         id="componentList"
-         #componentList="cdkDropList"
-         [cdkDropListConnectedTo]="getConnectedDropLists()"
-         [cdkDropListData]="[{type: 'row'}]"
-         class="mb-4">
-      <div cdkDrag
-           [cdkDragData]="{type: 'row'}"
-           class="bg-gray-800 p-3 rounded cursor-move hover:bg-gray-700">
-        <div class="flex items-center gap-2">
-          <i class="fas fa-grip-lines text-gray-400"></i>
-          <span class="text-gray-200">{{ 'MENU.PAGES.LAYOUT.NEW_ROW' | translate }}</span>
+<div class="h-full" [class.!p-0]="isFullscreen" #container>
+  <div class="bg-gray-50 h-full" [class.rounded-lg]="!isFullscreen" [class.shadow-lg]="!isFullscreen">
+    <div class="bg-gray-800 text-white border-b border-gray-700" [class.px-6]="!isFullscreen" [class.px-2]="isFullscreen" [class.py-2]="isFullscreen" [class.py-4]="!isFullscreen">
+      <div class="flex justify-between items-center">
+        <h2 class="font-medium" [class.text-lg]="!isFullscreen" [class.text-base]="isFullscreen">
+          {{ 'MENU.PAGES.LAYOUT_EDITOR' | translate }}
+        </h2>
+        <div class="flex gap-2">
+          <button 
+            class="p-1.5 hover:bg-gray-700 rounded transition-colors"
+            (click)="saveLayout()"
+            [title]="'COMMON.SAVE' | translate">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+            </svg>
+          </button>
+          <button 
+            class="p-1.5 hover:bg-gray-700 rounded transition-colors"
+            (click)="toggleFullscreen()"
+            [title]="(isFullscreen ? 'COMMON.EXIT_FULLSCREEN' : 'COMMON.FULLSCREEN') | translate">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path *ngIf="!isFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              <path *ngIf="isFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l5 5m11-5l-5 5m5 11l-5-5m-11 5l5-5" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Card components -->
-    <div cdkDropList
-         id="card-palette"
-         #cardPalette="cdkDropList"
-         [cdkDropListData]="availableCards"
-         [cdkDropListConnectedTo]="getCardDropListConnections()"
-         class="card-palette">
-      <div class="bg-gray-800 p-3 rounded cursor-move hover:bg-gray-700 mb-2"
-           *ngFor="let card of availableCards"
-           cdkDrag
-           [cdkDragData]="card">
-        <div class="flex items-center gap-2">
-          <i class="fas fa-square text-gray-400"></i>
-          <span class="text-gray-200">{{ 'MENU.PAGES.LAYOUT.PLACEHOLDER_CARD' | translate }}</span>
-        </div>
-      </div>
+    <div class="h-[calc(100%-3rem)]">
+      <app-layout-editor [pageId]="pageId"></app-layout-editor>
     </div>
   </div>
-
-  <!-- Main content -->
-  <div class="flex-1 p-6">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-semibold text-gray-100">
-        {{ 'MENU.PAGES.LAYOUT.TITLE' | translate }}
-      </h2>
-      <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-              [disabled]="!(pageLayout$ | async)?.isDirty"
-              (click)="saveLayout()">
-        {{ 'COMMON.SAVE' | translate }}
-      </button>
-    </div>
-
-    <!-- Layout area -->
-    <div class="layout-area">
-      <ng-container *ngIf="pageLayout$ | async as layout">
-        <!-- Initial drop zone -->
-        <div *ngIf="layout.rows.length === 0"
-             cdkDropList
-             id="emptyDropZone"
-             [cdkDropListConnectedTo]="getConnectedDropLists()"
-             (cdkDropListDropped)="onDrop($event)"
-             class="min-h-[200px] border-2 border-dashed border-gray-700 rounded-lg p-8 text-center flex items-center justify-center">
-          <p class="text-gray-400">
-            {{ 'MENU.PAGES.LAYOUT.DRAG_ROW_HERE' | translate }}
-          </p>
-        </div>
-
-        <!-- Rows list -->
-        <div class="flex flex-col gap-4 w-full">
-          <!-- Rows -->
-          <div class="flex flex-col gap-4">
-            <ng-container *ngFor="let row of layout.rows">
-              <app-draggable-row [row]="row"
-                               (onEdit)="editRow(row)"
-                               (onDelete)="deleteRow(row)"
-                               (onCardDrop)="onCardDropped($event)"
-                               (onCardReorder)="onCardReordered($event)"
-                               (onHeightChange)="onRowHeightChange($event)"
-                               (onCardUpdate)="onCardUpdate($event)"
-                               (onCardDelete)="onCardDelete($event)">
-              </app-draggable-row>
-            </ng-container>
-          </div>
-
-          <!-- Drop zone after the last row -->
-          <div *ngIf="layout.rows.length > 0"
-               cdkDropList
-               id="bottomDropZone"
-               [cdkDropListConnectedTo]="getConnectedDropLists()"
-               (cdkDropListDropped)="onDrop($event)"
-               class="h-16 border-2 border-dashed border-transparent hover:border-gray-700 rounded-lg flex items-center justify-center transition-colors duration-200">
-            <p class="text-gray-400 opacity-0 hover:opacity-100 transition-opacity duration-200">
-              {{ 'MENU.PAGES.LAYOUT.DRAG_ROW_HERE' | translate }}
-            </p>
-          </div>
-        </div>
-      </ng-container>
-    </div>
-  </div>
-</div>
-
-<!-- Edit dialog -->
-<app-row-edit-dialog *ngIf="editingRow"
-                     [row]="editingRow"
-                     (onSave)="onRowEditSave($event)"
-                     (onCancel)="onRowEditCancel()">
-</app-row-edit-dialog> 
+</div> 

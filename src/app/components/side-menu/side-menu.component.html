@@ -17,6 +17,11 @@
   </button>
 
   <div class="p-4">
+    <!-- Error message -->
+    <div *ngIf="error" class="mb-4 p-2 bg-red-600 text-white rounded text-sm">
+      {{ error }}
+    </div>
+
     <!-- Logo -->
     <div class="mb-8 transition-all duration-300" [class.px-2]="!isExpanded">
       <img 
@@ -30,60 +35,40 @@
     <!-- Navigation -->
     <nav>
       <ul class="space-y-2">
-        <!-- Home -->
-        <li>
-          <a routerLink="/home" 
-             class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
-             [class.justify-center]="!isExpanded">
-            <i class="fas fa-home" [class.mr-2]="isExpanded"></i>
-            <span class="transition-all duration-300"
-                  [class.opacity-0]="!isExpanded"
-                  [class.w-0]="!isExpanded"
-                  [class.w-auto]="isExpanded">
-              {{ 'MENU.HOME' | translate }}
-            </span>
-            <div *ngIf="!isExpanded" 
-                 class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                 style="transform: translateX(10px)">
-              {{ 'MENU.HOME' | translate }}
-            </div>
-          </a>
-        </li>
-
         <!-- Dynamic Menu Categories -->
-        <li *ngFor="let category of menuCategories">
-          <ng-container *ngIf="category.IsVisible && hasRequiredRole(category.Roles)">
+        <li *ngFor="let menu of menus">
+          <ng-container *ngIf="menu.isVisible && hasRequiredRole(menu.roles)">
             <div class="relative">
-              <button (click)="toggleCategory(category.Id)"
+              <button (click)="toggleCategory(menu.id)"
                       class="w-full flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
                       [class.justify-center]="!isExpanded">
-                <i [class]="category.Icon" [class.mr-2]="isExpanded"></i>
+                <i [class]="'fas fa-' + menu.icon" [class.mr-2]="isExpanded"></i>
                 <span class="transition-all duration-300"
                       [class.opacity-0]="!isExpanded"
                       [class.w-0]="!isExpanded"
                       [class.w-auto]="isExpanded">
-                  {{ category.Names[userService.getCurrentLanguage()] || Object.values(category.Names)[0] }}
+                  {{ getTranslatedTitle(menu.title) }}
                 </span>
-                <i *ngIf="isExpanded && getCategoryPages(category.Id).length > 0" 
+                <i *ngIf="isExpanded && getCategoryPages(menu.id).length > 0" 
                    class="fas fa-chevron-right ml-2"
-                   [class.rotate-90]="isCategoryExpanded(category.Id)"></i>
+                   [class.rotate-90]="isCategoryExpanded(menu.id)"></i>
                 <div *ngIf="!isExpanded" 
                      class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                      style="transform: translateX(10px)">
-                  {{ category.Names[userService.getCurrentLanguage()] || Object.values(category.Names)[0] }}
+                  {{ getTranslatedTitle(menu.title) }}
                 </div>
               </button>
 
               <!-- Dynamic Pages -->
-              <div *ngIf="isCategoryExpanded(category.Id) && isExpanded" 
+              <div *ngIf="isCategoryExpanded(menu.id) && isExpanded" 
                    class="pl-4 mt-1 space-y-1 overflow-hidden transition-all duration-300">
-                <ng-container *ngFor="let page of getCategoryPages(category.Id)">
+                <ng-container *ngFor="let page of getCategoryPages(menu.id)">
                   <a *ngIf="shouldShowPage(page)"
-                     [routerLink]="['/home/layout', page.Id]"
+                     [routerLink]="['/home/layout', page.id]"
                      class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
-                    <i [class]="page.Icon + ' mr-2'"></i>
+                    <i [class]="page.icon + ' mr-2'"></i>
                     <span class="truncate">
-                      {{ page.Names[userService.getCurrentLanguage()] || Object.values(page.Names)[0] || 'Dashboard' }}
+                      {{ getTranslatedTitle(page.title) || 'Dashboard' }}
                     </span>
                   </a>
                 </ng-container>
@@ -94,7 +79,7 @@
 
         <!-- Databases - visible pour Admin et Database Manager -->
         <li *ngIf="userService.canManageDatabase()">
-          <a routerLink="/databases" 
+          <a routerLink="/home/databases" 
              class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
              [class.justify-center]="!isExpanded">
             <i class="fas fa-database" [class.mr-2]="isExpanded"></i>
@@ -114,7 +99,7 @@
 
         <!-- Queries - visible pour Admin et Database Manager -->
         <li *ngIf="userService.canManageDatabase()">
-          <a routerLink="/queries" 
+          <a routerLink="/home/queries" 
              class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
              [class.justify-center]="!isExpanded">
             <i class="fas fa-table" [class.mr-2]="isExpanded"></i>
@@ -134,7 +119,7 @@
 
         <!-- Contents - visible pour Admin et Content Manager -->
         <li *ngIf="userService.canManageContent()">
-          <a routerLink="/contents" 
+          <a routerLink="/home/contents" 
              class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
              [class.justify-center]="!isExpanded">
             <i class="fas fa-folder" [class.mr-2]="isExpanded"></i>
@@ -165,7 +150,8 @@
                     [class.w-auto]="isExpanded">
                 {{ 'MENU.SETTINGS' | translate }}
               </span>
-              <i class="fas fa-chevron-right ml-2"
+              <i *ngIf="isExpanded" 
+                 class="fas fa-chevron-right ml-2"
                  [class.rotate-90]="isSettingsExpanded"></i>
               <div *ngIf="!isExpanded" 
                    class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
@@ -177,17 +163,17 @@
             <!-- Sous-menu Settings -->
             <div *ngIf="isSettingsExpanded && isExpanded" 
                  class="pl-4 mt-1 space-y-1 overflow-hidden transition-all duration-300">
-              <a routerLink="/settings/users" 
+              <a routerLink="/home/settings/users" 
                  class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
                 <i class="fas fa-users mr-2"></i>
                 <span class="truncate">{{ 'MENU.USERS' | translate }}</span>
               </a>
-              <a routerLink="/settings/roles" 
+              <a routerLink="/home/settings/roles" 
                  class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
                 <i class="fas fa-user-shield mr-2"></i>
                 <span class="truncate">{{ 'MENU.ROLES' | translate }}</span>
               </a>
-              <a routerLink="/settings/api" 
+              <a routerLink="/home/settings/api" 
                  class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
                 <i class="fas fa-wrench mr-2"></i>
                 <span class="truncate">{{ 'MENU.SERVICES' | translate }}</span>

@@ -3,10 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApiService } from '@services/api.service';
-import { SQLQuery, DBConnection } from '@models/api.models';
+import { UserService } from '@services/user.service';
+import { SQLQueryDto, DBConnectionDto, SQLQueryCreateDto, UserDto } from '@models/api.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import { MonacoEditorModule, NGX_MONACO_EDITOR_CONFIG } from 'ngx-monaco-editor-v2';
 import { forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 const monacoConfig = {
   onMonacoLoad: () => {
@@ -26,10 +28,10 @@ const monacoConfig = {
   ]
 })
 export class QueriesComponent implements OnInit {
-  queries: SQLQuery[] = [];
-  connections: DBConnection[] = [];
+  queries: SQLQueryDto[] = [];
+  connections: DBConnectionDto[] = [];
   showDeleteConfirmation = false;
-  queryToDelete: SQLQuery | null = null;
+  queryToDelete: SQLQueryDto | null = null;
   showAddForm = false;
   queryForm: FormGroup;
   editorOptions = {
@@ -37,9 +39,11 @@ export class QueriesComponent implements OnInit {
     language: 'sql',
     minimap: { enabled: false }
   };
+  private userCache: Map<string, UserDto> = new Map();
 
   constructor(
     private apiService: ApiService,
+    private userService: UserService,
     private fb: FormBuilder
   ) {
     this.queryForm = this.fb.group({
@@ -63,7 +67,14 @@ export class QueriesComponent implements OnInit {
       connections: this.apiService.getDBConnections()
     }).subscribe({
       next: (result) => {
-        this.queries = result.queries;
+        // Si l'utilisateur est admin ou database manager, on affiche toutes les queries
+        // Sinon on filtre pour n'afficher que les queries publiques et celles créées par l'utilisateur
+        if (this.userService.hasAnyRole(['Admin', 'Database Manager'])) {
+          this.queries = result.queries;
+        } else {
+          const currentUser = this.userService.getCurrentUser();
+          this.queries = result.queries.filter(q => q.isPublic || q.createdBy === currentUser?.id);
+        }
         this.connections = result.connections;
       },
       error: (error: any) => {
@@ -74,8 +85,14 @@ export class QueriesComponent implements OnInit {
 
   private loadQueries(): void {
     this.apiService.getSQLQueries().subscribe({
-      next: (queries: SQLQuery[]) => {
-        this.queries = queries;
+      next: (queries: SQLQueryDto[]) => {
+        // Même logique de filtrage que dans loadData
+        if (this.userService.hasAnyRole(['Admin', 'Database Manager'])) {
+          this.queries = queries;
+        } else {
+          const currentUser = this.userService.getCurrentUser();
+          this.queries = queries.filter(q => q.isPublic || q.createdBy === currentUser?.id);
+        }
       },
       error: (error: any) => {
         console.error('Error loading queries:', error);
@@ -84,8 +101,8 @@ export class QueriesComponent implements OnInit {
   }
 
   getConnectionName(connectionId: number): string {
-    const connection = this.connections.find(c => c.Id === connectionId);
-    return connection ? connection.Name : 'Unknown';
+    const connection = this.connections.find(c => c.id === connectionId);
+    return connection ? connection.name : 'Unknown';
   }
 
   onAddClick(): void {
@@ -96,27 +113,27 @@ export class QueriesComponent implements OnInit {
     });
   }
 
-  onEditClick(query: SQLQuery): void {
+  onEditClick(query: SQLQueryDto): void {
     this.showAddForm = true;
     this.queryForm.patchValue({
-      name: query.Name,
-      description: query.Description,
-      connectionId: query.ConnectionId,
-      query: query.Query,
-      isPublic: query.IsPublic,
-      parameters: query.Parameters || {}
+      name: query.name,
+      description: query.description,
+      connectionId: query.dbConnectionId,
+      query: query.query,
+      isPublic: query.isPublic,
+      parameters: query.parameters || {}
     });
     this.queryToDelete = query;
   }
 
-  onDeleteClick(query: SQLQuery): void {
+  onDeleteClick(query: SQLQueryDto): void {
     this.queryToDelete = query;
     this.showDeleteConfirmation = true;
   }
 
   onConfirmDelete(): void {
     if (this.queryToDelete) {
-      this.apiService.deleteSQLQuery(this.queryToDelete.Id).subscribe({
+      this.apiService.deleteSQLQuery(this.queryToDelete.id).subscribe({
         next: () => {
           this.loadQueries();
           this.resetDeleteState();
@@ -141,19 +158,25 @@ export class QueriesComponent implements OnInit {
   onSubmit(): void {
     if (this.queryForm.valid) {
       const formValue = this.queryForm.value;
-      const query: SQLQuery = {
-        Id: this.queryToDelete?.Id || 0,
-        Name: formValue.name,
-        Description: formValue.description,
-        ConnectionId: formValue.connectionId,
-        Query: formValue.query,
-        IsPublic: formValue.isPublic,
-        Parameters: formValue.parameters
+      
+      const query: SQLQueryDto = {
+        id: this.queryToDelete?.id || 0,
+        name: formValue.name,
+        description: formValue.description,
+        dbConnectionId: formValue.connectionId,
+        query: formValue.query,
+        isPublic: formValue.isPublic,
+        parameters: formValue.parameters
+      };
+
+      const createQuery: SQLQueryCreateDto = {
+        query: query,
+        parameters: formValue.parameters
       };
 
       if (this.queryToDelete) {
         // Update existing query
-        this.apiService.updateSQLQuery(this.queryToDelete.Id, query).subscribe({
+        this.apiService.updateSQLQuery(this.queryToDelete.id, query).subscribe({
           next: () => {
             this.loadQueries();
             this.resetForm();
@@ -164,7 +187,7 @@ export class QueriesComponent implements OnInit {
         });
       } else {
         // Create new query
-        this.apiService.createSQLQuery(query).subscribe({
+        this.apiService.createSQLQuery(createQuery).subscribe({
           next: () => {
             this.loadQueries();
             this.resetForm();

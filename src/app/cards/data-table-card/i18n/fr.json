@@ -1,0 +1,32 @@
+{
+  "DATA_TABLE": {
+    "SEARCH": "Rechercher...",
+    "NO_DATA": "Aucune donnée disponible",
+    "ITEMS": "éléments",
+    "ADD": {
+      "TITLE": "Ajouter un élément",
+      "SUCCESS": "Élément ajouté avec succès",
+      "ERROR": "Erreur lors de l'ajout de l'élément"
+    },
+    "EDIT": {
+      "TITLE": "Modifier l'élément",
+      "SUCCESS": "Élément modifié avec succès",
+      "ERROR": "Erreur lors de la modification de l'élément"
+    },
+    "DELETE": {
+      "TITLE": "Supprimer l'élément",
+      "CONFIRM": "Êtes-vous sûr de vouloir supprimer cet élément ?",
+      "SUCCESS": "Élément supprimé avec succès",
+      "ERROR": "Erreur lors de la suppression de l'élément"
+    },
+    "FILTER": {
+      "TITLE": "Filtrer",
+      "APPLY": "Appliquer",
+      "CLEAR": "Effacer",
+      "SELECT_ALL": "Tout sélectionner",
+      "DESELECT_ALL": "Tout désélectionner"
+    },
+    "LOADING": "Chargement...",
+    "ACTIONS": "Actions"
+  }
+} 

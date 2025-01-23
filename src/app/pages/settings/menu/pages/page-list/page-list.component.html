@@ -4,8 +4,8 @@
       <div class="flex justify-between items-center">
         <div>
           <h2 class="text-2xl font-semibold">{{ 'MENU.PAGES.TITLE' | translate }}</h2>
-          <p class="text-gray-400 mt-1" *ngIf="category">
-            {{ 'MENU.PAGES.SUBTITLE' | translate: { category: getLocalizedName(category) } }}
+          <p class="text-gray-400 mt-1" *ngIf="menu">
+            {{ 'MENU.PAGES.SUBTITLE' | translate: { menu: getLocalizedName(menu) } }}
           </p>
         </div>
         <button
@@ -31,14 +31,12 @@
         <table class="min-w-full divide-y divide-gray-700">
           <thead>
             <tr>
+              <th class="w-8"></th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 {{ 'COMMON.NAME' | translate }}
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 {{ 'COMMON.ICON' | translate }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                {{ 'COMMON.ORDER' | translate }}
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 {{ 'COMMON.VISIBILITY' | translate }}
@@ -51,29 +49,31 @@
               </th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-700">
-            <tr *ngFor="let page of pages" class="hover:bg-gray-700">
-              <td class="px-6 py-4 whitespace-nowrap">
-                {{ getLocalizedName(page) }}
+          <tbody cdkDropList (cdkDropListDropped)="drop($event)" class="divide-y divide-gray-700">
+            <tr *ngFor="let page of pages" class="hover:bg-gray-700" cdkDrag>
+              <td class="px-2 cursor-move" cdkDragHandle>
+                <i class="fas fa-grip-vertical text-gray-500"></i>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <i [class]="page.Icon"></i>
+                <div class="flex items-center">
+                  {{ getLocalizedName(page) }}
+                </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                {{ page.Order }}
+                <i [class]="page.icon"><fa-icon [icon]="['fas', page.icon]"></fa-icon></i>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
                 <span
                   class="px-2 py-1 text-xs rounded"
-                  [ngClass]="page.IsVisible ? 'bg-green-600' : 'bg-red-600'"
+                  [ngClass]="page.isVisible ? 'bg-green-600' : 'bg-red-600'"
                 >
-                  {{ (page.IsVisible ? 'COMMON.VISIBLE' : 'COMMON.HIDDEN') | translate }}
+                  {{ (page.isVisible ? 'COMMON.VISIBLE' : 'COMMON.HIDDEN') | translate }}
                 </span>
               </td>
               <td class="px-6 py-4">
                 <div class="flex flex-wrap gap-2">
-                  <span *ngFor="let role of page.Roles" class="px-2 py-1 text-xs rounded bg-blue-600">
-                    {{ role }}
+                  <span *ngFor="let role of page.roles" class="px-2 py-1 text-xs rounded bg-blue-600">
+                    {{ role.name }}
                   </span>
                 </div>
               </td>
@@ -113,4 +113,15 @@
       </div>
     </div>
   </div>
-</div> 
+</div>
+
+<app-confirmation-dialog
+  *ngIf="showConfirmDialog"
+  [titleKey]="'MENU.PAGES.DELETE'"
+  [messageKey]="'COMMON.CONFIRMATION.DELETE_GENERIC'"
+  [messageParams]="{ name: pageToDelete ? getLocalizedName(pageToDelete) : '' }"
+  (confirm)="onConfirmDelete()"
+  (cancel)="onCancelDelete()">
+</app-confirmation-dialog>
+
+<router-outlet></router-outlet> 

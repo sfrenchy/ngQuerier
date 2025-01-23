@@ -7,23 +7,23 @@ export const routes: Routes = [
     loadComponent: () => import('@pages/login/login.component').then(m => m.LoginComponent)
   },
   {
+    path: 'configure',
+    children: [
+      {
+        path: 'admin',
+        loadComponent: () => import('@pages/configure-api/admin-configuration/admin-configuration.component').then(m => m.AdminConfigurationComponent)
+      },
+      {
+        path: 'smtp',
+        loadComponent: () => import('@pages/configure-api/smtp-configuration/smtp-configuration.component').then(m => m.SmtpConfigurationComponent)
+      }
+    ]
+  },
+  {
     path: '',
     loadComponent: () => import('@pages/home/home.component').then(m => m.HomeComponent),
     canActivate: [authGuard],
     children: [
-      {
-        path: 'home',
-        children: [
-          {
-            path: 'layout/:id',
-            loadComponent: () => import('./pages/dynamic-page/dynamic-page.component').then(m => m.DynamicPageComponent)
-          }
-        ]
-      },
-      {
-        path: 'home/:id',
-        loadComponent: () => import('@pages/dynamic-page/dynamic-page.component').then(m => m.DynamicPageComponent)
-      },
       {
         path: 'databases',
         loadComponent: () => import('@pages/databases/databases.component').then(m => m.DatabasesComponent)

@@ -1,0 +1,36 @@
+/* Styles pour le drag & drop */
+.editor-area.cdk-drop-list-dragging-over {
+  @apply border-2 border-dashed border-blue-500 bg-blue-50 !important;
+}
+
+.cdk-drag-preview {
+  @apply box-border rounded-lg shadow-lg;
+}
+
+.cdk-drag-placeholder {
+  @apply opacity-0;
+}
+
+.cdk-drag-animating {
+  @apply transition-transform duration-300 ease-out;
+}
+
+.editor-area.cdk-drop-list-dragging .row:not(.cdk-drag-placeholder) {
+  @apply transition-transform duration-300 ease-out;
+}
+
+/* Styles pour la zone de drop */
+.cdk-drop-list-dragging-over {
+  @apply border-2 border-dashed border-blue-500 bg-blue-50 !important;
+}
+
+.cdk-drop-list-dragging {
+  @apply border-2 border-dashed border-gray-300 !important;
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}

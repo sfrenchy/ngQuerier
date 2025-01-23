@@ -1,18 +1,61 @@
-export interface User {
-  Id: string;
-  Email: string;
-  FirstName: string;
-  LastName: string;
-  Phone: string | null;
-  Roles: Role[];
-  LanguageCode: string | null;
-  Img: string | null;
-  Poste: string | null;
-  UserName: string;
-  DateFormat: string | null;
-  Currency: string | null;
-  AreaUnit: string | null;
-  IsEmailConfirmed: boolean;
+export interface SignInDto {
+  email: string;
+  password: string;
+}
+
+export interface SignUpResultDto {
+  token: string;
+  refreshToken: string;
+  success: boolean;
+  errors: string[];
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  roles: string[];
+}
+
+export interface SignUpDto {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  roles: string[];
+}
+
+export interface RefreshTokenDto {
+  token: string;
+  refreshToken: string;
+}
+
+export interface AuthResultDto {
+  token: string;
+  refreshToken: string;
+  success: boolean;
+  errors: string[];
+}
+
+export interface SettingDto {
+  id: string;
+  name: string;
+  value: string;
+  description: string;
+  type: string;
+}
+
+
+export interface UserDto {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone: string | null;
+  roles: RoleDto[];
+  img: string | null;
+  poste: string | null;
+  userName: string;
+  isEmailConfirmed: boolean;
 }
 
 export interface ApiUser {
@@ -24,108 +67,141 @@ export interface ApiUser {
   IsEmailValidated: boolean;
 }
 
-export interface Role {
-  Id: string;
-  Name: string;
+export interface RoleDto {
+  id: number;
+  name: string;
 }
 
-export interface DBConnection {
-  Id: number;
-  Name: string;
-  ConnectionType: QDBConnectionType;
-  ConnectionString: string;
-  ApiRoute: string;
-  GenerateProcedureControllersAndServices?: boolean;
+export interface DBConnectionCreateDto {
+  name: string;
+  connectionType: DBConnectionType;
+  connectionString: string;
+  contextApiRoute: string;
+  generateProcedureControllersAndServices: boolean;
 }
 
-export enum QDBConnectionType {
+export interface DBConnectionDto {
+  id: number;
+  name: string;
+  connectionType: DBConnectionType;
+  connectionString: string;
+  apiRoute: string;
+  contextName: string;
+  description: string;
+}
+
+export enum DBConnectionType {
   SqlServer = 0,
   MySQL = 1,
   PgSQL = 2
 }
 
-export interface MenuCategory {
-  Id: number;
-  Names: { [key: string]: string };
-  Icon: string;
-  Order: number;
-  IsVisible: boolean;
-  Roles: string[];
-  Route: string;
+export interface DBConnectionDatabaseSchemaDto {
+  tables: DBConnectionTableDescriptionDto[];
+  views: DBConnectionTableDescriptionDto[];
+  storedProcedures: DBConnectionProcedureDescriptionDto[];
 }
 
-export interface MenuPage {
-  Id: number;
-  Names: { [key: string]: string };
-  Icon: string;
-  Order: number;
-  IsVisible: boolean;
-  Roles: Role[];
-  Route: string;
-  MenuCategoryId: number;
-}
-
-export interface DynamicRow {
-  id: number;
-  pageId: number;
-  order: number;
-  height: number;
-  cards: DynamicCard[];
-}
-
-export interface DynamicCard {
-  id: number;
-  rowId: number;
-  order: number;
-  width: number;
-  type: string;
-  titles: { [key: string]: string };
-  configuration: any;
-}
-
-export interface Layout {
-  pageId: number;
-  icon: string;
-  names: { [key: string]: string };
-  isVisible: boolean;
-  roles: string[];
-  route: string;
-  rows: {
-    id: number;
-    order: number;
-    height: number;
-    alignment: string;
-    crossAlignment: string;
-    spacing: number;
-    cards: DynamicCard[];
-  }[];
-}
-
-export interface EntitySchema {
+export interface DBConnectionProcedureDescriptionDto {
   name: string;
-  displayName: string;
-  properties: EntityProperty[];
+  schema: string;
+  parameters: DBConnectionParameterDescriptionDto[];
 }
 
-export interface EntityProperty {
+export interface DBConnectionParameterDescriptionDto {
   name: string;
-  type: string;
-  isKey: boolean;
+  dataType: string;
+  mode: string;
+}
+
+export interface DBConnectionTableDescriptionDto{
+  name: string,
+  schema: string,
+  columns: DBConnectionColumnDescriptionDto[]
+}
+
+export interface DBConnectionColumnDescriptionDto {
+  name: string;
+  dataType: string;
   isNullable: boolean;
+  isPrimaryKey: boolean;
+  isForeignKey: boolean;
+  foreignKeyTable: string;
+  foreignKeyColumn: string;
 }
 
-export interface SQLQuery {
-  Id: number;
-  Name: string;
-  Description: string;
-  Query: string;
-  ConnectionId: number;
-  IsPublic: boolean;
-  Parameters?: { [key: string]: any };
-  CreatedAt?: Date;
-  LastModifiedAt?: Date;
-  CreatedBy?: string;
-  OutputDescription?: string;
+export interface DBConnectionAnalyzeQueryDto {
+  query: string;
+  parameters: { [key: string]: string };
+}
+
+export interface MenuDto {
+  id: number;
+  title: TranslatableString[];
+  icon: string;
+  order: number;
+  isVisible: boolean;
+  roles: RoleDto[];
+  route: string;
+}
+
+export interface MenuCreateDto {
+  title: TranslatableString[];
+  icon: string;
+  order: number;
+  isVisible: boolean;
+  roles: RoleDto[];
+  route: string;
+}
+
+export interface TranslatableString {
+  languageCode: string;
+  value: string;
+}
+
+export interface PageDto {
+  id: number;
+  title: TranslatableString[];
+  icon: string;
+  order: number;
+  isVisible: boolean;
+  roles: RoleDto[];
+  route: string;
+  menuId: number;
+}
+
+export interface PageCreateDto {
+  title: TranslatableString[];
+  icon: string;
+  order: number;
+  isVisible: boolean;
+  roles: RoleDto[];
+  route: string;
+  menuId: number;
+}
+
+export interface PropertyItemDefinitionDto {
+  key: string;
+  label: string;
+}
+
+export interface SQLQueryCreateDto {
+   query: SQLQueryDto;
+   parameters: { [key: string]: string };
+}
+export interface SQLQueryDto {
+  id: number;
+  name: string;
+  description: string;
+  query: string;
+  dbConnectionId: number;
+  isPublic: boolean;
+  parameters?: { [key: string]: any };
+  createdAt?: Date;
+  lastModifiedAt?: Date;
+  createdBy?: string;
+  createdByEmail?: string;
+  outputDescription?: string;
 }
 
 export interface SQLQueryParameter {
@@ -135,11 +211,11 @@ export interface SQLQueryParameter {
 }
 
 export interface SQLQueryRequest {
-  query: SQLQuery;
+  query: SQLQueryDto;
   sampleParameters?: { [key: string]: any };
 }
 
-export interface QueryAnalysis {
+export interface DBConnectionQueryAnalysisDto {
   tables: string[];
   columns: string[];
   parameters: string[];
@@ -148,67 +224,229 @@ export interface QueryAnalysis {
 }
 
 export interface ApiConfiguration {
-  Scheme: string;
-  Host: string;
-  Port: number;
-  AllowedHosts: string;
-  AllowedOrigins: string;
-  AllowedMethods: string;
-  AllowedHeaders: string;
-  ResetPasswordTokenValidity: number;
-  EmailConfirmationTokenValidity: number;
-  RequireDigit: boolean;
-  RequireLowercase: boolean;
-  RequireNonAlphanumeric: boolean;
-  RequireUppercase: boolean;
-  RequiredLength: number;
-  RequiredUniqueChars: number;
-  SmtpHost: string;
-  SmtpPort: number;
-  SmtpUsername: string;
-  SmtpPassword: string;
-  SmtpUseSSL: boolean;
-  SmtpSenderEmail: string;
-  SmtpSenderName: string;
-  SmtpRequireAuth: boolean;
-  RedisEnabled: boolean;
-  RedisHost: string;
-  RedisPort: number;
+  scheme: string;
+  host: string;
+  port: number;
+  allowedHosts: string;
+  allowedOrigins: string;
+  allowedMethods: string;
+  allowedHeaders: string;
+  resetPasswordTokenValidity: number;
+  emailConfirmationTokenValidity: number;
+  requireDigit: boolean;
+  requireLowercase: boolean;
+  requireNonAlphanumeric: boolean;
+  requireUppercase: boolean;
+  requiredLength: number;
+  requiredUniqueChars: number;
+  smtpHost: string;
+  smtpPort: number;
+  smtpUsername: string;
+  smtpPassword: string;
+  smtpUseSSL: boolean;
+  smtpSenderEmail: string;
+  smtpSenderName: string;
+  smtpRequireAuth: boolean;
+  redisEnabled: boolean;
+  redisHost: string;
+  redisPort: number;
 }
 
-export interface UserCreateUpdate {
+export interface ApiUserCreateDto {
+  email: string;
+  firstName: string;
+  lastName: string;
+  roles: RoleDto[];
+}
+
+export interface ApiUserUpdateDto {
   id: string;
   email: string;
   firstName: string;
   lastName: string;
-  userName: string;
-  roles: string[];
+  roles: RoleDto[];
 }
 
-export interface ApiDynamicCard {
-  Id: number;
-  Titles: { [key: string]: string };
-  Order: number;
-  Type: string;
-  GridWidth: number;
-  Configuration: any;
-  BackgroundColor: string | null;
-  TextColor: string | null;
-  HeaderBackgroundColor: string | null;
-  HeaderTextColor: string | null;
+export interface BaseCardProperties {
+  backgroundColor: number;
+  textColor: number;
+  headerBackgroundColor: number;
+  headerTextColor: number;
+  displayHeader: boolean;
+  displayFooter: boolean;
+  icon: string;
 }
 
-export interface ApiLayout {
-  PageId: number;
-  Icon: string;
-  Names: { [key: string]: string };
-  IsVisible: boolean;
-  Roles: string[];
-  Route: string;
-  Rows: {
-    Id: number;
-    Order: number;
-    Height: number;
-    Cards: ApiDynamicCard[];
-  }[];
-} 
+export abstract class BaseCardConfig {
+  abstract toJson(): any;
+}
+
+export class PlaceholderCardConfig extends BaseCardConfig {
+  constructor(public label: string) {
+    super();
+  }
+
+  toJson(): any {
+    return {
+      label: this.label
+    };
+  }
+
+  static fromJson(json: any): PlaceholderCardConfig {
+    return new PlaceholderCardConfig(
+      json?.label || 'Nouveau placeholder'
+    );
+  }
+}
+
+export interface CardDto<TConfig = any> {
+  id: number;
+  type: string;
+  title: TranslatableString[];
+  order: number;
+  gridWidth: number;
+  backgroundColor: number;
+  textColor: number;
+  headerTextColor: number;
+  headerBackgroundColor: number;
+  rowId: number;
+  configuration?: TConfig;
+  displayHeader: boolean;
+  displayFooter: boolean;
+  icon: string;
+}
+
+// Type utilitaire pour la factory de configuration
+export type CardConfigFactory<T extends BaseCardConfig> = (json: any) => T;
+
+// Fonction utilitaire pour mapper une CardDto depuis le JSON de l'API
+export function mapCardFromApi<T extends BaseCardConfig>(
+  jsonData: any, 
+  configFactory: CardConfigFactory<T>
+): CardDto<T> {
+  return {
+    id: jsonData.id,
+    type: jsonData.type,
+    title: jsonData.title,
+    order: jsonData.order,
+    gridWidth: jsonData.gridWidth,
+    backgroundColor: jsonData.backgroundColor,
+    textColor: jsonData.textColor,
+    headerTextColor: jsonData.headerTextColor,
+    headerBackgroundColor: jsonData.headerBackgroundColor,
+    rowId: jsonData.rowId,
+    configuration: jsonData.configuration ? configFactory(jsonData.configuration) : undefined,
+    displayHeader: jsonData.displayHeader,
+    displayFooter: jsonData.displayFooter,
+    icon: jsonData.icon
+  };
+}
+
+// Fonction utilitaire pour mapper un tableau de CardDto depuis le JSON de l'API
+export function mapCardsFromApi<T extends BaseCardConfig>(
+  jsonData: any[], 
+  configFactory: CardConfigFactory<T>
+): CardDto<T>[] {
+  return jsonData.map(card => mapCardFromApi<T>(card, configFactory));
+}
+
+// Fonction utilitaire pour mapper une CardDto vers le format JSON pour l'API
+export function mapCardToApi<T extends BaseCardConfig>(card: CardDto<T>): any {
+  // Extraire les propriétés de base
+  const { configuration, ...baseProperties } = card;
+
+  // Retourner l'objet avec la configuration spécifique séparée
+  return {
+    ...baseProperties,
+    configuration: configuration?.toJson() // toJson() ne retourne que les propriétés spécifiques
+  };
+}
+
+export interface RowDto {
+  id: number;
+  order: number;
+  height: number;
+  cards: CardDto[];
+}
+
+export interface LayoutDto {
+  pageId: number;
+  rows: RowDto[];
+}
+
+export interface DataRequestDataRequestParametersWithSQLParametersDto {
+  dataRequestParameters: DataRequestParametersDto;
+  sqlParameters: { [key: string]: string };
+}
+
+export interface DataRequestParametersDto {
+  pageNumber: number;
+  pageSize: number;
+  orderBy: OrderByParameterDto[];
+  globalSearch: string;
+  columnSearches: ColumnSearchDto[];
+}
+
+export interface ColumnSearchDto {
+  column: string;
+  value: string;
+}
+
+export interface OrderByParameterDto {
+  column: string;
+  isDescending: boolean;
+}
+
+export interface PaginatedResultDto<T> {
+  items: T[];
+  total: number;
+  requestParameters: DataRequestParametersDto;
+}
+
+export interface DBConnectionControllerInfoDto {
+  name?: string;
+  route?: string;
+  httpGetJsonSchema?: string;
+}
+
+export interface DBConnectionEndpointInfoDto {
+  controller: string;
+  targetTable: string;
+  action: string;
+  route: string;
+  httpMethod: string;
+  description: string;
+  parameters: DBConnectionEndpointRequestInfoDto[];
+  responses: DBConnectionEndpointResponseInfoDto[];
+}
+
+export interface DBConnectionEndpointResponseInfoDto {
+  statusCode: number;
+  type: string;
+  description: string;
+  jsonSchema: string;
+}
+
+export interface DBConnectionEndpointRequestInfoDto {
+  name: string;
+  type: string;
+  description: string;
+  isRequired: boolean;
+  source: string;
+  jsonSchema: string;
+}
+
+export interface DataStructureDefinitionDto {
+  name: string;
+  description: string;
+  type: string;
+  sourceType: DataSourceType;
+  jsonSchema: string;
+}
+
+export enum DataSourceType {
+  Entity = 0,
+  StoredProcedure = 1,
+  View = 2,
+  Query = 3
+}

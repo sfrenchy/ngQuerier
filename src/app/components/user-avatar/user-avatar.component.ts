@@ -13,13 +13,14 @@ export class UserAvatarComponent {
 
   get userInitials(): string {
     const user = this.userService.getCurrentUser();
-    if (!user) return '';
+    if (!user?.firstName || !user?.lastName) return '';
     
-    return (user.FirstName[0] + user.LastName[0]).toUpperCase();
+    return (user.firstName[0] + user.lastName[0]).toUpperCase();
   }
 
   get userFullName(): string {
     const user = this.userService.getCurrentUser();
-    return user?.FirstName + ' ' + user?.LastName || '';
+    if (!user) return '';
+    return `${user.firstName} ${user.lastName}`;
   }
 } 

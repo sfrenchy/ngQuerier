@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApiService } from '@services/api.service';
-import { DBConnection, QDBConnectionType } from '@models/api.models';
+import { DBConnectionCreateDto, DBConnectionDto, DBConnectionType } from '@models/api.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
@@ -13,15 +13,15 @@ import { ConfirmationDialogComponent } from '@shared/components/confirmation-dia
   templateUrl: './databases.component.html'
 })
 export class DatabasesComponent implements OnInit {
-  connections: DBConnection[] = [];
+  connections: DBConnectionDto[] = [];
   showDeleteConfirmation = false;
-  connectionToDelete: DBConnection | null = null;
+  connectionToDelete: DBConnectionDto | null = null;
   showAddForm = false;
   dbForm: FormGroup;
   providers = [
-    { value: QDBConnectionType.SqlServer, label: 'SQL Server' },
-    { value: QDBConnectionType.MySQL, label: 'MySQL' },
-    { value: QDBConnectionType.PgSQL, label: 'PostgreSQL' }
+    { value: DBConnectionType.SqlServer, label: 'SQL Server' },
+    { value: DBConnectionType.MySQL, label: 'MySQL' },
+    { value: DBConnectionType.PgSQL, label: 'PostgreSQL' }
   ];
 
   constructor(
@@ -43,7 +43,7 @@ export class DatabasesComponent implements OnInit {
 
   private loadConnections(): void {
     this.apiService.getDBConnections().subscribe({
-      next: (connections: DBConnection[]) => {
+      next: (connections: DBConnectionDto[]) => {
         this.connections = connections;
       },
       error: (error: any) => {
@@ -52,7 +52,7 @@ export class DatabasesComponent implements OnInit {
     });
   }
 
-  getProviderLabel(connectionType: QDBConnectionType | string): string {
+  getProviderLabel(connectionType: DBConnectionType | string): string {
     if (typeof connectionType === 'string') {
       switch (connectionType) {
         case 'SqlServer':
@@ -67,11 +67,11 @@ export class DatabasesComponent implements OnInit {
     }
 
     switch (connectionType) {
-      case QDBConnectionType.SqlServer:
+      case DBConnectionType.SqlServer:
         return 'SQL Server';
-      case QDBConnectionType.MySQL:
+      case DBConnectionType.MySQL:
         return 'MySQL';
-      case QDBConnectionType.PgSQL:
+      case DBConnectionType.PgSQL:
         return 'PostgreSQL';
       default:
         return 'Unknown';
@@ -85,14 +85,14 @@ export class DatabasesComponent implements OnInit {
     });
   }
 
-  onDeleteClick(connection: DBConnection): void {
+  onDeleteClick(connection: DBConnectionDto): void {
     this.connectionToDelete = connection;
     this.showDeleteConfirmation = true;
   }
 
   onConfirmDelete(): void {
     if (this.connectionToDelete) {
-      this.apiService.deleteDBConnection(this.connectionToDelete.Id).subscribe({
+      this.apiService.deleteDBConnection(this.connectionToDelete.id).subscribe({
         next: () => {
           this.loadConnections();
           this.resetDeleteState();
@@ -117,13 +117,12 @@ export class DatabasesComponent implements OnInit {
   onSubmit(): void {
     if (this.dbForm.valid) {
       const formValue = this.dbForm.value;
-      const connection: DBConnection = {
-        Id: 0,
-        Name: formValue.name,
-        ConnectionType: formValue.connectionType,
-        ConnectionString: formValue.connectionString,
-        ApiRoute: formValue.contextApiRoute,
-        GenerateProcedureControllersAndServices: formValue.generateProcedureControllersAndServices
+      const connection: DBConnectionCreateDto = {
+        name: formValue.name,
+        connectionType: formValue.connectionType,
+        connectionString: formValue.connectionString,
+        contextApiRoute: formValue.contextApiRoute,
+        generateProcedureControllersAndServices: formValue.generateProcedureControllersAndServices
       };
 
       this.apiService.addDBConnection(connection).subscribe({

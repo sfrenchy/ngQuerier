@@ -81,6 +81,7 @@
     "SAVE": "Save",
     "DELETE": "Delete",
     "TEST": "Test",
+    "CREATE": "Create",
     "EDIT": "Edit",
     "ADD": "Add",
     "SEARCH": "Search",
@@ -104,8 +105,11 @@
       "TITLE": "Confirmation",
       "DELETE_ROLE": "Are you sure you want to delete the role \"{{name}}\"?",
       "DELETE_USER": "Are you sure you want to delete the user \"{{name}}\"?",
+      "DELETE_MULTIPLE_ROLES": "Are you sure you want to delete the {{count}} selected roles?",
+      "DELETE_MULTIPLE_USERS": "Are you sure you want to delete the {{count}} selected users?",
       "DELETE_GENERIC": "Are you sure you want to delete this item?",
-      "DELETE_DATABASE": "Are you sure you want to delete the database '{{name}}' ?"
+      "DELETE_DATABASE": "Are you sure you want to delete the database '{{name}}'?",
+      "DELETE_CARD": "Are you sure you want to delete this card?"
     },
     "SELECT": "Select",
     "NAME": "Name",
@@ -115,7 +119,15 @@
     "VISIBILITY": "Visibility",
     "ROUTE": "Route",
     "VISIBLE": "Visible",
-    "HIDDEN": "Hidden"
+    "HIDDEN": "Hidden",
+    "SELECT_ALL": "Select all",
+    "DELETE_SELECTED": "Delete selection",
+    "ENTER_TRANSLATION": "Enter translation",
+    "REMOVE_TRANSLATION": "Remove translation",
+    "ADD_TRANSLATION": "Add translation",
+    "FULLSCREEN": "Fullscreen",
+    "EXIT_FULLSCREEN": "Exit fullscreen",
+    "SELECT_OPTION": "Select an option"
   },
   "DASHBOARD": {
     "TITLE": "Dashboard",
@@ -124,19 +136,18 @@
   },
   "MENU": {
     "CATEGORIES": {
-      "TITLE": "Menu Categories",
-      "ADD": "Add Category",
-      "EDIT": "Edit Category",
-      "CREATE": "Create Category",
-      "NO_CATEGORIES": "No menu categories found",
-      "NAME_PLACEHOLDER": "Enter category name",
+      "TITLE": "Menus",
+      "ADD": "Add menu",
+      "EDIT": "Edit menu",
+      "CREATE": "Create menu",
+      "NO_CATEGORIES": "No menu found",
+      "NAME_PLACEHOLDER": "Enter menu name",
       "ICON_PLACEHOLDER": "Enter icon class (e.g. fas fa-home)",
       "ROUTE_PLACEHOLDER": "Enter route path"
     },
     "PAGES": {
       "TITLE": "Pages",
       "ADD": "Add Page",
-      "EDIT": "Edit Page",
       "DELETE": "Delete Page",
       "NAME": "Name",
       "NAME_PLACEHOLDER": "Page name",
@@ -184,7 +195,9 @@
         },
         "CONFIRM_DELETE_CARD": "Are you sure you want to delete this card?"
       },
-      "NO_PAGES": "No pages found"
+      "NO_PAGES": "No pages found",
+      "LAYOUT_EDITOR": "Layout Editor",
+      "LAYOUT_SUBTITLE": "Edit layout of page \"{{page}}\""
     },
     "HOME": "Home",
     "DATABASES": "Databases",
@@ -204,8 +217,12 @@
     "NAME": "Name",
     "EMAIL": "Email",
     "ROLE": "Role",
+    "ROLES": "Roles",
+    "FIRST_NAME": "First Name",
+    "LAST_NAME": "Last Name",
     "ACTIONS": "Actions",
-    "NO_USERS": "No users found"
+    "NO_USERS": "No users found",
+    "RESEND_CONFIRMATION": "Resend confirmation email"
   },
   "ROLES": {
     "TITLE": "Role Management",
@@ -213,11 +230,7 @@
     "EDIT": "Edit Role",
     "DELETE": "Delete Role",
     "NAME": "Role Name",
-    "NAME_REQUIRED": "Role name is required",
-    "NO_ROLES": "No roles found",
-    "CONFIRM_DELETE_TITLE": "Delete Role",
-    "CONFIRM_DELETE_MESSAGE": "Are you sure you want to delete this role? This action cannot be undone.",
-    "PERMISSIONS": "Permissions"
+    "NAME_REQUIRED": "Role name is required"
   },
   "DB": {
     "CONNECTIONS": {
@@ -280,10 +293,6 @@
     "REDIS_HOST": "Redis Server",
     "REDIS_PORT": "Redis Port"
   },
-  "COMMON": {
-    "SAVE": "Save",
-    "CANCEL": "Cancel"
-  },
   "DATABASES": {
     "TITLE": "Databases",
     "ADD": "Add database",
@@ -300,6 +309,134 @@
   },
   "LANGUAGES": {
     "EN": "English",
-    "FR": "French"
+    "FR": "French",
+    "DE": "German",
+    "ES": "Spanish",
+    "IT": "Italian"
+  },
+  "ICON_PICKER": {
+    "SEARCH_PLACEHOLDER": "Search icons...",
+    "CLOSE": "Close",
+    "PREVIOUS": "Previous",
+    "NEXT": "Next",
+    "PAGE": "Page"
+  },
+  "ERRORS": {
+    "LOAD_ROLES": "Error loading roles",
+    "LOAD_MENU": "Error loading menu",
+    "CREATE_MENU": "Error creating menu",
+    "UPDATE_MENU": "Error updating menu",
+    "SAVE_PAGE": "Error saving page"
+  },
+  "DATASOURCE": {
+    "TITLE": "Data Source",
+    "TYPE": "Source Type",
+    "CONNECTION": "Connection",
+    "CONTROLLER": "Controller",
+    "CONTEXT": "Context",
+    "ENTITY": "Entity",
+    "QUERY": "Query",
+    "TYPES": {
+      "API": "API Call",
+      "EntityFramework": "Entity Framework",
+      "SQLQuery": "SQL Query"
+    }
+  },
+  "COLUMNS": {
+    "TITLE": "Columns",
+    "LABEL_EN": "Label (English)",
+    "LABEL_FR": "Label (French)",
+    "DECIMALS": "Decimals",
+    "DATE_FORMAT": "Date format",
+    "DATE_FORMAT_DATE": "Date",
+    "DATE_FORMAT_TIME": "Time",
+    "DATE_FORMAT_DATETIME": "Date and time",
+    "FIXED_LEFT": "Pin to left",
+    "FIXED_RIGHT": "Pin to right",
+    "FIXED_LEFT_DISABLED_HINT": "To pin this column to the left, all previous visible columns must be pinned",
+    "FIXED_RIGHT_DISABLED_HINT": "To pin this column to the right, all following visible columns must be pinned"
+  },
+  "TABLE_APPEARANCE": {
+    "TITLE": "Table Appearance",
+    "HEADER_BACKGROUND_COLOR": "Header Background Color",
+    "ROW_BACKGROUND_COLOR": "Row Background Color",
+    "HEADER_TEXT_COLOR": "Header Text Color",
+    "ROW_TEXT_COLOR": "Row Text Color",
+    "COMPACT_MODE": "Compact Mode",
+    "ALTERNATE_ROWS": "Alternate Row Colors",
+    "ALTERNATE_ROWS_BRIGHTNESS": "Brightness difference",
+    "HEADER_BG_COLOR": "Header Background Color",
+    "ROW_BG_COLOR": "Row Background Color"
+  },
+  "TABLE": {
+    "ITEMS": "items"
+  },
+  "CRUD_OPTIONS": {
+    "TITLE": "CRUD Options",
+    "CAN_ADD": "Allow adding",
+    "CAN_UPDATE": "Allow updating",
+    "CAN_DELETE": "Allow deleting"
+  },
+  "DATA_TABLE": {
+    "SEARCH": "Search...",
+    "NO_DATA": "No data available",
+    "CALCULATING_ROWS": "Calculating rows...",
+    "ADD_RECORD": "Add record",
+    "EDIT_RECORD": "Edit record",
+    "DELETE_RECORD": "Delete record",
+    "CONFIRM_DELETE": "Are you sure you want to delete this record?",
+    "FULLSCREEN": "Fullscreen",
+    "EXIT_FULLSCREEN": "Exit fullscreen",
+    "ITEMS": "items"
+  },
+  "FORM": {
+    "SELECT_VALUE": "Select a value...",
+    "VALIDATION": {
+      "REQUIRED": "This field is required",
+      "MAX_LENGTH": "Maximum length is {{max}} characters",
+      "MIN_VALUE": "Minimum value is {{min}}",
+      "MAX_VALUE": "Maximum value is {{max}}"
+    }
+  },
+  "FOREIGN_KEYS": {
+    "TITLE": "Foreign Keys Configuration"
+  },
+  "CARDS": {
+    "COMMON": {
+      "TITLE": "Title",
+      "DESCRIPTION": "Description",
+      "CONFIGURATION": "Configuration",
+      "SAVE": "Save",
+      "CANCEL": "Cancel",
+      "LOADING": "Loading...",
+      "NO_DATA": "No data available",
+      "FULLSCREEN": "Fullscreen",
+      "EXIT_FULLSCREEN": "Exit fullscreen"
+    },
+    "CONFIGURATION": {
+      "TITLE": "Card configuration",
+      "COMMON_CONFIG": "Common configuration",
+      "SPECIFIC_CONFIG": "Specific configuration",
+      "COLORS": "Colors",
+      "LAYOUT": "Layout",
+      "APPEARANCE": "Appearance",
+      "DIMENSIONS": "Dimensions",
+      "GRID_WIDTH": "Grid width",
+      "GRID_WIDTH_25": "25%",
+      "GRID_WIDTH_33": "33%",
+      "GRID_WIDTH_50": "50%",
+      "GRID_WIDTH_66": "66%",
+      "GRID_WIDTH_75": "75%",
+      "GRID_WIDTH_100": "100%",
+      "BACKGROUND_COLOR": "Background color",
+      "TEXT_COLOR": "Text color",
+      "HEADER": {
+        "SHOW": "Show header",
+        "TITLE": "Title",
+        "ICON": "Icon",
+        "BACKGROUND_COLOR": "Background color",
+        "TEXT_COLOR": "Text color"
+      }
+    }
   }
 } 

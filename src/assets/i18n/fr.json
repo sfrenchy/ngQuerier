@@ -81,6 +81,7 @@
     "SAVE": "Enregistrer",
     "DELETE": "Supprimer",
     "TEST": "Tester",
+    "CREATE": "Créer",
     "VALIDATION": {
       "EMAIL_REQUIRED": "L'email est requis",
       "EMAIL_INVALID": "Veuillez entrer une adresse email valide",
@@ -94,9 +95,6 @@
       "PASSWORD_REQUIRE_NON_ALPHANUMERIC": "Le mot de passe doit contenir au moins un caractère spécial",
       "PASSWORD_REQUIRE_UNIQUE_CHARS": "Le mot de passe doit contenir au moins {{count}} caractères uniques"
     },
-    "SAVE": "Enregistrer",
-    "CANCEL": "Annuler",
-    "DELETE": "Supprimer",
     "EDIT": "Modifier",
     "ADD": "Ajouter",
     "SEARCH": "Rechercher",
@@ -108,6 +106,8 @@
       "TITLE": "Confirmation",
       "DELETE_ROLE": "Êtes-vous sûr de vouloir supprimer le rôle \"{{name}}\" ?",
       "DELETE_USER": "Êtes-vous sûr de vouloir supprimer l'utilisateur \"{{name}}\" ?",
+      "DELETE_MULTIPLE_ROLES": "Êtes-vous sûr de vouloir supprimer les {{count}} rôles sélectionnés ?",
+      "DELETE_MULTIPLE_USERS": "Êtes-vous sûr de vouloir supprimer les {{count}} utilisateurs sélectionnés ?",
       "DELETE_GENERIC": "Êtes-vous sûr de vouloir supprimer cet élément ?",
       "DELETE_DATABASE": "Êtes-vous sûr de vouloir supprimer la base de données '{{name}}' ?",
       "DELETE_CARD": "Êtes-vous sûr de vouloir supprimer cette carte ?"
@@ -121,7 +121,15 @@
     "ACTIONS": "Actions",
     "TRANSLATIONS": "Traductions",
     "VISIBLE": "Visible",
-    "HIDDEN": "Masqué"
+    "HIDDEN": "Masqué",
+    "SELECT_ALL": "Tout sélectionner",
+    "DELETE_SELECTED": "Supprimer la sélection",
+    "ENTER_TRANSLATION": "Entrez la traduction",
+    "REMOVE_TRANSLATION": "Supprimer la traduction",
+    "ADD_TRANSLATION": "Ajouter une traduction",
+    "FULLSCREEN": "Plein écran",
+    "EXIT_FULLSCREEN": "Quitter le plein écran",
+    "SELECT_OPTION": "Sélectionner une option"
   },
   "DASHBOARD": {
     "TITLE": "Tableau de bord",
@@ -130,12 +138,12 @@
   },
   "MENU": {
     "CATEGORIES": {
-      "TITLE": "Catégories de Menu",
-      "ADD": "Ajouter une Catégorie",
-      "EDIT": "Modifier la Catégorie",
-      "CREATE": "Créer une Catégorie",
-      "NO_CATEGORIES": "Aucune catégorie de menu trouvée",
-      "NAME_PLACEHOLDER": "Entrez le nom de la catégorie",
+      "TITLE": "Gestion des menus",
+      "ADD": "Ajouter un menu",
+      "EDIT": "Modifier un menu",
+      "CREATE": "Créer un menu",
+      "NO_CATEGORIES": "Aucun menu trouvé",
+      "NAME_PLACEHOLDER": "Entrez le nom du menu",
       "ICON_PLACEHOLDER": "Entrez la classe d'icône (ex: fas fa-home)",
       "ROUTE_PLACEHOLDER": "Entrez le chemin de la route"
     },
@@ -189,7 +197,9 @@
         },
         "CONFIRM_DELETE_CARD": "Êtes-vous sûr de vouloir supprimer cette carte ?"
       },
-      "NO_PAGES": "Aucune page trouvée"
+      "NO_PAGES": "Aucune page trouvée",
+      "LAYOUT_EDITOR": "Éditeur de mise en page",
+      "LAYOUT_SUBTITLE": "Éditer la mise en page de la page \"{{page}}\""
     },
     "HOME": "Accueil",
     "DATABASES": "Bases de données",
@@ -209,8 +219,12 @@
     "NAME": "Nom",
     "EMAIL": "Email",
     "ROLE": "Rôle",
+    "ROLES": "Rôles",
+    "FIRST_NAME": "Prénom",
+    "LAST_NAME": "Nom",
     "ACTIONS": "Actions",
-    "NO_USERS": "Aucun utilisateur trouvé"
+    "NO_USERS": "Aucun utilisateur trouvé",
+    "RESEND_CONFIRMATION": "Renvoyer l'email de confirmation"
   },
   "ROLES": {
     "TITLE": "Gestion des rôles",
@@ -303,6 +317,166 @@
   },
   "LANGUAGES": {
     "EN": "Anglais",
-    "FR": "Français"
+    "FR": "Français",
+    "DE": "Deutsch",
+    "ES": "Español",
+    "IT": "Italiano"
+  },
+  "ICON_PICKER": {
+    "SEARCH_PLACEHOLDER": "Rechercher des icônes...",
+    "CLOSE": "Fermer",
+    "PREVIOUS": "Précédent",
+    "NEXT": "Suivant",
+    "PAGE": "Page"
+  },
+  "ERRORS": {
+    "LOAD_ROLES": "Erreur lors du chargement des rôles",
+    "LOAD_MENU": "Erreur lors du chargement du menu",
+    "CREATE_MENU": "Erreur lors de la création du menu",
+    "UPDATE_MENU": "Erreur lors de la mise à jour du menu",
+    "SAVE_PAGE": "Erreur lors de la sauvegarde de la page"
+  },
+  "CARD": {
+    "CONFIG": {
+      "TITLE": "Configuration de la carte",
+      "GENERAL": {
+        "TITLE": "Configuration générale",
+        "CARD_TITLE": "Titre",
+        "CARD_TITLE_PLACEHOLDER": "Entrez un titre...",
+        "WIDTH": "Largeur (en colonnes)",
+        "WIDTH_OPTIONS": {
+          "25": "25% (3 colonnes)",
+          "33": "33% (4 colonnes)",
+          "50": "50% (6 colonnes)",
+          "66": "66% (8 colonnes)",
+          "75": "75% (9 colonnes)",
+          "100": "100% (12 colonnes)"
+        },
+        "BACKGROUND_COLOR": "Couleur de fond"
+      },
+      "SPECIFIC": {
+        "TITLE": "Configuration spécifique",
+        "PLACEHOLDER": {
+          "LABEL": "Libellé",
+          "LABEL_PLACEHOLDER": "Entrez un libellé...",
+          "LABEL_HELP": "Ce libellé sera affiché au centre de la carte"
+        }
+      },
+      "ACTIONS": {
+        "SAVE": "Enregistrer",
+        "CANCEL": "Annuler"
+      }
+    }
+  },
+  "DATASOURCE": {
+    "TITLE": "Source de données",
+    "TYPE": "Type de source",
+    "CONNECTION": "Connexion",
+    "CONTROLLER": "Contrôleur",
+    "CONTEXT": "Contexte",
+    "ENTITY": "Entité",
+    "QUERY": "Requête",
+    "TYPES": {
+      "API": "Appel API",
+      "EntityFramework": "Entity Framework",
+      "SQLQuery": "Requête SQL"
+    }
+  },
+  "COLUMNS": {
+    "TITLE": "Colonnes",
+    "LABEL_EN": "Libellé (Anglais)",
+    "LABEL_FR": "Libellé (Français)",
+    "DECIMALS": "Décimales",
+    "DATE_FORMAT": "Format de date",
+    "DATE_FORMAT_DATE": "Date",
+    "DATE_FORMAT_TIME": "Heure",
+    "DATE_FORMAT_DATETIME": "Date et heure",
+    "FIXED_LEFT": "Fixer à gauche",
+    "FIXED_RIGHT": "Fixer à droite",
+    "FIXED_LEFT_DISABLED_HINT": "Pour fixer cette colonne à gauche, toutes les colonnes visibles précédentes doivent être fixées",
+    "FIXED_RIGHT_DISABLED_HINT": "Pour fixer cette colonne à droite, toutes les colonnes visibles suivantes doivent être fixées"
+  },
+  "TABLE_APPEARANCE": {
+    "TITLE": "Apparence de la table",
+    "HEADER_BACKGROUND_COLOR": "Couleur de fond de l'entête",
+    "ROW_BACKGROUND_COLOR": "Couleur de fond des lignes",
+    "HEADER_TEXT_COLOR": "Couleur du texte de l'entête",
+    "ROW_TEXT_COLOR": "Couleur du texte des lignes",
+    "COMPACT_MODE": "Mode compact",
+    "ALTERNATE_ROWS": "Alterner la couleur des lignes",
+    "ALTERNATE_ROWS_BRIGHTNESS": "Différence de luminosité",
+    "HEADER_BG_COLOR": "Couleur de fond de l'entête",
+    "ROW_BG_COLOR": "Couleur de fond des lignes"
+  },
+  "TABLE": {
+    "ITEMS": "éléments"
+  },
+  "CRUD_OPTIONS": {
+    "TITLE": "Options CRUD",
+    "CAN_ADD": "Autoriser l'ajout",
+    "CAN_UPDATE": "Autoriser la modification",
+    "CAN_DELETE": "Autoriser la suppression"
+  },
+  "DATA_TABLE": {
+    "SEARCH": "Rechercher...",
+    "NO_DATA": "Aucune donnée disponible",
+    "CALCULATING_ROWS": "Calcul du nombre de lignes...",
+    "ADD_RECORD": "Ajouter un enregistrement",
+    "EDIT_RECORD": "Modifier l'enregistrement",
+    "DELETE_RECORD": "Supprimer l'enregistrement",
+    "CONFIRM_DELETE": "Êtes-vous sûr de vouloir supprimer cet enregistrement ?",
+    "FULLSCREEN": "Plein écran",
+    "EXIT_FULLSCREEN": "Quitter le plein écran",
+    "ITEMS": "éléments"
+  },
+  "FORM": {
+    "SELECT_VALUE": "Sélectionnez une valeur...",
+    "VALIDATION": {
+      "REQUIRED": "Ce champ est requis",
+      "MAX_LENGTH": "La longueur maximale est de {{max}} caractères",
+      "MIN_VALUE": "La valeur minimale est {{min}}",
+      "MAX_VALUE": "La valeur maximale est {{max}}"
+    }
+  },
+  "FOREIGN_KEYS": {
+    "TITLE": "Configuration des clés étrangères"
+  },
+  "CARDS": {
+    "COMMON": {
+      "TITLE": "Titre",
+      "DESCRIPTION": "Description",
+      "CONFIGURATION": "Configuration",
+      "SAVE": "Enregistrer",
+      "CANCEL": "Annuler",
+      "LOADING": "Chargement...",
+      "NO_DATA": "Aucune donnée disponible",
+      "FULLSCREEN": "Plein écran",
+      "EXIT_FULLSCREEN": "Quitter le plein écran"
+    },
+    "CONFIGURATION": {
+      "TITLE": "Configuration de la carte",
+      "COMMON_CONFIG": "Configuration commune",
+      "SPECIFIC_CONFIG": "Configuration spécifique",
+      "COLORS": "Couleurs",
+      "LAYOUT": "Mise en page",
+      "APPEARANCE": "Apparence",
+      "DIMENSIONS": "Dimensions",
+      "GRID_WIDTH": "Largeur de la grille",
+      "GRID_WIDTH_25": "25%",
+      "GRID_WIDTH_33": "33%",
+      "GRID_WIDTH_50": "50%",
+      "GRID_WIDTH_66": "66%",
+      "GRID_WIDTH_75": "75%",
+      "GRID_WIDTH_100": "100%",
+      "BACKGROUND_COLOR": "Couleur de fond",
+      "TEXT_COLOR": "Couleur du texte",
+      "HEADER": {
+        "SHOW": "Afficher l'en-tête",
+        "TITLE": "Titre",
+        "ICON": "Icône",
+        "BACKGROUND_COLOR": "Couleur de fond",
+        "TEXT_COLOR": "Couleur du texte"
+      }
+    }
   }
 } 

@@ -1,0 +1,407 @@
+<style>
+  .drag-handle {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  .column-item {
+    transition: background-color 0.2s ease;
+  }
+
+  .column-item.dragging {
+    opacity: 0.5;
+    background-color: rgb(55, 65, 81);
+  }
+
+  .column-item.drag-over {
+    border-top: 2px solid rgb(59, 130, 246);
+  }
+</style>
+
+<div class="flex flex-col gap-4">
+  <app-tile [title]="'DATASOURCE.TITLE' | translate">
+    <app-datasource-configuration
+      [config]="form.getRawValue().datasource"
+      (configChange)="onDatasourceChange($event)"
+      (schemaChange)="onSchemaChange($event)">
+    </app-datasource-configuration>
+  </app-tile>
+
+  <app-tile [title]="'COLUMNS.TITLE' | translate" *ngIf="columns.length > 0">
+    <div class="flex flex-col gap-4">
+      <div *ngFor="let column of columns; let i = index" 
+           class="column-item bg-gray-800 border border-gray-700 rounded-lg shadow-lg"
+           [class.dragging]="draggedColumnIndex === i"
+           [class.drag-over]="draggedColumnIndex !== i && draggedColumnIndex !== null"
+           (dragenter)="$event.preventDefault()"
+           (dragleave)="$event.preventDefault()">
+        <!-- En-tête de la colonne -->
+        <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700" (click)="toggleColumnExpand(i)">
+          <div class="flex items-center gap-4">
+            <!-- Handle de drag & drop -->
+            <div class="drag-handle cursor-move px-2 -ml-2 hover:bg-gray-600 rounded"
+                 draggable="true"
+                 (dragstart)="onDragStart($event, i)"
+                 (dragover)="onDragOver($event)"
+                 (drop)="onDrop($event, i)"
+                 (click)="$event.stopPropagation()">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M7 4a1 1 0 010-2h6a1 1 0 110 2H7zM7 8a1 1 0 010-2h6a1 1 0 110 2H7zM7 12a1 1 0 010-2h6a1 1 0 110 2H7z" />
+              </svg>
+            </div>
+            <div>
+              <span class="font-medium text-white">{{ column.key }}</span>
+              <span class="ml-2 text-sm text-gray-400">
+                ({{ column.entityMetadata?.columnType || column.type }})
+                <svg *ngIf="column.entityMetadata?.isPrimaryKey" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd" />
+                </svg>
+                <svg *ngIf="column.entityMetadata?.isForeignKey" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <!-- Boutons d'alignement -->
+            <div class="flex rounded-md shadow-sm" role="group" (click)="$event.stopPropagation()">
+              <button type="button" 
+                class="px-2 py-1 text-gray-400 hover:text-white disabled:text-gray-600 border border-gray-700 first:rounded-l-md last:rounded-r-md"
+                [class.bg-gray-700]="column.alignment === 'left'"
+                (click)="handleColumnAlignmentChange(i, $event)"
+                data-alignment="left">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+                </svg>
+              </button>
+              <button type="button"
+                class="px-2 py-1 text-gray-400 hover:text-white disabled:text-gray-600 border border-gray-700 -ml-px"
+                [class.bg-gray-700]="column.alignment === 'center'"
+                (click)="handleColumnAlignmentChange(i, $event)"
+                data-alignment="center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3 5a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm0 5a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1z" clip-rule="evenodd" />
+                </svg>
+              </button>
+              <button type="button"
+                class="px-2 py-1 text-gray-400 hover:text-white disabled:text-gray-600 border border-gray-700 -ml-px"
+                [class.bg-gray-700]="column.alignment === 'right'"
+                (click)="handleColumnAlignmentChange(i, $event)"
+                data-alignment="right">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm5 5a1 1 0 011-1h6a1 1 0 110 2H9a1 1 0 01-1-1zm0 5a1 1 0 011-1h6a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            <!-- Toggle de visibilité -->
+            <label class="relative inline-flex items-center cursor-pointer" (click)="$event.stopPropagation()">
+              <input type="checkbox" [checked]="column.visible" (change)="handleColumnVisibilityChange(i, $event)" class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            </label>
+            <!-- Chevron -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" [class.transform]="expandedColumnIndex === i" [class.rotate-180]="expandedColumnIndex === i" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Configuration détaillée de la colonne -->
+        <div *ngIf="expandedColumnIndex === i" class="p-4 border-t border-gray-700 bg-gray-900">
+          <div class="space-y-4">
+            <!-- Labels -->
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'COLUMNS.LABEL_EN' | translate }}</label>
+                <input type="text" [value]="column.label['en']" (input)="handleColumnLabelChange(i, 'en', $event)"
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'COLUMNS.LABEL_FR' | translate }}</label>
+                <input type="text" [value]="column.label['fr']" (input)="handleColumnLabelChange(i, 'fr', $event)"
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+            </div>
+
+            <!-- Décimales (pour les nombres) -->
+            <div *ngIf="isNumberColumn(column)">
+              <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'COLUMNS.DECIMALS' | translate }}</label>
+              <input type="number" [value]="column.decimals" (input)="handleColumnDecimalsChange(i, $event)"
+                class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            </div>
+
+            <!-- Format de date (pour les dates) -->
+            <div *ngIf="isDateColumn(column)">
+              <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'COLUMNS.DATE_FORMAT' | translate }}</label>
+              <select [value]="column.dateFormat || 'datetime'" (change)="handleColumnDateFormatChange(i, $event)"
+                class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="date">{{ 'COLUMNS.DATE_FORMAT_DATE' | translate }}</option>
+                <option value="time">{{ 'COLUMNS.DATE_FORMAT_TIME' | translate }}</option>
+                <option value="datetime">{{ 'COLUMNS.DATE_FORMAT_DATETIME' | translate }}</option>
+              </select>
+            </div>
+
+            <!-- Colonne fixe -->
+            <div *ngIf="column.visible" class="space-y-4">
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox"
+                         [checked]="column.isFixed"
+                         [disabled]="!canBeFixed(i)"
+                         (change)="handleColumnFixedChange(i, $event)"
+                         class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-2">
+                  <span class="text-sm font-medium text-gray-300">{{ 'COLUMNS.FIXED_LEFT' | translate }}</span>
+                </label>
+                <p *ngIf="!canBeFixed(i)" class="text-xs text-gray-400 mt-1">
+                  {{ 'COLUMNS.FIXED_LEFT_DISABLED_HINT' | translate }}
+                </p>
+              </div>
+
+              <div>
+                <label class="flex items-center space-x-2">
+                  <input type="checkbox"
+                         [checked]="column.isFixedRight"
+                         [disabled]="!canBeFixedRight(i)"
+                         (change)="handleColumnFixedRightChange(i, $event)"
+                         class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-2">
+                  <span class="text-sm font-medium text-gray-300">{{ 'COLUMNS.FIXED_RIGHT' | translate }}</span>
+                </label>
+                <p *ngIf="!canBeFixedRight(i)" class="text-xs text-gray-400 mt-1">
+                  {{ 'COLUMNS.FIXED_RIGHT_DISABLED_HINT' | translate }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-tile>
+
+  <app-tile [title]="'TABLE_APPEARANCE.TITLE' | translate">
+    <div class="space-y-4">
+      <!-- Couleur de fond de l'entête -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'TABLE_APPEARANCE.HEADER_BG_COLOR' | translate }}</label>
+        <div class="flex gap-2">
+          <input type="color" [value]="form.getRawValue().visualConfig.headerBackgroundColor" 
+                 (change)="handleVisualConfigChange('headerBackgroundColor', $event)"
+                 class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
+          <input type="text" [value]="form.getRawValue().visualConfig.headerBackgroundColor" 
+                 (input)="handleVisualConfigChange('headerBackgroundColor', $event)"
+                 class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        </div>
+      </div>
+
+      <!-- Couleur de fond des lignes -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'TABLE_APPEARANCE.ROW_BG_COLOR' | translate }}</label>
+        <div class="flex gap-2">
+          <input type="color" [value]="form.getRawValue().visualConfig.rowBackgroundColor" 
+                 (change)="handleVisualConfigChange('rowBackgroundColor', $event)"
+                 class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
+          <input type="text" [value]="form.getRawValue().visualConfig.rowBackgroundColor" 
+                 (input)="handleVisualConfigChange('rowBackgroundColor', $event)"
+                 class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        </div>
+      </div>
+
+      <!-- Couleur du texte de l'entête -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'TABLE_APPEARANCE.HEADER_TEXT_COLOR' | translate }}</label>
+        <div class="flex gap-2">
+          <input type="color" [value]="form.getRawValue().visualConfig.headerTextColor" 
+                 (change)="handleVisualConfigChange('headerTextColor', $event)"
+                 class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
+          <input type="text" [value]="form.getRawValue().visualConfig.headerTextColor" 
+                 (input)="handleVisualConfigChange('headerTextColor', $event)"
+                 class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        </div>
+      </div>
+
+      <!-- Couleur du texte des lignes -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'TABLE_APPEARANCE.ROW_TEXT_COLOR' | translate }}</label>
+        <div class="flex gap-2">
+          <input type="color" [value]="form.getRawValue().visualConfig.rowTextColor" 
+                 (change)="handleVisualConfigChange('rowTextColor', $event)"
+                 class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
+          <input type="text" [value]="form.getRawValue().visualConfig.rowTextColor" 
+                 (input)="handleVisualConfigChange('rowTextColor', $event)"
+                 class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        </div>
+      </div>
+
+      <!-- Mode compact -->
+      <div class="flex items-center justify-between">
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" 
+                 [checked]="form.getRawValue().visualConfig.isCompactMode"
+                 (change)="handleVisualConfigChange('isCompactMode', $event)"
+                 class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          <span class="ml-3 text-sm font-medium text-gray-300">{{ 'TABLE_APPEARANCE.COMPACT_MODE' | translate }}</span>
+        </label>
+      </div>
+
+      <!-- Lignes alternées -->
+      <div class="flex flex-col gap-2">
+        <div class="flex items-center justify-between">
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" 
+                   [checked]="form.getRawValue().visualConfig.alternateRowColors"
+                   (change)="handleVisualConfigChange('alternateRowColors', $event)"
+                   class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+            <span class="ml-3 text-sm font-medium text-gray-300">{{ 'TABLE_APPEARANCE.ALTERNATE_ROWS' | translate }}</span>
+          </label>
+        </div>
+        
+        <!-- Contrôle du pourcentage d'éclaircissement -->
+        <div *ngIf="form.getRawValue().visualConfig.alternateRowColors" class="flex flex-col gap-1 ml-14">
+          <label class="text-sm font-medium text-gray-300">{{ 'TABLE_APPEARANCE.ALTERNATE_ROWS_BRIGHTNESS' | translate }}</label>
+          <div class="flex gap-2 items-center">
+            <input type="range" 
+                   [value]="form.getRawValue().visualConfig.alternateRowsBrightness" 
+                   (input)="handleVisualConfigChange('alternateRowsBrightness', $event)"
+                   min="0" 
+                   max="100" 
+                   step="5"
+                   class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+            <span class="text-sm text-gray-300 min-w-[3rem]">{{ form.getRawValue().visualConfig.alternateRowsBrightness }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-tile>
+
+  <app-tile [title]="'CRUD_OPTIONS.TITLE' | translate" *ngIf="canEnableCrud()">
+    <div class="space-y-4">
+      <!-- Option d'ajout -->
+      <div class="flex items-center justify-between">
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" 
+                 [checked]="form.getRawValue().crudConfig.canAdd"
+                 (change)="handleCrudConfigChange('canAdd', $event)"
+                 class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          <span class="ml-3 text-sm font-medium text-gray-300">{{ 'CRUD_OPTIONS.CAN_ADD' | translate }}</span>
+        </label>
+      </div>
+
+      <!-- Option de modification -->
+      <div class="flex items-center justify-between">
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" 
+                 [checked]="form.getRawValue().crudConfig.canUpdate"
+                 (change)="handleCrudConfigChange('canUpdate', $event)"
+                 class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          <span class="ml-3 text-sm font-medium text-gray-300">{{ 'CRUD_OPTIONS.CAN_UPDATE' | translate }}</span>
+        </label>
+      </div>
+
+      <!-- Option de suppression -->
+      <div class="flex items-center justify-between">
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" 
+                 [checked]="form.getRawValue().crudConfig.canDelete"
+                 (change)="handleCrudConfigChange('canDelete', $event)"
+                 class="sr-only peer">
+          <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+          <span class="ml-3 text-sm font-medium text-gray-300">{{ 'CRUD_OPTIONS.CAN_DELETE' | translate }}</span>
+        </label>
+      </div>
+    </div>
+  </app-tile>
+
+  <!-- Configuration des Foreign Keys -->
+  <app-tile [title]="'FOREIGN_KEYS.TITLE' | translate" *ngIf="canEnableCrud() && (form.value.crudConfig?.canAdd || form.value.crudConfig?.canUpdate)">
+    <!-- Liste des tables avec foreign keys -->
+    <div *ngFor="let table of getForeignKeyTables()" class="space-y-4 bg-gray-800 rounded-lg p-4 mb-4">
+      <div class="flex items-center justify-between">
+        <h4 class="text-sm font-medium text-gray-200">{{ table }}</h4>
+        <button type="button"
+                (click)="toggleForeignKeyConfig(table)"
+                class="text-gray-400 hover:text-white">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+      <div *ngIf="isTableConfigExpanded(table)" class="space-y-4 pl-4">
+        <!-- Loading indicator -->
+        <div *ngIf="isTableLoading(table)" class="flex items-center justify-center py-4">
+          <div class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-blue-500 border-r-transparent"></div>
+          <span class="ml-2 text-sm text-gray-400">Chargement du schéma...</span>
+        </div>
+
+        <!-- Content (only shown when not loading) -->
+        <ng-container *ngIf="!isTableLoading(table)">
+        <!-- Format d'affichage -->
+        <div class="space-y-1">
+          <label class="block text-xs font-medium text-gray-300">
+            Format d'affichage
+            <span class="text-xs text-gray-400 ml-1">(ex: {{ '{' }}firstName{{ '}' }} {{ '{' }}lastName{{ '}' }})</span>
+          </label>
+          <p class="text-xs text-gray-400">Définissez comment les données de la clé étrangère seront affichées dans le formulaire</p>
+          <input type="text"
+                 [value]="getForeignKeyConfig(table)?.displayFormat || ''"
+                 (input)="updateDisplayFormat(table, $event)"
+                 class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 text-sm">
+        </div>
+
+        <!-- Colonnes à afficher -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center">
+            <label class="block text-xs font-medium text-gray-300">
+              Colonnes disponibles pour le format d'affichage
+            </label>
+            <span class="text-xs text-gray-400">{{ getForeignKeyConfig(table)?.displayColumns?.length || 0 }} sélectionnée(s)</span>
+          </div>
+          <p class="text-xs text-gray-400">Sélectionnez les colonnes que vous souhaitez utiliser dans le format d'affichage</p>
+          <div class="flex flex-wrap gap-2">
+            <button *ngFor="let column of getAvailableColumns(table)"
+                    type="button"
+                    (click)="toggleDisplayColumn(table, column)"
+                    [class.bg-blue-600]="isColumnSelected(table, column)"
+                    [class.opacity-50]="!isColumnSelected(table, column) && !canSelectMoreDisplayColumns(table)"
+                    [disabled]="!isColumnSelected(table, column) && !canSelectMoreDisplayColumns(table)"
+                    class="px-2 py-1 text-xs rounded-full border border-gray-600 hover:border-gray-500 disabled:cursor-not-allowed">
+              {{ column }}
+            </button>
+          </div>
+          <p *ngIf="!hasMinimumDisplayColumns(table)" class="text-xs text-red-400 mt-1">
+            Sélectionnez au moins une colonne pour l'affichage
+          </p>
+        </div>
+
+        <!-- Colonnes de recherche -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center">
+            <label class="block text-xs font-medium text-gray-300">
+              Colonnes de recherche
+            </label>
+            <span class="text-xs text-gray-400">{{ getForeignKeyConfig(table)?.searchColumns?.length || 0 }} sélectionnée(s)</span>
+          </div>
+          <p class="text-xs text-gray-400">Sélectionnez les colonnes qui seront utilisées pour rechercher des valeurs dans la table liée</p>
+          <div class="flex flex-wrap gap-2">
+            <button *ngFor="let column of getAvailableColumns(table)"
+                    type="button"
+                    (click)="toggleSearchColumn(table, column)"
+                    [class.bg-blue-600]="isSearchColumnSelected(table, column)"
+                    [class.opacity-50]="!isSearchColumnSelected(table, column) && !canSelectMoreSearchColumns(table)"
+                    [disabled]="!isSearchColumnSelected(table, column) && !canSelectMoreSearchColumns(table)"
+                    class="px-2 py-1 text-xs rounded-full border border-gray-600 hover:border-gray-500 disabled:cursor-not-allowed"
+                    [textContent]="column">
+            </button>
+          </div>
+          <p *ngIf="!hasMinimumSearchColumns(table)" class="text-xs text-red-400 mt-1">
+            Sélectionnez au moins une colonne pour la recherche
+          </p>
+        </div>
+        </ng-container>
+      </div>
+    </div>
+  </app-tile>
+</div> 

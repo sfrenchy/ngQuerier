@@ -126,6 +126,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   isEditMode: boolean = false;
   currentEditingRow: any = null;
 
+  isFormLoading = false;
+
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
     private translateService: TranslateService,
@@ -810,6 +812,14 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   onAdd(): void {
     if (!this.card.configuration?.datasource) return;
 
+    this.isFormLoading = true;
+    this.showAddForm = true;
+    this.modalConfig = {
+      titleKey: 'DATA_TABLE.ADD_RECORD',
+      showFullscreenButton: true
+    };
+    this.cdr.detectChanges();
+
     this.dataService.getReadActionParameterDefinition(this.card.configuration.datasource)
       .subscribe({
         next: (parameters: DBConnectionEndpointRequestInfoDto[]) => {
@@ -818,18 +828,15 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             
             // Charger les données des clés étrangères
             this.loadForeignKeyData().subscribe(() => {
-              this.showAddForm = true;
-              this.modalConfig = {
-                titleKey: 'DATA_TABLE.ADD_RECORD',
-                showFullscreenButton: true
-              };
+              this.isFormLoading = false;
               this.cdr.detectChanges();
             });
           }
         },
         error: (error: any) => {
           console.error('Error loading add form schema:', error);
-          // TODO: Afficher un message d'erreur à l'utilisateur
+          this.isFormLoading = false;
+          this.cdr.detectChanges();
         }
       });
   }
@@ -948,6 +955,14 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   onUpdate(row: any): void {
     if (!this.card.configuration?.datasource) return;
 
+    this.isFormLoading = true;
+    this.showAddForm = true;
+    this.modalConfig = {
+      titleKey: 'DATA_TABLE.EDIT_RECORD',
+      showFullscreenButton: true
+    };
+    this.cdr.detectChanges();
+
     this.dataService.getReadActionParameterDefinition(this.card.configuration.datasource)
       .subscribe({
         next: (parameters: DBConnectionEndpointRequestInfoDto[]) => {
@@ -958,6 +973,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             const primaryKeyValue = this.dataService.getPrimaryKeyValue(row, this.addFormSchema);
             if (!primaryKeyValue) {
               console.error('Could not find primary key value');
+              this.isFormLoading = false;
+              this.cdr.detectChanges();
               return;
             }
 
@@ -972,30 +989,27 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
                     Object.keys(this.addFormSchema.properties).forEach(key => {
                       const metadata = this.addFormSchema.properties[key]['x-entity-metadata'];
                       const camelKey = key.charAt(0).toLowerCase() + key.slice(1);
-                      
-                      // Pour les clés étrangères, utiliser la valeur directement
                       formData[key] = entity[camelKey];
                     });
                     
                     this.currentEditingRow = formData;
                     this.isEditMode = true;
-                    this.showAddForm = true;
-                    this.modalConfig = {
-                      titleKey: 'DATA_TABLE.EDIT_RECORD',
-                      showFullscreenButton: true
-                    };
+                    this.isFormLoading = false;
                     this.cdr.detectChanges();
                   });
                 },
                 error: (error) => {
                   console.error('Error fetching entity:', error);
-                  // TODO: Afficher un message d'erreur à l'utilisateur
+                  this.isFormLoading = false;
+                  this.cdr.detectChanges();
                 }
               });
           }
         },
         error: (error: any) => {
           console.error('Error loading edit form schema:', error);
+          this.isFormLoading = false;
+          this.cdr.detectChanges();
         }
       });
   }

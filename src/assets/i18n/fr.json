@@ -435,7 +435,13 @@
   "DATA_TABLE": {
     "SEARCH": "Rechercher...",
     "NO_DATA": "Aucune donnée",
-    "CALCULATING_ROWS": "Calcul du nombre de lignes..."
+    "CALCULATING_ROWS": "Calcul du nombre de lignes...",
+    "ADD_RECORD": "Ajouter un enregistrement",
+    "UPDATE_RECORD": "Modifier l'enregistrement",
+    "DELETE_RECORD": "Supprimer l'enregistrement",
+    "CONFIRM_DELETE": "Êtes-vous sûr de vouloir supprimer cet enregistrement ?",
+    "FULLSCREEN": "Plein écran",
+    "EXIT_FULLSCREEN": "Quitter le plein écran"
   },
   "FORM": {
     "SELECT_VALUE": "Sélectionnez une valeur...",

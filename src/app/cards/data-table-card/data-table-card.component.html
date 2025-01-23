@@ -234,8 +234,30 @@
 <!-- Modal pour le formulaire d'ajout -->
 <div *ngIf="showAddForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-    <div class="p-4 border-b border-gray-700">
-      <h2 class="text-xl font-semibold text-white">Ajouter un nouvel élément</h2>
+    <div class="p-4 border-b border-gray-700 flex justify-between items-center">
+      <h2 class="text-xl font-semibold text-white">
+        {{ (modalConfig?.titleKey || '') | translate:modalConfig?.titleParams }}
+      </h2>
+      <button *ngIf="modalConfig?.showFullscreenButton"
+              (click)="onFormFullscreenChange()"
+              class="p-2 text-gray-400 hover:text-white focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" 
+             class="h-5 w-5" 
+             fill="none" 
+             viewBox="0 0 24 24" 
+             stroke="currentColor">
+          <path *ngIf="!isFormFullscreen" 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                stroke-width="2" 
+                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+          <path *ngIf="isFormFullscreen" 
+                stroke-linecap="round" 
+                stroke-linejoin="round" 
+                stroke-width="2" 
+                d="M4 4l5 5m11-5l-5 5M4 20l5-5m11 5l-5-5"/>
+        </svg>
+      </button>
     </div>
     
     <app-dynamic-form

@@ -17,6 +17,13 @@ import { DynamicFormComponent, FormDataSubmit } from './dynamic-form.component';
 import { DatasourceConfig } from '@models/datasource.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
+// Modifier l'interface ModalConfig
+interface ModalConfig {
+  titleKey: string;
+  titleParams?: { [key: string]: any };
+  showFullscreenButton?: boolean;
+}
+
 @Card({
   name: 'DataTableCard',
   icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -106,7 +113,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   addFormForeignKeyData: { [key: string]: any[] } = {};
   addFormForeignKeyConfigs: { [key: string]: any } = {};
 
-  modalTitle: string = '';
+  // Remplacer modalTitle: string par
+  modalConfig: ModalConfig | null = null;
 
   private loadingTimer: any = null;
   private isPageChange = false;
@@ -793,11 +801,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     return this.canUpdate() || this.canDelete();
   }
 
-  // Gestionnaires d'événements CRUD
+  // Modifier la méthode onAdd
   onAdd(): void {
     if (!this.card.configuration?.datasource) return;
 
-    // Le schéma devrait déjà être en cache grâce au préchargement
     this.dataService.getReadActionParameterDefinition(this.card.configuration.datasource)
       .subscribe({
         next: (parameters: DBConnectionEndpointRequestInfoDto[]) => {
@@ -808,15 +815,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             this.loadForeignKeyData();
             
             this.showAddForm = true;
-            this.modalTitle = `Ajouter un enregistrement 
-              <button (click)="onFormFullscreenChange()" class="p-2 text-gray-400 hover:text-white focus:outline-none">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path *ngIf="!isFormFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
-                  <path *ngIf="isFormFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M4 4l5 5m11-5l-5 5M4 20l5-5m11 5l-5-5"/>
-                </svg>
-              </button>`;
+            this.modalConfig = {
+              titleKey: 'DATA_TABLE.ADD_RECORD',
+              showFullscreenButton: true
+            };
             this.cdr.detectChanges();
           }
         },

@@ -298,26 +298,31 @@ export class DynamicFormComponent implements OnInit {
     this.formCancel.emit();
   }
 
-  getForeignKeyOptions(field: DynamicFormField): any[] {
-    if (!field.metadata?.foreignKeyTable || !field.metadata?.foreignKeyColumn) {
+  getForeignKeyOptions(field: DynamicFormField): { id: any, display: string }[] {
+    const metadata = field.metadata;
+    if (!metadata?.isForeignKey || !metadata.foreignKeyTable || !metadata.foreignKeyColumn) {
       return [];
     }
 
-    const tableName = field.metadata.foreignKeyTable;
-    const foreignKeyColumn = field.metadata.foreignKeyColumn;
-    const config = this.foreignKeyConfigs?.[tableName];
-    const data = this.foreignKeyData?.[tableName] || [];
+    const tableName = metadata.foreignKeyTable;
+    const foreignKeyColumn = metadata.foreignKeyColumn;
 
+    const data = this.foreignKeyData?.[tableName] || [];
+    const config = this.foreignKeyConfigs?.[tableName];
+
+    // Trouver la propriété qui correspond à la colonne de clé étrangère
     return data.map(item => {
-      const id = item && typeof item === 'object' ? item[foreignKeyColumn] : null;
-      return {
-        id,
-        display: config ? this.foreignKeyService.formatDisplay(
-          item,
-          config.displayColumns || [],
-          config.displayFormat
-        ) : String(id ?? '')
-      };
+      // Chercher la propriété qui correspond à la colonne de clé étrangère de manière insensible à la casse
+      const idKey = Object.keys(item).find(key => key.toLowerCase() === foreignKeyColumn.toLowerCase());
+      const id = idKey ? item[idKey] : undefined;
+      
+      const display = config ? this.foreignKeyService.formatDisplay(
+        item,
+        config.displayColumns || [],
+        config.displayFormat
+      ) : String(id || '');
+      
+      return { id, display };
     });
   }
 

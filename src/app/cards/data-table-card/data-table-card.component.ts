@@ -951,6 +951,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             
             // Récupérer l'ID de l'entité
             const primaryKeyValue = this.dataService.getPrimaryKeyValue(row, this.addFormSchema);
+
             if (!primaryKeyValue) {
               console.error('Could not find primary key value');
               this.isFormLoading = false;
@@ -962,6 +963,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             this.cardDatabaseService.fetchEntityById(this.card.configuration!.datasource!, primaryKeyValue)
               .subscribe({
                 next: (entity) => {
+                  
                   // Charger les données des clés étrangères
                   this.loadForeignKeyData().subscribe(() => {
                     // Préparer les données du formulaire
@@ -979,7 +981,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
                   });
                 },
                 error: (error) => {
-                  console.error('Error fetching entity:', error);
                   this.isFormLoading = false;
                   this.cdr.detectChanges();
                 }
@@ -995,7 +996,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onDeleteRow(row: any): void {
-    console.log('Delete action triggered for row:', row);
     this.rowToDelete = row;
     this.showDeleteConfirmation = true;
   }

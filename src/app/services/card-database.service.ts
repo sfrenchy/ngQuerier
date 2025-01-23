@@ -122,6 +122,30 @@ export class CardDatabaseService {
     }
   }
 
+  fetchEntityById(
+    config: DatasourceConfig,
+    id: number
+  ): Observable<any> {
+    switch (config.type) {
+      case 'API':
+        if (!config.connection || !config.controller) {
+          throw new Error('API configuration requires both connection and controller');
+        }
+        return this.apiService.get<any>(
+          `${config.controller.route!.replace("api/v1/", "")}/${id.toString()}`
+        );
+
+      case 'EntityFramework':
+        throw new Error('EntityFramework not implemented');
+
+      case 'SQLQuery':
+        throw new Error('SQLQuery can\'t retrieve data by id');
+
+      default:
+        throw new Error(`Unsupported datasource type: ${config.type}`);
+    }
+  }
+
   createData(datasource: DatasourceConfig, formData: any): Observable<any[]> {
     return this.apiService.post<any[]>(`${datasource.controller?.route!.replace("api/v1/", "")}`, formData);
   }

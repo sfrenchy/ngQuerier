@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { Subject, Subscription, Observable, from, of, forkJoin, mergeMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil, map, catchError, mergeAll, toArray } from 'rxjs/operators';
 import { Card } from '@cards/card.decorator';
 import { BaseCardComponent } from '@cards/base-card.component';
 import { CardDatabaseService } from '@services/card-database.service';
@@ -817,14 +817,14 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
             
             // Charger les données des clés étrangères
-            this.loadForeignKeyData();
-            
-            this.showAddForm = true;
-            this.modalConfig = {
-              titleKey: 'DATA_TABLE.ADD_RECORD',
-              showFullscreenButton: true
-            };
-            this.cdr.detectChanges();
+            this.loadForeignKeyData().subscribe(() => {
+              this.showAddForm = true;
+              this.modalConfig = {
+                titleKey: 'DATA_TABLE.ADD_RECORD',
+                showFullscreenButton: true
+              };
+              this.cdr.detectChanges();
+            });
           }
         },
         error: (error: any) => {
@@ -848,59 +848,71 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     }
   }
 
-  private loadForeignKeyData(): void {
-    if (!this.addFormSchema?.properties) return;
+  private loadForeignKeyData(): Observable<unknown> {
+    if (!this.addFormSchema?.properties) return of(void 0);
 
     // Réinitialiser les données
     this.addFormForeignKeyData = {};
     this.addFormForeignKeyConfigs = {};
 
-    // Parcourir les propriétés pour trouver les clés étrangères
-    Object.entries(this.addFormSchema.properties).forEach(([key, prop]: [string, any]) => {
-      const metadata = prop['x-entity-metadata'];
-      if (metadata?.isForeignKey && metadata.foreignKeyTable) {
+    // Collecter toutes les observables de clés étrangères
+    const foreignKeyObservables = Object.entries(this.addFormSchema.properties)
+      .filter(([key, prop]: [string, any]) => {
+        const metadata = prop['x-entity-metadata'];
+        return metadata?.isForeignKey && metadata.foreignKeyTable;
+      })
+      .map(([key, prop]: [string, any]) => {
+        const metadata = prop['x-entity-metadata'];
         const tableName = metadata.foreignKeyTable;
-        
+
         // Ajouter la configuration d'affichage si elle existe
         if (this.card.configuration?.crudConfig?.foreignKeyConfigs?.[tableName]) {
           this.addFormForeignKeyConfigs[tableName] = this.card.configuration.crudConfig.foreignKeyConfigs[tableName];
         }
 
         // Récupérer le contrôleur pour la table étrangère
-        this.cardDatabaseService.getDatabaseEndpoints(
+        return this.cardDatabaseService.getDatabaseEndpoints(
           this.card.configuration!.datasource!.connection.id,
           null,
           tableName,
           'GetAll'
-        ).subscribe({
-          next: (endpoints) => {
+        ).pipe(
+          mergeMap(endpoints => {
             if (endpoints && endpoints.length > 0) {
               const endpoint = endpoints[0];
-              // Créer la configuration de source de données
               const foreignKeyDatasource: DatasourceConfig = {
+                type: 'API',
                 connection: this.card.configuration!.datasource!.connection,
-                controller: { name: "", route: endpoint.route, httpGetJsonSchema: "" },
-                type: 'API'
+                controller: {
+                  name: tableName,
+                  route: endpoint.route
+                }
               };
 
-              // Récupérer les données
-              this.cardDatabaseService.fetchData(foreignKeyDatasource).subscribe({
-                next: (response) => {
+              // Récupérer les données avec une taille de page plus grande pour avoir toutes les options
+              return this.cardDatabaseService.fetchData(foreignKeyDatasource, {
+                pageNumber: 1,
+                pageSize: 1000,
+                orderBy: [],
+                globalSearch: '',
+                columnSearches: []
+              }).pipe(
+                map(response => {
                   this.addFormForeignKeyData[tableName] = response.items;
                   this.cdr.detectChanges();
-                },
-                error: (error) => {
-                  console.error(`Error fetching foreign key data for ${tableName}:`, error);
-                }
-              });
+                  return tableName;
+                })
+              );
             }
-          },
-          error: (error) => {
-            console.error(`Error getting endpoints for ${tableName}:`, error);
-          }
-        });
-      }
-    });
+            return of(tableName);
+          })
+        );
+      });
+
+    // Attendre que toutes les données soient chargées
+    return foreignKeyObservables.length > 0 ? 
+      forkJoin(foreignKeyObservables) : 
+      of([]);
   }
 
   onFormSubmit(formData: FormDataSubmit) {
@@ -942,21 +954,44 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
           if (parameters.length === 1) {
             this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
             
-            // Convertir les clés en PascalCase pour correspondre au schéma
-            const formData: { [key: string]: any } = {};
-            Object.keys(this.addFormSchema.properties).forEach(key => {
-              const camelKey = key.charAt(0).toLowerCase() + key.slice(1);
-              formData[key] = row[camelKey];
-            });
-            
-            this.currentEditingRow = formData;
-            this.isEditMode = true;
-            this.showAddForm = true;
-            this.modalConfig = {
-              titleKey: 'DATA_TABLE.EDIT_RECORD',
-              showFullscreenButton: true
-            };
-            this.cdr.detectChanges();
+            // Récupérer l'ID de l'entité
+            const primaryKeyValue = this.dataService.getPrimaryKeyValue(row, this.addFormSchema);
+            if (!primaryKeyValue) {
+              console.error('Could not find primary key value');
+              return;
+            }
+
+            // Récupérer l'entité complète
+            this.cardDatabaseService.fetchEntityById(this.card.configuration!.datasource!, primaryKeyValue)
+              .subscribe({
+                next: (entity) => {
+                  // Charger les données des clés étrangères
+                  this.loadForeignKeyData().subscribe(() => {
+                    // Préparer les données du formulaire
+                    const formData: { [key: string]: any } = {};
+                    Object.keys(this.addFormSchema.properties).forEach(key => {
+                      const metadata = this.addFormSchema.properties[key]['x-entity-metadata'];
+                      const camelKey = key.charAt(0).toLowerCase() + key.slice(1);
+                      
+                      // Pour les clés étrangères, utiliser la valeur directement
+                      formData[key] = entity[camelKey];
+                    });
+                    
+                    this.currentEditingRow = formData;
+                    this.isEditMode = true;
+                    this.showAddForm = true;
+                    this.modalConfig = {
+                      titleKey: 'DATA_TABLE.EDIT_RECORD',
+                      showFullscreenButton: true
+                    };
+                    this.cdr.detectChanges();
+                  });
+                },
+                error: (error) => {
+                  console.error('Error fetching entity:', error);
+                  // TODO: Afficher un message d'erreur à l'utilisateur
+                }
+              });
           }
         },
         error: (error: any) => {

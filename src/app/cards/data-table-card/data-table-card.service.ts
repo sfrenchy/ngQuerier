@@ -15,6 +15,10 @@ interface TableState {
   loading: boolean;
 }
 
+export interface FormDataSubmitWithId extends FormDataSubmit {
+  id?: any;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -152,6 +156,15 @@ export class DataTableCardService {
     return this.cardDatabaseService.deleteData(datasource, id);
   }
 
+  updateData(datasource: DatasourceConfig, formData: FormDataSubmitWithId): Observable<any> {
+    const id = formData.id;
+    let updateDto: { [key: string]: any } = {};
+    Object.keys(formData.schema.properties).forEach(key => {
+      updateDto[key] = formData.formData[key] !== undefined ? formData.formData[key] : null;
+    });
+    return this.cardDatabaseService.updateData(datasource, id, updateDto);
+  }
+
   // Méthodes utilitaires pour les colonnes
   isDateColumn(column: ColumnConfig): boolean {
     return !!column.entityMetadata?.columnType?.toLowerCase().includes('date');
@@ -232,5 +245,19 @@ export class DataTableCardService {
       return prop['x-entity-metadata'].navigationType;
     }
     return prop.type;
+  }
+
+  getPrimaryKeyValue(row: any, schema: any): any {
+    if (!schema?.properties) return null;
+
+    const primaryKeyProperty = Object.entries(schema.properties)
+      .find(([_, prop]: [string, any]) => prop['x-entity-metadata']?.isPrimaryKey);
+
+    if (primaryKeyProperty) {
+      const [primaryKeyName] = primaryKeyProperty;
+      const camelCasePrimaryKey = primaryKeyName.charAt(0).toLowerCase() + primaryKeyName.slice(1);
+      return row[camelCasePrimaryKey];
+    }
+    return null;
   }
 } 

@@ -142,4 +142,8 @@ export class CardDatabaseService {
     }
     return this.apiService.getColumnValues(config.controller.route!.replace("api/v1/", ""), columnName);
   }
+
+  updateData(datasource: DatasourceConfig, id: any, updateDto: any): Observable<any> {
+    return this.apiService.put<any>(`${datasource.controller?.route!.replace("api/v1/", "")}/${id}`, updateDto);
+  }
 } 

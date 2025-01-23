@@ -114,6 +114,7 @@ export class DynamicFormComponent implements OnInit {
   @Input() jsonSchema!: DynamicFormSchema;
   @Input() foreignKeyData?: { [key: string]: any[] };
   @Input() foreignKeyConfigs?: { [key: string]: any };
+  @Input() initialData?: { [key: string]: any };
   @Output() formSubmit = new EventEmitter<FormDataSubmit>();
   @Output() formCancel = new EventEmitter<void>();
   @Output() fullscreenChange = new EventEmitter<boolean>();
@@ -173,8 +174,8 @@ export class DynamicFormComponent implements OnInit {
           }
         }
 
-        // Définir la valeur par défaut
-        const defaultValue = metadata?.defaultValue ?? null;
+        // Utiliser la valeur initiale si disponible, sinon la valeur par défaut
+        const defaultValue = this.initialData?.[key] ?? metadata?.defaultValue ?? null;
         formGroup[key] = [defaultValue, validators];
 
         return {

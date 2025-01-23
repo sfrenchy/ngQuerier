@@ -16,6 +16,7 @@ import { OrderByParameterDto, DataRequestParametersDto, DBConnectionEndpointRequ
 import { DynamicFormComponent, FormDataSubmit } from './dynamic-form.component';
 import { DatasourceConfig } from '@models/datasource.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import { FormDataSubmitWithId } from './data-table-card.service';
 
 // Modifier l'interface ModalConfig
 interface ModalConfig {
@@ -120,6 +121,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   private isPageChange = false;
   private isLoadingData = false;
   private loadingStartTime: number = 0;
+
+  // Ajout des propriétés manquantes
+  isEditMode: boolean = false;
+  currentEditingRow: any = null;
 
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
@@ -899,14 +904,27 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onFormSubmit(formData: FormDataSubmit) {
-    this.dataService.createData(this.card.configuration.datasource!, formData).subscribe(response => {
-      // Invalider le cache avant de recharger les données
-      this.dataService.invalidateCache(this.card.configuration.datasource!);
-      this.loadData();
-      this.showAddForm = false;
-      this.addFormSchema = null;
-      this.cdr.detectChanges();
-    });
+    if (this.isEditMode) {
+      const primaryKeyValue = this.dataService.getPrimaryKeyValue(this.currentEditingRow, this.addFormSchema);
+      if (primaryKeyValue) {
+        const formDataWithId: FormDataSubmitWithId = {
+          ...formData,
+          id: primaryKeyValue
+        };
+
+        this.dataService.updateData(this.card.configuration.datasource!, formDataWithId).subscribe(response => {
+          this.dataService.invalidateCache(this.card.configuration.datasource!);
+          this.loadData();
+          this.resetForm();
+        });
+      }
+    } else {
+      this.dataService.createData(this.card.configuration.datasource!, formData).subscribe(response => {
+        this.dataService.invalidateCache(this.card.configuration.datasource!);
+        this.loadData();
+        this.resetForm();
+      });
+    }
   }
 
   onFormCancel() {
@@ -916,8 +934,35 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onUpdate(row: any): void {
-    // TODO: Implémenter la logique de mise à jour
-    console.log('Update action triggered for row:', row);
+    if (!this.card.configuration?.datasource) return;
+
+    this.dataService.getReadActionParameterDefinition(this.card.configuration.datasource)
+      .subscribe({
+        next: (parameters: DBConnectionEndpointRequestInfoDto[]) => {
+          if (parameters.length === 1) {
+            this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
+            
+            // Convertir les clés en PascalCase pour correspondre au schéma
+            const formData: { [key: string]: any } = {};
+            Object.keys(this.addFormSchema.properties).forEach(key => {
+              const camelKey = key.charAt(0).toLowerCase() + key.slice(1);
+              formData[key] = row[camelKey];
+            });
+            
+            this.currentEditingRow = formData;
+            this.isEditMode = true;
+            this.showAddForm = true;
+            this.modalConfig = {
+              titleKey: 'DATA_TABLE.EDIT_RECORD',
+              showFullscreenButton: true
+            };
+            this.cdr.detectChanges();
+          }
+        },
+        error: (error: any) => {
+          console.error('Error loading edit form schema:', error);
+        }
+      });
   }
 
   onDeleteRow(row: any): void {
@@ -932,24 +977,15 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
         next: (parameters: DBConnectionEndpointRequestInfoDto[]) => {
           if (parameters.length > 0) {
             const schema = JSON.parse(parameters[0].jsonSchema);
+            const primaryKeyValue = this.dataService.getPrimaryKeyValue(this.rowToDelete, schema);
             
-            const primaryKeyProperty = Object.entries(schema.properties)
-              .find(([_, prop]: [string, any]) => prop['x-entity-metadata']?.isPrimaryKey);
-
-            if (primaryKeyProperty) {
-              const [primaryKeyName] = primaryKeyProperty;
-              const camelCasePrimaryKey = primaryKeyName.charAt(0).toLowerCase() + primaryKeyName.slice(1);
-              const primaryKeyValue = this.rowToDelete[camelCasePrimaryKey];
-              
+            if (primaryKeyValue) {
               this.dataService.deleteData(this.card.configuration.datasource!, primaryKeyValue).subscribe(response => {
-                // Invalider le cache avant de recharger les données
                 this.dataService.invalidateCache(this.card.configuration.datasource!);
                 this.loadData();
                 this.rowToDelete = null;
                 this.showDeleteConfirmation = false;
               });
-            } else {
-              console.error('No primary key found in schema');
             }
           }
         },
@@ -965,6 +1001,13 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   convertToCamelCase(str: string): string {
     return str.charAt(0).toLowerCase() + str.slice(1);
+  }
+
+  resetForm() {
+    this.isEditMode = false;
+    this.currentEditingRow = null;
+    this.showAddForm = false;
+    // Réinitialiser le formulaire si nécessaire
   }
 } 
   

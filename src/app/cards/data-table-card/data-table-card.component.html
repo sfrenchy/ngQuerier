@@ -260,13 +260,14 @@
       </button>
     </div>
     
-    <app-dynamic-form
-      *ngIf="addFormSchema"
+    <app-dynamic-form *ngIf="showAddForm"
       [jsonSchema]="addFormSchema"
       [foreignKeyData]="addFormForeignKeyData"
       [foreignKeyConfigs]="addFormForeignKeyConfigs"
+      [initialData]="currentEditingRow"
       (formSubmit)="onFormSubmit($event)"
-      (formCancel)="onFormCancel()">
+      (formCancel)="onFormCancel()"
+      (fullscreenChange)="onFormFullscreenChange()">
     </app-dynamic-form>
   </div>
 </div>

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DatasourceConfig } from '@models/datasource.models';
-import { ColumnSearchDto, DBConnectionEndpointRequestInfoDto } from '@models/api.models';
+import { ColumnSearchDto, DBConnectionEndpointRequestInfoDto, ForeignKeyIncludeConfig } from '@models/api.models';
 import { CardDatabaseService } from '@services/card-database.service';
 import { DataRequestParametersDto } from '@models/api.models';
 import { OrderByParameterDto } from '@models/api.models';
@@ -59,15 +59,22 @@ export class DataTableCardService {
     this.cacheMap.delete(key);
   }
 
-  loadData(datasource: DatasourceConfig, parameters: DataRequestParametersDto): void {
+  loadData(datasource: DatasourceConfig, parameters: DataRequestParametersDto, columns: ColumnConfig[] = []): void {
     const key = this.getStateKey(datasource);
     const state = this.getOrCreateState(datasource);
     const currentCache = this.cacheMap.get(key);
     
+    // Ajouter les includes pour les clés étrangères
+    const foreignKeyIncludes = this.getForeignKeyIncludes(columns);
+    const paramsWithIncludes: DataRequestParametersDto = {
+      ...parameters,
+      includes: foreignKeyIncludes
+    };
+    
     // Vérifier si nous avons un cache valide avec les mêmes paramètres
     if (currentCache && 
         Date.now() - currentCache.timestamp < this.CACHE_DURATION &&
-        JSON.stringify(currentCache.parameters) === JSON.stringify(parameters)) {
+        JSON.stringify(currentCache.parameters) === JSON.stringify(paramsWithIncludes)) {
       state.next({
         items: currentCache.data.items,
         total: currentCache.data.total,
@@ -78,13 +85,13 @@ export class DataTableCardService {
 
     state.next({ ...state.getValue(), loading: true });
 
-    this.cardDatabaseService.fetchData(datasource, parameters).subscribe({
+    this.cardDatabaseService.fetchData(datasource, paramsWithIncludes).subscribe({
       next: (response) => {
         // Mettre à jour le cache
         this.cacheMap.set(key, {
           data: response,
           timestamp: Date.now(),
-          parameters
+          parameters: paramsWithIncludes
         });
 
         state.next({
@@ -102,6 +109,23 @@ export class DataTableCardService {
         });
       }
     });
+  }
+
+  private getForeignKeyIncludes(columns: ColumnConfig[]): ForeignKeyIncludeConfig[] {
+    const includes: ForeignKeyIncludeConfig[] = [];
+    
+    columns.forEach(column => {
+      if (column.isVirtualForeignKey && column.sourceColumn && column.foreignKeyConfig) {
+        // Ajouter l'include avec la configuration d'affichage
+        includes.push({
+          foreignKey: column.sourceColumn,
+          displayFormat: column.foreignKeyConfig.displayFormat,
+          displayColumns: column.foreignKeyConfig.displayColumns
+        });
+      }
+    });
+    
+    return includes;
   }
 
   private areOrderByEqual(current?: OrderByParameterDto[], next?: OrderByParameterDto[]): boolean {
@@ -209,6 +233,11 @@ export class DataTableCardService {
     if (!item || !column.key) {
       return '';
     }
+
+    // Si c'est une colonne virtuelle de clé étrangère
+    if (column.isVirtualForeignKey && column.sourceColumn && column.foreignKeyConfig) {
+      return this.formatForeignKeyValue(item, column);
+    }
     
     const camelCaseKey = column.key.charAt(0).toLowerCase() + column.key.slice(1);
     const keys = camelCaseKey.split('.');
@@ -222,6 +251,34 @@ export class DataTableCardService {
     }
 
     return this.formatColumnValue(value, column, locale);
+  }
+
+  private formatForeignKeyValue(item: any, column: ColumnConfig): string {
+    if (!column.foreignKeyConfig || !column.sourceColumn) {
+      return '';
+    }
+
+    const config = column.foreignKeyConfig;
+    const foreignKeyData = item[`${column.sourceColumn}_data`];
+
+    if (!foreignKeyData) {
+      return '';
+    }
+
+    if (config.displayFormat) {
+      // Utiliser le format personnalisé
+      return config.displayFormat.replace(/\{([^}]+)\}/g, (match, key) => {
+        return foreignKeyData[key] || '';
+      });
+    } else if (config.displayColumns && config.displayColumns.length > 0) {
+      // Utiliser les colonnes sélectionnées
+      return config.displayColumns
+        .map(col => foreignKeyData[col])
+        .filter(val => val !== undefined && val !== null)
+        .join(' ');
+    }
+
+    return '';
   }
 
   getColumnValues(config: DatasourceConfig, columnName: string): Observable<string[]> {

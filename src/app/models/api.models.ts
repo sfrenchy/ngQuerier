@@ -379,12 +379,19 @@ export interface DataRequestDataRequestParametersWithSQLParametersDto {
   sqlParameters: { [key: string]: string };
 }
 
+export interface ForeignKeyIncludeConfig {
+  foreignKey: string;
+  displayFormat?: string;
+  displayColumns?: string[];
+}
+
 export interface DataRequestParametersDto {
   pageNumber: number;
   pageSize: number;
   orderBy: OrderByParameterDto[];
   globalSearch: string;
   columnSearches: ColumnSearchDto[];
+  includes?: ForeignKeyIncludeConfig[];
 }
 
 export interface ColumnSearchDto {

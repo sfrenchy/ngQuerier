@@ -114,9 +114,9 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
   private initializeColumns(schema: any) {
     if (schema.properties) {
-      // Créer une map des colonnes existantes pour un accès rapide
+      // Sauvegarder l'état des colonnes existantes, y compris les colonnes virtuelles
       const existingColumnsMap = new Map(
-        this.columns.map(col => [col.key, col])
+        this.columns.map(col => [col.isVirtualForeignKey ? `${col.sourceColumn}_display` : col.key, col])
       );
 
       this.columns = Object.entries(schema.properties)
@@ -127,10 +127,10 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
           const isPrimaryOrForeignKey = prop['x-entity-metadata']?.isPrimaryKey || prop['x-entity-metadata']?.isForeignKey;
 
           // Si la colonne existe déjà, préserver sa configuration
-          if (existingColumn) {
+          if (existingColumn && !existingColumn.isVirtualForeignKey) {
             return {
               ...existingColumn,
-              type, // Mettre à jour le type au cas où il aurait changé
+              type,
               entityMetadata: prop['x-entity-metadata'],
               isNavigation: prop['x-entity-metadata']?.isNavigation || false,
               navigationType: prop['x-entity-metadata']?.navigationType,
@@ -161,8 +161,8 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       // Mettre à jour le formulaire avant d'ajouter les colonnes virtuelles
       this.form.patchValue({ columns: this.columns }, { emitEvent: false });
 
-      // Ajouter les colonnes virtuelles si des configurations de clés étrangères existent
-      this.updateVirtualColumns();
+      // Restaurer les colonnes virtuelles avec leur état précédent
+      this.updateVirtualColumns(existingColumnsMap);
     }
   }
 
@@ -385,6 +385,9 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       }
       if (formValue.visualConfig) {
         config.visualConfig = formValue.visualConfig;
+      }
+      if (formValue.crudConfig) {
+        config.crudConfig = formValue.crudConfig;
       }
       this.save.emit(config);
     }
@@ -650,7 +653,17 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     this.updateVirtualColumns();
   }
 
-  private updateVirtualColumns() {
+  private updateVirtualColumns(existingColumnsMap?: Map<string, ColumnConfig>) {
+    // Sauvegarder l'état des colonnes virtuelles existantes
+    const virtualColumnsState = new Map<string, ColumnConfig>();
+    this.columns
+      .filter(col => col.isVirtualForeignKey)
+      .forEach(col => {
+        if (col.sourceColumn) {
+          virtualColumnsState.set(col.sourceColumn, col);
+        }
+      });
+
     // Filtrer les colonnes virtuelles existantes
     this.columns = this.columns.filter(col => !col.isVirtualForeignKey);
 
@@ -667,18 +680,23 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
           );
 
           if (foreignKeyColumn) {
+            const virtualColumnKey = `${foreignKeyColumn.key}_display`;
+            // Récupérer l'état précédent de la colonne virtuelle
+            const existingVirtualColumn = virtualColumnsState.get(foreignKeyColumn.key) || 
+                                       (existingColumnsMap?.get(virtualColumnKey));
+
             // Créer une colonne virtuelle
             const virtualColumn: ColumnConfig = {
-              key: `${foreignKeyColumn.key}_display`,
+              key: virtualColumnKey,
               type: 'string',
               label: { 
                 en: `${table}`, 
                 fr: `${table}` 
               },
               alignment: 'left',
-              visible: false, // Colonne non visible par défaut
-              isFixed: false,
-              isFixedRight: false,
+              visible: existingVirtualColumn ? existingVirtualColumn.visible : true, // Par défaut visible
+              isFixed: existingVirtualColumn ? existingVirtualColumn.isFixed : false,
+              isFixedRight: existingVirtualColumn ? existingVirtualColumn.isFixedRight : false,
               isVirtualForeignKey: true,
               sourceColumn: foreignKeyColumn.key,
               foreignKeyConfig: config

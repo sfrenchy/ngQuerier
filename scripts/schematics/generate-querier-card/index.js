@@ -19,6 +19,28 @@ function generateQuerierCard(_options) {
             }),
             (0, schematics_1.move)(`src/app/cards/${core_1.strings.dasherize(_options.name)}-card`)
         ]);
+        // Merge translations into global i18n files
+        const mergeTranslations = () => {
+            const languages = ['fr', 'en'];
+            languages.forEach(lang => {
+                const i18nPath = `src/assets/i18n/${lang}.json`;
+                const content = _tree.read(i18nPath);
+                if (content) {
+                    const i18nContent = JSON.parse(content.toString());
+                    const cardTranslationsPath = `src/app/cards/${core_1.strings.dasherize(_options.name)}-card/i18n/${lang}.json`;
+                    const cardTranslations = _tree.read(cardTranslationsPath);
+                    if (cardTranslations) {
+                        const cardContent = JSON.parse(cardTranslations.toString());
+                        // Merge translations
+                        const mergedContent = Object.assign(Object.assign({}, i18nContent), { CARDS: Object.assign(Object.assign({}, i18nContent.CARDS), cardContent.CARDS) });
+                        _tree.overwrite(i18nPath, JSON.stringify(mergedContent, null, 2));
+                        // Delete the card's translation file as it's now merged
+                        _tree.delete(cardTranslationsPath);
+                    }
+                }
+            });
+            return _tree;
+        };
         const updateAvailableCards = () => {
             const availableCardsPath = 'src/app/cards/available-cards.ts';
             const cardName = core_1.strings.dasherize(_options.name);
@@ -39,6 +61,7 @@ function generateQuerierCard(_options) {
         };
         return (0, schematics_1.chain)([
             (0, schematics_1.mergeWith)(sourceParametrizedTemplates),
+            mergeTranslations,
             updateAvailableCards
         ]);
     };

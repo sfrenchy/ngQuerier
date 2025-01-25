@@ -425,6 +425,16 @@
         "BACKGROUND_COLOR": "Background color",
         "TEXT_COLOR": "Text color"
       }
+    },
+    "PIECHART": {
+      "TITLE": "PieChart",
+      "DESCRIPTION": "PieChart card description",
+      "CONFIGURATION": {
+        "TITLE": "PieChart Configuration",
+        "SPECIFIC": {
+          "TITLE": "Specific configuration"
+        }
+      }
     }
   }
-} 
+}

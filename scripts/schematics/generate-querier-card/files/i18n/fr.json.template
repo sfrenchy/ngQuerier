@@ -7,7 +7,6 @@
         "TITLE": "Configuration de <%= classify(name) %>",
         "SPECIFIC": {
           "TITLE": "Configuration spécifique"
-          // Add your specific translations here
         }
       }
     }

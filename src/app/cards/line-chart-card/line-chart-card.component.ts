@@ -86,14 +86,9 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
   private updateChartOptions() {
     if (!this.chartState.data || !this.card.configuration) return;
 
-    console.group('Line Chart Data');
-    console.log('Raw Data:', this.chartState.data);
-    console.log('Configuration:', this.card.configuration);
 
     // Vérification de la structure des données
     const firstItem = this.chartState.data[0];
-    console.log('First data item structure:', firstItem);
-    console.log('Available properties:', firstItem ? Object.keys(firstItem) : []);
 
     // Fonction utilitaire pour accéder aux propriétés sans tenir compte de la casse
     const getPropertyValue = (obj: any, propertyName: string): any => {
@@ -104,17 +99,28 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
     };
 
     const xAxisColumn = this.card.configuration.xAxisColumn;
-    console.log('X-Axis Column:', xAxisColumn);
 
     // Extraction des données pour l'axe X avec vérification
     const xAxisData = this.chartState.data.map(item => {
       const value = getPropertyValue(item, xAxisColumn);
       if (value === undefined) {
         console.warn(`Missing value for X-axis column "${xAxisColumn}" in item:`, item);
+        return value;
       }
+
+      // Formatage des dates si nécessaire
+      if (this.card.configuration.xAxisDateFormat && value instanceof Date) {
+        return this.formatDate(value, this.card.configuration.xAxisDateFormat);
+      }
+      if (this.card.configuration.xAxisDateFormat && typeof value === 'string') {
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+          return this.formatDate(date, this.card.configuration.xAxisDateFormat);
+        }
+      }
+      
       return value;
     });
-    console.log('X-Axis Data:', xAxisData);
     
     // Configuration des séries avec vérification des données
     const series = this.card.configuration.series.map((seriesConfig: SeriesConfig) => {
@@ -124,11 +130,6 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
           console.warn(`Missing value for series "${seriesConfig.name}" column "${seriesConfig.dataColumn}" in item:`, item);
         }
         return value;
-      });
-
-      console.log(`Series "${seriesConfig.name}":`, {
-        column: seriesConfig.dataColumn,
-        data: seriesData
       });
 
       return {
@@ -170,8 +171,24 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
       series
     };
 
-    console.log('Final Chart Options:', this.chartOptions);
-    console.groupEnd();
+  }
+
+  private formatDate(date: Date, format: string): string {
+    // Format simple pour commencer : DD/MM/YYYY, MM/YYYY, YYYY
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+
+    switch (format) {
+      case 'DD/MM/YYYY':
+        return `${day}/${month}/${year}`;
+      case 'MM/YYYY':
+        return `${month}/${year}`;
+      case 'YYYY':
+        return year.toString();
+      default:
+        return date.toLocaleDateString();
+    }
   }
 
   override ngOnDestroy() {

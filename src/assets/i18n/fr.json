@@ -478,5 +478,16 @@
         "TEXT_COLOR": "Couleur du texte"
       }
     }
+  },
+  "LINE_CHART": {
+    "TITLE": "Graphique en ligne",
+    "SELECT_COLUMN": "Sélectionner une colonne",
+    "DATE_FORMAT": "Format de date",
+    "DEFAULT_FORMAT": "Format par défaut",
+    "ADD_SERIES": "Ajouter une série",
+    "REMOVE_SERIES": "Supprimer la série",
+    "SERIES_NAME": "Nom de la série",
+    "SERIES_COLUMN": "Colonne de la série",
+    "SERIES_COLOR": "Couleur de la série"
   }
 } 

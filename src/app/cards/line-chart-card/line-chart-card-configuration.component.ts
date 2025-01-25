@@ -39,10 +39,15 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
     return this.form.get('xAxisColumn') as FormControl;
   }
 
+  get xAxisDateFormatControl() {
+    return this.form.get('xAxisDateFormat') as FormControl;
+  }
+
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
       datasource: [null],
       xAxisColumn: [''],
+      xAxisDateFormat: [''],
       series: [[]],
       visualConfig: [null]
     });
@@ -62,6 +67,9 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
     if (formValue.xAxisColumn) {
       config.xAxisColumn = formValue.xAxisColumn;
     }
+    if (formValue.xAxisDateFormat) {
+      config.xAxisDateFormat = formValue.xAxisDateFormat;
+    }
     if (formValue.series) {
       config.series = formValue.series;
     }
@@ -79,6 +87,7 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
       this.form.patchValue({
         datasource: this.card.configuration.datasource,
         xAxisColumn: this.card.configuration.xAxisColumn,
+        xAxisDateFormat: this.card.configuration.xAxisDateFormat,
         series: this.card.configuration.series,
         visualConfig: this.card.configuration.visualConfig
       }, { emitEvent: false });

@@ -438,5 +438,16 @@
         "TEXT_COLOR": "Text color"
       }
     }
+  },
+  "LINE_CHART": {
+    "TITLE": "Line Chart",
+    "SELECT_COLUMN": "Select a column",
+    "DATE_FORMAT": "Date Format",
+    "DEFAULT_FORMAT": "Default Format",
+    "ADD_SERIES": "Add Series",
+    "REMOVE_SERIES": "Remove Series",
+    "SERIES_NAME": "Series Name",
+    "SERIES_COLUMN": "Series Column",
+    "SERIES_COLOR": "Series Color"
   }
 } 

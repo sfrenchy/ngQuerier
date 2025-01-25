@@ -36,6 +36,7 @@ export interface ChartVisualConfig {
 export class LineChartCardConfig extends BaseCardConfig {
   datasource?: DatasourceConfig;
   xAxisColumn?: string;
+  xAxisDateFormat?: string;
   series: SeriesConfig[] = [];
   visualConfig: ChartVisualConfig = {
     backgroundColor: '#1f2937',
@@ -89,6 +90,7 @@ export class LineChartCardConfig extends BaseCardConfig {
     return {
       datasource: this.datasource,
       xAxisColumn: this.xAxisColumn,
+      xAxisDateFormat: this.xAxisDateFormat,
       series: this.series,
       visualConfig: this.visualConfig
     };
@@ -101,6 +103,9 @@ export class LineChartCardConfig extends BaseCardConfig {
     }
     if (json.xAxisColumn) {
       config.xAxisColumn = json.xAxisColumn;
+    }
+    if (json.xAxisDateFormat) {
+      config.xAxisDateFormat = json.xAxisDateFormat;
     }
     if (json.series) {
       config.series = json.series;

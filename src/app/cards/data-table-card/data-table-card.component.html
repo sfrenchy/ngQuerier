@@ -46,7 +46,7 @@
           <table class="min-w-full h-full divide-y divide-gray-700">
             <thead class="data-table-header" [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor">
               <tr>
-                <th *ngFor="let column of getVisibleColumns(); let isFirst = first"
+                <th *ngFor="let column of getVisibleColumns(); let isFirst = first; let isLast = last"
                     scope="col"
                     [class.sticky]="column.isFixed || column.isFixedRight"
                     [class.fixed-left]="column.isFixed"
@@ -64,7 +64,10 @@
                     [style.color]="card.configuration?.visualConfig.headerTextColor"
                     [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
                     [class.py-1]="card.configuration?.visualConfig.isCompactMode"
-                    class="px-6 text-xs font-medium uppercase tracking-wider">
+                    [style.width.px]="columnWidths.get(column.key)"
+                    [style.min-width.px]="columnWidths.get(column.key)"
+                    [style.max-width.px]="columnWidths.get(column.key)"
+                    class="px-6 text-xs font-medium uppercase tracking-wider relative">
                   <div class="flex items-center gap-2">
                     <span>{{ getColumnLabel(column) }}</span>
                     <div class="flex items-center">
@@ -99,6 +102,12 @@
                               d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
                       </svg>
                     </button>
+                  </div>
+
+                  <!-- Column resize handle -->
+                  <div *ngIf="!isLast && !column.isFixedRight"
+                       class="column-resize-handle"
+                       (mousedown)="onResizeStart($event, column)">
                   </div>
 
                   <!-- Popover de filtre -->
@@ -146,6 +155,9 @@
                     }"
                     [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
                     [class.py-1]="card.configuration?.visualConfig.isCompactMode"
+                    [style.width.px]="columnWidths.get(column.key)"
+                    [style.min-width.px]="columnWidths.get(column.key)"
+                    [style.max-width.px]="columnWidths.get(column.key)"
                     class="px-6 whitespace-nowrap text-sm">
                   {{ getColumnValue(row, column) }}
                 </td>
@@ -393,5 +405,74 @@
       opacity: 1;
       transform: scale(1);
     }
+  }
+
+  .column-resize-handle {
+    position: absolute;
+    top: 0;
+    right: -4px;
+    bottom: 0;
+    width: 8px;
+    cursor: col-resize;
+    background: transparent;
+    transition: all 0.2s ease;
+    z-index: 20;
+  }
+
+  .column-resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 50%;
+    width: 2px;
+    background: rgba(156, 163, 175, 0.2);
+    transform: translateX(-50%);
+    transition: all 0.2s ease;
+  }
+
+  th:hover .column-resize-handle::after {
+    background: rgba(156, 163, 175, 0.5);
+  }
+
+  .column-resize-handle:hover::after,
+  .column-resize-handle.active::after {
+    background: rgb(59, 130, 246);
+    width: 2px;
+    box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+  }
+
+  .column-resize-guide {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgb(59, 130, 246);
+    box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* Prevent text selection during resize */
+  .resizing {
+    user-select: none;
+    cursor: col-resize !important;
+  }
+
+  .resizing * {
+    cursor: col-resize !important;
+  }
+
+  /* Ensure table cells don't wrap content */
+  td, th {
+    white-space: nowrap;
+  }
+
+  /* Styles pour le redimensionnement des colonnes */
+  th, td {
+    transition: width 0.1s ease;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 </style> 

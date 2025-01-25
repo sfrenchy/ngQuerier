@@ -2,17 +2,32 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DatasourceConfig } from '@models/datasource.models';
-import { ColumnSearchDto, DBConnectionEndpointRequestInfoDto, ForeignKeyIncludeConfig } from '@models/api.models';
+import { ColumnSearchDto, DBConnectionEndpointRequestInfoDto, ForeignKeyIncludeConfig, PaginatedResultDto } from '@models/api.models';
 import { CardDatabaseService } from '@services/card-database.service';
 import { DataRequestParametersDto } from '@models/api.models';
 import { OrderByParameterDto } from '@models/api.models';
 import { ColumnConfig, DataState } from './data-table-card.models';
 import { FormDataSubmit } from './dynamic-form.component';
 
+interface ForeignKeyDataValue {
+  id: string;
+  value: string;
+}
+
+interface ForeignKeyData {
+  foreignKey: string;
+  values: ForeignKeyDataValue[];
+}
+
+interface ExtendedPaginatedResultDto<T> extends PaginatedResultDto<T> {
+  foreignKeyData?: ForeignKeyData[];
+}
+
 interface TableState {
   items: any[];
   total: number;
   loading: boolean;
+  foreignKeyData?: ForeignKeyData[];
 }
 
 export interface FormDataSubmitWithId extends FormDataSubmit {
@@ -31,6 +46,7 @@ export class DataTableCardService {
     parameters: DataRequestParametersDto 
   }>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes en millisecondes
+  private currentDatasource?: DatasourceConfig;
 
   constructor(private cardDatabaseService: CardDatabaseService) {}
 
@@ -60,6 +76,7 @@ export class DataTableCardService {
   }
 
   loadData(datasource: DatasourceConfig, parameters: DataRequestParametersDto, columns: ColumnConfig[] = []): void {
+    this.currentDatasource = datasource;
     const key = this.getStateKey(datasource);
     const state = this.getOrCreateState(datasource);
     const currentCache = this.cacheMap.get(key);
@@ -97,7 +114,8 @@ export class DataTableCardService {
         state.next({
           items: response.items,
           total: response.total,
-          loading: false
+          loading: false,
+          foreignKeyData: response.foreignKeyData
         });
       },
       error: (error) => {
@@ -105,7 +123,8 @@ export class DataTableCardService {
         state.next({
           items: [],
           total: 0,
-          loading: false
+          loading: false,
+          foreignKeyData: []
         });
       }
     });
@@ -254,31 +273,31 @@ export class DataTableCardService {
   }
 
   private formatForeignKeyValue(item: any, column: ColumnConfig): string {
-    if (!column.foreignKeyConfig || !column.sourceColumn) {
+    if (!column.foreignKeyConfig || !column.sourceColumn || !this.currentDatasource) {
       return '';
     }
 
-    const config = column.foreignKeyConfig;
-    const foreignKeyData = item[`${column.sourceColumn}_data`];
+    // Get the foreign key value from the item
+    const foreignKeyValue = item[column.sourceColumn.charAt(0).toLowerCase() + column.sourceColumn.slice(1)];
+    if (!foreignKeyValue) {
+      return '';
+    }
 
+    // Get the current state which contains the foreignKeyData
+    const state = this.getOrCreateState(this.currentDatasource).getValue();
+    
+    const foreignKeyData = state.foreignKeyData?.find((fk: { foreignKey: string }) => 
+      fk.foreignKey === column.sourceColumn
+    );
     if (!foreignKeyData) {
       return '';
     }
 
-    if (config.displayFormat) {
-      // Utiliser le format personnalisé
-      return config.displayFormat.replace(/\{([^}]+)\}/g, (match, key) => {
-        return foreignKeyData[key] || '';
-      });
-    } else if (config.displayColumns && config.displayColumns.length > 0) {
-      // Utiliser les colonnes sélectionnées
-      return config.displayColumns
-        .map(col => foreignKeyData[col])
-        .filter(val => val !== undefined && val !== null)
-        .join(' ');
-    }
-
-    return '';
+    // Find the matching value in the foreignKeyData values array
+    const matchingValue = foreignKeyData.values.find((v: { id: string; value: string }) => 
+      v.id.toString() === foreignKeyValue.toString()
+    );
+    return matchingValue?.value || '';
   }
 
   getColumnValues(config: DatasourceConfig, columnName: string): Observable<string[]> {

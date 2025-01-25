@@ -1,19 +1,27 @@
 <app-base-card [card]="card" [isEditing]="isEditing">
   <div body class="h-full">
-    <div class="card-content">
-      <ng-container *ngIf="loading">
-        <div class="flex items-center justify-center h-full">
-          <span class="text-gray-500">{{ 'CARDS.COMMON.LOADING' | translate }}</span>
+    <div class="card-content h-full">
+      <div class="h-full w-full flex flex-col">
+        <div class="flex-grow relative">
+          <div *ngIf="chartState.loading" class="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-10">
+            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+          
+          <div *ngIf="!chartState.data?.length" class="absolute inset-0 flex items-center justify-center text-gray-400">
+            {{ 'LINE_CHART.NO_DATA' | translate }}
+          </div>
+
+          <div *ngIf="chartState.data?.length" class="h-full w-full">
+            <div echarts 
+                 [options]="chartOptions"
+                 [loading]="chartState.loading"
+                 class="h-full w-full"
+                 [theme]="'dark'"
+                 [initOpts]="{renderer: 'svg'}"
+            ></div>
+          </div>
         </div>
-      </ng-container>
-      <ng-container *ngIf="!loading && !hasData">
-        <div class="flex items-center justify-center h-full">
-          <span class="text-gray-500">{{ 'CARDS.COMMON.NO_DATA' | translate }}</span>
-        </div>
-      </ng-container>
-      <ng-container *ngIf="!loading && hasData">
-        <!-- Add your card content here -->
-      </ng-container>
+      </div>
     </div>
   </div>
 </app-base-card> 

@@ -1,15 +1,36 @@
 {
-  "CARDS": {
-    "LINECHART": {
-      "TITLE": "LineChart",
-      "DESCRIPTION": "Description de la carte LineChart",
-      "CONFIGURATION": {
-        "TITLE": "Configuration de LineChart",
-        "SPECIFIC": {
-          "TITLE": "Configuration spécifique"
-          // Add your specific translations here
-        }
-      }
-    }
+  "LINE_CHART": {
+    "NO_DATA": "Aucune donnée disponible",
+    "X_AXIS": "Configuration de l'axe X",
+    "X_AXIS_COLUMN": "Colonne de l'axe X",
+    "SELECT_COLUMN": "Sélectionner une colonne",
+    "SERIES": "Séries",
+    "SERIES_NAME": "Nom de la série",
+    "DATA_COLUMN": "Colonne de données",
+    "LINE_TYPE": "Type de ligne",
+    "LINE_TYPE_STRAIGHT": "Droite",
+    "LINE_TYPE_SMOOTH": "Lissée",
+    "COLOR": "Couleur",
+    "SHOW_POINTS": "Afficher les points",
+    "POINT_SIZE": "Taille des points",
+    "AREA_OPACITY": "Opacité de la zone",
+    "ADD_SERIES": "Ajouter une série",
+    "VISUAL_CONFIG": "Configuration visuelle",
+    "BACKGROUND_COLOR": "Couleur de fond",
+    "TEXT_COLOR": "Couleur du texte",
+    "SHOW_LEGEND": "Afficher la légende",
+    "LEGEND_POSITION": "Position de la légende",
+    "POSITION_TOP": "Haut",
+    "POSITION_BOTTOM": "Bas",
+    "POSITION_LEFT": "Gauche",
+    "POSITION_RIGHT": "Droite",
+    "SHOW_TOOLTIP": "Afficher l'infobulle",
+    "TOOLTIP_TRIGGER": "Déclencheur de l'infobulle",
+    "TRIGGER_ITEM": "Sur le point",
+    "TRIGGER_AXIS": "Sur l'axe",
+    "TOOLS": "Outils",
+    "TOOL_DATA_ZOOM": "Zoom des données",
+    "TOOL_RESTORE": "Restaurer",
+    "TOOL_SAVE_IMAGE": "Enregistrer l'image"
   }
 } 

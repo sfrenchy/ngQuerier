@@ -135,6 +135,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   private startWidth: number = 0;
   private resizeGuide: HTMLElement | null = null;
 
+  @ViewChild('headerContent') headerContent!: ElementRef;
+  @ViewChild('filterContainer') filterContainer!: ElementRef;
+  @ViewChild('filterOverlay') filterOverlay!: ElementRef;
+
   // Méthode utilitaire pour convertir les pixels en chaîne
   private px(value: number): string {
     return `${value}px`;
@@ -426,17 +430,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   private updateColumnWidths() {
     if (!this.tableContainerRef?.nativeElement) {
-      console.log('updateColumnWidths - pas de référence à tableContainer');
       return;
     }
 
     const headerCells = this.tableContainerRef.nativeElement.querySelectorAll('thead th');
-    console.log('updateColumnWidths', {
-      numberOfHeaderCells: headerCells.length,
-      currentWidths: Object.fromEntries(this.columnWidths),
-      tableWidth: this.tableWidth,
-      containerWidth: this.tableContainerRef.nativeElement.clientWidth
-    });
 
     let totalWidth = 0;
     let fixedLeftWidth = 0;
@@ -1131,11 +1128,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onResizeStart(event: MouseEvent, column: ColumnConfig) {
-    console.log('onResizeStart', {
-      event: { pageX: event.pageX, type: event.type },
-      column: column.key,
-      startWidth: this.columnWidths.get(column.key)
-    });
 
     event.preventDefault();
     this.resizing = true;
@@ -1166,11 +1158,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   private onResizeMove(event: MouseEvent) {
     if (!this.resizing || !this.currentResizeColumn || !this.resizeGuide) {
-      console.log('onResizeMove - conditions non remplies', {
-        resizing: this.resizing,
-        hasCurrentColumn: !!this.currentResizeColumn,
-        hasGuide: !!this.resizeGuide
-      });
       return;
     }
 
@@ -1179,13 +1166,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   private onResizeEnd(event: MouseEvent) {
-    console.log('onResizeEnd', {
-      hasCurrentColumn: !!this.currentResizeColumn,
-      currentColumnKey: this.currentResizeColumn?.key,
-      pageX: event.pageX,
-      startX: this.startX,
-      finalWidth: this.currentResizeColumn ? this.columnWidths.get(this.currentResizeColumn.key) : null
-    });
 
     if (!this.resizing || !this.currentResizeColumn) return;
 
@@ -1211,6 +1191,13 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     this.resizing = false;
     this.currentResizeColumn = null;
     this.cdr.detectChanges();
+  }
+
+  // Ajouter ces nouvelles méthodes
+  onHeaderMouseEnter(column: ColumnConfig) {
+  }
+
+  onHeaderMouseLeave(column: ColumnConfig) {
   }
 } 
   

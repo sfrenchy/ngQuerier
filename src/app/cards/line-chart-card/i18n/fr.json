@@ -1,9 +1,11 @@
 {
-  "LINE_CHART": {
+  "LineChart": {
     "NO_DATA": "Aucune donnée disponible",
     "X_AXIS": "Configuration de l'axe X",
     "X_AXIS_COLUMN": "Colonne de l'axe X",
     "SELECT_COLUMN": "Sélectionner une colonne",
+    "DATE_FORMAT": "Format de date",
+    "DEFAULT_FORMAT": "Format par défaut",
     "SERIES": "Séries",
     "SERIES_NAME": "Nom de la série",
     "DATA_COLUMN": "Colonne de données",

@@ -377,18 +377,6 @@
     "CAN_UPDATE": "Allow updating",
     "CAN_DELETE": "Allow deleting"
   },
-  "DATA_TABLE": {
-    "SEARCH": "Search...",
-    "NO_DATA": "No data available",
-    "CALCULATING_ROWS": "Calculating rows...",
-    "ADD_RECORD": "Add record",
-    "EDIT_RECORD": "Edit record",
-    "DELETE_RECORD": "Delete record",
-    "CONFIRM_DELETE": "Are you sure you want to delete this record?",
-    "FULLSCREEN": "Fullscreen",
-    "EXIT_FULLSCREEN": "Exit fullscreen",
-    "ITEMS": "items"
-  },
   "FORM": {
     "SELECT_VALUE": "Select a value...",
     "VALIDATION": {
@@ -438,16 +426,5 @@
         "TEXT_COLOR": "Text color"
       }
     }
-  },
-  "LINE_CHART": {
-    "TITLE": "Line Chart",
-    "SELECT_COLUMN": "Select a column",
-    "DATE_FORMAT": "Date Format",
-    "DEFAULT_FORMAT": "Default Format",
-    "ADD_SERIES": "Add Series",
-    "REMOVE_SERIES": "Remove Series",
-    "SERIES_NAME": "Series Name",
-    "SERIES_COLUMN": "Series Column",
-    "SERIES_COLOR": "Series Color"
   }
 } 

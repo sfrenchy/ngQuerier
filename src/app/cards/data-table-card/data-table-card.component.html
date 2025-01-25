@@ -10,7 +10,7 @@
                  [(ngModel)]="globalSearch"
                  (ngModelChange)="searchSubject.next($event)"
                  class="w-full bg-gray-700 text-white pl-3 pr-8 h-6 text-sm rounded focus:outline-none"
-                 [placeholder]="'DATA_TABLE.SEARCH' | translate">
+                 [placeholder]="'data-table-card.SEARCH' | translate">
           <svg xmlns="http://www.w3.org/2000/svg" 
                fill="none" 
                viewBox="0 0 24 24" 
@@ -148,7 +148,7 @@
             <tbody class="divide-y divide-gray-700">
               <tr *ngIf="!loading && !isCalculatingRows && (!data || data.length === 0)" class="text-center">
                 <td [attr.colspan]="getVisibleColumnsCount()" class="px-6 py-4 text-gray-400">
-                  {{ 'DATA_TABLE.NO_DATA' | translate }}
+                  {{ 'data-table-card.NO_DATA' | translate }}
                 </td>
               </tr>
               <tr *ngFor="let row of data; let i = index" 
@@ -222,7 +222,7 @@
   <div footer class="data-table-footer">
     <div class="flex justify-between items-center">
       <div class="text-sm text-gray-400">
-        {{ totalItems }} {{ 'TABLE.ITEMS' | translate }}
+        {{ totalItems }} {{ 'data-table-card.ITEMS' | translate }}
       </div>
       <div class="flex items-center gap-2">
         <button 

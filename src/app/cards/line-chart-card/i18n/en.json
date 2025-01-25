@@ -66,6 +66,8 @@
     "X_AXIS": "X Axis Configuration",
     "X_AXIS_COLUMN": "X Axis Column",
     "SELECT_COLUMN": "Select a column",
+    "DATE_FORMAT": "Date Format",
+    "DEFAULT_FORMAT": "Default Format",
     "SERIES": "Series",
     "SERIES_NAME": "Series Name",
     "DATA_COLUMN": "Data Column",

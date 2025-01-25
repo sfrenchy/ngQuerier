@@ -5,13 +5,23 @@ import { BaseCardConfig } from '@models/api.models';
 export interface CardMetadata {
   name: string;
   icon: string;
-  configComponent?: Type<any>;
-  configType?: Type<BaseCardConfig>;
-  defaultConfig?: () => BaseCardConfig;
+  configComponent: Type<any>;
+  configType: Type<any>;
+  defaultConfig: () => any;
+  translationPath: string;  // Path for translations
 }
 
 export interface RegisteredCardMetadata extends CardMetadata {
   type: Type<any>;
+}
+
+export interface CardConfig {
+  name: string;
+  icon: string;
+  configComponent: Type<any>;
+  configType: Type<any>;
+  defaultConfig: () => any;
+  translationPath: string;  // Path for translations
 }
 
 // Registre des composants décorés avec @Card
@@ -21,6 +31,9 @@ export function Card(metadata: CardMetadata): ClassDecorator {
   return function (target: Function): any {
     // Ajouter le composant au registre
     cardRegistry.push(target as Type<any>);
+
+    // Attacher les métadonnées à la classe
+    (target as any).cardConfig = metadata;
 
     // Enregistrer les métadonnées comme avant
     const type = metadata.name.toLowerCase();

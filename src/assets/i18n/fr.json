@@ -417,18 +417,6 @@
     "CAN_UPDATE": "Autoriser la modification",
     "CAN_DELETE": "Autoriser la suppression"
   },
-  "DATA_TABLE": {
-    "SEARCH": "Rechercher...",
-    "NO_DATA": "Aucune donnée disponible",
-    "CALCULATING_ROWS": "Calcul du nombre de lignes...",
-    "ADD_RECORD": "Ajouter un enregistrement",
-    "EDIT_RECORD": "Modifier l'enregistrement",
-    "DELETE_RECORD": "Supprimer l'enregistrement",
-    "CONFIRM_DELETE": "Êtes-vous sûr de vouloir supprimer cet enregistrement ?",
-    "FULLSCREEN": "Plein écran",
-    "EXIT_FULLSCREEN": "Quitter le plein écran",
-    "ITEMS": "éléments"
-  },
   "FORM": {
     "SELECT_VALUE": "Sélectionnez une valeur...",
     "VALIDATION": {
@@ -478,16 +466,5 @@
         "TEXT_COLOR": "Couleur du texte"
       }
     }
-  },
-  "LINE_CHART": {
-    "TITLE": "Graphique en ligne",
-    "SELECT_COLUMN": "Sélectionner une colonne",
-    "DATE_FORMAT": "Format de date",
-    "DEFAULT_FORMAT": "Format par défaut",
-    "ADD_SERIES": "Ajouter une série",
-    "REMOVE_SERIES": "Supprimer la série",
-    "SERIES_NAME": "Nom de la série",
-    "SERIES_COLUMN": "Colonne de la série",
-    "SERIES_COLOR": "Couleur de la série"
   }
 } 

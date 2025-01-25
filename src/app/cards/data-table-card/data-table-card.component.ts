@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, Output, EventEmitter, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
@@ -18,6 +18,7 @@ import { DatasourceConfig } from '@models/datasource.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import { FormDataSubmitWithId } from './data-table-card.service';
 import { ForeignKeyService } from './foreign-key.service';
+import { TableStateService } from './table-state.service';
 
 // Modifier l'interface ModalConfig
 interface ModalConfig {
@@ -82,7 +83,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   private initialLoadDone: boolean = false;
   private isAdjusting: boolean = false;
   private resizeTimeout: any = null;
-  private columnWidths = new Map<string, number>();
+  columnWidths = new Map<string, number>();
   private tableWidth: number = 0;
   @Output() configurationChanged = new EventEmitter<any>();
   @ViewChild('tableContainer') tableContainerRef!: ElementRef;
@@ -129,12 +130,28 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   isFormLoading = false;
 
+  private resizing: boolean = false;
+  private currentResizeColumn: ColumnConfig | null = null;
+  private startWidth: number = 0;
+  private resizeGuide: HTMLElement | null = null;
+
+  @ViewChild('headerContent') headerContent!: ElementRef;
+  @ViewChild('filterContainer') filterContainer!: ElementRef;
+  @ViewChild('filterOverlay') filterOverlay!: ElementRef;
+
+  // Méthode utilitaire pour convertir les pixels en chaîne
+  private px(value: number): string {
+    return `${value}px`;
+  }
+
   constructor(
     protected override cardDatabaseService: CardDatabaseService,
     protected override translateService: TranslateService,
     private cdr: ChangeDetectorRef,
     private dataService: DataTableCardService,
-    private foreignKeyService: ForeignKeyService
+    private foreignKeyService: ForeignKeyService,
+    private tableStateService: TableStateService,
+    private renderer: Renderer2
   ) {
     super(cardDatabaseService, translateService);
     this.currentLanguage = this.translateService.currentLang;
@@ -180,6 +197,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   override ngOnInit() {
     super.ngOnInit();
+    this.loadSavedState();
     try {
       if (this.card.configuration?.datasource && this.isValidConfiguration()) {
         // Précharger le schéma du formulaire uniquement si on peut ajouter ou modifier
@@ -237,6 +255,9 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       this.cdr.detectChanges();
       
       setTimeout(() => {
+        // Initialiser les largeurs de colonnes si elles ne sont pas déjà définies
+        this.initializeColumnWidths();
+        
         // Calculer la taille optimale sans déclencher de rechargement
         this.calculateAndSetOptimalSize();
 
@@ -258,6 +279,22 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
         this.cdr.detectChanges();
       }, 100);
     }
+  }
+
+  private initializeColumnWidths() {
+    const visibleColumns = this.getVisibleColumns();
+    const tableWidth = this.tableContainerRef?.nativeElement?.clientWidth || 0;
+    const defaultColumnWidth = Math.max(150, Math.floor(tableWidth / visibleColumns.length));
+
+    visibleColumns.forEach(column => {
+      // Ne pas écraser les largeurs déjà définies (chargées depuis le localStorage)
+      if (!this.columnWidths.has(column.key)) {
+        this.columnWidths.set(column.key, defaultColumnWidth);
+      }
+    });
+
+    // Sauvegarder l'état initial
+    this.saveCurrentState();
   }
 
   protected override onHeightChange() {
@@ -392,35 +429,43 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   private updateColumnWidths() {
-    if (!this.tableContainerRef?.nativeElement) return;
+    if (!this.tableContainerRef?.nativeElement) {
+      return;
+    }
 
     const headerCells = this.tableContainerRef.nativeElement.querySelectorAll('thead th');
+
     let totalWidth = 0;
+    let fixedLeftWidth = 0;
+    let fixedRightWidth = 0;
 
     // Update actions column width if it exists
     const actionsCell = Array.from(headerCells).find(cell => (cell as HTMLElement).classList.contains('actions-column'));
     if (actionsCell) {
       this.actionsColumnWidth = (actionsCell as HTMLElement).offsetWidth;
+      fixedRightWidth += this.actionsColumnWidth;
     }
 
-    headerCells.forEach((cell: Element, index: number) => {
-      const htmlCell = cell as HTMLElement;
-      if (!htmlCell.classList.contains('actions-column')) {
-        const column = this.getVisibleColumns()[index];
-        const width = htmlCell.offsetWidth;
-        if (column) {
-          this.columnWidths.set(column.key, width);
-          totalWidth += width;
-        }
+    // Calculer les largeurs des colonnes fixes
+    this.getVisibleColumns().forEach((column, index) => {
+      const width = this.columnWidths.get(column.key) || 0;
+      if (column.isFixed) {
+        fixedLeftWidth += width;
+      } else if (column.isFixedRight) {
+        fixedRightWidth += width;
       }
     });
 
-    if (this.hasActions()) {
-      totalWidth += this.actionsColumnWidth;
-    }
+    // Mettre à jour les styles CSS pour le conteneur de table
+    const containerWidth = this.tableContainerRef.nativeElement.clientWidth;
+    const scrollableWidth = containerWidth - fixedLeftWidth - fixedRightWidth;
+    
+    // Ajuster la largeur totale de la table si nécessaire
+    let contentWidth = Array.from(this.columnWidths.values()).reduce((sum, width) => sum + width, 0);
+    this.tableWidth = Math.max(contentWidth, containerWidth);
 
-    this.tableWidth = Math.max(totalWidth, this.tableContainerRef.nativeElement.clientWidth);
     this.updateScrollbarVisibility();
+    this.cdr.detectChanges();
   }
 
   getFixedColumnRight(column: ColumnConfig): string | null {
@@ -636,7 +681,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     // Attendre que le changement de taille soit effectif
     setTimeout(() => {
       this.calculateAndSetOptimalSize();
-      this.updateScrollbarVisibility();
+      this.updateColumnWidths();
     }, 100);
   }
 
@@ -720,6 +765,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     
     this.currentPage = 1; // Retour à la première page
     this.loadData();
+    this.saveCurrentState();
   }
 
   // Méthode pour vérifier si une colonne a des filtres actifs
@@ -793,6 +839,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     // Assigner la nouvelle configuration et recharger
     this.sortConfig = newSortConfig;
     this.loadData();
+    this.saveCurrentState();
   }
 
   // Méthodes pour vérifier les permissions CRUD
@@ -1039,6 +1086,118 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     this.currentEditingRow = null;
     this.showAddForm = false;
     // Réinitialiser le formulaire si nécessaire
+  }
+
+  private loadSavedState() {
+    if (this.card.configuration?.datasource) {
+      const savedState = this.tableStateService.loadState(this.card.id.toString(), this.card.configuration.datasource);
+      if (savedState) {
+        // Restaurer les largeurs des colonnes
+        if (savedState.columnWidths) {
+          Object.entries(savedState.columnWidths).forEach(([key, width]) => {
+            this.columnWidths.set(key, width);
+          });
+        }
+
+        // Restaurer les filtres
+        if (savedState.filters) {
+          Object.entries(savedState.filters).forEach(([key, values]) => {
+            this.activeFilters.set(key, new Set(values));
+          });
+        }
+
+        // Restaurer le tri
+        if (savedState.sorting) {
+          this.sortConfig = savedState.sorting;
+        }
+      }
+    }
+  }
+
+  private saveCurrentState() {
+    if (this.card.configuration?.datasource) {
+      const state = {
+        columnWidths: Object.fromEntries(this.columnWidths),
+        filters: Object.fromEntries(
+          Array.from(this.activeFilters.entries()).map(([key, values]) => [key, Array.from(values)])
+        ),
+        sorting: this.sortConfig
+      };
+      this.tableStateService.saveState(this.card.id.toString(), this.card.configuration.datasource, state);
+    }
+  }
+
+  onResizeStart(event: MouseEvent, column: ColumnConfig) {
+
+    event.preventDefault();
+    this.resizing = true;
+    this.currentResizeColumn = column;
+    this.startX = event.pageX;
+    this.startWidth = this.columnWidths.get(column.key) || 0;
+
+    // Créer le guide de redimensionnement
+    this.resizeGuide = this.renderer.createElement('div');
+    this.renderer.addClass(this.resizeGuide, 'column-resize-guide');
+    this.renderer.setStyle(this.resizeGuide, 'left', this.px(event.pageX));
+    this.renderer.appendChild(document.body, this.resizeGuide);
+
+    // Ajouter la classe resizing au body
+    this.renderer.addClass(document.body, 'resizing');
+
+    // Ajouter les écouteurs d'événements
+    const mouseMoveHandler = (e: MouseEvent) => this.onResizeMove(e);
+    const mouseUpHandler = (e: MouseEvent) => {
+      this.onResizeEnd(e);
+      document.removeEventListener('mousemove', mouseMoveHandler);
+      document.removeEventListener('mouseup', mouseUpHandler);
+    };
+
+    document.addEventListener('mousemove', mouseMoveHandler);
+    document.addEventListener('mouseup', mouseUpHandler);
+  }
+
+  private onResizeMove(event: MouseEvent) {
+    if (!this.resizing || !this.currentResizeColumn || !this.resizeGuide) {
+      return;
+    }
+
+    // Uniquement déplacer le guide visuel
+    this.renderer.setStyle(this.resizeGuide, 'left', this.px(event.pageX));
+  }
+
+  private onResizeEnd(event: MouseEvent) {
+
+    if (!this.resizing || !this.currentResizeColumn) return;
+
+    // Calculer et appliquer la nouvelle largeur seulement à la fin du redimensionnement
+    const deltaX = event.pageX - this.startX;
+    const newWidth = Math.max(50, this.startWidth + deltaX);
+
+    // Mettre à jour la largeur de la colonne
+    this.columnWidths.set(this.currentResizeColumn.key, newWidth);
+
+    // Mettre à jour la largeur totale de la table et la scrollbar
+    this.updateColumnWidths();
+
+    // Sauvegarder l'état
+    this.saveCurrentState();
+
+    // Nettoyer
+    if (this.resizeGuide) {
+      this.renderer.removeChild(document.body, this.resizeGuide);
+      this.resizeGuide = null;
+    }
+    this.renderer.removeClass(document.body, 'resizing');
+    this.resizing = false;
+    this.currentResizeColumn = null;
+    this.cdr.detectChanges();
+  }
+
+  // Ajouter ces nouvelles méthodes
+  onHeaderMouseEnter(column: ColumnConfig) {
+  }
+
+  onHeaderMouseLeave(column: ColumnConfig) {
   }
 } 
   

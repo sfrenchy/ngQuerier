@@ -40,13 +40,13 @@
         </div>
       </div>
 
-      <div #tableContainer tablecontainer class="data-table-container flex-1 overflow-x-scroll overflow-y-hidden"
+      <div #tableContainer tablecontainer class="data-table-container flex-1 overflow-x-scroll overflow-y-hidden relative"
            (scroll)="onTableScroll($event)">
         <div class="relative min-w-full h-full">
           <table class="min-w-full h-full divide-y divide-gray-700">
-            <thead class="data-table-header" [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor">
-              <tr>
-                <th *ngFor="let column of getVisibleColumns(); let isFirst = first"
+            <thead class="data-table-header overflow-visible" [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor">
+              <tr class="overflow-visible">
+                <th *ngFor="let column of getVisibleColumns(); let isFirst = first; let isLast = last"
                     scope="col"
                     [class.sticky]="column.isFixed || column.isFixedRight"
                     [class.fixed-left]="column.isFixed"
@@ -59,13 +59,19 @@
                     [ngClass]="{
                       'text-left': column.alignment === 'left',
                       'text-center': column.alignment === 'center',
-                      'text-right': column.alignment === 'right'
+                      'text-right': column.alignment === 'right',
+                      'px-6 text-xs font-medium uppercase tracking-wider relative overflow-visible': true
                     }"
                     [style.color]="card.configuration?.visualConfig.headerTextColor"
                     [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
                     [class.py-1]="card.configuration?.visualConfig.isCompactMode"
-                    class="px-6 text-xs font-medium uppercase tracking-wider">
-                  <div class="flex items-center gap-2">
+                    [style.width.px]="columnWidths.get(column.key)"
+                    [style.min-width.px]="columnWidths.get(column.key)"
+                    [style.max-width.px]="columnWidths.get(column.key)"
+                    class="group"
+                    (mouseenter)="onHeaderMouseEnter(column)"
+                    (mouseleave)="onHeaderMouseLeave(column)">
+                  <div #headerContent class="flex items-center gap-2 relative">
                     <span>{{ getColumnLabel(column) }}</span>
                     <div class="flex items-center">
                       <button (click)="toggleSort($event, column)"
@@ -83,11 +89,24 @@
                         </div>
                       </button>
                     </div>
+                    <!-- Indicateur de filtre actif -->
+                    <div *ngIf="hasActiveFilter(column)" 
+                         class="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full">
+                    </div>
+                  </div>
+
+                  <!-- Conteneur pour le bouton de filtre en overlay -->
+                  <div class="absolute inset-x-0 top-full flex justify-center mt-1" #filterContainer>
                     <button #filterButton
                             (click)="toggleFilterPopover(column, filterButton, $event)"
-                            class="p-1 rounded hover:bg-gray-700 focus:outline-none"
+                            class="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg bg-gray-800/95 hover:bg-gray-700/95 focus:outline-none 
+                                   shadow-[0_0_10px_rgba(0,0,0,0.3),0_4px_6px_-1px_rgba(0,0,0,0.1)] 
+                                   border border-gray-600/40 backdrop-blur-sm
+                                   transition-all duration-200 ease-out
+                                   hover:shadow-[0_0_15px_rgba(0,0,0,0.4),0_4px_6px_-1px_rgba(0,0,0,0.1)]
+                                   hover:scale-105"
                             [class.text-blue-400]="hasActiveFilter(column)"
-                            [class.text-gray-400]="!hasActiveFilter(column)">
+                            [class.text-gray-300]="!hasActiveFilter(column)">
                       <svg xmlns="http://www.w3.org/2000/svg" 
                            fill="none" 
                            viewBox="0 0 24 24" 
@@ -99,6 +118,12 @@
                               d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
                       </svg>
                     </button>
+                  </div>
+
+                  <!-- Column resize handle -->
+                  <div *ngIf="!isLast && !column.isFixedRight"
+                       class="column-resize-handle"
+                       (mousedown)="onResizeStart($event, column)">
                   </div>
 
                   <!-- Popover de filtre -->
@@ -146,6 +171,9 @@
                     }"
                     [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
                     [class.py-1]="card.configuration?.visualConfig.isCompactMode"
+                    [style.width.px]="columnWidths.get(column.key)"
+                    [style.min-width.px]="columnWidths.get(column.key)"
+                    [style.max-width.px]="columnWidths.get(column.key)"
                     class="px-6 whitespace-nowrap text-sm">
                   {{ getColumnValue(row, column) }}
                 </td>
@@ -393,5 +421,117 @@
       opacity: 1;
       transform: scale(1);
     }
+  }
+
+  .column-resize-handle {
+    position: absolute;
+    top: 0;
+    right: -4px;
+    bottom: 0;
+    width: 8px;
+    cursor: col-resize;
+    background: transparent;
+    transition: all 0.2s ease;
+    z-index: 20;
+  }
+
+  .column-resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 50%;
+    width: 2px;
+    background: rgba(156, 163, 175, 0.2);
+    transform: translateX(-50%);
+    transition: all 0.2s ease;
+  }
+
+  th:hover .column-resize-handle::after {
+    background: rgba(156, 163, 175, 0.5);
+  }
+
+  .column-resize-handle:hover::after,
+  .column-resize-handle.active::after {
+    background: rgb(59, 130, 246);
+    width: 2px;
+    box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+  }
+
+  .column-resize-guide {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgb(59, 130, 246);
+    box-shadow: 0 0 4px rgba(59, 130, 246, 0.5);
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* Prevent text selection during resize */
+  .resizing {
+    user-select: none;
+    cursor: col-resize !important;
+  }
+
+  .resizing * {
+    cursor: col-resize !important;
+  }
+
+  /* Ensure table cells don't wrap content */
+  td, th {
+    white-space: nowrap;
+  }
+
+  /* Styles pour le redimensionnement des colonnes */
+  th, td {
+    transition: width 0.1s ease;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Nouveau style pour le wrapper du bouton de filtre */
+  .filter-button-wrapper {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -8px;
+    display: flex;
+    justify-content: center;
+    z-index: 9999;
+    pointer-events: none;
+  }
+
+  .filter-button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.375rem;
+    background-color: rgba(17, 24, 39, 0.95);
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(75, 85, 99, 0.4);
+    transition: all 0.2s ease;
+    pointer-events: auto;
+  }
+
+  .filter-button:hover {
+    background-color: rgba(31, 41, 55, 0.95);
+  }
+
+  /* Ensure table header cells are positioned relative to the overlay */
+  th.group {
+    position: relative;
+    isolation: isolate;
+    overflow: visible !important;
+  }
+
+  /* Ensure the header content is above the table content */
+  thead {
+    z-index: 20;
+    position: relative;
   }
 </style> 

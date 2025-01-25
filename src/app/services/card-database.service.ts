@@ -14,6 +14,20 @@ import {
 } from '@models/api.models';
 import { DatasourceConfig } from '@models/datasource.models';
 
+interface ForeignKeyDataValue {
+  id: string;
+  value: string;
+}
+
+interface ForeignKeyData {
+  foreignKey: string;
+  values: ForeignKeyDataValue[];
+}
+
+interface ExtendedPaginatedResultDto<T> extends PaginatedResultDto<T> {
+  foreignKeyData?: ForeignKeyData[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -86,13 +100,13 @@ export class CardDatabaseService {
   fetchData(
     config: DatasourceConfig,
     paginationParameters: DataRequestParametersDto = { pageNumber: 1, pageSize: 10, orderBy: [], globalSearch: '', columnSearches: [] }
-  ): Observable<PaginatedResultDto<any>> {
+  ): Observable<ExtendedPaginatedResultDto<any>> {
     switch (config.type) {
       case 'API':
         if (!config.connection || !config.controller) {
           throw new Error('API configuration requires both connection and controller');
         }
-        return this.apiService.post<PaginatedResultDto<any>>(
+        return this.apiService.post<ExtendedPaginatedResultDto<any>>(
           `${config.controller.route!.replace("api/v1/", "")}/records`,
           paginationParameters
         );

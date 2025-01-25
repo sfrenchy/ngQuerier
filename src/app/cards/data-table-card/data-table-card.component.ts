@@ -333,7 +333,9 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   private loadData() {
-    if (!this.isValidConfiguration()) return;
+    if (!this.card.configuration?.datasource) {
+      return;
+    }
 
     const parameters: DataRequestParametersDto = {
       pageNumber: this.currentPage,
@@ -343,7 +345,12 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       orderBy: this.sortConfig
     };
 
-    this.dataService.loadData(this.card.configuration!.datasource, parameters);
+    // Passer les colonnes configurées au service
+    this.dataService.loadData(
+      this.card.configuration.datasource,
+      parameters,
+      this.card.configuration.columns || []
+    );
   }
 
   getVisibleColumns(): ColumnConfig[] {

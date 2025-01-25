@@ -6,6 +6,7 @@ export interface ForeignKeyDisplayConfig {
   displayColumns: string[];
   displayFormat?: string;  // Ex: "{firstName} {lastName} ({email})"
   searchColumns?: string[]; // Colonnes à utiliser pour la recherche
+  showInTable?: boolean;   // Indique si la clé étrangère doit être affichée comme une colonne dans la table
 }
 
 export interface TableVisualConfig {
@@ -40,6 +41,9 @@ export interface ColumnConfig {
   navigationType?: string;
   isCollection?: boolean;
   elementType?: string;
+  isVirtualForeignKey?: boolean;
+  sourceColumn?: string;
+  foreignKeyConfig?: ForeignKeyDisplayConfig;
   entityMetadata?: {
     isPrimaryKey: boolean;
     isIdentity: boolean;

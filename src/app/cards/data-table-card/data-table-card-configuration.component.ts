@@ -114,9 +114,9 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
   private initializeColumns(schema: any) {
     if (schema.properties) {
-      // Créer une map des colonnes existantes pour un accès rapide
+      // Sauvegarder l'état des colonnes existantes, y compris les colonnes virtuelles
       const existingColumnsMap = new Map(
-        this.columns.map(col => [col.key, col])
+        this.columns.map(col => [col.isVirtualForeignKey ? `${col.sourceColumn}_display` : col.key, col])
       );
 
       this.columns = Object.entries(schema.properties)
@@ -127,10 +127,10 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
           const isPrimaryOrForeignKey = prop['x-entity-metadata']?.isPrimaryKey || prop['x-entity-metadata']?.isForeignKey;
 
           // Si la colonne existe déjà, préserver sa configuration
-          if (existingColumn) {
+          if (existingColumn && !existingColumn.isVirtualForeignKey) {
             return {
               ...existingColumn,
-              type, // Mettre à jour le type au cas où il aurait changé
+              type,
               entityMetadata: prop['x-entity-metadata'],
               isNavigation: prop['x-entity-metadata']?.isNavigation || false,
               navigationType: prop['x-entity-metadata']?.navigationType,
@@ -158,7 +158,11 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
           };
         });
 
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      // Mettre à jour le formulaire avant d'ajouter les colonnes virtuelles
+      this.form.patchValue({ columns: this.columns }, { emitEvent: false });
+
+      // Restaurer les colonnes virtuelles avec leur état précédent
+      this.updateVirtualColumns(existingColumnsMap);
     }
   }
 
@@ -381,6 +385,9 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       }
       if (formValue.visualConfig) {
         config.visualConfig = formValue.visualConfig;
+      }
+      if (formValue.crudConfig) {
+        config.crudConfig = formValue.crudConfig;
       }
       this.save.emit(config);
     }
@@ -637,5 +644,70 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     const config = this.getForeignKeyConfig(table);
     // Pas de limite sur le nombre de colonnes de recherche
     return true;
+  }
+
+  toggleShowInTable(table: string, event: Event) {
+    const config = this.ensureForeignKeyConfig(table);
+    config.showInTable = (event.target as HTMLInputElement).checked;
+    this.updateForeignKeyConfig(table, config);
+    this.updateVirtualColumns();
+  }
+
+  private updateVirtualColumns(existingColumnsMap?: Map<string, ColumnConfig>) {
+    // Sauvegarder l'état des colonnes virtuelles existantes
+    const virtualColumnsState = new Map<string, ColumnConfig>();
+    this.columns
+      .filter(col => col.isVirtualForeignKey)
+      .forEach(col => {
+        if (col.sourceColumn) {
+          virtualColumnsState.set(col.sourceColumn, col);
+        }
+      });
+
+    // Filtrer les colonnes virtuelles existantes
+    this.columns = this.columns.filter(col => !col.isVirtualForeignKey);
+
+    // Ajouter les nouvelles colonnes virtuelles pour les clés étrangères
+    const foreignKeyConfigs = this.form.value.crudConfig?.foreignKeyConfigs;
+    if (foreignKeyConfigs) {
+      Object.entries(foreignKeyConfigs).forEach(([table, rawConfig]) => {
+        const config = rawConfig as ForeignKeyDisplayConfig;
+        if (config.showInTable) {
+          // Trouver la colonne de clé étrangère correspondante
+          const foreignKeyColumn = this.columns.find(col => 
+            col.entityMetadata?.isForeignKey && 
+            col.entityMetadata?.foreignKeyTable === table
+          );
+
+          if (foreignKeyColumn) {
+            const virtualColumnKey = `${foreignKeyColumn.key}_display`;
+            // Récupérer l'état précédent de la colonne virtuelle
+            const existingVirtualColumn = virtualColumnsState.get(foreignKeyColumn.key) || 
+                                       (existingColumnsMap?.get(virtualColumnKey));
+
+            // Créer une colonne virtuelle
+            const virtualColumn: ColumnConfig = {
+              key: virtualColumnKey,
+              type: 'string',
+              label: { 
+                en: `${table}`, 
+                fr: `${table}` 
+              },
+              alignment: 'left',
+              visible: existingVirtualColumn ? existingVirtualColumn.visible : true, // Par défaut visible
+              isFixed: existingVirtualColumn ? existingVirtualColumn.isFixed : false,
+              isFixedRight: existingVirtualColumn ? existingVirtualColumn.isFixedRight : false,
+              isVirtualForeignKey: true,
+              sourceColumn: foreignKeyColumn.key,
+              foreignKeyConfig: config
+            };
+            this.columns.push(virtualColumn);
+          }
+        }
+      });
+    }
+
+    // Mettre à jour le formulaire
+    this.form.patchValue({ columns: this.columns }, { emitEvent: true });
   }
 } 

@@ -38,6 +38,20 @@ import {
   DBConnectionEndpointInfoDto
 } from '@models/api.models';
 
+interface ForeignKeyDataValue {
+  id: string;
+  value: string;
+}
+
+interface ForeignKeyData {
+  foreignKey: string;
+  values: ForeignKeyDataValue[];
+}
+
+interface ExtendedPaginatedResultDto<T> extends PaginatedResultDto<T> {
+  foreignKeyData?: ForeignKeyData[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -497,9 +511,9 @@ export class ApiService {
     contextName: string,
     entityName: string,
     paginationParameters: DataRequestParametersDto
-  ): Observable<PaginatedResultDto<any>> {
+  ): Observable<ExtendedPaginatedResultDto<any>> {
 
-    return this.http.post<PaginatedResultDto<any>>(
+    return this.http.post<ExtendedPaginatedResultDto<any>>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.datasourceContextEntityRecords, {
         contextName: contextName,
         entityName: entityName
@@ -571,7 +585,7 @@ export class ApiService {
   executeQuery(
     queryName: string,
     paginationParameters: DataRequestParametersDto
-  ): Observable<PaginatedResultDto<any>> {
+  ): Observable<ExtendedPaginatedResultDto<any>> {
     return this.getSQLQueries().pipe(
       map(queries => {
         const query = queries.find(q => q.name === queryName);
@@ -586,7 +600,7 @@ export class ApiService {
           sqlParameters: {}
         };
 
-        return this.http.post<PaginatedResultDto<any>>(
+        return this.http.post<ExtendedPaginatedResultDto<any>>(
           ApiEndpoints.buildUrl(
             this.baseUrl,
             ApiEndpoints.replaceUrlParams(ApiEndpoints.executeSqlQuery, {

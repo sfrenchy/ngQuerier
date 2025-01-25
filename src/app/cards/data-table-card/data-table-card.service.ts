@@ -2,17 +2,32 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DatasourceConfig } from '@models/datasource.models';
-import { ColumnSearchDto, DBConnectionEndpointRequestInfoDto } from '@models/api.models';
+import { ColumnSearchDto, DBConnectionEndpointRequestInfoDto, ForeignKeyIncludeConfig, PaginatedResultDto } from '@models/api.models';
 import { CardDatabaseService } from '@services/card-database.service';
 import { DataRequestParametersDto } from '@models/api.models';
 import { OrderByParameterDto } from '@models/api.models';
 import { ColumnConfig, DataState } from './data-table-card.models';
 import { FormDataSubmit } from './dynamic-form.component';
 
+interface ForeignKeyDataValue {
+  id: string;
+  value: string;
+}
+
+interface ForeignKeyData {
+  foreignKey: string;
+  values: ForeignKeyDataValue[];
+}
+
+interface ExtendedPaginatedResultDto<T> extends PaginatedResultDto<T> {
+  foreignKeyData?: ForeignKeyData[];
+}
+
 interface TableState {
   items: any[];
   total: number;
   loading: boolean;
+  foreignKeyData?: ForeignKeyData[];
 }
 
 export interface FormDataSubmitWithId extends FormDataSubmit {
@@ -31,6 +46,7 @@ export class DataTableCardService {
     parameters: DataRequestParametersDto 
   }>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes en millisecondes
+  private currentDatasource?: DatasourceConfig;
 
   constructor(private cardDatabaseService: CardDatabaseService) {}
 
@@ -59,15 +75,23 @@ export class DataTableCardService {
     this.cacheMap.delete(key);
   }
 
-  loadData(datasource: DatasourceConfig, parameters: DataRequestParametersDto): void {
+  loadData(datasource: DatasourceConfig, parameters: DataRequestParametersDto, columns: ColumnConfig[] = []): void {
+    this.currentDatasource = datasource;
     const key = this.getStateKey(datasource);
     const state = this.getOrCreateState(datasource);
     const currentCache = this.cacheMap.get(key);
     
+    // Ajouter les includes pour les clés étrangères
+    const foreignKeyIncludes = this.getForeignKeyIncludes(columns);
+    const paramsWithIncludes: DataRequestParametersDto = {
+      ...parameters,
+      includes: foreignKeyIncludes
+    };
+    
     // Vérifier si nous avons un cache valide avec les mêmes paramètres
     if (currentCache && 
         Date.now() - currentCache.timestamp < this.CACHE_DURATION &&
-        JSON.stringify(currentCache.parameters) === JSON.stringify(parameters)) {
+        JSON.stringify(currentCache.parameters) === JSON.stringify(paramsWithIncludes)) {
       state.next({
         items: currentCache.data.items,
         total: currentCache.data.total,
@@ -78,19 +102,20 @@ export class DataTableCardService {
 
     state.next({ ...state.getValue(), loading: true });
 
-    this.cardDatabaseService.fetchData(datasource, parameters).subscribe({
+    this.cardDatabaseService.fetchData(datasource, paramsWithIncludes).subscribe({
       next: (response) => {
         // Mettre à jour le cache
         this.cacheMap.set(key, {
           data: response,
           timestamp: Date.now(),
-          parameters
+          parameters: paramsWithIncludes
         });
 
         state.next({
           items: response.items,
           total: response.total,
-          loading: false
+          loading: false,
+          foreignKeyData: response.foreignKeyData
         });
       },
       error: (error) => {
@@ -98,10 +123,28 @@ export class DataTableCardService {
         state.next({
           items: [],
           total: 0,
-          loading: false
+          loading: false,
+          foreignKeyData: []
         });
       }
     });
+  }
+
+  private getForeignKeyIncludes(columns: ColumnConfig[]): ForeignKeyIncludeConfig[] {
+    const includes: ForeignKeyIncludeConfig[] = [];
+    
+    columns.forEach(column => {
+      if (column.isVirtualForeignKey && column.sourceColumn && column.foreignKeyConfig) {
+        // Ajouter l'include avec la configuration d'affichage
+        includes.push({
+          foreignKey: column.sourceColumn,
+          displayFormat: column.foreignKeyConfig.displayFormat,
+          displayColumns: column.foreignKeyConfig.displayColumns
+        });
+      }
+    });
+    
+    return includes;
   }
 
   private areOrderByEqual(current?: OrderByParameterDto[], next?: OrderByParameterDto[]): boolean {
@@ -209,6 +252,11 @@ export class DataTableCardService {
     if (!item || !column.key) {
       return '';
     }
+
+    // Si c'est une colonne virtuelle de clé étrangère
+    if (column.isVirtualForeignKey && column.sourceColumn && column.foreignKeyConfig) {
+      return this.formatForeignKeyValue(item, column);
+    }
     
     const camelCaseKey = column.key.charAt(0).toLowerCase() + column.key.slice(1);
     const keys = camelCaseKey.split('.');
@@ -222,6 +270,34 @@ export class DataTableCardService {
     }
 
     return this.formatColumnValue(value, column, locale);
+  }
+
+  private formatForeignKeyValue(item: any, column: ColumnConfig): string {
+    if (!column.foreignKeyConfig || !column.sourceColumn || !this.currentDatasource) {
+      return '';
+    }
+
+    // Get the foreign key value from the item
+    const foreignKeyValue = item[column.sourceColumn.charAt(0).toLowerCase() + column.sourceColumn.slice(1)];
+    if (!foreignKeyValue) {
+      return '';
+    }
+
+    // Get the current state which contains the foreignKeyData
+    const state = this.getOrCreateState(this.currentDatasource).getValue();
+    
+    const foreignKeyData = state.foreignKeyData?.find((fk: { foreignKey: string }) => 
+      fk.foreignKey === column.sourceColumn
+    );
+    if (!foreignKeyData) {
+      return '';
+    }
+
+    // Find the matching value in the foreignKeyData values array
+    const matchingValue = foreignKeyData.values.find((v: { id: string; value: string }) => 
+      v.id.toString() === foreignKeyValue.toString()
+    );
+    return matchingValue?.value || '';
   }
 
   getColumnValues(config: DatasourceConfig, columnName: string): Observable<string[]> {

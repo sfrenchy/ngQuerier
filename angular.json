@@ -39,8 +39,8 @@
               },
               {
                 "glob": "**/i18n/*.json",
-                "input": "src/app",
-                "output": "/assets/app"
+                "input": "src/app/cards",
+                "output": "/assets/app/cards"
               }
             ],
             "styles": [

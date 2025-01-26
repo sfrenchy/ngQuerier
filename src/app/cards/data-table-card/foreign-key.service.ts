@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, of } from 'rxjs';
-import { CardDatabaseService } from '@services/card-database.service';
+import { Observable, map, of, firstValueFrom } from 'rxjs';
+import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
 import { DatasourceConfig } from '@models/datasource.models';
 import { DataTableCardConfig } from './data-table-card.models';
 
@@ -29,7 +29,7 @@ export class ForeignKeyService {
     'code', 'reference'
   ];
 
-  constructor(private cardDatabaseService: CardDatabaseService) {}
+  constructor(private datasourceService: DatasourceService) {}
 
   setConfig(config: DataTableCardConfig) {
     this.config = config;
@@ -100,12 +100,12 @@ export class ForeignKeyService {
     }
 
     // 1. Obtenir les endpoints pour la table
-    const endpoints = await this.cardDatabaseService.getDatabaseEndpoints(
+    const endpoints = await firstValueFrom(this.datasourceService.getDatabaseEndpoints(
       this.config.datasource.connection.id,
       null,
       tableName,
       'GetAll'
-    ).toPromise();
+    ));
 
     if (!endpoints || endpoints.length === 0) {
       return [];
@@ -131,10 +131,10 @@ export class ForeignKeyService {
     };
 
     // 4. Récupérer les données
-    const response = await this.cardDatabaseService.fetchData(
+    const response = await firstValueFrom(this.datasourceService.fetchData(
       foreignKeyDatasource,
       searchParams
-    ).toPromise();
+    ));
 
     if (!response?.items) {
       return [];

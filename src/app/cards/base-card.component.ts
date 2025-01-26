@@ -1,8 +1,7 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, OnInit, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardDto, BaseCardConfig } from '@models/api.models';
 import { uintToHex } from '../shared/utils/color.utils';
-import { CardDatabaseService } from '../services/card-database.service';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -12,33 +11,17 @@ import { TranslateService, TranslateModule } from '@ngx-translate/core';
   standalone: true,
   imports: [CommonModule, TranslateModule]
 })
-export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implements OnInit, OnDestroy {
+export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDestroy {
   @Input() card!: CardDto;
   @Input() isEditing: boolean = false;
   @Input() showFullscreenButton: boolean = false;
-  protected _height: number = 0;
+  @Input() height: number = 0;
   isFullscreen: boolean = false;
 
   @ViewChild('cardContainer') cardContainer!: ElementRef;
 
-  @Input()
-  set height(value: number) {
-    if (this._height !== value) {
-      this._height = value;
-      this.onHeightChange();
-    }
-  }
-  get height(): number {
-    return this._height;
-  }
-
-  protected _isResizing = false;
-  @Input() 
-  get isResizing(): boolean {
-    return this._isResizing;
-  }
-  set isResizing(value: boolean) {
-    this._isResizing = value;
+  @HostBinding('class') get hostClasses(): string {
+    return 'flex flex-col h-full';
   }
 
   @Output() delete = new EventEmitter<void>();
@@ -46,15 +29,11 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implem
   @Output() fullscreenChange = new EventEmitter<boolean>();
 
   constructor(
-    protected cardDatabaseService?: CardDatabaseService,
-    protected translateService?: TranslateService
+    protected translateService: TranslateService
   ) {}
 
   ngOnInit() {
-    // Only load translations for derived components
-    if (this.constructor !== BaseCardComponent) {
-      this.loadCardTranslations();
-    }
+    this.onHeightChange();
   }
 
   ngOnDestroy() {}

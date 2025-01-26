@@ -180,7 +180,12 @@ export class DynamicFormComponent implements OnInit {
         }
 
         // Utiliser la valeur initiale si disponible, sinon la valeur par défaut
-        const defaultValue = this.initialData?.[key] ?? metadata?.defaultValue ?? null;
+        const defaultValue = this.initialData ? 
+          Object.entries(this.initialData).find(([k, v]) => k.toLowerCase() === key.toLowerCase())?.[1] ?? 
+          metadata?.defaultValue ?? 
+          null : 
+          metadata?.defaultValue ?? 
+          null;
         formGroup[key] = [defaultValue, validators];
 
         return {

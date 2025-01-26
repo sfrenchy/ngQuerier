@@ -96,5 +96,23 @@
     "TOOL_DATA_ZOOM": "Data Zoom",
     "TOOL_RESTORE": "Restore",
     "TOOL_SAVE_IMAGE": "Save as Image"
+  },
+  "DATASOURCE": {
+    "TYPE": "Data source type",
+    "CONNECTION": "Connection",
+    "CONTROLLER": "Controller",
+    "CONTEXT": "Context",
+    "ENTITY": "Entity",
+    "QUERY": "Query",
+    "PROCEDURE_PARAMETERS": "Procedure parameters",
+    "USER_CHANGE_ALLOWED": "User can modify",
+    "DATE_TYPES": {
+      "SPECIFIC": "Specific date",
+      "TODAY": "Today",
+      "YESTERDAY": "Yesterday",
+      "LAST_WEEK": "Last week",
+      "LAST_MONTH": "Last month",
+      "LAST_YEAR": "Last year"
+    }
   }
 } 

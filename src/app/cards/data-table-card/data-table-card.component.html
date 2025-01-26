@@ -267,7 +267,7 @@
         {{ (modalConfig?.titleKey || '') | translate:modalConfig?.titleParams }}
       </h2>
       <button *ngIf="modalConfig?.showFullscreenButton"
-              (click)="onFormFullscreenChange()"
+              (click)="onFormFullscreenChange(!isFormFullscreen)"
               class="p-2 text-gray-400 hover:text-white focus:outline-none">
         <svg xmlns="http://www.w3.org/2000/svg" 
              class="h-5 w-5" 
@@ -298,12 +298,12 @@
     <!-- Formulaire -->
     <app-dynamic-form *ngIf="!isFormLoading && showAddForm"
       [jsonSchema]="addFormSchema"
+      [initialData]="formData"
       [foreignKeyData]="addFormForeignKeyData"
       [foreignKeyConfigs]="addFormForeignKeyConfigs"
-      [initialData]="currentEditingRow"
       (formSubmit)="onFormSubmit($event)"
       (formCancel)="onFormCancel()"
-      (fullscreenChange)="onFormFullscreenChange()">
+      (fullscreenChange)="onFormFullscreenChange($event)">
     </app-dynamic-form>
   </div>
 </div>

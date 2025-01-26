@@ -1,5 +1,63 @@
 {
   "LineChart": {
+    "TITLE": "Graphique en ligne",
+    "DESCRIPTION": "Description du graphique en ligne",
+    "CONFIGURATION": {
+      "TITLE": "Configuration du graphique",
+      "DATASOURCE": {
+        "TITLE": "Source de données"
+      },
+      "AXES": {
+        "TITLE": "Configuration des axes",
+        "X_AXIS": "Axe X",
+        "X_AXIS_COLUMN": "Colonne de l'axe X",
+        "SERIES": "Séries",
+        "ADD_SERIES": "Ajouter une série",
+        "SERIES_NAME": "Nom de la série",
+        "SERIES_COLUMN": "Colonne de données",
+        "SERIES_COLOR": "Couleur de la série",
+        "REMOVE_SERIES": "Supprimer la série",
+        "NO_SERIES": "Aucune série définie"
+      },
+      "VISUAL": {
+        "TITLE": "Options visuelles",
+        "LEGEND": {
+          "SHOW": "Afficher la légende",
+          "POSITION": "Position de la légende",
+          "POSITION_RIGHT": "Droite",
+          "POSITION_BELOW": "Bas"
+        },
+        "AXIS_LABELS": {
+          "SHOW_X": "Afficher le libellé de l'axe X",
+          "X_LABEL": "Libellé de l'axe X",
+          "SHOW_Y": "Afficher le libellé de l'axe Y",
+          "Y_LABEL": "Libellé de l'axe Y"
+        },
+        "GRID": {
+          "SHOW": "Afficher la grille"
+        },
+        "OTHER": {
+          "ROUND_DOMAINS": "Arrondir les domaines",
+          "TIMELINE": "Activer la timeline"
+        }
+      },
+      "VALIDATION": {
+        "REQUIRED_X_AXIS": "La colonne de l'axe X est requise",
+        "REQUIRED_SERIES": "Au moins une série est requise",
+        "REQUIRED_SERIES_NAME": "Le nom de la série est requis",
+        "REQUIRED_SERIES_COLUMN": "La colonne de données est requise"
+      }
+    },
+    "OPTIONS": "Options du graphique",
+    "SHOW_LEGEND": "Afficher la légende",
+    "LEGEND_POSITION": "Position de la légende",
+    "LEGEND_POSITION_RIGHT": "Droite",
+    "LEGEND_POSITION_BOTTOM": "Bas",
+    "SHOW_X_AXIS_LABEL": "Afficher le libellé de l'axe X",
+    "X_AXIS_LABEL_PLACEHOLDER": "Libellé de l'axe X",
+    "SHOW_Y_AXIS_LABEL": "Afficher le libellé de l'axe Y",
+    "Y_AXIS_LABEL_PLACEHOLDER": "Libellé de l'axe Y",
+    "SHOW_GRID_LINES": "Afficher la grille",
     "NO_DATA": "Aucune donnée disponible",
     "X_AXIS": "Configuration de l'axe X",
     "X_AXIS_COLUMN": "Colonne de l'axe X",
@@ -20,12 +78,6 @@
     "VISUAL_CONFIG": "Configuration visuelle",
     "BACKGROUND_COLOR": "Couleur de fond",
     "TEXT_COLOR": "Couleur du texte",
-    "SHOW_LEGEND": "Afficher la légende",
-    "LEGEND_POSITION": "Position de la légende",
-    "POSITION_TOP": "Haut",
-    "POSITION_BOTTOM": "Bas",
-    "POSITION_LEFT": "Gauche",
-    "POSITION_RIGHT": "Droite",
     "SHOW_TOOLTIP": "Afficher l'infobulle",
     "TOOLTIP_TRIGGER": "Déclencheur de l'infobulle",
     "TRIGGER_ITEM": "Sur le point",
@@ -34,5 +86,23 @@
     "TOOL_DATA_ZOOM": "Zoom des données",
     "TOOL_RESTORE": "Restaurer",
     "TOOL_SAVE_IMAGE": "Enregistrer l'image"
+  },
+  "DATASOURCE": {
+    "TYPE": "Type de source de données",
+    "CONNECTION": "Connexion",
+    "CONTROLLER": "Contrôleur",
+    "CONTEXT": "Contexte",
+    "ENTITY": "Entité",
+    "QUERY": "Requête",
+    "PROCEDURE_PARAMETERS": "Paramètres de la procédure",
+    "USER_CHANGE_ALLOWED": "Modifiable par l'utilisateur",
+    "DATE_TYPES": {
+      "SPECIFIC": "Date spécifique",
+      "TODAY": "Aujourd'hui",
+      "YESTERDAY": "Hier",
+      "LAST_WEEK": "Il y a une semaine",
+      "LAST_MONTH": "Il y a un mois",
+      "LAST_YEAR": "Il y a un an"
+    }
   }
 } 

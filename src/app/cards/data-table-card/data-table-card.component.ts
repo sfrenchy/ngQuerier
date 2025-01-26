@@ -3,11 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject, Subscription, Observable, from, of, forkJoin, mergeMap } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil, map, catchError, mergeAll, toArray } from 'rxjs/operators';
+import { Subject, Subscription, Observable, from, of, forkJoin, mergeMap, tap, catchError, EMPTY } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil, map, mergeAll, toArray } from 'rxjs/operators';
 import { Card } from '@cards/card.decorator';
 import { BaseCardComponent } from '@cards/base-card.component';
-import { CardDatabaseService } from '@services/card-database.service';
 import { DataTableCardService } from './data-table-card.service';
 import { ColumnFilterPopoverComponent } from './column-filter-popover.component';
 import { DataTableCardConfigurationComponent } from './data-table-card-configuration.component';
@@ -19,6 +18,7 @@ import { ConfirmationDialogComponent } from '@shared/components/confirmation-dia
 import { FormDataSubmitWithId } from './data-table-card.service';
 import { ForeignKeyService } from './foreign-key.service';
 import { TableStateService } from './table-state.service';
+import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
 
 // Modifier l'interface ModalConfig
 interface ModalConfig {
@@ -46,12 +46,17 @@ interface ModalConfig {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfig> implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild('tableContainer') tableContainerRef?: ElementRef;
+  @ViewChild('tableHeader') tableHeaderRef?: ElementRef;
+  @ViewChild('tableBody') tableBodyRef?: ElementRef;
+
   data: any[] = [];
   totalItems: number = 0;
   currentPage: number = 1;
   pageSize: number = 0;
-  loading: boolean = false;
-  isCalculatingRows: boolean = true;
+  loading = false;
+  isLoadingData = false;
+  isCalculatingRows = true;
   currentLanguage: string;
   hoveredRow: number = -1;
   private destroy$ = new Subject<void>();
@@ -87,7 +92,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   columnWidths = new Map<string, number>();
   private tableWidth: number = 0;
   @Output() configurationChanged = new EventEmitter<any>();
-  @ViewChild('tableContainer') tableContainerRef!: ElementRef;
   @ViewChild('customScroll') customScrollRef!: ElementRef;
   private isScrolling = false;
   private isDragging = false;
@@ -112,6 +116,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   // Ajout des nouvelles propriétés
   showAddForm = false;
   addFormSchema: any = null;
+  formData: any = null;
 
   // Nouvelles propriétés pour les clés étrangères
   addFormForeignKeyData: { [key: string]: any[] } = {};
@@ -122,7 +127,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   private loadingTimer: any = null;
   private isPageChange = false;
-  private isLoadingData = false;
   private loadingStartTime: number = 0;
 
   // Ajout des propriétés manquantes
@@ -146,15 +150,15 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   constructor(
-    protected override cardDatabaseService: CardDatabaseService,
     protected override translateService: TranslateService,
     private cdr: ChangeDetectorRef,
     private dataService: DataTableCardService,
     private foreignKeyService: ForeignKeyService,
     private tableStateService: TableStateService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private datasourceService: DatasourceService
   ) {
-    super(cardDatabaseService, translateService);
+    super(translateService);
     this.currentLanguage = this.translateService.currentLang;
 
     // S'abonner aux changements de langue
@@ -177,7 +181,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
     // Ajouter le listener de clic sur le document
     this.documentClickListener = (event: MouseEvent) => {
-
       // Ne pas fermer si on clique sur un bouton de filtre
       const target = event.target as HTMLElement;
       const filterButton = target.closest('button');
@@ -198,6 +201,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   override ngOnInit() {
     super.ngOnInit();
+    this.loadCardTranslations();
     this.loadSavedState();
     try {
       if (this.card.configuration?.datasource && this.isValidConfiguration()) {
@@ -239,15 +243,22 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             }
             this.cdr.detectChanges();
           });
+      } else {
+        console.warn('[DataTableCard] Configuration invalide', {
+            hasConfig: !!this.card.configuration,
+            hasDatasource: !!this.card.configuration?.datasource,
+            isValid: this.isValidConfiguration()
+        });
       }
     } catch (error) {
-      console.error('Error in ngOnInit:', error);
+      console.error('[DataTableCard] Erreur dans ngOnInit', error);
       this.cdr.detectChanges();
     }
   }
 
   private isValidConfiguration(): boolean {
-    return !!(this.card.configuration?.datasource?.connection && this.card.configuration?.datasource?.controller);
+    const isValid = !!(this.card.configuration?.datasource?.connection && this.card.configuration?.datasource?.controller);
+    return isValid;
   }
 
   ngAfterViewInit() {
@@ -279,6 +290,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
         this.initialLoadDone = true;
         this.cdr.detectChanges();
       }, 100);
+    } else {
+      console.warn('[DataTableCard] Configuration invalide dans ngAfterViewInit');
     }
   }
 
@@ -370,10 +383,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     );
   }
 
-  private loadData() {
-    if (!this.card.configuration?.datasource) {
-      return;
-    }
+  private loadData(): void {
+    if (!this.isValidConfiguration()) return;
 
     const parameters: DataRequestParametersDto = {
       pageNumber: this.currentPage,
@@ -383,12 +394,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       orderBy: this.sortConfig
     };
 
-    // Passer les colonnes configurées au service
-    this.dataService.loadData(
-      this.card.configuration.datasource,
-      parameters,
-      this.card.configuration.columns || []
-    );
+    this.dataService.loadData(this.card.configuration!.datasource, parameters);
+    this.cdr.detectChanges();
   }
 
   getVisibleColumns(): ColumnConfig[] {
@@ -862,7 +869,24 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   // Modifier la méthode onAdd
   onAdd(): void {
-    if (!this.card.configuration?.datasource) return;
+    console.log('[DataTableCard] Début ajout - Configuration détaillée:', {
+      hasConfig: !!this.card.configuration,
+      hasConnection: !!this.card.configuration?.datasource?.connection,
+      connectionId: this.card.configuration?.datasource?.connection?.id,
+      hasController: !!this.card.configuration?.datasource?.controller,
+      controllerName: this.card.configuration?.datasource?.controller?.route,
+      fullConfig: this.card.configuration?.datasource
+    });
+
+    if (!this.card.configuration?.datasource) {
+      console.error('[DataTableCard] Configuration datasource manquante');
+      return;
+    }
+
+    // Vider les caches
+    this.dataService.clearSchemaDefinitions(this.card.configuration.datasource);
+    this.tableStateService.clearState(this.card.id.toString(), this.card.configuration.datasource);
+    this.foreignKeyService.clearCache();
 
     this.isFormLoading = true;
     this.showAddForm = true;
@@ -872,31 +896,62 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     };
     this.cdr.detectChanges();
 
-    this.dataService.getReadActionParameterDefinition(this.card.configuration.datasource)
+    console.log('[DataTableCard] Chargement du schéma...');
+    
+    // Extraire le nom du contrôleur de la route
+    const controllerName = this.card.configuration.datasource.controller.route.split('/').pop() || '';
+    
+    this.dataService.getReadActionParameterDefinition({
+      ...this.card.configuration.datasource,
+      controller: {
+        ...this.card.configuration.datasource.controller,
+        name: controllerName
+      }
+    })
+      .pipe(
+        tap(params => console.log('[DataTableCard] Paramètres reçus:', params)),
+        catchError(error => {
+          console.error('[DataTableCard] Erreur lors de la récupération des paramètres:', error);
+          this.isFormLoading = false;
+          this.showAddForm = false;
+          this.cdr.detectChanges();
+          return EMPTY;
+        })
+      )
       .subscribe({
         next: (parameters: DBConnectionEndpointRequestInfoDto[]) => {
+          console.log('[DataTableCard] Nombre de paramètres:', parameters.length);
           if (parameters.length === 1) {
-            this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
-            
-            // Charger les données des clés étrangères
-            this.loadForeignKeyData().subscribe(() => {
+            try {
+              this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
+              console.log('[DataTableCard] Schéma parsé avec succès');
+              
+              // Charger les données des clés étrangères
+              this.loadForeignKeyData().subscribe(() => {
+                console.log('[DataTableCard] Données des clés étrangères chargées');
+                this.isFormLoading = false;
+                this.cdr.detectChanges();
+              });
+            } catch (error) {
+              console.error('[DataTableCard] Erreur lors du parsing du schéma:', error);
               this.isFormLoading = false;
+              this.showAddForm = false;
               this.cdr.detectChanges();
-            });
+            }
+          } else {
+            console.error('[DataTableCard] Nombre de paramètres invalide:', parameters.length);
+            this.isFormLoading = false;
+            this.showAddForm = false;
+            this.cdr.detectChanges();
           }
-        },
-        error: (error: any) => {
-          console.error('Error loading add form schema:', error);
-          this.isFormLoading = false;
-          this.cdr.detectChanges();
         }
       });
   }
 
   isFormFullscreen = false;
 
-  onFormFullscreenChange() {
-    this.isFormFullscreen = !this.isFormFullscreen;
+  onFormFullscreenChange(isFullscreen: boolean) {
+    this.isFormFullscreen = isFullscreen;
     const formElement = document.querySelector('app-dynamic-form') as HTMLElement;
     if (formElement) {
       if (this.isFormFullscreen) {
@@ -905,6 +960,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
         formElement.classList.remove('fixed', 'inset-0', 'z-50', 'p-4');
       }
     }
+    this.cdr.detectChanges();
   }
 
   private loadForeignKeyData(): Observable<unknown> {
@@ -953,37 +1009,71 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onFormSubmit(formData: FormDataSubmit) {
+    console.log('[DataTableCard] Début soumission du formulaire', { isEditMode: this.isEditMode, formData });
+    
     if (this.isEditMode) {
       const primaryKeyValue = this.dataService.getPrimaryKeyValue(this.currentEditingRow, this.addFormSchema);
+      console.log('[DataTableCard] Mode édition - Clé primaire:', primaryKeyValue);
+      
       if (primaryKeyValue) {
         const formDataWithId: FormDataSubmitWithId = {
           ...formData,
           id: primaryKeyValue
         };
 
-        this.dataService.updateData(this.card.configuration.datasource!, formDataWithId).subscribe(response => {
-          this.dataService.invalidateCache(this.card.configuration.datasource!);
-          this.loadData();
-          this.resetForm();
+        this.dataService.updateData(this.card.configuration.datasource!, formDataWithId).subscribe({
+          next: (response) => {
+            console.log('[DataTableCard] Mise à jour réussie', response);
+            this.loadData();
+            this.resetForm();
+          },
+          error: (error) => {
+            console.error('[DataTableCard] Erreur lors de la mise à jour', error);
+            // Gérer l'erreur et mettre à jour l'UI
+            this.cdr.detectChanges();
+          }
         });
       }
     } else {
-      this.dataService.createData(this.card.configuration.datasource!, formData).subscribe(response => {
-        this.dataService.invalidateCache(this.card.configuration.datasource!);
-        this.loadData();
-        this.resetForm();
+      console.log('[DataTableCard] Mode création - Données:', formData);
+      this.dataService.createData(this.card.configuration.datasource!, formData).subscribe({
+        next: (response) => {
+          console.log('[DataTableCard] Création réussie', response);
+          this.loadData();
+          this.resetForm();
+        },
+        error: (error) => {
+          console.error('[DataTableCard] Erreur lors de la création', error);
+          // Gérer l'erreur et mettre à jour l'UI
+          this.cdr.detectChanges();
+        }
       });
     }
   }
 
   onFormCancel() {
+    console.log('[DataTableCard] Annulation du formulaire');
     this.showAddForm = false;
+    this.isEditMode = false;
     this.addFormSchema = null;
+    this.currentEditingRow = null;
     this.cdr.detectChanges();
   }
 
   onUpdate(row: any): void {
-    if (!this.card.configuration?.datasource) return;
+    console.log('[DataTableCard] Début mise à jour - Configuration détaillée:', {
+      hasConfig: !!this.card.configuration,
+      hasConnection: !!this.card.configuration?.datasource?.connection,
+      connectionId: this.card.configuration?.datasource?.connection?.id,
+      hasController: !!this.card.configuration?.datasource?.controller,
+      controllerName: this.card.configuration?.datasource?.controller?.route,
+      row: row
+    });
+
+    // Vider les caches
+    this.dataService.clearSchemaDefinitions(this.card.configuration.datasource);
+    this.tableStateService.clearState(this.card.id.toString(), this.card.configuration.datasource);
+    this.foreignKeyService.clearCache();
 
     this.isFormLoading = true;
     this.showAddForm = true;
@@ -993,56 +1083,64 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     };
     this.cdr.detectChanges();
 
-    this.dataService.getReadActionParameterDefinition(this.card.configuration.datasource)
-      .subscribe({
-        next: (parameters: DBConnectionEndpointRequestInfoDto[]) => {
-          if (parameters.length === 1) {
-            this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
-            
-            // Récupérer l'ID de l'entité
-            const primaryKeyValue = this.dataService.getPrimaryKeyValue(row, this.addFormSchema);
+    // Extraire le nom du contrôleur de la route
+    const controllerName = this.card.configuration.datasource.controller.route.split('/').pop() || '';
 
-            if (!primaryKeyValue) {
-              console.error('Could not find primary key value');
+    // 1. Charger le schéma
+    this.dataService.getReadActionParameterDefinition({
+      ...this.card.configuration.datasource,
+      controller: {
+        ...this.card.configuration.datasource.controller,
+        name: controllerName
+      }
+    }).subscribe({
+      next: (parameters) => {
+        if (parameters.length === 0) {
+          console.warn('[DataTableCard] Nombre de paramètres invalide:', parameters.length);
+          this.isFormLoading = false;
+          this.cdr.detectChanges();
+          return;
+        }
+
+        try {
+          const schema = JSON.parse(parameters[0].jsonSchema);
+          const id = this.dataService.getPrimaryKeyValue(row, schema);
+          console.log('[DataTableCard] Clé primaire pour mise à jour:', id);
+
+          // 2. Charger l'entité
+          this.datasourceService.fetchEntityById(this.card.configuration.datasource, id).subscribe({
+            next: (entity) => {
+              console.log('[DataTableCard] Entité chargée:', entity);
+              this.currentEditingRow = entity;
+              this.addFormSchema = schema;
+              this.formData = entity;
+              this.isEditMode = true;
+
+              // 3. Charger les données des clés étrangères
+              this.loadForeignKeyData().subscribe(() => {
+                console.log('[DataTableCard] Données des clés étrangères chargées');
+                this.isFormLoading = false;
+                this.cdr.detectChanges();
+              });
+            },
+            error: (error) => {
+              console.error('[DataTableCard] Erreur lors de la récupération de l\'entité:', error);
               this.isFormLoading = false;
               this.cdr.detectChanges();
-              return;
             }
-
-            // Récupérer l'entité complète
-            this.cardDatabaseService.fetchEntityById(this.card.configuration!.datasource!, primaryKeyValue)
-              .subscribe({
-                next: (entity) => {
-                  
-                  // Charger les données des clés étrangères
-                  this.loadForeignKeyData().subscribe(() => {
-                    // Préparer les données du formulaire
-                    const formData: { [key: string]: any } = {};
-                    Object.keys(this.addFormSchema.properties).forEach(key => {
-                      const metadata = this.addFormSchema.properties[key]['x-entity-metadata'];
-                      const camelKey = key.charAt(0).toLowerCase() + key.slice(1);
-                      formData[key] = entity[camelKey];
-                    });
-                    
-                    this.currentEditingRow = formData;
-                    this.isEditMode = true;
-                    this.isFormLoading = false;
-                    this.cdr.detectChanges();
-                  });
-                },
-                error: (error) => {
-                  this.isFormLoading = false;
-                  this.cdr.detectChanges();
-                }
-              });
-          }
-        },
-        error: (error: any) => {
-          console.error('Error loading edit form schema:', error);
+          });
+        } catch (error) {
+          console.error('[DataTableCard] Erreur lors du parsing du schéma:', error);
           this.isFormLoading = false;
           this.cdr.detectChanges();
         }
-      });
+      },
+      error: (error) => {
+        console.error('[DataTableCard] Erreur lors de la récupération des paramètres:', error);
+        this.isFormLoading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   onDeleteRow(row: any): void {
@@ -1059,17 +1157,26 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             const primaryKeyValue = this.dataService.getPrimaryKeyValue(this.rowToDelete, schema);
             
             if (primaryKeyValue) {
-              this.dataService.deleteData(this.card.configuration.datasource!, primaryKeyValue).subscribe(response => {
-                this.dataService.invalidateCache(this.card.configuration.datasource!);
-                this.loadData();
-                this.rowToDelete = null;
-                this.showDeleteConfirmation = false;
+              this.dataService.deleteData(this.card.configuration.datasource!, primaryKeyValue).subscribe({
+                next: () => {
+                  this.loadData();
+                  this.rowToDelete = null;
+                  this.showDeleteConfirmation = false;
+                  this.cdr.detectChanges();
+                },
+                error: (error) => {
+                  console.error('[DataTableCard] Erreur lors de la suppression:', error);
+                  this.showDeleteConfirmation = false;
+                  this.cdr.detectChanges();
+                }
               });
             }
           }
         },
         error: (error: any) => {
-          console.error('Error loading delete form schema:', error);
+          console.error('[DataTableCard] Erreur lors du chargement du schéma:', error);
+          this.showDeleteConfirmation = false;
+          this.cdr.detectChanges();
         }
       });
   }
@@ -1083,10 +1190,13 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   resetForm() {
+    console.log('[DataTableCard] Réinitialisation du formulaire');
     this.isEditMode = false;
     this.currentEditingRow = null;
     this.showAddForm = false;
-    // Réinitialiser le formulaire si nécessaire
+    this.isFormLoading = false;
+    this.addFormSchema = null;
+    this.cdr.detectChanges();
   }
 
   private loadSavedState() {
@@ -1129,7 +1239,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onResizeStart(event: MouseEvent, column: ColumnConfig) {
-
     event.preventDefault();
     this.resizing = true;
     this.currentResizeColumn = column;
@@ -1167,7 +1276,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   private onResizeEnd(event: MouseEvent) {
-
     if (!this.resizing || !this.currentResizeColumn) return;
 
     // Calculer et appliquer la nouvelle largeur seulement à la fin du redimensionnement

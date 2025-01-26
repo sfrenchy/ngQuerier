@@ -1,13 +1,12 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
+import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
 import { DatasourceConfig } from '@models/datasource.models';
-import { ColumnSearchDto, DBConnectionEndpointRequestInfoDto, ForeignKeyIncludeConfig, PaginatedResultDto } from '@models/api.models';
-import { CardDatabaseService } from '@services/card-database.service';
-import { DataRequestParametersDto } from '@models/api.models';
+import { DataRequestParametersDto, DBConnectionEndpointRequestInfoDto, DBConnectionEndpointInfoDto } from '@models/api.models';
+import { ColumnSearchDto, ForeignKeyIncludeConfig, PaginatedResultDto } from '@models/api.models';
 import { OrderByParameterDto } from '@models/api.models';
 import { ColumnConfig, DataState } from './data-table-card.models';
-import { FormDataSubmit } from './dynamic-form.component';
 
 interface ForeignKeyDataValue {
   id: string;
@@ -23,110 +22,124 @@ interface ExtendedPaginatedResultDto<T> extends PaginatedResultDto<T> {
   foreignKeyData?: ForeignKeyData[];
 }
 
-interface TableState {
+export interface TableState {
   items: any[];
   total: number;
   loading: boolean;
-  foreignKeyData?: ForeignKeyData[];
+  error?: any;
+  foreignKeyData?: { foreignKey: string; values: { id: string; value: string; }[]; }[];
+}
+
+export interface FormDataSubmit {
+  schema: any;
+  formData: any;
 }
 
 export interface FormDataSubmitWithId extends FormDataSubmit {
-  id?: any;
+  id: any;
+}
+
+interface EndpointInfo {
+  name: string;
+  type: string;
+  isRequired: boolean;
+  source: string;
+  jsonSchema: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class DataTableCardService {
-  
   private stateMap = new Map<string, BehaviorSubject<TableState>>();
-  private cacheMap = new Map<string, { 
-    data: any, 
-    timestamp: number,
-    parameters: DataRequestParametersDto 
-  }>();
+  private cacheMap = new Map<string, any>();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes en millisecondes
   private currentDatasource?: DatasourceConfig;
 
-  constructor(private cardDatabaseService: CardDatabaseService) {}
+  constructor(private datasourceService: DatasourceService) {}
 
-  private getStateKey(datasource: DatasourceConfig): string {
-    return `${datasource.connection!.id}_${datasource.controller!.route}`;
+  private getStateKey(config: DatasourceConfig): string {
+    if (!config?.connection?.id || !config?.controller?.route) {
+        console.warn('[DataTableCardService] Configuration invalide pour getStateKey', {
+            connectionId: config?.connection?.id,
+            controllerRoute: config?.controller?.route
+        });
+        return '';
+    }
+    const controllerName = config.controller.route.split('/').pop() || '';
+    return `${config.connection.id}_${controllerName}`;
   }
 
-  private getOrCreateState(datasource: DatasourceConfig): BehaviorSubject<TableState> {
-    const key = this.getStateKey(datasource);
+  private getOrCreateState(config: DatasourceConfig): BehaviorSubject<TableState> {
+    const key = this.getStateKey(config);
     if (!this.stateMap.has(key)) {
       this.stateMap.set(key, new BehaviorSubject<TableState>({
         items: [],
         total: 0,
-        loading: false
+        loading: false,
+        foreignKeyData: []
       }));
     }
     return this.stateMap.get(key)!;
   }
 
-  getState(datasource: DatasourceConfig): Observable<TableState> {
-    return this.getOrCreateState(datasource).asObservable();
+  getState(config: DatasourceConfig): Observable<TableState> {
+    return this.getOrCreateState(config).asObservable();
   }
 
-  invalidateCache(datasource: DatasourceConfig): void {
-    const key = this.getStateKey(datasource);
-    this.cacheMap.delete(key);
-  }
-
-  loadData(datasource: DatasourceConfig, parameters: DataRequestParametersDto, columns: ColumnConfig[] = []): void {
-    this.currentDatasource = datasource;
-    const key = this.getStateKey(datasource);
-    const state = this.getOrCreateState(datasource);
+  loadData(config: DatasourceConfig, parameters: DataRequestParametersDto, columns: ColumnConfig[] = []): void {
+    this.currentDatasource = config;
+    const key = this.getStateKey(config);
+    const state = this.getOrCreateState(config);
     const currentCache = this.cacheMap.get(key);
     
     // Ajouter les includes pour les clés étrangères
     const foreignKeyIncludes = this.getForeignKeyIncludes(columns);
     const paramsWithIncludes: DataRequestParametersDto = {
-      ...parameters,
-      includes: foreignKeyIncludes
+        ...parameters,
+        includes: foreignKeyIncludes
     };
     
     // Vérifier si nous avons un cache valide avec les mêmes paramètres
     if (currentCache && 
         Date.now() - currentCache.timestamp < this.CACHE_DURATION &&
         JSON.stringify(currentCache.parameters) === JSON.stringify(paramsWithIncludes)) {
-      state.next({
-        items: currentCache.data.items,
-        total: currentCache.data.total,
-        loading: false
-      });
-      return;
+        state.next({
+            items: currentCache.data.items,
+            total: currentCache.data.total,
+            loading: false,
+            foreignKeyData: currentCache.data.foreignKeyData
+        });
+        return;
     }
 
     state.next({ ...state.getValue(), loading: true });
 
-    this.cardDatabaseService.fetchData(datasource, paramsWithIncludes).subscribe({
-      next: (response) => {
-        // Mettre à jour le cache
-        this.cacheMap.set(key, {
-          data: response,
-          timestamp: Date.now(),
-          parameters: paramsWithIncludes
-        });
+    this.datasourceService.fetchData(config, paramsWithIncludes).subscribe({
+        next: (response) => {
+            // Mettre à jour le cache
+            this.cacheMap.set(key, {
+                data: response,
+                timestamp: Date.now(),
+                parameters: paramsWithIncludes
+            });
 
-        state.next({
-          items: response.items,
-          total: response.total,
-          loading: false,
-          foreignKeyData: response.foreignKeyData
-        });
-      },
-      error: (error) => {
-        console.error('Error loading data:', error);
-        state.next({
-          items: [],
-          total: 0,
-          loading: false,
-          foreignKeyData: []
-        });
-      }
+            state.next({
+                items: response.items,
+                total: response.total,
+                loading: false,
+                foreignKeyData: response.foreignKeyData
+            });
+        },
+        error: (error) => {
+            console.error('[DataTableCardService] Erreur lors du chargement des données', error);
+            state.next({
+                items: [],
+                total: 0,
+                loading: false,
+                error
+            });
+        }
     });
   }
 
@@ -162,16 +175,60 @@ export class DataTableCardService {
   }
 
   getReadActionParameterDefinition(config: DatasourceConfig): Observable<DBConnectionEndpointRequestInfoDto[]> {
-    const cacheKey = `${config.connection!.id}_${config.controller?.name}_entity_schema`;
-    return this.cardDatabaseService.getDatabaseEndpoints(config.connection!.id, config.controller?.name + "Controller" || '', '', 'Create').pipe(
-      map(endpoints => endpoints.flatMap(endpoint => endpoint.parameters))
+    // Extraire le nom du contrôleur de la route (prendre la dernière partie après le dernier /)
+    const controllerName = config?.controller?.route?.split('/').pop() || '';
+    
+    console.log('[DataTableCardService] Appel getReadActionParameterDefinition avec config:', {
+      connectionId: config?.connection?.id,
+      controllerName: controllerName,
+      controllerRoute: config?.controller?.route,
+      fullConfig: config
+    });
+
+    if (!config?.connection?.id || !controllerName) {
+      console.warn('[DataTableCardService] Configuration invalide - Retour tableau vide');
+      return of([]);
+    }
+
+    const cacheKey = `${config.connection.id}_${controllerName}_entity_schema`;
+    const cachedSchema = this.cacheMap.get(cacheKey);
+    if (cachedSchema) {
+      console.log('[DataTableCardService] Utilisation du cache pour', cacheKey);
+      return of(cachedSchema);
+    }
+
+    console.log('[DataTableCardService] Appel API getDatabaseEndpoints avec:', {
+      connectionId: config.connection.id,
+      controllerName: controllerName
+    });
+
+    return this.datasourceService.getDatabaseEndpoints(config.connection.id, controllerName + "Controller", "", "Create").pipe(
+      tap(response => {
+        console.log('[DataTableCardService] Réponse API détaillée:', JSON.stringify(response, null, 2));
+        console.log('[DataTableCardService] Structure du premier endpoint:', Object.keys(response[0]));
+      }),
+      map((endpoints: DBConnectionEndpointInfoDto[]) => {
+        const requestInfos = endpoints.map(endpoint => {
+          console.log('[DataTableCardService] Endpoint à transformer:', endpoint);
+          return {
+            name: endpoint.parameters[0].name,
+            type: endpoint.parameters[0].type,
+            isRequired: endpoint.parameters[0].isRequired,
+            source: endpoint.parameters[0].source,
+            jsonSchema: endpoint.parameters[0].jsonSchema
+          } as DBConnectionEndpointRequestInfoDto;
+        });
+        this.cacheMap.set(cacheKey, requestInfos);
+        return requestInfos;
+      })
     );
   }
 
   preloadSchemaDefinitions(config: DatasourceConfig): void {
-    if (!config?.connection?.id || !config?.controller?.name) return;
+    if (!config?.connection?.id || !config?.controller?.route) return;
 
-    const entitySchemaCacheKey = `${config.connection.id}_${config.controller.name}_entity_schema`;
+    const controllerName = config.controller.route.split('/').pop() || '';
+    const entitySchemaCacheKey = `${config.connection.id}_${controllerName}_entity_schema`;
     
     if (!this.cacheMap.has(entitySchemaCacheKey)) {
       this.getReadActionParameterDefinition(config).subscribe();
@@ -180,7 +237,8 @@ export class DataTableCardService {
 
   clearSchemaDefinitions(config?: DatasourceConfig): void {
     if (config) {
-      const cacheKey = `${config.connection!.id}_${config.controller?.name}`;
+      const controllerName = config.controller?.route?.split('/').pop() || '';
+      const cacheKey = `${config.connection!.id}_${controllerName}`;
       this.cacheMap.delete(cacheKey);
     } else {
       this.cacheMap.clear();
@@ -192,11 +250,11 @@ export class DataTableCardService {
     Object.keys(formData.schema.properties).forEach(key => {
       createDto[key] = formData.formData[key] !== undefined ? formData.formData[key] : null;
     });
-    return this.cardDatabaseService.createData(datasource, createDto);
+    return this.datasourceService.createData(datasource, createDto);
   }
 
   deleteData(datasource: DatasourceConfig, id: any): Observable<any> {
-    return this.cardDatabaseService.deleteData(datasource, id);
+    return this.datasourceService.deleteData(datasource, id);
   }
 
   updateData(datasource: DatasourceConfig, formData: FormDataSubmitWithId): Observable<any> {
@@ -205,7 +263,7 @@ export class DataTableCardService {
     Object.keys(formData.schema.properties).forEach(key => {
       updateDto[key] = formData.formData[key] !== undefined ? formData.formData[key] : null;
     });
-    return this.cardDatabaseService.updateData(datasource, id, updateDto);
+    return this.datasourceService.updateData(datasource, id, updateDto);
   }
 
   // Méthodes utilitaires pour les colonnes
@@ -301,7 +359,7 @@ export class DataTableCardService {
   }
 
   getColumnValues(config: DatasourceConfig, columnName: string): Observable<string[]> {
-    return this.cardDatabaseService.getColumnValues(config, columnName);
+    return this.datasourceService.getColumnValues(config, columnName);
   }
 
   getDefaultAlignment(type: string): 'left' | 'center' | 'right' {
@@ -326,14 +384,18 @@ export class DataTableCardService {
   getPrimaryKeyValue(row: any, schema: any): any {
     if (!schema?.properties) return null;
 
-    const primaryKeyProperty = Object.entries(schema.properties)
-      .find(([_, prop]: [string, any]) => prop['x-entity-metadata']?.isPrimaryKey);
+    const primaryKeyField = Object.entries(schema.properties)
+      .find(([key, prop]: [string, any]) => {
+        if (!prop['x-entity-metadata']?.isPrimaryKey) return false;
+        // Rechercher la propriété dans row de manière insensible à la casse
+        const rowKey = Object.keys(row).find(k => k.toLowerCase() === key.toLowerCase());
+        return !!rowKey;
+      });
 
-    if (primaryKeyProperty) {
-      const [primaryKeyName] = primaryKeyProperty;
-      const camelCasePrimaryKey = primaryKeyName.charAt(0).toLowerCase() + primaryKeyName.slice(1);
-      return row[camelCasePrimaryKey];
-    }
-    return null;
+    if (!primaryKeyField) return null;
+
+    // Trouver la clé correspondante dans row
+    const rowKey = Object.keys(row).find(k => k.toLowerCase() === primaryKeyField[0].toLowerCase());
+    return rowKey ? row[rowKey] : null;
   }
 } 

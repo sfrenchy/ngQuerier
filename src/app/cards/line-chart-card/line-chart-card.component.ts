@@ -1,4 +1,4 @@
-import { Component, Type, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, Input } from '@angular/core';
+import { Component, Type, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Card } from '@cards/card.decorator';
@@ -7,7 +7,6 @@ import { BaseCardComponent } from '@cards/base-card.component';
 import { LineChartCardService } from './line-chart-card.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { CardDatabaseService } from '@services/card-database.service';
 import { NgxEchartsModule, NGX_ECHARTS_CONFIG } from 'ngx-echarts';
 import { LineChartCardConfig, ChartState, SeriesConfig } from './line-chart-card.models';
 import { EChartsOption } from 'echarts';
@@ -55,15 +54,15 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
 
   constructor(
     private cardService: LineChartCardService,
-    protected override cardDatabaseService: CardDatabaseService,
     protected override translateService: TranslateService,
     private cdr: ChangeDetectorRef
   ) {
-    super(cardDatabaseService);
+    super(translateService);
   }
 
   override ngOnInit() {
     super.ngOnInit();
+    this.loadCardTranslations();
     this.subscribeToDataChanges();
     this.loadData();
   }
@@ -86,7 +85,6 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
 
   private updateChartOptions() {
     if (!this.chartState.data || !this.card.configuration) return;
-
 
     // Vérification de la structure des données
     const firstItem = this.chartState.data[0];
@@ -122,7 +120,7 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
       
       return value;
     });
-    
+
     // Configuration des séries avec vérification des données
     const series = this.card.configuration.series.map((seriesConfig: SeriesConfig) => {
       const seriesData = this.chartState.data.map(item => {
@@ -171,7 +169,6 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
       },
       series
     };
-
   }
 
   private formatDate(date: Date, format: string): string {

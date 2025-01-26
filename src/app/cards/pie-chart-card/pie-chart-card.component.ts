@@ -8,12 +8,9 @@ import { BaseCardComponent } from '@cards/base-card.component';
 import { PieChartCardService } from './pie-chart-card.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { CardDatabaseService } from '@services/card-database.service';
 
 export class PieChartCardConfig extends BaseCardConfig {
-  constructor(
-    // Add constructor parameters here
-  ) {
+  constructor() {
     super();
   }
 
@@ -24,9 +21,7 @@ export class PieChartCardConfig extends BaseCardConfig {
   }
 
   static fromJson(json: any): PieChartCardConfig {
-    return new PieChartCardConfig(
-      // Add constructor parameters here
-    );
+    return new PieChartCardConfig();
   }
 }
 
@@ -55,15 +50,15 @@ export class PieChartCardComponent extends BaseCardComponent<PieChartCardConfig>
 
   constructor(
     private cardService: PieChartCardService,
-    protected override cardDatabaseService: CardDatabaseService,
     protected override translateService: TranslateService,
     private cdr: ChangeDetectorRef
   ) {
-    super(cardDatabaseService);
+    super(translateService);
   }
 
   override ngOnInit() {
     super.ngOnInit();
+    this.loadCardTranslations();
     // Subscribe to state changes from the service
     // Example:
     // this.cardService.getState(this.card.configuration)

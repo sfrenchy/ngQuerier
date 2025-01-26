@@ -392,6 +392,7 @@ export interface DataRequestParametersDto {
   globalSearch: string;
   columnSearches: ColumnSearchDto[];
   includes?: ForeignKeyIncludeConfig[];
+  procedureParameters?: { [key: string]: any };
 }
 
 export interface ColumnSearchDto {
@@ -413,7 +414,8 @@ export interface PaginatedResultDto<T> {
 export interface DBConnectionControllerInfoDto {
   name?: string;
   route?: string;
-  httpGetJsonSchema?: string;
+  responseEntityJsonSchema?: string;
+  parameterJsonSchema?: string;
 }
 
 export interface DBConnectionEndpointInfoDto {

@@ -38,6 +38,115 @@
         </option>
       </select>
     </div>
+
+    <!-- Stored Procedure Parameters -->
+    <div class="flex flex-col gap-2" *ngIf="isStoredProcedure && config.controller?.parameterJsonSchema">
+      <div class="text-sm font-medium text-gray-300">{{ 'DATASOURCE.PROCEDURE_PARAMETERS' | translate }}</div>
+      <div class="flex flex-col gap-2" *ngFor="let param of getParametersList()">
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between gap-2">
+            <label class="text-sm font-medium text-gray-300">
+              {{ param.name }}
+              <span *ngIf="param.required" class="text-red-500 ml-1">*</span>
+            </label>
+            <div class="flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500"
+                [checked]="config.procedureParameters?.[param.name]?.userChangeAllowed"
+                (change)="onUserChangeAllowedChange(param.name, $event)">
+              <span class="text-sm text-gray-300">{{ 'DATASOURCE.USER_CHANGE_ALLOWED' | translate }}</span>
+            </div>
+          </div>
+
+          <!-- Date Type Selector for Date Parameters -->
+          <div class="flex flex-col gap-2" *ngIf="param.type === 'date' || param.type === 'datetime'">
+            <select 
+              class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+              [ngModel]="config.procedureParameters?.[param.name]?.dateType"
+              (ngModelChange)="onDateTypeChange(param.name, $event)">
+              <option *ngFor="let type of dynamicDateTypes" [value]="type.key" class="bg-gray-700 text-white">
+                {{ type.label | translate }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Parameter Value Input -->
+          <div [ngSwitch]="param.type">
+            <!-- String Input -->
+            <input *ngSwitchCase="'string'"
+              type="text"
+              class="bg-gray-700 text-sm rounded-lg border block w-full p-2.5 text-white"
+              [class.border-gray-600]="!parameterErrors[param.name]"
+              [class.border-red-500]="parameterErrors[param.name]"
+              [class.focus:ring-primary-500]="!parameterErrors[param.name]"
+              [class.focus:ring-red-500]="parameterErrors[param.name]"
+              [class.focus:border-primary-500]="!parameterErrors[param.name]"
+              [class.focus:border-red-500]="parameterErrors[param.name]"
+              [ngModel]="config.procedureParameters?.[param.name]?.value"
+              (ngModelChange)="onParameterValueChange(param.name, $event)">
+
+            <!-- Number Input -->
+            <input *ngSwitchCase="'number'"
+              type="number"
+              class="bg-gray-700 text-sm rounded-lg border block w-full p-2.5 text-white"
+              [class.border-gray-600]="!parameterErrors[param.name]"
+              [class.border-red-500]="parameterErrors[param.name]"
+              [class.focus:ring-primary-500]="!parameterErrors[param.name]"
+              [class.focus:ring-red-500]="parameterErrors[param.name]"
+              [class.focus:border-primary-500]="!parameterErrors[param.name]"
+              [class.focus:border-red-500]="parameterErrors[param.name]"
+              [ngModel]="config.procedureParameters?.[param.name]?.value"
+              (ngModelChange)="onParameterValueChange(param.name, $event)">
+
+            <!-- Boolean Input -->
+            <input *ngSwitchCase="'boolean'"
+              type="checkbox"
+              class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500"
+              [ngModel]="config.procedureParameters?.[param.name]?.value"
+              (ngModelChange)="onParameterValueChange(param.name, $event)">
+
+            <!-- Date Input -->
+            <input *ngSwitchCase="'date'"
+              type="date"
+              class="bg-gray-700 text-sm rounded-lg border block w-full p-2.5 text-white"
+              [class.border-gray-600]="!parameterErrors[param.name]"
+              [class.border-red-500]="parameterErrors[param.name]"
+              [class.focus:ring-primary-500]="!parameterErrors[param.name]"
+              [class.focus:ring-red-500]="parameterErrors[param.name]"
+              [class.focus:border-primary-500]="!parameterErrors[param.name]"
+              [class.focus:border-red-500]="parameterErrors[param.name]"
+              [ngModel]="config.procedureParameters?.[param.name]?.value"
+              (ngModelChange)="onParameterValueChange(param.name, $event)"
+              [disabled]="config.procedureParameters?.[param.name]?.dateType !== 'specific'">
+
+            <!-- DateTime Input -->
+            <input *ngSwitchCase="'datetime'"
+              type="datetime-local"
+              class="bg-gray-700 text-sm rounded-lg border block w-full p-2.5 text-white"
+              [class.border-gray-600]="!parameterErrors[param.name]"
+              [class.border-red-500]="parameterErrors[param.name]"
+              [class.focus:ring-primary-500]="!parameterErrors[param.name]"
+              [class.focus:ring-red-500]="parameterErrors[param.name]"
+              [class.focus:border-primary-500]="!parameterErrors[param.name]"
+              [class.focus:border-red-500]="parameterErrors[param.name]"
+              [ngModel]="config.procedureParameters?.[param.name]?.value"
+              (ngModelChange)="onParameterValueChange(param.name, $event)"
+              [disabled]="config.procedureParameters?.[param.name]?.dateType !== 'specific'">
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="parameterErrors[param.name]" class="text-sm text-red-500">
+            {{ parameterErrors[param.name] }}
+          </div>
+
+          <!-- Parameter Description -->
+          <div *ngIf="param.description" class="text-sm text-gray-400">
+            {{ param.description }}
+          </div>
+        </div>
+      </div>
+    </div>
   </ng-container>
 
   <!-- EntityFramework Configuration -->

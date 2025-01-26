@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { CardDatabaseService } from '@services/card-database.service';
+import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
 import { LineChartCardConfig, ChartState } from './line-chart-card.models';
 import { DataRequestParametersDto, OrderByParameterDto } from '@models/api.models';
 
@@ -16,14 +16,8 @@ interface ChartDataState {
 })
 export class LineChartCardService {
   private stateMap = new Map<string, BehaviorSubject<ChartDataState>>();
-  private cacheMap = new Map<string, { 
-    data: any[], 
-    timestamp: number,
-    parameters: DataRequestParametersDto 
-  }>();
-  private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-  constructor(private cardDatabaseService: CardDatabaseService) {}
+  constructor(private datasourceService: DatasourceService) {}
 
   private getStateKey(config: LineChartCardConfig): string {
     if (!config?.datasource?.connection?.id || !config?.datasource?.controller?.route) {
@@ -52,53 +46,25 @@ export class LineChartCardService {
     );
   }
 
-  invalidateCache(config: LineChartCardConfig): void {
-    const key = this.getStateKey(config);
-    this.cacheMap.delete(key);
-  }
-
   loadData(config: LineChartCardConfig): void {
-    if (!config?.datasource || !config.xAxisColumn) {
+    if (!config?.datasource) {
       return;
     }
 
-    const key = this.getStateKey(config);
     const state = this.getOrCreateState(config);
-    const currentCache = this.cacheMap.get(key);
+    state.next({ ...state.getValue(), loading: true });
 
+    // Paramètres par défaut pour la requête
     const parameters: DataRequestParametersDto = {
       pageNumber: 1,
-      pageSize: 1000,
-      orderBy: [{
-        column: config.xAxisColumn,
-        isDescending: false
-      }],
+      pageSize: 1000, // On récupère plus de données pour les graphiques
+      orderBy: [],
       globalSearch: '',
       columnSearches: []
     };
 
-    // Vérifier le cache
-    if (currentCache && 
-        Date.now() - currentCache.timestamp < this.CACHE_DURATION &&
-        JSON.stringify(currentCache.parameters) === JSON.stringify(parameters)) {
-      state.next({
-        data: currentCache.data,
-        loading: false
-      });
-      return;
-    }
-
-    state.next({ ...state.getValue(), loading: true });
-
-    this.cardDatabaseService.fetchData(config.datasource, parameters).subscribe({
+    this.datasourceService.fetchData(config.datasource, parameters).subscribe({
       next: (response) => {
-        // Mettre à jour le cache
-        this.cacheMap.set(key, {
-          data: response.items,
-          timestamp: Date.now(),
-          parameters
-        });
-
         state.next({
           data: response.items,
           loading: false

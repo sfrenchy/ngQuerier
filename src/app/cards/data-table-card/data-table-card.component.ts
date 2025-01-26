@@ -891,7 +891,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     this.isFormLoading = true;
     this.showAddForm = true;
     this.modalConfig = {
-      titleKey: 'data-table-card.ADD_RECORD',
+      titleKey: 'data-table-card.ADD.TITLE',
       showFullscreenButton: true
     };
     this.cdr.detectChanges();
@@ -1078,7 +1078,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     this.isFormLoading = true;
     this.showAddForm = true;
     this.modalConfig = {
-      titleKey: 'data-table-card.EDIT_RECORD',
+      titleKey: 'data-table-card.EDIT.TITLE',
       showFullscreenButton: true
     };
     this.cdr.detectChanges();

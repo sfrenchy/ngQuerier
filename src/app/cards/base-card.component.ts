@@ -97,16 +97,8 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implem
   protected loadCardTranslations() {
     if (!this.translateService) return;
 
-    // Get the actual class name (works with inherited classes)
-    const className = this.constructor.name;
-    
-    // Remove any number suffix and 'Component' from the name
-    const baseName = className.replace(/Component\d*$/, '');
-    
-    // Convert from PascalCase to kebab-case
-    const cardType = baseName
-      .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-      .toLowerCase();
+    // Get the translation path from the card decorator
+    const cardType = (this.constructor as any).cardConfig.translationPath;
 
     // Initialize empty translation object for the card type
     this.translateService.setTranslation(
@@ -131,7 +123,7 @@ export class BaseCardComponent<T extends BaseCardConfig = BaseCardConfig> implem
       .then(translations => {
         this.translateService?.setTranslation(
           this.translateService.currentLang,
-          { [cardType]: translations },
+          translations,
           true
         );
       })

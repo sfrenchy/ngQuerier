@@ -1,56 +1,264 @@
 <div class="card-configuration">
   <form [formGroup]="form" class="space-y-6">
-    <!-- Common configuration -->
-    <app-tile [title]="'CARDS.CONFIGURATION.COMMON_CONFIG' | translate">
+    <!-- Data Source Configuration -->
+    <app-tile [title]="'DATASOURCE.TITLE' | translate">
+      <app-datasource-configuration
+        [config]="form.getRawValue().datasource"
+        (configChange)="onDatasourceChange($event)"
+        (schemaChange)="onSchemaChange($event)">
+      </app-datasource-configuration>
+    </app-tile>
+
+    <!-- Configuration de l'axe X -->
+    <app-tile [title]="'LineChart.X_AXIS' | translate" *ngIf="availableColumns.length > 0">
       <div class="space-y-4">
-        <!-- Title -->
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">{{ 'CARDS.CONFIGURATION.HEADER.TITLE' | translate }}</label>
-          <app-translatable-string-form formControlName="title"></app-translatable-string-form>
-        </div>
-
-        <!-- Icon -->
-        <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">{{ 'CARDS.CONFIGURATION.HEADER.ICON' | translate }}</label>
-          <app-icon-selector formControlName="icon"></app-icon-selector>
-        </div>
-
-        <!-- Grid width -->
-        <div>
-          <label class="block text-sm font-medium text-gray-300 mb-2">{{ 'CARDS.CONFIGURATION.GRID_WIDTH' | translate }}</label>
-          <select formControlName="gridWidth" class="form-select">
-            <option [value]="25">{{ 'CARDS.CONFIGURATION.GRID_WIDTH_25' | translate }}</option>
-            <option [value]="33">{{ 'CARDS.CONFIGURATION.GRID_WIDTH_33' | translate }}</option>
-            <option [value]="50">{{ 'CARDS.CONFIGURATION.GRID_WIDTH_50' | translate }}</option>
-            <option [value]="66">{{ 'CARDS.CONFIGURATION.GRID_WIDTH_66' | translate }}</option>
-            <option [value]="75">{{ 'CARDS.CONFIGURATION.GRID_WIDTH_75' | translate }}</option>
-            <option [value]="100">{{ 'CARDS.CONFIGURATION.GRID_WIDTH_100' | translate }}</option>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'LineChart.X_AXIS_COLUMN' | translate }}</label>
+          <select [formControl]="xAxisColumnControl"
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">{{ 'LineChart.SELECT_COLUMN' | translate }}</option>
+            <option *ngFor="let column of availableColumns" [value]="column">{{ column }}</option>
           </select>
         </div>
 
-        <!-- Colors -->
-        <app-tile [title]="'CARDS.CONFIGURATION.COLORS' | translate">
-          <div class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">{{ 'CARDS.CONFIGURATION.BACKGROUND_COLOR' | translate }}</label>
-              <input type="color" formControlName="backgroundColor" class="form-input">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">{{ 'CARDS.CONFIGURATION.TEXT_COLOR' | translate }}</label>
-              <input type="color" formControlName="textColor" class="form-input">
-            </div>
-          </div>
-        </app-tile>
+        <!-- Format de date pour l'axe X -->
+        <div *ngIf="form.getRawValue().xAxisColumn">
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'LineChart.DATE_FORMAT' | translate }}</label>
+          <select [formControl]="xAxisDateFormatControl"
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+            <option value="">{{ 'LineChart.DEFAULT_FORMAT' | translate }}</option>
+            <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+            <option value="MM/YYYY">MM/YYYY</option>
+            <option value="YYYY">YYYY</option>
+          </select>
+        </div>
       </div>
     </app-tile>
 
-    <!-- Specific configuration -->
-    <app-tile [title]="'CARDS.CONFIGURATION.SPECIFIC_CONFIG' | translate">
-      <!-- Add your specific configuration here -->
+    <!-- Configuration des séries -->
+    <app-tile [title]="'LineChart.SERIES' | translate" *ngIf="availableColumns.length > 0">
+      <div class="space-y-4">
+        <!-- Liste des séries -->
+        <div class="flex flex-col gap-4">
+          <div *ngFor="let series of form.getRawValue().series; let i = index"
+               class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
+            <!-- En-tête de la série -->
+            <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700" (click)="toggleSeriesExpand(i)">
+              <div class="flex items-center gap-4">
+                <span class="font-medium text-white">{{ series.name }}</span>
+                <span class="text-sm text-gray-400">({{ series.dataColumn || 'No column selected' }})</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <!-- Supprimer la série -->
+                <button type="button" (click)="removeSeries(i); $event.stopPropagation()"
+                        class="p-1 text-gray-400 hover:text-red-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+                <!-- Chevron -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" [class.transform]="expandedSeriesIndex === i" [class.rotate-180]="expandedSeriesIndex === i" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </div>
+            </div>
+
+            <!-- Configuration détaillée de la série -->
+            <div *ngIf="expandedSeriesIndex === i" class="p-4 border-t border-gray-700 bg-gray-900">
+              <div class="space-y-4">
+                <!-- Nom de la série -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'LineChart.SERIES_NAME' | translate }}</label>
+                  <input type="text" [value]="series.name"
+                         (input)="handleSeriesChange(i, 'name', $event)"
+                         class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <!-- Colonne de données -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'LineChart.DATA_COLUMN' | translate }}</label>
+                  <select [value]="series.dataColumn"
+                          (change)="handleSeriesChange(i, 'dataColumn', $event)"
+                          class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">{{ 'LineChart.SELECT_COLUMN' | translate }}</option>
+                    <option *ngFor="let column of numericColumns" [value]="column">{{ column }}</option>
+                  </select>
+                </div>
+
+                <!-- Type de ligne -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'LineChart.LINE_TYPE' | translate }}</label>
+                  <select [value]="series.type"
+                          (change)="handleSeriesChange(i, 'type', $event)"
+                          class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="line">{{ 'LineChart.LINE_TYPE_STRAIGHT' | translate }}</option>
+                    <option value="smooth">{{ 'LineChart.LINE_TYPE_SMOOTH' | translate }}</option>
+                  </select>
+                </div>
+
+                <!-- Couleur -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'LineChart.COLOR' | translate }}</label>
+                  <div class="flex gap-2">
+                    <input type="color" [value]="series.color"
+                           (change)="handleSeriesChange(i, 'color', $event)"
+                           class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
+                    <input type="text" [value]="series.color"
+                           (input)="handleSeriesChange(i, 'color', $event)"
+                           class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+                  </div>
+                </div>
+
+                <!-- Affichage des points -->
+                <div class="flex items-center justify-between">
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox"
+                           [checked]="series.showSymbol"
+                           (change)="handleSeriesChange(i, 'showSymbol', $event)"
+                           class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    <span class="ml-3 text-sm font-medium text-gray-300">{{ 'LineChart.SHOW_POINTS' | translate }}</span>
+                  </label>
+                </div>
+
+                <!-- Taille des points -->
+                <div *ngIf="series.showSymbol">
+                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'LineChart.POINT_SIZE' | translate }}</label>
+                  <input type="number" [value]="series.symbolSize"
+                         (input)="handleSeriesChange(i, 'symbolSize', $event)"
+                         min="1" max="20"
+                         class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+
+                <!-- Style de l'aire -->
+                <div>
+                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'LineChart.AREA_OPACITY' | translate }}</label>
+                  <input type="number" [value]="series.areaStyle?.opacity || 0"
+                         (input)="onAreaOpacityChange(i, $event)"
+                         min="0" max="1" step="0.1"
+                         class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton d'ajout de série -->
+        <button type="button" (click)="addSeries()"
+                class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900">
+          {{ 'LineChart.ADD_SERIES' | translate }}
+        </button>
+      </div>
+    </app-tile>
+
+    <!-- Configuration visuelle -->
+    <app-tile [title]="'LineChart.VISUAL_CONFIG' | translate">
+      <div class="space-y-4">
+        <!-- Couleurs -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'LineChart.BACKGROUND_COLOR' | translate }}</label>
+          <div class="flex gap-2">
+            <input type="color" [value]="form.getRawValue().visualConfig.backgroundColor"
+                   (change)="handleVisualConfigChange('backgroundColor', $event)"
+                   class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
+            <input type="text" [value]="form.getRawValue().visualConfig.backgroundColor"
+                   (input)="handleVisualConfigChange('backgroundColor', $event)"
+                   class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'LineChart.TEXT_COLOR' | translate }}</label>
+          <div class="flex gap-2">
+            <input type="color" [value]="form.getRawValue().visualConfig.textColor"
+                   (change)="handleVisualConfigChange('textColor', $event)"
+                   class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
+            <input type="text" [value]="form.getRawValue().visualConfig.textColor"
+                   (input)="handleVisualConfigChange('textColor', $event)"
+                   class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+          </div>
+        </div>
+
+        <!-- Légende -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox"
+                     [checked]="form.getRawValue().visualConfig.legend.show"
+                     (change)="handleVisualConfigChange('legend.show', $event)"
+                     class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <span class="ml-3 text-sm font-medium text-gray-300">{{ 'LineChart.SHOW_LEGEND' | translate }}</span>
+            </label>
+          </div>
+
+          <div *ngIf="form.getRawValue().visualConfig.legend.show">
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'LineChart.LEGEND_POSITION' | translate }}</label>
+            <select [value]="form.getRawValue().visualConfig.legend.position"
+                    (change)="handleVisualConfigChange('legend.position', $event)"
+                    class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="top">{{ 'LineChart.POSITION_TOP' | translate }}</option>
+              <option value="bottom">{{ 'LineChart.POSITION_BOTTOM' | translate }}</option>
+              <option value="left">{{ 'LineChart.POSITION_LEFT' | translate }}</option>
+              <option value="right">{{ 'LineChart.POSITION_RIGHT' | translate }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tooltip -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox"
+                     [checked]="form.getRawValue().visualConfig.tooltip.show"
+                     (change)="handleVisualConfigChange('tooltip.show', $event)"
+                     class="sr-only peer">
+              <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              <span class="ml-3 text-sm font-medium text-gray-300">{{ 'LineChart.SHOW_TOOLTIP' | translate }}</span>
+            </label>
+          </div>
+
+          <div *ngIf="form.getRawValue().visualConfig.tooltip.show">
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'LineChart.TOOLTIP_TRIGGER' | translate }}</label>
+            <select [value]="form.getRawValue().visualConfig.tooltip.trigger"
+                    (change)="handleVisualConfigChange('tooltip.trigger', $event)"
+                    class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              <option value="item">{{ 'LineChart.TRIGGER_ITEM' | translate }}</option>
+              <option value="axis">{{ 'LineChart.TRIGGER_AXIS' | translate }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Outils -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-2">{{ 'LineChart.TOOLS' | translate }}</label>
+          <div class="space-y-2">
+            <label class="flex items-center space-x-2">
+              <input type="checkbox"
+                     [checked]="form.getRawValue().visualConfig.toolbox.features.dataZoom"
+                     (change)="handleVisualConfigChange('toolbox.features.dataZoom', $event)"
+                     class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-2">
+              <span class="text-sm text-gray-300">{{ 'LineChart.TOOL_DATA_ZOOM' | translate }}</span>
+            </label>
+
+            <label class="flex items-center space-x-2">
+              <input type="checkbox"
+                     [checked]="form.getRawValue().visualConfig.toolbox.features.restore"
+                     (change)="handleVisualConfigChange('toolbox.features.restore', $event)"
+                     class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-2">
+              <span class="text-sm text-gray-300">{{ 'LineChart.TOOL_RESTORE' | translate }}</span>
+            </label>
+
+            <label class="flex items-center space-x-2">
+              <input type="checkbox"
+                     [checked]="form.getRawValue().visualConfig.toolbox.features.saveAsImage"
+                     (change)="handleVisualConfigChange('toolbox.features.saveAsImage', $event)"
+                     class="w-4 h-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-2">
+              <span class="text-sm text-gray-300">{{ 'LineChart.TOOL_SAVE_IMAGE' | translate }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
     </app-tile>
   </form>
-</div>
-
-<form [formGroup]="form" class="space-y-4">
-  <!-- Ajoutez vos contrôles de formulaire ici -->
-</form> 
+</div> 

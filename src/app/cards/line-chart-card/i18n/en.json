@@ -5,11 +5,96 @@
       "DESCRIPTION": "LineChart card description",
       "CONFIGURATION": {
         "TITLE": "LineChart Configuration",
-        "SPECIFIC": {
-          "TITLE": "Specific configuration"
-          // Add your specific translations here
+        "DATASOURCE": {
+          "TITLE": "Data Source"
+        },
+        "AXES": {
+          "TITLE": "Axes Configuration",
+          "X_AXIS": "X Axis",
+          "X_AXIS_COLUMN": "X Axis Column",
+          "SERIES": "Series",
+          "ADD_SERIES": "Add Series",
+          "SERIES_NAME": "Series Name",
+          "SERIES_COLUMN": "Data Column",
+          "SERIES_COLOR": "Series Color",
+          "REMOVE_SERIES": "Remove series",
+          "NO_SERIES": "No series defined yet"
+        },
+        "VISUAL": {
+          "TITLE": "Visual Options",
+          "LEGEND": {
+            "SHOW": "Show Legend",
+            "POSITION": "Legend Position",
+            "POSITION_RIGHT": "Right",
+            "POSITION_BELOW": "Below"
+          },
+          "AXIS_LABELS": {
+            "SHOW_X": "Show X Axis Label",
+            "X_LABEL": "X Axis Label",
+            "SHOW_Y": "Show Y Axis Label",
+            "Y_LABEL": "Y Axis Label"
+          },
+          "GRID": {
+            "SHOW": "Show Grid Lines"
+          },
+          "OTHER": {
+            "ROUND_DOMAINS": "Round domains",
+            "TIMELINE": "Enable timeline"
+          }
+        },
+        "VALIDATION": {
+          "REQUIRED_X_AXIS": "X axis column is required",
+          "REQUIRED_SERIES": "At least one series is required",
+          "REQUIRED_SERIES_NAME": "Series name is required",
+          "REQUIRED_SERIES_COLUMN": "Series column is required"
         }
-      }
+      },
+      "OPTIONS": "Chart Options",
+      "SHOW_LEGEND": "Show Legend",
+      "LEGEND_POSITION": "Legend Position",
+      "LEGEND_POSITION_RIGHT": "Right",
+      "LEGEND_POSITION_BOTTOM": "Bottom",
+      "SHOW_X_AXIS_LABEL": "Show X Axis Label",
+      "X_AXIS_LABEL_PLACEHOLDER": "X Axis Label",
+      "SHOW_Y_AXIS_LABEL": "Show Y Axis Label",
+      "Y_AXIS_LABEL_PLACEHOLDER": "Y Axis Label",
+      "SHOW_GRID_LINES": "Show Grid Lines"
     }
+  },
+  "LINE_CHART": {
+    "NO_DATA": "No data available",
+    "X_AXIS": "X Axis Configuration",
+    "X_AXIS_COLUMN": "X Axis Column",
+    "SELECT_COLUMN": "Select a column",
+    "DATE_FORMAT": "Date Format",
+    "DEFAULT_FORMAT": "Default Format",
+    "SERIES": "Series",
+    "SERIES_NAME": "Series Name",
+    "DATA_COLUMN": "Data Column",
+    "LINE_TYPE": "Line Type",
+    "LINE_TYPE_STRAIGHT": "Straight",
+    "LINE_TYPE_SMOOTH": "Smooth",
+    "COLOR": "Color",
+    "SHOW_POINTS": "Show Points",
+    "POINT_SIZE": "Point Size",
+    "AREA_OPACITY": "Area Opacity",
+    "ADD_SERIES": "Add Series",
+    "VISUAL_CONFIG": "Visual Configuration",
+    "BACKGROUND_COLOR": "Background Color",
+    "TEXT_COLOR": "Text Color",
+    "SHOW_LEGEND": "Show Legend",
+    "LEGEND_POSITION": "Legend Position",
+    "POSITION_TOP": "Top",
+    "POSITION_BOTTOM": "Bottom",
+    "POSITION_LEFT": "Left",
+    "POSITION_RIGHT": "Right",
+    "SHOW_TOOLTIP": "Show Tooltip",
+    "TOOLTIP_TRIGGER": "Tooltip Trigger",
+    "TRIGGER_ITEM": "On Point",
+    "TRIGGER_AXIS": "On Axis",
+    "TOOLS": "Tools",
+    "TOOL_DATA_ZOOM": "Data Zoom",
+    "TOOL_RESTORE": "Restore",
+    "TOOL_SAVE_IMAGE": "Save as Image"
   }
 } 

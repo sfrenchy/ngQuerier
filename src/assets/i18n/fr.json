@@ -417,18 +417,6 @@
     "CAN_UPDATE": "Autoriser la modification",
     "CAN_DELETE": "Autoriser la suppression"
   },
-  "DATA_TABLE": {
-    "SEARCH": "Rechercher...",
-    "NO_DATA": "Aucune donnée disponible",
-    "CALCULATING_ROWS": "Calcul du nombre de lignes...",
-    "ADD_RECORD": "Ajouter un enregistrement",
-    "EDIT_RECORD": "Modifier l'enregistrement",
-    "DELETE_RECORD": "Supprimer l'enregistrement",
-    "CONFIRM_DELETE": "Êtes-vous sûr de vouloir supprimer cet enregistrement ?",
-    "FULLSCREEN": "Plein écran",
-    "EXIT_FULLSCREEN": "Quitter le plein écran",
-    "ITEMS": "éléments"
-  },
   "FORM": {
     "SELECT_VALUE": "Sélectionnez une valeur...",
     "VALIDATION": {
@@ -477,6 +465,16 @@
         "BACKGROUND_COLOR": "Couleur de fond",
         "TEXT_COLOR": "Couleur du texte"
       }
+    },
+    "PIECHART": {
+      "TITLE": "PieChart",
+      "DESCRIPTION": "Description de la carte PieChart",
+      "CONFIGURATION": {
+        "TITLE": "Configuration de PieChart",
+        "SPECIFIC": {
+          "TITLE": "Configuration spécifique"
+        }
+      }
     }
   }
-} 
+}

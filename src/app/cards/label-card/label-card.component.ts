@@ -28,7 +28,8 @@ export class LabelCardConfig extends BaseCardConfig {
   </svg>`,
   configComponent: LabelCardConfigurationComponent,
   configType: LabelCardConfig,
-  defaultConfig: () => new LabelCardConfig('Label')
+  defaultConfig: () => new LabelCardConfig('Label'),
+  translationPath: 'label-card'
 })
 @Component({
   selector: 'app-label-card',

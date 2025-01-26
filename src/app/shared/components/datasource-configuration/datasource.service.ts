@@ -173,8 +173,8 @@ export class DatasourceService {
     }
 
     return this.apiService.post<ExtendedPaginatedResultDto<any>>(
-      `${config.controller.route!.replace("api/v1/", "")}`,
-      parameters
+      `${config.controller.route!.replace("api/v1/", "")}/execute`,
+      parameters.procedureParameters
     );
   }
 

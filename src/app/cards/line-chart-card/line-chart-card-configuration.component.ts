@@ -120,7 +120,9 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
         .filter(([_, prop]: [string, any]) => {
           const type = prop.type?.toLowerCase() || '';
           const columnType = prop['x-entity-metadata']?.columnType?.toLowerCase() || '';
-          return type === 'number' || type === 'integer' || columnType.includes('int') || columnType.includes('decimal') || columnType.includes('float');
+          return type === 'number' || type === 'integer' || 
+                 columnType.includes('int') || columnType.includes('decimal') || 
+                 columnType.includes('float') || columnType.includes('money');
         })
         .map(([key]) => key);
     }
@@ -148,17 +150,40 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
     this.expandedSeriesIndex = this.expandedSeriesIndex === index ? null : index;
   }
 
-  handleSeriesChange(index: number, property: keyof SeriesConfig, event: Event) {
+  handleSeriesChange(index: number, property: keyof SeriesConfig, eventOrValue: Event | any) {
     const series = this.form.get('series')?.value || [];
-    const target = event.target as HTMLInputElement | HTMLSelectElement;
-    const value = target.type === 'checkbox' ? (target as HTMLInputElement).checked : target.value;
+    let value: any;
+    
+    if (eventOrValue instanceof Event) {
+      const target = eventOrValue.target as HTMLInputElement | HTMLSelectElement;
+      value = target.type === 'checkbox' ? (target as HTMLInputElement).checked : target.value;
+    } else {
+      value = eventOrValue;
+    }
+    
+    console.log('handleSeriesChange - Before update:', {
+      index,
+      property,
+      currentSeries: series[index],
+      newValue: value
+    });
     
     series[index] = {
       ...series[index],
       [property]: value
     };
 
+    console.log('handleSeriesChange - After update:', {
+      updatedSeries: series[index],
+      fullSeries: series
+    });
+
     this.form.patchValue({ series }, { emitEvent: true });
+
+    // Vérifions la valeur après le patchValue
+    console.log('handleSeriesChange - After patchValue:', {
+      formValue: this.form.get('series')?.value
+    });
   }
 
   onAreaOpacityChange(index: number, event: Event) {

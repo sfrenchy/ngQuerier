@@ -1,0 +1,18 @@
+{
+  "PieChart": {
+    "TITLE": "Pie Chart",
+    "DESCRIPTION": "Pie chart description",
+    "NO_DATA": "No data to display",
+    "CONFIGURATION": "Chart Configuration",
+    "LABEL_COLUMN": "Label Column",
+    "VALUE_COLUMN": "Value Column",
+    "SELECT_COLUMN": "Select a column",
+    "TITLE": "Chart Title",
+    "RADIUS": "Chart Radius",
+    "VISUAL_CONFIG": "Visual Configuration",
+    "BACKGROUND_COLOR": "Background Color",
+    "TEXT_COLOR": "Text Color",
+    "SHOW_LEGEND": "Show Legend",
+    "SHOW_TOOLTIP": "Show Tooltip"
+  }
+} 

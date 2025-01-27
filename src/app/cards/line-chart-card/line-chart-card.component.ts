@@ -1,16 +1,12 @@
-import { Component, Type, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { Card } from '@cards/card.decorator';
 import { LineChartCardConfigurationComponent } from './line-chart-card-configuration.component';
-import { BaseCardComponent } from '@cards/base-card.component';
-import { LineChartCardService } from './line-chart-card.service';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { NgxEchartsModule, NGX_ECHARTS_CONFIG } from 'ngx-echarts';
-import { LineChartCardConfig, ChartState, SeriesConfig } from './line-chart-card.models';
-import { EChartsOption } from 'echarts';
-import { CardDto } from '@models/api.models';
+import { BaseChartCard } from '../base-chart-card.component';
+import { LineChartCardConfig, SeriesConfig } from './line-chart-card.models';
+import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
+import { BaseCardComponent } from '../base-card.component';
 
 @Card({
   name: 'LineChart',
@@ -19,7 +15,7 @@ import { CardDto } from '@models/api.models';
     <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
     <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
   </svg>`,
-  configComponent: LineChartCardConfigurationComponent as Type<any>,
+  configComponent: LineChartCardConfigurationComponent,
   configType: LineChartCardConfig,
   defaultConfig: () => new LineChartCardConfig()
 })
@@ -27,67 +23,21 @@ import { CardDto } from '@models/api.models';
   selector: 'app-line-chart-card',
   templateUrl: './line-chart-card.component.html',
   standalone: true,
-  imports: [
-    CommonModule,
-    TranslateModule,
-    BaseCardComponent,
-    NgxEchartsModule
-  ],
-  providers: [
-    LineChartCardService,
-    {
-      provide: NGX_ECHARTS_CONFIG,
-      useValue: {
-        echarts: () => import('echarts')
-      }
-    }
-  ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  imports: [CommonModule, BaseCardComponent, TranslateModule]
 })
-export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfig> implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-  chartState: ChartState = {
-    data: [],
-    loading: false
-  };
-  chartOptions: EChartsOption = {};
-
+export class LineChartCardComponent extends BaseChartCard<LineChartCardConfig> {
   constructor(
-    private cardService: LineChartCardService,
     protected override translateService: TranslateService,
-    private cdr: ChangeDetectorRef
+    protected override datasourceService: DatasourceService
   ) {
-    super(translateService);
+    super(translateService, datasourceService);
   }
 
-  override ngOnInit() {
-    super.ngOnInit();
-    this.loadCardTranslations();
-    this.subscribeToDataChanges();
-    this.loadData();
-  }
+  protected override transformData(data: any[]): any[] {
+    if (!this.card.configuration) return [];
 
-  private subscribeToDataChanges() {
-    this.cardService.getState(this.card.configuration)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((state: ChartState) => {
-        this.chartState = state;
-        this.updateChartOptions();
-        this.cdr.markForCheck();
-      });
-  }
-
-  private loadData() {
-    if (this.card.configuration?.datasource) {
-      this.cardService.loadData(this.card.configuration);
-    }
-  }
-
-  private updateChartOptions() {
-    if (!this.chartState.data || !this.card.configuration) return;
-
-    // Vérification de la structure des données
-    const firstItem = this.chartState.data[0];
+    const { xAxisColumn, xAxisDateFormat } = this.card.configuration;
+    if (!xAxisColumn) return [];
 
     // Fonction utilitaire pour accéder aux propriétés sans tenir compte de la casse
     const getPropertyValue = (obj: any, propertyName: string): any => {
@@ -97,68 +47,49 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
       return key ? obj[key] : undefined;
     };
 
-    const xAxisColumn = this.card.configuration.xAxisColumn;
-
-    // Extraction des données pour l'axe X avec vérification
-    const xAxisData = this.chartState.data.map(item => {
-      const value = getPropertyValue(item, xAxisColumn);
-      if (value === undefined) {
+    // Vérification et transformation des données
+    return data.map(item => {
+      const xValue = getPropertyValue(item, xAxisColumn);
+      if (xValue === undefined) {
         console.warn(`Missing value for X-axis column "${xAxisColumn}" in item:`, item);
-        return value;
+        return null;
       }
 
-      // Formatage des dates si nécessaire
-      if (this.card.configuration.xAxisDateFormat && value instanceof Date) {
-        return this.formatDate(value, this.card.configuration.xAxisDateFormat);
-      }
-      if (this.card.configuration.xAxisDateFormat && typeof value === 'string') {
-        const date = new Date(value);
-        if (!isNaN(date.getTime())) {
-          return this.formatDate(date, this.card.configuration.xAxisDateFormat);
-        }
-      }
-      
-      return value;
-    });
+      const result: any = {
+        x: this.formatDateIfNeeded(xValue, xAxisDateFormat)
+      };
 
-    // Configuration des séries avec vérification des données
-    const series = this.card.configuration.series.map((seriesConfig: SeriesConfig) => {
-      const seriesData = this.chartState.data.map(item => {
+      // Ajout des valeurs pour chaque série
+      this.card.configuration.series.forEach((seriesConfig: SeriesConfig) => {
         const value = getPropertyValue(item, seriesConfig.dataColumn);
         if (value === undefined) {
           console.warn(`Missing value for series "${seriesConfig.name}" column "${seriesConfig.dataColumn}" in item:`, item);
         }
-        return value;
+        result[seriesConfig.name] = value;
       });
 
-      return {
-        name: seriesConfig.name,
-        type: seriesConfig.type || 'line',
-        data: seriesData,
-        showSymbol: seriesConfig.showSymbol,
-        symbolSize: seriesConfig.symbolSize,
-        itemStyle: seriesConfig.color ? { color: seriesConfig.color } : undefined,
-        areaStyle: seriesConfig.areaStyle,
-        smooth: seriesConfig.type === 'smooth'
-      };
-    });
+      return result;
+    }).filter(item => item !== null);
+  }
+
+  protected override updateChartOptions(): void {
+    if (!this.chartState.data || !this.card.configuration) return;
+
+    const xAxisData = this.chartState.data.map(item => item.x);
+
+    const series = this.card.configuration.series.map((seriesConfig: SeriesConfig) => ({
+      name: seriesConfig.name,
+      type: seriesConfig.type || 'line',
+      data: this.chartState.data.map(item => item[seriesConfig.name]),
+      showSymbol: seriesConfig.showSymbol,
+      symbolSize: seriesConfig.symbolSize,
+      itemStyle: seriesConfig.color ? { color: seriesConfig.color } : undefined,
+      areaStyle: seriesConfig.areaStyle,
+      smooth: seriesConfig.type === 'smooth'
+    }));
     
     this.chartOptions = {
-      backgroundColor: this.card.configuration.visualConfig.backgroundColor,
-      textStyle: {
-        color: this.card.configuration.visualConfig.textColor
-      },
-      tooltip: {
-        ...this.card.configuration.visualConfig.tooltip,
-        axisPointer: {
-          type: 'cross',
-          label: {
-            backgroundColor: '#6a7985'
-          }
-        }
-      },
-      legend: this.card.configuration.visualConfig.legend,
-      toolbox: this.card.configuration.visualConfig.toolbox,
+      ...this.chartOptions,
       xAxis: {
         type: 'category',
         data: xAxisData,
@@ -169,10 +100,29 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
       },
       series
     };
+
+    if (this.chartInstance) {
+      this.chartInstance.setOption(this.chartOptions);
+    }
+  }
+
+  private formatDateIfNeeded(value: any, format?: string): any {
+    if (!format) return value;
+
+    if (value instanceof Date) {
+      return this.formatDate(value, format);
+    }
+    if (typeof value === 'string') {
+      const date = new Date(value);
+      if (!isNaN(date.getTime())) {
+        return this.formatDate(date, format);
+      }
+    }
+    
+    return value;
   }
 
   private formatDate(date: Date, format: string): string {
-    // Format simple pour commencer : DD/MM/YYYY, MM/YYYY, YYYY
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const year = date.getFullYear();
@@ -187,11 +137,5 @@ export class LineChartCardComponent extends BaseCardComponent<LineChartCardConfi
       default:
         return date.toLocaleDateString();
     }
-  }
-
-  override ngOnDestroy() {
-    super.ngOnDestroy();
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 } 

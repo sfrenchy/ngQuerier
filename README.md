@@ -1,59 +1,125 @@
-# NgQuerier
+# Querier Angular Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.6.
+This repository contains the Angular frontend part of the Querier project, a dynamic dashboard builder and database management system. This application provides an intuitive interface for creating and managing dashboards with various types of visualizations.
 
-## Development server
+## Features
 
-To start a local development server, run:
+- **Dynamic Dashboard Builder**
+  - Drag and drop interface for card management
+  - Customizable layouts with responsive design
+  - Multiple card types:
+    - Data Tables
+    - Line Charts
+    - Pie Charts
+    - More to come...
 
+- **Database Connection Management**
+  - Configure and manage database connections
+  - Dynamic form generation based on JSON schemas
+  - Visual query builder (coming soon)
+
+- **Internationalization**
+  - Multi-language support (English, French)
+  - Extensible translation system
+
+## Tech Stack
+
+- Angular 17+
+- TailwindCSS for styling
+- NgRx for state management
+- Chart.js for data visualization
+- RxJS for reactive programming
+
+## Prerequisites
+
+- Node.js (v18+)
+- npm or yarn
+- Angular CLI (`npm install -g @angular/cli`)
+
+## Getting Started
+
+1. Clone the repository
+```bash
+git clone https://github.com/yourusername/ngQuerier.git
+```
+
+2. Install dependencies
+```bash
+cd ngQuerier
+npm install
+```
+
+3. Start the development server
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+The application will be available at `http://localhost:4200`
 
-## Code scaffolding
+## Project Structure
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```
+src/
+├── app/
+│   ├── cards/              # Card components (charts, tables, etc.)
+│   ├── shared/            
+│   │   ├── components/     # Reusable components
+│   │   ├── directives/     # Custom directives
+│   │   └── pipes/         # Custom pipes
+│   ├── services/          # Application services
+│   └── models/            # TypeScript interfaces and types
+├── assets/
+│   └── i18n/             # Translation files
+└── styles/               # Global styles and themes
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Development
+
+### Adding a New Card Type
+
+The project includes a custom schematic to generate new card types. To create a new card:
 
 ```bash
-ng generate --help
+ng generate card <card-name>
 ```
 
-## Building
+This will automatically:
+1. Create a new component in the `cards` directory with the proper structure
+2. Implement the base card interface
+3. Set up the configuration options
+4. Register the card in the card factory service
+5. Create the necessary service and model files
+6. Add translation files
 
-To build the project run:
+After generation, you can customize the card implementation according to your needs.
+
+### Adding New Features
+
+1. Create necessary components, services, and models
+2. Follow Angular best practices and coding standards
+3. Add unit tests for new functionality
+4. Update translations if needed
+
+### Building for Production
 
 ```bash
-ng build
+ng build --configuration production
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+The build artifacts will be stored in the `dist/` directory.
 
-## Running unit tests
+## Contributing
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-```bash
-ng test
-```
+## Related Projects
 
-## Running end-to-end tests
+- [Querier API](link-to-api-repo) - The .NET Core backend API
 
-For end-to-end (e2e) testing, run:
+## License
 
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+This project is licensed under the MIT License - see the LICENSE file for details.

@@ -535,6 +535,9 @@
     "TITLE_TEXT_COLOR": "Couleur du texte",
     "TITLE_TEXT_SIZE": "Taille du texte",
     "TITLE_SUBTEXT_COLOR": "Couleur du sous-titre",
-    "TITLE_SUBTEXT_SIZE": "Taille du sous-titre"
+    "TITLE_SUBTEXT_SIZE": "Taille du sous-titre",
+    "LABEL_COLUMN": "Colonne des étiquettes",
+    "VALUE_COLUMN": "Colonne des valeurs",
+    "RADIUS": "Rayon du graphique"
   }
 }

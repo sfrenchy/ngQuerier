@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { Card } from '@cards/card.decorator';
 import { LineChartCardConfigurationComponent } from './line-chart-card-configuration.component';
-import { BaseChartCard } from '../base-chart-card.component';
+import { BaseChartCard } from '@cards/base-chart-card.component';
 import { LineChartCardConfig, SeriesConfig } from './line-chart-card.models';
 import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
-import { BaseCardComponent } from '../base-card.component';
+import { BaseCardComponent } from '@cards/base-card.component';
 
 @Card({
   name: 'LineChart',

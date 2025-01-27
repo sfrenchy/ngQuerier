@@ -4,6 +4,7 @@
     "DESCRIPTION": "Description du graphique circulaire",
     "NO_DATA": "Aucune donnée à afficher",
     "CONFIGURATION": "Configuration du graphique",
+    "COLUMNS": "Configuration des colonnes",
     "LABEL_COLUMN": "Colonne des étiquettes",
     "VALUE_COLUMN": "Colonne des valeurs",
     "SELECT_COLUMN": "Sélectionner une colonne",

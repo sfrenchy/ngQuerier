@@ -1,46 +1,31 @@
-import { BaseChartConfig, ChartVisualConfig } from '@models/chart.models';
+import { BaseChartConfig } from '@models/chart.models';
 import { DatasourceConfig } from '@models/datasource.models';
 
-export class PieChartCardConfig implements BaseChartConfig {
-  datasource: DatasourceConfig;
-  visualConfig: ChartVisualConfig;
+export class PieChartCardConfig extends BaseChartConfig {
   labelColumn?: string;
   valueColumn?: string;
-  radius?: string;
-  title?: string;
+  radius?: string = '75%';
 
   constructor() {
-    this.datasource = { type: 'API' };
-    this.visualConfig = {
-      backgroundColor: '#1f2937',
-      textColor: '#ffffff',
-      legend: {
-        show: true
-      },
-      tooltip: {
-        show: true,
-        trigger: 'item'
-      },
-      toolbox: {
-        features: {
-          saveAsImage: true
-        }
+    super();
+    this.datasource = {
+      type: 'API',
+      controller: {
+        route: 'api/v1/data/pie-chart'  // Route par défaut
       }
     };
   }
 
-  toJson(): any {
+  override toJson(): any {
     return {
-      datasource: this.datasource,
+      ...super.toJson(),
       labelColumn: this.labelColumn,
       valueColumn: this.valueColumn,
-      radius: this.radius,
-      title: this.title,
-      visualConfig: this.visualConfig
+      radius: this.radius
     };
   }
 
-  static fromJson(json: any): PieChartCardConfig {
+  static override fromJson(json: any): PieChartCardConfig {
     const config = new PieChartCardConfig();
     if (json.datasource) {
       config.datasource = json.datasource;
@@ -54,14 +39,8 @@ export class PieChartCardConfig implements BaseChartConfig {
     if (json.radius) {
       config.radius = json.radius;
     }
-    if (json.title) {
-      config.title = json.title;
-    }
     if (json.visualConfig) {
-      config.visualConfig = {
-        ...config.visualConfig,
-        ...json.visualConfig
-      };
+      config.visualConfig = json.visualConfig;
     }
     return config;
   }

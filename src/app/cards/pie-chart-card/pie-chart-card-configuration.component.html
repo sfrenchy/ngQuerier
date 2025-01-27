@@ -1,0 +1,52 @@
+<form [formGroup]="form" class="space-y-4">
+  <!-- Configuration de la source de données -->
+  <app-tile [title]="'DATASOURCE.TITLE' | translate">
+    <app-datasource-configuration
+      [config]="card.configuration?.datasource || { type: 'API' }"
+      (configChange)="onDatasourceChange($event)"
+      (schemaChange)="onSchemaChange($event)">
+    </app-datasource-configuration>
+  </app-tile>
+  <!-- Colonnes -->
+  <app-tile [title]="'PieChart.COLUMNS' | translate">
+    <div class="mt-4 space-y-4">
+      <!-- Colonne des étiquettes -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">
+          {{ 'chart.LABEL_COLUMN' | translate }}
+        </label>
+        <select formControlName="labelColumn"
+                class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+          <option value="">{{ 'FORM.SELECT_VALUE' | translate }}</option>
+          <option *ngFor="let column of availableColumns" [value]="column">
+            {{column}}
+          </option>
+        </select>
+      </div>
+
+      <!-- Colonne des valeurs -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">
+          {{ 'chart.VALUE_COLUMN' | translate }}
+        </label>
+        <select formControlName="valueColumn"
+                class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+          <option value="">{{ 'FORM.SELECT_VALUE' | translate }}</option>
+          <option *ngFor="let column of availableColumns" [value]="column">
+            {{column}}
+          </option>
+        </select>
+      </div>
+
+      <!-- Rayon -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">
+          {{ 'chart.RADIUS' | translate }}
+        </label>
+        <input type="text" formControlName="radius"
+               class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md"
+               placeholder="75%">
+      </div>
+    </div>
+  </app-tile>
+</form>

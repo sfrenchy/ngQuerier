@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateService } from '@ngx-translate/core';
-import { BaseChartCard } from '../base-chart-card.component';
-import { PieChartCardConfig } from './pie-chart-card.models';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { BaseChartCard } from '@cards/base-chart-card.component';
 import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
 import { Card } from '@cards/card.decorator';
 import { PieChartCardConfigurationComponent } from './pie-chart-card-configuration.component';
+import { PieChartCardConfig } from './pie-chart-card.models';
+import { BaseCardComponent } from '@cards/base-card.component';
 
 @Card({
   name: 'PieChart',
@@ -20,15 +21,9 @@ import { PieChartCardConfigurationComponent } from './pie-chart-card-configurati
 })
 @Component({
   selector: 'app-pie-chart-card',
-  template: `
-    <div class="flex flex-col h-full">
-      <div class="flex-1">
-        <div #chartContainer class="w-full h-full"></div>
-      </div>
-    </div>
-  `,
+  templateUrl: './pie-chart-card.component.html',
   standalone: true,
-  imports: [CommonModule]
+  imports: [CommonModule, BaseCardComponent, TranslateModule]
 })
 export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
   constructor(
@@ -38,6 +33,28 @@ export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
     super(translateService, datasourceService);
   }
 
+  get loading(): boolean {
+    return this.chartState.loading;
+  }
+
+  get hasData(): boolean {
+    return this.chartState.data.length > 0;
+  }
+
+  protected shouldLoadData(): boolean {
+    return !!(
+      this.card.configuration?.labelColumn &&
+      this.card.configuration?.valueColumn
+    );
+  }
+
+  private getPropertyValue(obj: any, propertyName: string): any {
+    if (!obj || !propertyName) return undefined;
+    const normalizedName = propertyName.toLowerCase();
+    const key = Object.keys(obj).find(k => k.toLowerCase() === normalizedName);
+    return key ? obj[key] : undefined;
+  }
+
   protected override transformData(data: any[]): any[] {
     if (!this.card.configuration) return [];
 
@@ -45,8 +62,8 @@ export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
     if (!labelColumn || !valueColumn) return [];
 
     return data.map(item => ({
-      name: item[labelColumn],
-      value: item[valueColumn]
+      name: this.getPropertyValue(item, labelColumn),
+      value: this.getPropertyValue(item, valueColumn)
     }));
   }
 

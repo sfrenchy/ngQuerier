@@ -869,14 +869,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   // Modifier la méthode onAdd
   onAdd(): void {
-    console.log('[DataTableCard] Début ajout - Configuration détaillée:', {
-      hasConfig: !!this.card.configuration,
-      hasConnection: !!this.card.configuration?.datasource?.connection,
-      connectionId: this.card.configuration?.datasource?.connection?.id,
-      hasController: !!this.card.configuration?.datasource?.controller,
-      controllerName: this.card.configuration?.datasource?.controller?.route,
-      fullConfig: this.card.configuration?.datasource
-    });
 
     if (!this.card.configuration?.datasource) {
       console.error('[DataTableCard] Configuration datasource manquante');
@@ -895,8 +887,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       showFullscreenButton: true
     };
     this.cdr.detectChanges();
-
-    console.log('[DataTableCard] Chargement du schéma...');
     
     // Extraire le nom du contrôleur de la route
     const controllerName = this.card.configuration.datasource.controller.route.split('/').pop() || '';
@@ -909,9 +899,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       }
     })
       .pipe(
-        tap(params => console.log('[DataTableCard] Paramètres reçus:', params)),
+        tap(params => {}),
         catchError(error => {
-          console.error('[DataTableCard] Erreur lors de la récupération des paramètres:', error);
           this.isFormLoading = false;
           this.showAddForm = false;
           this.cdr.detectChanges();
@@ -920,26 +909,21 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       )
       .subscribe({
         next: (parameters: DBConnectionEndpointRequestInfoDto[]) => {
-          console.log('[DataTableCard] Nombre de paramètres:', parameters.length);
           if (parameters.length === 1) {
             try {
               this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
-              console.log('[DataTableCard] Schéma parsé avec succès');
               
               // Charger les données des clés étrangères
               this.loadForeignKeyData().subscribe(() => {
-                console.log('[DataTableCard] Données des clés étrangères chargées');
                 this.isFormLoading = false;
                 this.cdr.detectChanges();
               });
             } catch (error) {
-              console.error('[DataTableCard] Erreur lors du parsing du schéma:', error);
               this.isFormLoading = false;
               this.showAddForm = false;
               this.cdr.detectChanges();
             }
           } else {
-            console.error('[DataTableCard] Nombre de paramètres invalide:', parameters.length);
             this.isFormLoading = false;
             this.showAddForm = false;
             this.cdr.detectChanges();
@@ -1009,12 +993,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onFormSubmit(formData: FormDataSubmit) {
-    console.log('[DataTableCard] Début soumission du formulaire', { isEditMode: this.isEditMode, formData });
-    
     if (this.isEditMode) {
       const primaryKeyValue = this.dataService.getPrimaryKeyValue(this.currentEditingRow, this.addFormSchema);
-      console.log('[DataTableCard] Mode édition - Clé primaire:', primaryKeyValue);
-      
       if (primaryKeyValue) {
         const formDataWithId: FormDataSubmitWithId = {
           ...formData,
@@ -1023,7 +1003,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
         this.dataService.updateData(this.card.configuration.datasource!, formDataWithId).subscribe({
           next: (response) => {
-            console.log('[DataTableCard] Mise à jour réussie', response);
             this.loadData();
             this.resetForm();
           },
@@ -1035,10 +1014,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
         });
       }
     } else {
-      console.log('[DataTableCard] Mode création - Données:', formData);
       this.dataService.createData(this.card.configuration.datasource!, formData).subscribe({
         next: (response) => {
-          console.log('[DataTableCard] Création réussie', response);
           this.loadData();
           this.resetForm();
         },
@@ -1052,7 +1029,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onFormCancel() {
-    console.log('[DataTableCard] Annulation du formulaire');
     this.showAddForm = false;
     this.isEditMode = false;
     this.addFormSchema = null;
@@ -1061,14 +1037,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onUpdate(row: any): void {
-    console.log('[DataTableCard] Début mise à jour - Configuration détaillée:', {
-      hasConfig: !!this.card.configuration,
-      hasConnection: !!this.card.configuration?.datasource?.connection,
-      connectionId: this.card.configuration?.datasource?.connection?.id,
-      hasController: !!this.card.configuration?.datasource?.controller,
-      controllerName: this.card.configuration?.datasource?.controller?.route,
-      row: row
-    });
 
     // Vider les caches
     this.dataService.clearSchemaDefinitions(this.card.configuration.datasource);
@@ -1105,12 +1073,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
         try {
           const schema = JSON.parse(parameters[0].jsonSchema);
           const id = this.dataService.getPrimaryKeyValue(row, schema);
-          console.log('[DataTableCard] Clé primaire pour mise à jour:', id);
 
           // 2. Charger l'entité
           this.datasourceService.fetchEntityById(this.card.configuration.datasource, id).subscribe({
             next: (entity) => {
-              console.log('[DataTableCard] Entité chargée:', entity);
               this.currentEditingRow = entity;
               this.addFormSchema = schema;
               this.formData = entity;
@@ -1118,7 +1084,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
               // 3. Charger les données des clés étrangères
               this.loadForeignKeyData().subscribe(() => {
-                console.log('[DataTableCard] Données des clés étrangères chargées');
                 this.isFormLoading = false;
                 this.cdr.detectChanges();
               });
@@ -1190,7 +1155,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   resetForm() {
-    console.log('[DataTableCard] Réinitialisation du formulaire');
     this.isEditMode = false;
     this.currentEditingRow = null;
     this.showAddForm = false;

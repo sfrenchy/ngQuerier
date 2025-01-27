@@ -1,65 +1,63 @@
 {
-  "CARDS": {
-    "LINECHART": {
-      "TITLE": "LineChart",
-      "DESCRIPTION": "LineChart card description",
-      "CONFIGURATION": {
-        "TITLE": "LineChart Configuration",
-        "DATASOURCE": {
-          "TITLE": "Data Source"
+  "line-chart-card": {
+    "TITLE": "Line Chart",
+    "DESCRIPTION": "Line chart description",
+    "CONFIGURATION": {
+      "TITLE": "Chart Configuration",
+      "DATASOURCE": {
+        "TITLE": "Data Source"
+      },
+      "AXES": {
+        "TITLE": "Axes Configuration",
+        "X_AXIS": "X Axis",
+        "X_AXIS_COLUMN": "X Axis Column",
+        "SERIES": "Series",
+        "ADD_SERIES": "Add Series",
+        "SERIES_NAME": "Series Name",
+        "SERIES_COLUMN": "Data Column",
+        "SERIES_COLOR": "Series Color",
+        "REMOVE_SERIES": "Remove Series",
+        "NO_SERIES": "No series defined"
+      },
+      "VISUAL": {
+        "TITLE": "Visual Options",
+        "LEGEND": {
+          "SHOW": "Show Legend",
+          "POSITION": "Legend Position",
+          "POSITION_RIGHT": "Right",
+          "POSITION_BELOW": "Below"
         },
-        "AXES": {
-          "TITLE": "Axes Configuration",
-          "X_AXIS": "X Axis",
-          "X_AXIS_COLUMN": "X Axis Column",
-          "SERIES": "Series",
-          "ADD_SERIES": "Add Series",
-          "SERIES_NAME": "Series Name",
-          "SERIES_COLUMN": "Data Column",
-          "SERIES_COLOR": "Series Color",
-          "REMOVE_SERIES": "Remove series",
-          "NO_SERIES": "No series defined yet"
+        "AXIS_LABELS": {
+          "SHOW_X": "Show X Axis Label",
+          "X_LABEL": "X Axis Label",
+          "SHOW_Y": "Show Y Axis Label",
+          "Y_LABEL": "Y Axis Label"
         },
-        "VISUAL": {
-          "TITLE": "Visual Options",
-          "LEGEND": {
-            "SHOW": "Show Legend",
-            "POSITION": "Legend Position",
-            "POSITION_RIGHT": "Right",
-            "POSITION_BELOW": "Below"
-          },
-          "AXIS_LABELS": {
-            "SHOW_X": "Show X Axis Label",
-            "X_LABEL": "X Axis Label",
-            "SHOW_Y": "Show Y Axis Label",
-            "Y_LABEL": "Y Axis Label"
-          },
-          "GRID": {
-            "SHOW": "Show Grid Lines"
-          },
-          "OTHER": {
-            "ROUND_DOMAINS": "Round domains",
-            "TIMELINE": "Enable timeline"
-          }
+        "GRID": {
+          "SHOW": "Show Grid Lines"
         },
-        "VALIDATION": {
-          "REQUIRED_X_AXIS": "X axis column is required",
-          "REQUIRED_SERIES": "At least one series is required",
-          "REQUIRED_SERIES_NAME": "Series name is required",
-          "REQUIRED_SERIES_COLUMN": "Series column is required"
+        "OTHER": {
+          "ROUND_DOMAINS": "Round domains",
+          "TIMELINE": "Enable timeline"
         }
       },
-      "OPTIONS": "Chart Options",
-      "SHOW_LEGEND": "Show Legend",
-      "LEGEND_POSITION": "Legend Position",
-      "LEGEND_POSITION_RIGHT": "Right",
-      "LEGEND_POSITION_BOTTOM": "Bottom",
-      "SHOW_X_AXIS_LABEL": "Show X Axis Label",
-      "X_AXIS_LABEL_PLACEHOLDER": "X Axis Label",
-      "SHOW_Y_AXIS_LABEL": "Show Y Axis Label",
-      "Y_AXIS_LABEL_PLACEHOLDER": "Y Axis Label",
-      "SHOW_GRID_LINES": "Show Grid Lines"
-    }
+      "VALIDATION": {
+        "REQUIRED_X_AXIS": "X axis column is required",
+        "REQUIRED_SERIES": "At least one series is required",
+        "REQUIRED_SERIES_NAME": "Series name is required",
+        "REQUIRED_SERIES_COLUMN": "Series column is required"
+      }
+    },
+    "OPTIONS": "Chart Options",
+    "SHOW_LEGEND": "Show Legend",
+    "LEGEND_POSITION": "Legend Position",
+    "LEGEND_POSITION_RIGHT": "Right",
+    "LEGEND_POSITION_BOTTOM": "Bottom",
+    "SHOW_X_AXIS_LABEL": "Show X Axis Label",
+    "X_AXIS_LABEL_PLACEHOLDER": "X Axis Label",
+    "SHOW_Y_AXIS_LABEL": "Show Y Axis Label",
+    "Y_AXIS_LABEL_PLACEHOLDER": "Y Axis Label",
+    "SHOW_GRID_LINES": "Show Grid Lines"
   },
   "LINE_CHART": {
     "NO_DATA": "No data available",

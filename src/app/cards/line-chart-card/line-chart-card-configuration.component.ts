@@ -35,26 +35,23 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
   expandedSeriesIndex: number | null = null;
   private destroy$ = new Subject<void>();
 
-  get xAxisColumnControl() {
-    return this.form.get('xAxisColumn') as FormControl;
-  }
-
-  get xAxisDateFormatControl() {
-    return this.form.get('xAxisDateFormat') as FormControl;
-  }
+  // Form controls
+  xAxisColumnControl = new FormControl('');
+  xAxisDateFormatControl = new FormControl('');
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
-      datasource: [null],
-      xAxisColumn: [''],
-      xAxisDateFormat: [''],
+      datasource: [{ type: 'API' } as DatasourceConfig],
+      xAxisColumn: this.xAxisColumnControl,
+      xAxisDateFormat: this.xAxisDateFormatControl,
       series: [[]],
       visualConfig: [null]
     });
 
     this.form.valueChanges.subscribe((value: any) => {
       if (this.form.valid) {
-        this.emitConfig(value);
+        const { visualConfig, ...rest } = value;
+        this.emitConfig({ ...rest, visualConfig: this.card.configuration?.visualConfig });
       }
     });
   }
@@ -73,11 +70,8 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
     if (formValue.series) {
       config.series = formValue.series;
     }
-    if (formValue.visualConfig) {
-      config.visualConfig = {
-        ...config.visualConfig,
-        ...formValue.visualConfig
-      };
+    if (this.card.configuration?.visualConfig) {
+      config.visualConfig = this.card.configuration.visualConfig;
     }
     this.configChange.emit(config);
   }
@@ -94,37 +88,21 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
     }
   }
 
-  onDatasourceChange(datasource: DatasourceConfig) {
-    this.form.patchValue({ datasource }, { emitEvent: true });
+  onDatasourceChange(config: DatasourceConfig) {
+    this.form.patchValue({ datasource: config });
   }
 
   onSchemaChange(schema: string) {
-    this.jsonSchema = schema;
-    if (this.jsonSchema) {
+    if (schema) {
       try {
-        const schemaObj = JSON.parse(this.jsonSchema);
-        this.updateAvailableColumns(schemaObj);
+        const schemaObj = JSON.parse(schema);
+        this.availableColumns = Object.keys(schemaObj.properties || {});
       } catch (e) {
         console.error('Error parsing JSON schema:', e);
+        this.availableColumns = [];
       }
-    }
-  }
-
-  private updateAvailableColumns(schema: any) {
-    if (schema.properties) {
-      // Toutes les colonnes pour l'axe X
-      this.availableColumns = Object.keys(schema.properties);
-      
-      // Colonnes numériques pour les séries
-      this.numericColumns = Object.entries(schema.properties)
-        .filter(([_, prop]: [string, any]) => {
-          const type = prop.type?.toLowerCase() || '';
-          const columnType = prop['x-entity-metadata']?.columnType?.toLowerCase() || '';
-          return type === 'number' || type === 'integer' || 
-                 columnType.includes('int') || columnType.includes('decimal') || 
-                 columnType.includes('float') || columnType.includes('money');
-        })
-        .map(([key]) => key);
+    } else {
+      this.availableColumns = [];
     }
   }
 
@@ -134,56 +112,47 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
       name: `Series ${series.length + 1}`,
       dataColumn: '',
       type: 'line',
+      color: '#3b82f6',
       showSymbol: true,
-      symbolSize: 4
+      symbolSize: 4,
+      areaStyle: {
+        opacity: 0
+      }
     });
     this.form.patchValue({ series }, { emitEvent: true });
+    this.expandedSeriesIndex = series.length - 1;
   }
 
   removeSeries(index: number) {
     const series = this.form.get('series')?.value || [];
     series.splice(index, 1);
     this.form.patchValue({ series }, { emitEvent: true });
+    if (this.expandedSeriesIndex === index) {
+      this.expandedSeriesIndex = null;
+    }
   }
 
   toggleSeriesExpand(index: number) {
     this.expandedSeriesIndex = this.expandedSeriesIndex === index ? null : index;
   }
 
-  handleSeriesChange(index: number, property: keyof SeriesConfig, eventOrValue: Event | any) {
+  handleSeriesChange(index: number, property: keyof SeriesConfig, event: Event) {
     const series = this.form.get('series')?.value || [];
     let value: any;
     
-    if (eventOrValue instanceof Event) {
-      const target = eventOrValue.target as HTMLInputElement | HTMLSelectElement;
+    if (event instanceof Event) {
+      const target = event.target as HTMLInputElement;
       value = target.type === 'checkbox' ? (target as HTMLInputElement).checked : target.value;
     } else {
-      value = eventOrValue;
+      value = event;
     }
-    
-    console.log('handleSeriesChange - Before update:', {
-      index,
-      property,
-      currentSeries: series[index],
-      newValue: value
-    });
     
     series[index] = {
       ...series[index],
       [property]: value
     };
 
-    console.log('handleSeriesChange - After update:', {
-      updatedSeries: series[index],
-      fullSeries: series
-    });
-
     this.form.patchValue({ series }, { emitEvent: true });
-
-    // Vérifions la valeur après le patchValue
-    console.log('handleSeriesChange - After patchValue:', {
-      formValue: this.form.get('series')?.value
-    });
   }
 
   onAreaOpacityChange(index: number, event: Event) {
@@ -200,28 +169,6 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
     };
 
     this.form.patchValue({ series }, { emitEvent: true });
-  }
-
-  handleVisualConfigChange(path: string, event: Event) {
-    const target = event.target as HTMLInputElement;
-    const value = target.type === 'checkbox' ? target.checked : target.value;
-    
-    const visualConfig = {
-      ...this.form.get('visualConfig')?.value
-    };
-
-    // Gestion des chemins imbriqués (ex: 'grid.top')
-    const parts = path.split('.');
-    let current: any = visualConfig;
-    for (let i = 0; i < parts.length - 1; i++) {
-      if (!current[parts[i]]) {
-        current[parts[i]] = {};
-      }
-      current = current[parts[i]];
-    }
-    current[parts[parts.length - 1]] = value;
-
-    this.form.patchValue({ visualConfig }, { emitEvent: true });
   }
 
   onSave() {

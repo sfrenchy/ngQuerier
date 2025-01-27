@@ -130,6 +130,12 @@
           </div>
         </app-tile>
 
+        <!-- Chart Visual Configuration -->
+        <app-chart-visual-configuration *ngIf="isChartCard"
+          [config]="visualConfig"
+          (configChange)="onVisualConfigChange($event)">
+        </app-chart-visual-configuration>
+
         <!-- Specific Card Configuration -->
         <ng-container *ngIf="cardConfigComponent">
           <app-tile [title]="'Configuration spécifique'">

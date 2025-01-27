@@ -11,17 +11,14 @@ export class LineChartCardService extends BaseChartService {
   }
 
   override loadData(key: string, endpoint: string, params?: any): Observable<any[]> {
-    console.log('LineChartCardService.loadData', { key, endpoint, params });
     return super.loadData(key, endpoint, params);
   }
 
   override loadDataFromConfig(config: { datasource: DatasourceConfig }): Observable<any[]> {
-    console.log('LineChartCardService.loadDataFromConfig', config);
     return super.loadDataFromConfig(config);
   }
 
   protected override transformResponse(response: any): any[] {
-    console.log('LineChartCardService.transformResponse', response);
     // Si la réponse est déjà un tableau, on la retourne
     if (Array.isArray(response)) {
       return response;

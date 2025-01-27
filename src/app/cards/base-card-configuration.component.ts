@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output, Type, ViewChild, ViewContainerRef, AfterViewInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, Type, ViewChild, ViewContainerRef, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { CardDto, RowDto } from '@models/api.models';
 import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
 import { TileComponent } from '@shared/components/tile/tile.component';
@@ -8,6 +8,9 @@ import { CardRegistry } from './card.registry';
 import { hexToUint, uintToHex } from '../shared/utils/color.utils';
 import { IconSelectorComponent } from '@shared/components/icon-selector/icon-selector.component';
 import { CardDatabaseService } from '../services/card-database.service';
+import { ChartVisualConfig } from '@models/chart.models';
+import { ChartVisualConfigurationComponent } from '@shared/components/chart-visual-configuration/chart-visual-configuration.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-base-card-configuration',
@@ -16,22 +19,57 @@ import { CardDatabaseService } from '../services/card-database.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    TranslatableStringFormComponent,
+    FormsModule,
     TileComponent,
-    IconSelectorComponent
+    IconSelectorComponent,
+    TranslatableStringFormComponent,
+    ChartVisualConfigurationComponent,
+    TranslateModule
   ]
 })
-export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
+export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, OnDestroy {
   @Input() card!: CardDto;
   @Input() row!: RowDto;
   @Input() isFullscreen = false;
+  @Input() maxAvailableWidth = 12;
+  @Input() isChartCard = false;
+  @Input() set visualConfig(value: ChartVisualConfig | undefined) {
+    if (value) {
+      this._visualConfig = value;
+    } else if (!this._visualConfig) {
+      // Only set default if we don't have a previous configuration
+      this._visualConfig = this.card?.configuration?.visualConfig || {
+        backgroundColor: '#1f2937',
+        textColor: '#ffffff',
+        legend: {
+          show: true,
+          position: 'right'
+        },
+        tooltip: {
+          show: true,
+          trigger: 'axis'
+        },
+        toolbox: {
+          features: {
+            dataZoom: false,
+            restore: false,
+            saveAsImage: true
+          }
+        }
+      };
+    }
+  }
+  get visualConfig(): ChartVisualConfig {
+    return this._visualConfig;
+  }
+  private _visualConfig!: ChartVisualConfig;
   @Output() save = new EventEmitter<CardDto>();
   @Output() cancel = new EventEmitter<void>();
   @Output() toggleFullscreen = new EventEmitter<void>();
+  @Output() visualConfigChange = new EventEmitter<ChartVisualConfig>();
   @ViewChild('configContainer', { read: ViewContainerRef }) configContainer!: ViewContainerRef;
 
   form!: FormGroup;
-  maxAvailableWidth: number = 12;
   cardConfigComponent?: Type<any>;
   private colorFields = ['backgroundColor', 'textColor', 'headerTextColor', 'headerBackgroundColor'];
 
@@ -52,6 +90,11 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
       headerTextColor: [this.convertUintToHex(this.card.headerTextColor)],
       headerBackgroundColor: [this.convertUintToHex(this.card.headerBackgroundColor)]
     });
+
+    // Initialiser la configuration visuelle avec celle de la carte
+    if (this.isChartCard && this.card.configuration?.visualConfig) {
+      this.visualConfig = this.card.configuration.visualConfig;
+    }
 
     this.calculateMaxWidth();
 
@@ -150,7 +193,11 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
     // Ne pas inclure les propriétés de base dans la configuration
     const updatedCard: CardDto = {
       ...this.card,
-      configuration: configuration.toJson() // toJson() ne retourne que les propriétés spécifiques
+      configuration: {
+        ...configuration.toJson(),
+        // Utiliser la configuration visuelle de la carte plutôt que this.visualConfig
+        visualConfig: this.card.configuration?.visualConfig
+      }
     };
     this.save.emit(updatedCard);
   }
@@ -164,5 +211,17 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit {
     // La largeur maximale est l'espace disponible dans la ligne
     this.maxAvailableWidth = 12 - usedSpace;
     return this.maxAvailableWidth;
+  }
+
+  onVisualConfigChange(config: ChartVisualConfig) {
+    // Mettre à jour directement la configuration de la carte
+    if (this.card.configuration) {
+      this.card.configuration.visualConfig = config;
+    }
+    this.visualConfigChange.emit(config);
+  }
+
+  ngOnDestroy() {
+    // Clean up any subscriptions or resources if needed
   }
 } 

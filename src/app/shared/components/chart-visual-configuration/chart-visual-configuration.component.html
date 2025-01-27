@@ -1,0 +1,329 @@
+<app-tile [title]="'chart.VISUAL_CONFIGURATION' | translate">
+<div [formGroup]="form" class="space-y-4">
+  <!-- Apparence générale -->
+  <app-tile [title]="'chart.GENERAL_APPEARANCE' | translate">
+    <div class="space-y-4">
+      <!-- Couleur de fond -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.BACKGROUND_COLOR' | translate }}</label>
+        <input type="color" formControlName="backgroundColor"
+               class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md">
+      </div>
+
+      <!-- Couleur du texte -->
+      <div>
+        <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TEXT_COLOR' | translate }}</label>
+        <input type="color" formControlName="textColor"
+               class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md">
+      </div>
+
+      <!-- Animation -->
+      <div>
+        <div class="flex items-center mb-2">
+          <input type="checkbox" formControlName="animation"
+                 class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded">
+          <label class="ml-2 text-sm font-medium text-gray-300">{{ 'chart.ENABLE_ANIMATION' | translate }}</label>
+        </div>
+        
+        <div *ngIf="form.get('animation')?.value" class="ml-6 space-y-2">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.ANIMATION_DURATION' | translate }}</label>
+            <input type="number" formControlName="animationDuration" min="0" max="5000" step="100"
+                   class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.ANIMATION_EASING' | translate }}</label>
+            <select formControlName="animationEasing"
+                    class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+              <option value="linear">Linear</option>
+              <option value="cubicOut">Cubic Out</option>
+              <option value="bounceOut">Bounce Out</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-tile>
+
+  <!-- Grille -->
+  <app-tile [title]="'chart.GRID' | translate">
+    <div class="space-y-4">
+      <div class="flex items-center mb-2">
+        <input type="checkbox" formControlName="showGrid"
+               class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded">
+        <label class="ml-2 text-sm font-medium text-gray-300">{{ 'chart.SHOW_GRID' | translate }}</label>
+      </div>
+
+      <div *ngIf="form.get('showGrid')?.value" class="ml-6 space-y-2">
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.GRID_BORDER_COLOR' | translate }}</label>
+          <input type="color" formControlName="gridBorderColor"
+                 class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.GRID_BORDER_WIDTH' | translate }}</label>
+          <input type="number" formControlName="gridBorderWidth" min="0" max="10"
+                 class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.GRID_BACKGROUND_COLOR' | translate }}</label>
+          <input type="color" formControlName="gridBackgroundColor"
+                 class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md">
+        </div>
+      </div>
+    </div>
+  </app-tile>
+
+  <!-- Légende -->
+  <app-tile [title]="'chart.LEGEND' | translate">
+    <div class="space-y-4">
+      <div class="flex items-center mb-2">
+        <input type="checkbox" formControlName="showLegend"
+               class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded">
+        <label class="ml-2 text-sm font-medium text-gray-300">{{ 'chart.SHOW_LEGEND' | translate }}</label>
+      </div>
+
+      <div *ngIf="form.get('showLegend')?.value" class="ml-6 space-y-4">
+        <!-- Position -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.LEGEND_POSITION' | translate }}</label>
+          <select formControlName="legendPosition"
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+            <option value="top">{{ 'chart.POSITION_TOP' | translate }}</option>
+            <option value="bottom">{{ 'chart.POSITION_BOTTOM' | translate }}</option>
+            <option value="left">{{ 'chart.POSITION_LEFT' | translate }}</option>
+            <option value="right">{{ 'chart.POSITION_RIGHT' | translate }}</option>
+          </select>
+        </div>
+
+        <!-- Orientation -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.LEGEND_ORIENT' | translate }}</label>
+          <select formControlName="legendOrient"
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+            <option value="horizontal">{{ 'chart.ORIENT_HORIZONTAL' | translate }}</option>
+            <option value="vertical">{{ 'chart.ORIENT_VERTICAL' | translate }}</option>
+          </select>
+        </div>
+
+        <!-- Alignement -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.LEGEND_ALIGN' | translate }}</label>
+          <select formControlName="legendAlign"
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+            <option value="auto">{{ 'chart.ALIGN_AUTO' | translate }}</option>
+            <option value="left">{{ 'chart.ALIGN_LEFT' | translate }}</option>
+            <option value="right">{{ 'chart.ALIGN_RIGHT' | translate }}</option>
+          </select>
+        </div>
+
+        <!-- Dimensions -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.LEGEND_ITEM_WIDTH' | translate }}</label>
+            <input type="number" formControlName="legendItemWidth" min="0" max="100"
+                   class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.LEGEND_ITEM_HEIGHT' | translate }}</label>
+            <input type="number" formControlName="legendItemHeight" min="0" max="100"
+                   class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+          </div>
+        </div>
+
+        <!-- Style -->
+        <div class="space-y-2">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.LEGEND_BACKGROUND_COLOR' | translate }}</label>
+            <input type="color" formControlName="legendBackgroundColor"
+                   class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.LEGEND_TEXT_COLOR' | translate }}</label>
+            <input type="color" formControlName="legendTextColor"
+                   class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.LEGEND_TEXT_SIZE' | translate }}</label>
+            <input type="number" formControlName="legendTextSize" min="8" max="32"
+                   class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-tile>
+
+  <!-- Tooltip -->
+  <app-tile [title]="'chart.TOOLTIP' | translate">
+    <div class="space-y-4">
+      <div class="flex items-center mb-2">
+        <input type="checkbox" formControlName="showTooltip"
+               class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded">
+        <label class="ml-2 text-sm font-medium text-gray-300">{{ 'chart.SHOW_TOOLTIP' | translate }}</label>
+      </div>
+
+      <div *ngIf="form.get('showTooltip')?.value" class="ml-6 space-y-4">
+        <!-- Type -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TOOLTIP_TRIGGER' | translate }}</label>
+          <select formControlName="tooltipTrigger"
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+            <option value="item">{{ 'chart.TRIGGER_ITEM' | translate }}</option>
+            <option value="axis">{{ 'chart.TRIGGER_AXIS' | translate }}</option>
+            <option value="none">{{ 'chart.TRIGGER_NONE' | translate }}</option>
+          </select>
+        </div>
+
+        <!-- Style -->
+        <div class="space-y-2">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TOOLTIP_BACKGROUND_COLOR' | translate }}</label>
+            <input type="color" formControlName="tooltipBackgroundColor"
+                   class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TOOLTIP_TEXT_COLOR' | translate }}</label>
+            <input type="color" formControlName="tooltipTextColor"
+                   class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TOOLTIP_TEXT_SIZE' | translate }}</label>
+            <input type="number" formControlName="tooltipTextSize" min="8" max="32"
+                   class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-tile>
+
+  <!-- Toolbox -->
+  <app-tile [title]="'chart.TOOLBOX' | translate">
+    <div class="space-y-4">
+      <div class="flex items-center mb-2">
+        <input type="checkbox" formControlName="showToolbox"
+               class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded">
+        <label class="ml-2 text-sm font-medium text-gray-300">{{ 'chart.SHOW_TOOLBOX' | translate }}</label>
+      </div>
+
+      <div *ngIf="form.get('showToolbox')?.value" class="ml-6 space-y-4">
+        <!-- Orientation -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TOOLBOX_ORIENT' | translate }}</label>
+          <select formControlName="toolboxOrient"
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+            <option value="horizontal">{{ 'chart.ORIENT_HORIZONTAL' | translate }}</option>
+            <option value="vertical">{{ 'chart.ORIENT_VERTICAL' | translate }}</option>
+          </select>
+        </div>
+
+        <!-- Features -->
+        <div class="space-y-2">
+          <div class="flex items-center">
+            <input type="checkbox" formControlName="dataZoom"
+                   class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded">
+            <label class="ml-2 text-sm font-medium text-gray-300">{{ 'chart.TOOL_DATA_ZOOM' | translate }}</label>
+          </div>
+          <div class="flex items-center">
+            <input type="checkbox" formControlName="restore"
+                   class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded">
+            <label class="ml-2 text-sm font-medium text-gray-300">{{ 'chart.TOOL_RESTORE' | translate }}</label>
+          </div>
+          <div class="flex items-center">
+            <input type="checkbox" formControlName="saveImage"
+                   class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded">
+            <label class="ml-2 text-sm font-medium text-gray-300">{{ 'chart.TOOL_SAVE_IMAGE' | translate }}</label>
+          </div>
+          <div class="flex items-center">
+            <input type="checkbox" formControlName="dataView"
+                   class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded">
+            <label class="ml-2 text-sm font-medium text-gray-300">{{ 'chart.TOOL_DATA_VIEW' | translate }}</label>
+          </div>
+          <div class="flex items-center">
+            <input type="checkbox" formControlName="magicType"
+                   class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded">
+            <label class="ml-2 text-sm font-medium text-gray-300">{{ 'chart.TOOL_MAGIC_TYPE' | translate }}</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-tile>
+
+  <!-- Titre -->
+  <app-tile [title]="'chart.TITLE' | translate">
+    <div class="space-y-4">
+      <div class="flex items-center mb-2">
+        <input type="checkbox" formControlName="showTitle"
+               class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded">
+        <label class="ml-2 text-sm font-medium text-gray-300">{{ 'chart.SHOW_TITLE' | translate }}</label>
+      </div>
+
+      <div *ngIf="form.get('showTitle')?.value" class="ml-6 space-y-4">
+        <!-- Texte -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TITLE_TEXT' | translate }}</label>
+          <input type="text" formControlName="titleText"
+                 class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        </div>
+
+        <!-- Sous-titre -->
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TITLE_SUBTEXT' | translate }}</label>
+          <input type="text" formControlName="titleSubtext"
+                 class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        </div>
+
+        <!-- Position -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TITLE_LEFT' | translate }}</label>
+            <select formControlName="titleLeft"
+                    class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+              <option value="auto">Auto</option>
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TITLE_TOP' | translate }}</label>
+            <select formControlName="titleTop"
+                    class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+              <option value="auto">Auto</option>
+              <option value="top">Top</option>
+              <option value="middle">Middle</option>
+              <option value="bottom">Bottom</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Style -->
+        <div class="space-y-2">
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TITLE_TEXT_COLOR' | translate }}</label>
+            <input type="color" formControlName="titleTextColor"
+                   class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TITLE_TEXT_SIZE' | translate }}</label>
+            <input type="number" formControlName="titleTextSize" min="12" max="48"
+                   class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TITLE_SUBTEXT_COLOR' | translate }}</label>
+            <input type="color" formControlName="titleSubtextColor"
+                   class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'chart.TITLE_SUBTEXT_SIZE' | translate }}</label>
+            <input type="number" formControlName="titleSubtextSize" min="10" max="32"
+                   class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-tile>
+</div> 
+</app-tile> 

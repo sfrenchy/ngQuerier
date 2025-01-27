@@ -118,7 +118,7 @@ The build artifacts will be stored in the `dist/` directory.
 
 ## Related Projects
 
-- [Querier API](link-to-api-repo) - The .NET Core backend API
+- [Querier API](https://github.com/sfrenchy/Querier) - The .NET Core backend API
 
 ## License
 

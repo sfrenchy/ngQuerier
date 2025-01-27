@@ -1,0 +1,19 @@
+{
+  "PieChart": {
+    "TITLE": "Graphique circulaire",
+    "DESCRIPTION": "Description du graphique circulaire",
+    "NO_DATA": "Aucune donnée à afficher",
+    "CONFIGURATION": "Configuration du graphique",
+    "COLUMNS": "Configuration des colonnes",
+    "LABEL_COLUMN": "Colonne des étiquettes",
+    "VALUE_COLUMN": "Colonne des valeurs",
+    "SELECT_COLUMN": "Sélectionner une colonne",
+    "TITLE": "Titre du graphique",
+    "RADIUS": "Rayon du graphique",
+    "VISUAL_CONFIG": "Configuration visuelle",
+    "BACKGROUND_COLOR": "Couleur de fond",
+    "TEXT_COLOR": "Couleur du texte",
+    "SHOW_LEGEND": "Afficher la légende",
+    "SHOW_TOOLTIP": "Afficher l'infobulle"
+  }
+} 

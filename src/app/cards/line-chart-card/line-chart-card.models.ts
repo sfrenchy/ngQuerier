@@ -1,5 +1,5 @@
-import { BaseCardConfig } from '../../models/api.models';
-import { DatasourceConfig } from '../../models/datasource.models';
+import { BaseChartConfig, ChartVisualConfig } from '@models/chart.models';
+import { DatasourceConfig, ParameterValue } from '@models/datasource.models';
 
 export interface SeriesConfig {
   name: string;
@@ -13,64 +13,26 @@ export interface SeriesConfig {
   };
 }
 
-export interface ChartVisualConfig {
-  backgroundColor?: string;
-  textColor?: string;
-  legend?: {
-    show?: boolean;
-    position?: 'top' | 'bottom' | 'left' | 'right';
-  };
-  tooltip?: {
-    show?: boolean;
-    trigger?: 'item' | 'axis';
-  };
-  toolbox?: {
-    features?: {
-      dataZoom?: boolean;
-      restore?: boolean;
-      saveAsImage?: boolean;
-    };
-  };
-}
-
-export class LineChartCardConfig extends BaseCardConfig {
-  datasource?: DatasourceConfig;
+export class LineChartCardConfig implements BaseChartConfig {
+  datasource: DatasourceConfig;
+  visualConfig: ChartVisualConfig;
   xAxisColumn?: string;
   xAxisDateFormat?: string;
   series: SeriesConfig[] = [];
-  visualConfig: ChartVisualConfig = {
-    backgroundColor: '#1f2937',
-    textColor: '#ffffff',
-    legend: {
-      show: true,
-      position: 'top'
-    },
-    tooltip: {
-      show: true,
-      trigger: 'axis'
-    },
-    toolbox: {
-      features: {
-        dataZoom: true,
-        restore: true,
-        saveAsImage: true
-      }
-    }
-  };
 
   constructor() {
-    super();
-    this.datasource = {
-      type: 'API'
+    this.datasource = { 
+      type: 'API',
+      procedureParameters: {} as Record<string, ParameterValue>,  // Initialiser avec un objet vide typé
+      controller: {
+        route: 'api/v1/data/line-chart'  // Route par défaut
+      }
     };
-    this.xAxisColumn = '';
-    this.series = [];
     this.visualConfig = {
       backgroundColor: '#1f2937',
       textColor: '#ffffff',
       legend: {
-        show: true,
-        position: 'top'
+        show: true
       },
       tooltip: {
         show: true,

@@ -316,4 +316,8 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     if (!this.configCardData) return null;
     return this.layout.rows.find(r => r.id === this.configCardData?.rowId) || null;
   }
+
+  isCardChart(card: CardDto): boolean {
+    return card.type.toLowerCase().includes('chart');
+  }
 }

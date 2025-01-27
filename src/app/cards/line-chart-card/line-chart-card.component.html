@@ -1,26 +1,27 @@
-<app-base-card [card]="card" [isEditing]="isEditing">
-  <div body class="h-full">
-    <div class="card-content h-full">
-      <div class="h-full w-full flex flex-col">
-        <div class="flex-grow relative">
-          <div *ngIf="chartState.loading" class="absolute inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-10">
-            <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
-          </div>
-          
-          <div *ngIf="!chartState.data?.length" class="absolute inset-0 flex items-center justify-center text-gray-400">
-            {{ 'LineChart.NO_DATA' | translate }}
-          </div>
-
-          <div *ngIf="chartState.data?.length" class="h-full w-full">
-            <div echarts 
-                 [options]="chartOptions"
-                 [loading]="chartState.loading"
-                 class="h-full w-full"
-                 [theme]="'dark'"
-                 [initOpts]="{renderer: 'svg'}"
-            ></div>
-          </div>
+<app-base-card [card]="card" [isEditing]="isEditing" [showFullscreenButton]="true" (fullscreenChange)="fullscreenChange.emit($event)">
+  <div header class="flex justify-between items-center">
+    <div class="flex items-center gap-2">
+      <span>&nbsp;</span>
+    </div>
+  </div>
+  <div body class="h-full flex flex-col">
+    <div class="flex-1 min-h-0 flex flex-col relative">
+      <!-- Loader overlay -->
+      <div *ngIf="chartState.loading" 
+           class="absolute inset-0 z-20 bg-gray-900/90 flex items-center justify-center">
+        <div class="flex items-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
         </div>
+      </div>
+
+      <!-- Error message -->
+      <div *ngIf="chartState.error" 
+           class="absolute inset-0 z-20 bg-gray-900/90 flex items-center justify-center">
+        <div class="text-red-500">{{ chartState.error }}</div>
+      </div>
+
+      <div class="flex-1">
+        <div #chartContainer class="w-full h-full"></div>
       </div>
     </div>
   </div>

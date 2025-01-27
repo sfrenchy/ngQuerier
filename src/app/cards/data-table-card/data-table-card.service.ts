@@ -177,13 +177,6 @@ export class DataTableCardService {
   getReadActionParameterDefinition(config: DatasourceConfig): Observable<DBConnectionEndpointRequestInfoDto[]> {
     // Extraire le nom du contrôleur de la route (prendre la dernière partie après le dernier /)
     const controllerName = config?.controller?.route?.split('/').pop() || '';
-    
-    console.log('[DataTableCardService] Appel getReadActionParameterDefinition avec config:', {
-      connectionId: config?.connection?.id,
-      controllerName: controllerName,
-      controllerRoute: config?.controller?.route,
-      fullConfig: config
-    });
 
     if (!config?.connection?.id || !controllerName) {
       console.warn('[DataTableCardService] Configuration invalide - Retour tableau vide');
@@ -193,23 +186,15 @@ export class DataTableCardService {
     const cacheKey = `${config.connection.id}_${controllerName}_entity_schema`;
     const cachedSchema = this.cacheMap.get(cacheKey);
     if (cachedSchema) {
-      console.log('[DataTableCardService] Utilisation du cache pour', cacheKey);
       return of(cachedSchema);
     }
 
-    console.log('[DataTableCardService] Appel API getDatabaseEndpoints avec:', {
-      connectionId: config.connection.id,
-      controllerName: controllerName
-    });
 
     return this.datasourceService.getDatabaseEndpoints(config.connection.id, controllerName + "Controller", "", "Create").pipe(
       tap(response => {
-        console.log('[DataTableCardService] Réponse API détaillée:', JSON.stringify(response, null, 2));
-        console.log('[DataTableCardService] Structure du premier endpoint:', Object.keys(response[0]));
       }),
       map((endpoints: DBConnectionEndpointInfoDto[]) => {
         const requestInfos = endpoints.map(endpoint => {
-          console.log('[DataTableCardService] Endpoint à transformer:', endpoint);
           return {
             name: endpoint.parameters[0].name,
             type: endpoint.parameters[0].type,

@@ -60,6 +60,7 @@
   <app-base-card-configuration *ngIf="showCardConfig && getCardToEdit() && getRowForCard()"
                               [card]="getCardToEdit()!"
                               [row]="getRowForCard()!"
+                              [isChartCard]="isCardChart(getCardToEdit()!)"
                               [isFullscreen]="isFullscreen"
                               (save)="onCardConfigSave($event)"
                               (cancel)="closeCardConfig()"

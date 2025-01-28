@@ -1,0 +1,44 @@
+<div class="flex items-center justify-between p-2 bg-gray-800 border-t border-gray-700">
+  <!-- Parameters tags -->
+  <div class="flex items-center gap-2 flex-wrap flex-1">
+    <div *ngFor="let param of activeParameters" class="relative">
+      <button
+        (click)="openPopover(param, $event)"
+        class="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium
+               bg-gray-700 text-gray-200 hover:bg-gray-600 focus:outline-none focus:ring-2
+               focus:ring-offset-2 focus:ring-primary-500">
+        {{ param.displayName || param.name }}: {{ formatValue(param) }}
+      </button>
+      
+      <!-- Popover -->
+      <div *ngIf="selectedParameter === param">
+        <!-- Overlay -->
+        <div class="fixed inset-0 z-[9998]" (click)="closePopover()"></div>
+        
+        <!-- Popover content -->
+        <div class="absolute bottom-8 left-0 z-[9999]">
+          <app-parameter-popover
+            [parameter]="param"
+            (parameterChange)="onParameterChange($event)"
+            (close)="closePopover()">
+          </app-parameter-popover>
+          
+          <!-- Arrow -->
+          <div class="absolute -bottom-2 left-4 w-4 h-4 rotate-45
+                      bg-gray-900 border-r border-b border-gray-700/50">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Last update info -->
+  <div class="flex items-center gap-4 text-sm text-gray-400">
+    <div *ngIf="lastUpdate">
+      {{ 'PARAMETERS.LAST_UPDATE' | translate }}: {{ lastUpdate | date:'short' }}
+    </div>
+    <div *ngIf="autoRefreshInterval">
+      {{ 'PARAMETERS.AUTO_REFRESH' | translate }}: {{ autoRefreshInterval }}s
+    </div>
+  </div>
+</div> 

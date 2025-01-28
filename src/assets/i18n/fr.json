@@ -475,6 +475,29 @@
           "TITLE": "Configuration spécifique"
         }
       }
+    },
+    "PARAMETERS": {
+      "TITLE": "Paramètres du graphique",
+      "VALUE": "Valeur",
+      "DATE_TYPE": "Type de date",
+      "DATE_SPECIFIC": "Date spécifique",
+      "DATE_TODAY": "Aujourd'hui",
+      "DATE_YESTERDAY": "Hier",
+      "DATE_LAST_WEEK": "Semaine dernière",
+      "DATE_LAST_MONTH": "Mois dernier",
+      "DATE_LAST_YEAR": "Année dernière",
+      "ENABLED": "Activé",
+      "LAST_UPDATE": "Dernière mise à jour",
+      "AUTO_REFRESH": "Actualisation automatique",
+      "VALIDATION": {
+        "REQUIRED": "Ce champ est requis",
+        "MIN": "La valeur minimale est {{min}}",
+        "MAX": "La valeur maximale est {{max}}",
+        "MIN_LENGTH": "La longueur minimale est {{minLength}} caractères",
+        "MAX_LENGTH": "La longueur maximale est {{maxLength}} caractères",
+        "PATTERN": "Le format n'est pas valide",
+        "INVALID_DATE": "La date n'est pas valide"
+      }
     }
   },
   "chart": {

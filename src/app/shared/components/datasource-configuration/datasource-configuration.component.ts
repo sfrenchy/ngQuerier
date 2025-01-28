@@ -6,6 +6,7 @@ import { DBConnectionDto, DBConnectionControllerInfoDto, SQLQueryDto, DataStruct
 import { TranslateModule } from '@ngx-translate/core';
 import { DatasourceConfig, ParameterValue } from '@models/datasource.models';
 import { DatasourceService } from './datasource.service';
+import { StoredProcedureParameter, ChartParameters } from '@models/parameters.models';
 
 interface ParameterInfo {
   name: string;
@@ -66,7 +67,10 @@ export class DatasourceConfigurationComponent implements OnInit {
 
   ngOnInit() {
     if (!this.config) {
-      this.config = { type: 'API' };
+      this.config = { 
+        type: 'API',
+        isStoredProcedure: false  // Initialiser à false par défaut
+      };
     }
     this.loadInitialData();
     this.datasourceService.setConfig(this.config);
@@ -141,6 +145,7 @@ export class DatasourceConfigurationComponent implements OnInit {
   private initializeStoredProcedureParameters(controller: DBConnectionControllerInfoDto) {
     // Vérifier si c'est une procédure stockée
     this.isStoredProcedure = controller?.route?.includes('/procedures/') ?? false;
+    this.config.isStoredProcedure = this.isStoredProcedure;  // Mettre à jour la propriété dans la config
     
     // Si c'est une procédure stockée et qu'il y a un schéma de paramètres
     if (this.isStoredProcedure && controller?.parameterJsonSchema) {
@@ -168,19 +173,38 @@ export class DatasourceConfigurationComponent implements OnInit {
             };
           });
           
-          // Initialiser les paramètres seulement s'ils n'existent pas déjà
-          if (!this.config.procedureParameters) {
-            this.config.procedureParameters = {};
+          // Initialiser les paramètres avec des valeurs par défaut
+          const parameters: StoredProcedureParameter[] = [];
             Object.entries(paramSchema.properties).forEach(([paramName, prop]: [string, any]) => {
               const defaultValue = prop.default !== undefined ? prop.default : null;
               const isDateType = prop.type === 'string' && (prop.format === 'date' || prop.format === 'date-time');
               
-              this.config.procedureParameters![paramName] = {
+            if (!this.config.procedureParameters) {
+              this.config.procedureParameters = {};
+            }
+            
+            const parameter: StoredProcedureParameter = {
+              name: paramName,
+              type: isDateType ? 'date' : (prop.type as 'string' | 'number' | 'date' | 'boolean' | 'array'),
                 value: defaultValue,
                 dateType: isDateType ? 'specific' : undefined,
-                userChangeAllowed: prop.userChangeAllowed ?? true
-              };
-            });
+              userChangeAllowed: prop.userChangeAllowed ?? true,
+              displayName: prop.title || paramName,
+              description: prop.description
+            };
+            
+            this.config.procedureParameters[paramName] = parameter;
+            if (parameter.userChangeAllowed) {
+              parameters.push(parameter);
+            }
+          });
+
+          // Mettre à jour chartParameters pour le panneau latéral
+          if (parameters.length > 0) {
+            (this.config as any).chartParameters = {
+              parameters,
+              autoRefreshInterval: 0
+            };
           }
         }
       } catch (error) {
@@ -191,7 +215,10 @@ export class DatasourceConfigurationComponent implements OnInit {
 
   onTypeChange() {
     // Reset configuration except type
-    this.config = { type: this.config.type };
+    this.config = { 
+      type: this.config.type,
+      isStoredProcedure: false  // Initialiser à false par défaut
+    };
     this.loadInitialData();
     this.emitChange();
   }
@@ -249,6 +276,7 @@ export class DatasourceConfigurationComponent implements OnInit {
     // Vérifier si c'est une procédure stockée
     const wasStoredProcedure = this.isStoredProcedure;
     this.isStoredProcedure = controller?.route?.includes('/procedures/') ?? false;
+    this.config.isStoredProcedure = this.isStoredProcedure;  // Mettre à jour la propriété dans la config
     
     // Réinitialiser les paramètres seulement si nécessaire
     if (this.isStoredProcedure || wasStoredProcedure) {
@@ -283,6 +311,7 @@ export class DatasourceConfigurationComponent implements OnInit {
           });
           
           // Initialiser les paramètres avec des valeurs par défaut
+          const parameters: StoredProcedureParameter[] = [];
           Object.entries(paramSchema.properties).forEach(([paramName, prop]: [string, any]) => {
             const defaultValue = prop.default !== undefined ? prop.default : null;
             const isDateType = prop.type === 'string' && (prop.format === 'date' || prop.format === 'date-time');
@@ -291,12 +320,29 @@ export class DatasourceConfigurationComponent implements OnInit {
               this.config.procedureParameters = {};
             }
             
-            this.config.procedureParameters[paramName] = {
+            const parameter: StoredProcedureParameter = {
+              name: paramName,
+              type: isDateType ? 'date' : (prop.type as 'string' | 'number' | 'date' | 'boolean' | 'array'),
               value: defaultValue,
               dateType: isDateType ? 'specific' : undefined,
-              userChangeAllowed: prop.userChangeAllowed ?? true
+              userChangeAllowed: prop.userChangeAllowed ?? true,
+              displayName: prop.title || paramName,
+              description: prop.description
             };
+            
+            this.config.procedureParameters[paramName] = parameter;
+            if (parameter.userChangeAllowed) {
+              parameters.push(parameter);
+            }
           });
+
+          // Mettre à jour chartParameters pour le panneau latéral
+          if (parameters.length > 0) {
+            (this.config as any).chartParameters = {
+              parameters,
+              autoRefreshInterval: 0
+            };
+          }
         }
       } catch (error) {
         console.error('Erreur lors du parsing du schéma des paramètres:', error);
@@ -386,6 +432,8 @@ export class DatasourceConfigurationComponent implements OnInit {
     // Créer un nouvel objet ParameterValue si nécessaire
     if (!this.config.procedureParameters[paramName] || typeof this.config.procedureParameters[paramName] !== 'object') {
       this.config.procedureParameters[paramName] = {
+        name: paramName,
+        type: 'string',
         value: null,
         userChangeAllowed: true
       };
@@ -478,6 +526,8 @@ export class DatasourceConfigurationComponent implements OnInit {
     // Créer un nouvel objet ParameterValue si nécessaire
     if (!this.config.procedureParameters[paramName] || typeof this.config.procedureParameters[paramName] !== 'object') {
       this.config.procedureParameters[paramName] = {
+        name: paramName,
+        type: 'string',
         value: null,
         userChangeAllowed: true
       };

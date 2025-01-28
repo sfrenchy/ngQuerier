@@ -435,6 +435,22 @@
           "TITLE": "Specific configuration"
         }
       }
+    },
+    "PARAMETERS": {
+      "TITLE": "Chart Parameters",
+      "PARAMETERS": "Parameters",
+      "ENABLED": "Enabled",
+      "LAST_UPDATE": "Last update",
+      "AUTO_REFRESH": "Auto refresh",
+      "VALIDATION": {
+        "REQUIRED": "This field is required",
+        "MIN": "Minimum value is {{min}}",
+        "MAX": "Maximum value is {{max}}",
+        "MIN_LENGTH": "Minimum length is {{minLength}} characters",
+        "MAX_LENGTH": "Maximum length is {{maxLength}} characters",
+        "PATTERN": "Invalid format",
+        "INVALID_DATE": "Invalid date"
+      }
     }
   },
   "chart": {

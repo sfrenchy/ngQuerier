@@ -1,6 +1,7 @@
 import { BaseCardConfig } from './api.models';
 import { EChartsOption } from 'echarts';
 import { DatasourceConfig } from './datasource.models';
+import { ChartParameters } from './parameters.models';
 
 export interface ChartVisualConfig {
   backgroundColor?: string;
@@ -216,11 +217,13 @@ export interface ChartVisualConfig {
 export abstract class BaseChartConfig implements BaseCardConfig {
   datasource!: DatasourceConfig;
   visualConfig!: ChartVisualConfig;
+  chartParameters?: ChartParameters;
 
   toJson(): any {
     return {
       datasource: this.datasource,
-      visualConfig: this.visualConfig
+      visualConfig: this.visualConfig,
+      chartParameters: this.chartParameters
     };
   }
 
@@ -228,6 +231,7 @@ export abstract class BaseChartConfig implements BaseCardConfig {
     const config = new (this as any)();
     config.datasource = json.datasource;
     config.visualConfig = json.visualConfig;
+    config.chartParameters = json.chartParameters;
     return config;
   }
 }

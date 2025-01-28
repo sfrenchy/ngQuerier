@@ -1,4 +1,5 @@
 import { DBConnectionDto, DBConnectionControllerInfoDto, DataStructureDefinitionDto, SQLQueryDto } from './api.models';
+import { StoredProcedureParameter } from './parameters.models';
 
 export interface ParameterValue {
   value: any;
@@ -13,5 +14,7 @@ export interface DatasourceConfig {
   context?: string;
   entity?: DataStructureDefinitionDto;
   query?: SQLQueryDto;
-  procedureParameters?: Record<string, ParameterValue>;
+  procedureParameters?: Record<string, StoredProcedureParameter>;
+  hasUserParameters?: boolean;  // Indique si la source de données a des paramètres modifiables par l'utilisateur
+  isStoredProcedure?: boolean; // Indique si la source est une procédure stockée (via API)
 } 

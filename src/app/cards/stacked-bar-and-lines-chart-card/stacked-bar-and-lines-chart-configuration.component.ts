@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { CardDto } from '@models/api.models';
 import { TileComponent } from '@shared/components/tile/tile.component';
@@ -39,8 +39,8 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
     this.form = this.fb.group({
       xAxisColumn: [''],
       xAxisDateFormat: [''],
-      barSeries: [[]],
-      lineSeries: [[]]
+      barSeries: this.fb.array([]),
+      lineSeries: this.fb.array([])
     });
 
     this.form.valueChanges
@@ -52,14 +52,61 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
       });
   }
 
+  get barSeriesArray() {
+    return this.form.get('barSeries') as FormArray;
+  }
+
+  get lineSeriesArray() {
+    return this.form.get('lineSeries') as FormArray;
+  }
+
+  createBarSeriesFormGroup(series?: BarSeriesConfig) {
+    return this.fb.group({
+      name: [series?.name || ''],
+      dataColumn: [series?.dataColumn || ''],
+      stack: [series?.stack || 'stack1'],
+      color: [series?.color || '#3b82f6'],
+      barWidth: [series?.barWidth || 30],
+      barGap: [series?.barGap || '30%'],
+      barCategoryGap: [series?.barCategoryGap || '20%']
+    });
+  }
+
+  createLineSeriesFormGroup(series?: LineSeriesConfig) {
+    return this.fb.group({
+      name: [series?.name || ''],
+      dataColumn: [series?.dataColumn || ''],
+      type: [series?.type || 'line'],
+      color: [series?.color || '#ef4444'],
+      showSymbol: [series?.showSymbol ?? true],
+      symbolSize: [series?.symbolSize || 4],
+      areaStyle: this.fb.group({
+        opacity: [series?.areaStyle?.opacity || 0]
+      })
+    });
+  }
+
   ngOnInit() {
     if (this.card.configuration) {
+      // Initialiser l'axe X
       this.form.patchValue({
         xAxisColumn: this.card.configuration.xAxisColumn,
-        xAxisDateFormat: this.card.configuration.xAxisDateFormat,
-        barSeries: this.card.configuration.barSeries,
-        lineSeries: this.card.configuration.lineSeries
+        xAxisDateFormat: this.card.configuration.xAxisDateFormat
       }, { emitEvent: false });
+
+      // Initialiser les séries de barres
+      if (this.card.configuration.barSeries) {
+        this.card.configuration.barSeries.forEach(series => {
+          this.barSeriesArray.push(this.createBarSeriesFormGroup(series));
+        });
+      }
+
+      // Initialiser les séries de lignes
+      if (this.card.configuration.lineSeries) {
+        this.card.configuration.lineSeries.forEach(series => {
+          this.lineSeriesArray.push(this.createLineSeriesFormGroup(series));
+        });
+      }
     }
   }
 
@@ -88,9 +135,8 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
 
   // Gestion des séries de barres
   addBarSeries() {
-    const barSeries = this.form.get('barSeries')?.value || [];
-    barSeries.push({
-      name: `Bar Series ${barSeries.length + 1}`,
+    const newSeries = this.createBarSeriesFormGroup({
+      name: `Bar Series ${this.barSeriesArray.length + 1}`,
       dataColumn: '',
       stack: 'stack1',
       color: '#3b82f6',
@@ -98,14 +144,12 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
       barGap: '30%',
       barCategoryGap: '20%'
     });
-    this.form.patchValue({ barSeries }, { emitEvent: true });
-    this.expandedBarSeriesIndex = barSeries.length - 1;
+    this.barSeriesArray.push(newSeries);
+    this.expandedBarSeriesIndex = this.barSeriesArray.length - 1;
   }
 
   removeBarSeries(index: number) {
-    const barSeries = this.form.get('barSeries')?.value || [];
-    barSeries.splice(index, 1);
-    this.form.patchValue({ barSeries }, { emitEvent: true });
+    this.barSeriesArray.removeAt(index);
     if (this.expandedBarSeriesIndex === index) {
       this.expandedBarSeriesIndex = null;
     }
@@ -117,9 +161,8 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
 
   // Gestion des séries de lignes
   addLineSeries() {
-    const lineSeries = this.form.get('lineSeries')?.value || [];
-    lineSeries.push({
-      name: `Line Series ${lineSeries.length + 1}`,
+    const newSeries = this.createLineSeriesFormGroup({
+      name: `Line Series ${this.lineSeriesArray.length + 1}`,
       dataColumn: '',
       type: 'line',
       color: '#ef4444',
@@ -129,14 +172,12 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
         opacity: 0
       }
     });
-    this.form.patchValue({ lineSeries }, { emitEvent: true });
-    this.expandedLineSeriesIndex = lineSeries.length - 1;
+    this.lineSeriesArray.push(newSeries);
+    this.expandedLineSeriesIndex = this.lineSeriesArray.length - 1;
   }
 
   removeLineSeries(index: number) {
-    const lineSeries = this.form.get('lineSeries')?.value || [];
-    lineSeries.splice(index, 1);
-    this.form.patchValue({ lineSeries }, { emitEvent: true });
+    this.lineSeriesArray.removeAt(index);
     if (this.expandedLineSeriesIndex === index) {
       this.expandedLineSeriesIndex = null;
     }
@@ -146,44 +187,14 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
     this.expandedLineSeriesIndex = this.expandedLineSeriesIndex === index ? null : index;
   }
 
-  // Gestion des changements de séries
-  handleBarSeriesChange(index: number, property: keyof BarSeriesConfig, event: Event) {
-    const barSeries = this.form.get('barSeries')?.value || [];
-    const target = event.target as HTMLInputElement | HTMLSelectElement;
-    const value = target.type === 'checkbox' ? (target as HTMLInputElement).checked : target.value;
-    
-    barSeries[index] = {
-      ...barSeries[index],
-      [property]: value
-    };
-
-    this.form.patchValue({ barSeries }, { emitEvent: true });
-  }
-
-  handleLineSeriesChange(index: number, property: keyof LineSeriesConfig, event: Event | { opacity: number }) {
-    const lineSeries = this.form.get('lineSeries')?.value || [];
-    let value: any;
-    
-    if (property === 'areaStyle') {
-      value = { opacity: (event as { opacity: number }).opacity };
-    } else if (event instanceof Event) {
-      const target = event.target as HTMLInputElement | HTMLSelectElement;
-      value = target.type === 'checkbox' ? (target as HTMLInputElement).checked : target.value;
-    }
-    
-    lineSeries[index] = {
-      ...lineSeries[index],
-      [property]: value
-    };
-
-    this.form.patchValue({ lineSeries }, { emitEvent: true });
-  }
-
   handleAreaStyleOpacityChange(index: number, event: Event) {
     const target = event.target as HTMLInputElement;
     const opacity = parseFloat(target.value);
     if (!isNaN(opacity)) {
-      this.handleLineSeriesChange(index, 'areaStyle', { opacity });
+      const lineSeries = this.lineSeriesArray.at(index);
+      lineSeries.patchValue({
+        areaStyle: { opacity }
+      });
     }
   }
 

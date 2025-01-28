@@ -42,14 +42,14 @@
     <app-tile [title]="'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.TITLE' | translate" *ngIf="availableColumns.length > 0">
       <div class="space-y-4">
         <!-- Liste des séries -->
-        <div class="flex flex-col gap-4">
-          <div *ngFor="let series of form.get('barSeries')?.value || []; let i = index"
+        <div class="flex flex-col gap-4" formArrayName="barSeries">
+          <div *ngFor="let series of barSeriesArray.controls; let i = index"
                class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
             <!-- En-tête de la série -->
             <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700" (click)="toggleBarSeriesExpand(i)">
               <div class="flex items-center gap-4">
-                <span class="font-medium text-white">{{ series.name }}</span>
-                <span class="text-sm text-gray-400">({{ series.dataColumn || ('stacked-bar-and-lines-chart-card.COMMON.NO_COLUMN_SELECTED' | translate) }})</span>
+                <span class="font-medium text-white">{{ series.get('name')?.value }}</span>
+                <span class="text-sm text-gray-400">({{ series.get('dataColumn')?.value || ('stacked-bar-and-lines-chart-card.COMMON.NO_COLUMN_SELECTED' | translate) }})</span>
               </div>
               <div class="flex items-center gap-2">
                 <button type="button" 
@@ -74,21 +74,19 @@
 
             <!-- Contenu de la série -->
             <div *ngIf="expandedBarSeriesIndex === i" class="p-4 border-t border-gray-700">
-              <div class="space-y-4">
+              <div class="space-y-4" [formGroupName]="i">
                 <!-- Nom de la série -->
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.NAME' | translate }}</label>
                   <input type="text" 
-                         [value]="series.name"
-                         (change)="handleBarSeriesChange(i, 'name', $event)"
+                         formControlName="name"
                          class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
 
                 <!-- Colonne de données -->
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.DATA_COLUMN' | translate }}</label>
-                  <select [value]="series.dataColumn"
-                          (change)="handleBarSeriesChange(i, 'dataColumn', $event)"
+                  <select formControlName="dataColumn"
                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">{{ 'stacked-bar-and-lines-chart-card.COMMON.SELECT_COLUMN' | translate }}</option>
                     <option *ngFor="let column of availableColumns" [value]="column">{{ column }}</option>
@@ -99,8 +97,7 @@
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.STACK' | translate }}</label>
                   <input type="text" 
-                         [value]="series.stack"
-                         (change)="handleBarSeriesChange(i, 'stack', $event)"
+                         formControlName="stack"
                          class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
 
@@ -108,8 +105,7 @@
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.COLOR' | translate }}</label>
                   <input type="color" 
-                         [value]="series.color"
-                         (change)="handleBarSeriesChange(i, 'color', $event)"
+                         formControlName="color"
                          class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
 
@@ -118,22 +114,19 @@
                   <div>
                     <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.WIDTH' | translate }}</label>
                     <input type="number" 
-                           [value]="series.barWidth"
-                           (change)="handleBarSeriesChange(i, 'barWidth', $event)"
+                           formControlName="barWidth"
                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.GAP' | translate }}</label>
                     <input type="text" 
-                           [value]="series.barGap"
-                           (change)="handleBarSeriesChange(i, 'barGap', $event)"
+                           formControlName="barGap"
                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.CATEGORY_GAP' | translate }}</label>
                     <input type="text" 
-                           [value]="series.barCategoryGap"
-                           (change)="handleBarSeriesChange(i, 'barCategoryGap', $event)"
+                           formControlName="barCategoryGap"
                            class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                   </div>
                 </div>
@@ -158,14 +151,14 @@
     <app-tile [title]="'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.TITLE' | translate" *ngIf="availableColumns.length > 0">
       <div class="space-y-4">
         <!-- Liste des séries -->
-        <div class="flex flex-col gap-4">
-          <div *ngFor="let series of form.get('lineSeries')?.value || []; let i = index"
+        <div class="flex flex-col gap-4" formArrayName="lineSeries">
+          <div *ngFor="let series of lineSeriesArray.controls; let i = index"
                class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
             <!-- En-tête de la série -->
             <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700" (click)="toggleLineSeriesExpand(i)">
               <div class="flex items-center gap-4">
-                <span class="font-medium text-white">{{ series.name }}</span>
-                <span class="text-sm text-gray-400">({{ series.dataColumn || ('stacked-bar-and-lines-chart-card.COMMON.NO_COLUMN_SELECTED' | translate) }})</span>
+                <span class="font-medium text-white">{{ series.get('name')?.value }}</span>
+                <span class="text-sm text-gray-400">({{ series.get('dataColumn')?.value || ('stacked-bar-and-lines-chart-card.COMMON.NO_COLUMN_SELECTED' | translate) }})</span>
               </div>
               <div class="flex items-center gap-2">
                 <button type="button" 
@@ -190,21 +183,19 @@
 
             <!-- Contenu de la série -->
             <div *ngIf="expandedLineSeriesIndex === i" class="p-4 border-t border-gray-700">
-              <div class="space-y-4">
+              <div class="space-y-4" [formGroupName]="i">
                 <!-- Nom de la série -->
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.NAME' | translate }}</label>
                   <input type="text" 
-                         [value]="series.name"
-                         (change)="handleLineSeriesChange(i, 'name', $event)"
+                         formControlName="name"
                          class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
 
                 <!-- Colonne de données -->
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.DATA_COLUMN' | translate }}</label>
-                  <select [value]="series.dataColumn"
-                          (change)="handleLineSeriesChange(i, 'dataColumn', $event)"
+                  <select formControlName="dataColumn"
                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">{{ 'stacked-bar-and-lines-chart-card.COMMON.SELECT_COLUMN' | translate }}</option>
                     <option *ngFor="let column of availableColumns" [value]="column">{{ column }}</option>
@@ -214,8 +205,7 @@
                 <!-- Type de ligne -->
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.TYPE' | translate }}</label>
-                  <select [value]="series.type"
-                          (change)="handleLineSeriesChange(i, 'type', $event)"
+                  <select formControlName="type"
                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="line">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.TYPE_NORMAL' | translate }}</option>
                     <option value="smooth">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.TYPE_SMOOTH' | translate }}</option>
@@ -226,37 +216,33 @@
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.COLOR' | translate }}</label>
                   <input type="color" 
-                         [value]="series.color"
-                         (change)="handleLineSeriesChange(i, 'color', $event)"
+                         formControlName="color"
                          class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
 
                 <!-- Afficher les points -->
                 <div class="flex items-center">
                   <input type="checkbox" 
-                         [checked]="series.showSymbol"
-                         (change)="handleLineSeriesChange(i, 'showSymbol', $event)"
+                         formControlName="showSymbol"
                          class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-offset-gray-800">
                   <label class="ml-2 text-sm font-medium text-gray-300">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.SHOW_SYMBOL' | translate }}</label>
                 </div>
 
                 <!-- Taille des points -->
-                <div *ngIf="series.showSymbol">
+                <div *ngIf="series.get('showSymbol')?.value">
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.SYMBOL_SIZE' | translate }}</label>
                   <input type="number" 
-                         [value]="series.symbolSize"
-                         (change)="handleLineSeriesChange(i, 'symbolSize', $event)"
+                         formControlName="symbolSize"
                          min="1"
                          max="20"
                          class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                 </div>
 
                 <!-- Opacité de la zone -->
-                <div>
+                <div formGroupName="areaStyle">
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.AREA_STYLE_OPACITY' | translate }}</label>
                   <input type="range" 
-                         [value]="series.areaStyle?.opacity || 0"
-                         (change)="handleAreaStyleOpacityChange(i, $event)"
+                         formControlName="opacity"
                          min="0"
                          max="1"
                          step="0.1"

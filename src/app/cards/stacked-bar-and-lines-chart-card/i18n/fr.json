@@ -1,0 +1,41 @@
+{
+  "stacked-bar-and-lines-chart-card": {
+    "NAME": "Graphique à barres empilées et lignes",
+    "DESCRIPTION": "Affiche les données sous forme de barres empilées avec des séries de lignes supplémentaires",
+    "CONFIGURATION": {
+      "X_AXIS": {
+        "TITLE": "Axe X",
+        "COLUMN": "Colonne de l'axe X",
+        "DATE_FORMAT": "Format de date"
+      },
+      "BAR_SERIES": {
+        "TITLE": "Séries de barres",
+        "STACK": "Groupe d'empilement",
+        "WIDTH": "Largeur des barres",
+        "GAP": "Espacement des barres",
+        "CATEGORY_GAP": "Espacement des catégories"
+      },
+      "LINE_SERIES": {
+        "TITLE": "Séries de lignes",
+        "TYPE": "Type de ligne",
+        "TYPE_NORMAL": "Normal",
+        "TYPE_SMOOTH": "Lissé",
+        "SHOW_SYMBOL": "Afficher les symboles",
+        "SYMBOL_SIZE": "Taille des symboles",
+        "AREA_STYLE_OPACITY": "Opacité de la zone"
+      }
+    },
+    "COMMON": {
+      "NAME": "Nom",
+      "COLOR": "Couleur",
+      "DATA_COLUMN": "Colonne de données",
+      "SELECT_COLUMN": "Sélectionner une colonne",
+      "NO_COLUMN_SELECTED": "Aucune colonne sélectionnée",
+      "ADD": "Ajouter",
+      "NONE": "Aucun"
+    },
+    "DATASOURCE": {
+      "TITLE": "Source de données"
+    }
+  }
+} 

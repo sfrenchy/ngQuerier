@@ -1,0 +1,28 @@
+<app-base-card [card]="card" [isEditing]="isEditing" [showFullscreenButton]="true" (fullscreenChange)="fullscreenChange.emit($event)">
+  <div header class="flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <span>&nbsp;</span>
+    </div>
+  </div>
+  <div body class="h-full flex flex-col">
+    <div class="flex-1 min-h-0 flex flex-col relative">
+      <!-- Loader overlay -->
+      <div *ngIf="chartState.loading" 
+           class="absolute inset-0 z-20 bg-gray-900/90 flex items-center justify-center">
+        <div class="flex items-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      </div>
+
+      <!-- Error message -->
+      <div *ngIf="chartState.error" 
+           class="absolute inset-0 z-20 bg-gray-900/90 flex items-center justify-center">
+        <div class="text-red-500">{{ chartState.error }}</div>
+      </div>
+
+      <div class="flex-1">
+        <div #chartContainer class="w-full h-full"></div>
+      </div>
+    </div>
+  </div>
+</app-base-card> 

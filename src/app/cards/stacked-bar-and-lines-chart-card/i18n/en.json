@@ -1,0 +1,41 @@
+{
+  "stacked-bar-and-lines-chart-card": {
+    "NAME": "Stacked Bar and Lines Chart",
+    "DESCRIPTION": "Display data as stacked bars with additional line series",
+    "CONFIGURATION": {
+      "X_AXIS": {
+        "TITLE": "X Axis",
+        "COLUMN": "X Axis Column",
+        "DATE_FORMAT": "Date Format"
+      },
+      "BAR_SERIES": {
+        "TITLE": "Bar Series",
+        "STACK": "Stack Group",
+        "WIDTH": "Bar Width",
+        "GAP": "Bar Gap",
+        "CATEGORY_GAP": "Category Gap"
+      },
+      "LINE_SERIES": {
+        "TITLE": "Line Series",
+        "TYPE": "Line Type",
+        "TYPE_NORMAL": "Normal",
+        "TYPE_SMOOTH": "Smooth",
+        "SHOW_SYMBOL": "Show Symbols",
+        "SYMBOL_SIZE": "Symbol Size",
+        "AREA_STYLE_OPACITY": "Area Opacity"
+      }
+    },
+    "COMMON": {
+      "NAME": "Name",
+      "COLOR": "Color",
+      "DATA_COLUMN": "Data Column",
+      "SELECT_COLUMN": "Select a column",
+      "NO_COLUMN_SELECTED": "No column selected",
+      "ADD": "Add",
+      "NONE": "None"
+    },
+    "DATASOURCE": {
+      "TITLE": "Data Source"
+    }
+  }
+} 

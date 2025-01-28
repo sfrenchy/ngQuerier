@@ -11,7 +11,6 @@ import { DatasourceService } from '../shared/components/datasource-configuration
 import { BaseChartConfig, ChartVisualConfig } from '../models/chart.models';
 import { DataRequestParametersDto, PaginatedResultDto } from '../models/api.models';
 import { StoredProcedureParameter } from '../models/parameters.models';
-import { ChartParametersPanelComponent } from '../shared/components/chart-parameters-panel/chart-parameters-panel.component';
 import { ChartParametersFooterComponent } from '../shared/components/chart-parameters-footer/chart-parameters-footer.component';
 
 interface ChartState {
@@ -29,7 +28,6 @@ interface ChartState {
     CommonModule,
     TranslateModule,
     BaseCardComponent,
-    ChartParametersPanelComponent,
     ChartParametersFooterComponent
   ]
 })

@@ -8,7 +8,6 @@ import { PieChartCardConfig } from './pie-chart-card.models';
 import { Card } from '../card.decorator';
 import { PieChartCardConfigurationComponent } from './pie-chart-card-configuration.component';
 import { BaseCardComponent } from '@cards/base-card.component';
-import { ChartParametersPanelComponent } from '@shared/components/chart-parameters-panel/chart-parameters-panel.component';
 import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 
 @Card({
@@ -30,7 +29,6 @@ import { ChartParametersFooterComponent } from '@shared/components/chart-paramet
     CommonModule, 
     TranslateModule,
     BaseCardComponent,
-    ChartParametersPanelComponent,
     ChartParametersFooterComponent
   ]
 })

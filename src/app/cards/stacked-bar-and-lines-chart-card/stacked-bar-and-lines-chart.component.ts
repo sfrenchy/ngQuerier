@@ -7,7 +7,6 @@ import { StackedBarAndLinesChartCardConfig, BarSeriesConfig, LineSeriesConfig } 
 import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
 import { BaseCardComponent } from '@cards/base-card.component';
 import { StackedBarAndLinesChartConfigurationComponent } from './stacked-bar-and-lines-chart-configuration.component';
-import { ChartParametersPanelComponent } from '@shared/components/chart-parameters-panel/chart-parameters-panel.component';
 import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 
 @Card({
@@ -28,7 +27,6 @@ import { ChartParametersFooterComponent } from '@shared/components/chart-paramet
     CommonModule, 
     TranslateModule,
     BaseCardComponent,
-    ChartParametersPanelComponent,
     ChartParametersFooterComponent
   ]
 })

@@ -155,12 +155,22 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
     this.activeSortPopover = null;
     this.activeParameterPopover = undefined;
 
+    // Utiliser la première colonne disponible
+    const column = this.availableColumns[0];
+    if (!column) return;  // Protection si pas de colonnes disponibles
+
     this.activeFilterPopover = {
       data: {
-        column: columnName,
-        type,
-        displayName: columnName,
-        description: `Filter by ${columnName}`
+        column: column.name,
+        type: column.type,
+        displayName: column.name,
+        description: `Filter by ${column.name}`,
+        availableColumns: this.availableColumns.map(col => ({
+          name: col.name,
+          type: col.type,
+          displayName: col.name
+        })),
+        datasource: this.datasource
       },
     };
   }
@@ -170,15 +180,14 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
     this.activeParameterPopover = undefined;
   }
 
-  onFilterChange(search: ColumnSearchDto): void {
-    const columnSearches = [...this.parameters.columnSearches];
-    const existingIndex = columnSearches.findIndex(s => s.column === search.column);
-
-    if (existingIndex !== -1) {
-      columnSearches[existingIndex] = search;
-    } else {
-      columnSearches.push(search);
-    }
+  onFilterChange(searches: ColumnSearchDto[]): void {
+    // Supprimer les filtres existants pour cette colonne
+    const columnSearches = this.parameters.columnSearches.filter(
+      s => searches.length === 0 || s.column !== searches[0]?.column
+    );
+    
+    // Ajouter les nouvelles recherches
+    columnSearches.push(...searches);
 
     this.parametersChange.emit({
       ...this.parameters,
@@ -288,5 +297,22 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
       default:
         return 'string';
     }
+  }
+
+  // Méthodes pour les filtres
+  getGroupedFilters(): { column: string, values: string[] }[] {
+    const groupedFilters = new Map<string, string[]>();
+    
+    for (const search of this.parameters.columnSearches) {
+      if (!groupedFilters.has(search.column)) {
+        groupedFilters.set(search.column, []);
+      }
+      groupedFilters.get(search.column)!.push(search.value);
+    }
+    
+    return Array.from(groupedFilters.entries()).map(([column, values]) => ({
+      column,
+      values
+    }));
   }
 } 

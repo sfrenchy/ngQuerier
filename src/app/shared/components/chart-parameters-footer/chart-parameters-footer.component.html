@@ -22,11 +22,6 @@
                   (parameterChange)="onParameterChange($event)"
                   (close)="closePopover()">
                 </app-parameter-popover>
-                
-                <!-- Arrow -->
-                <div class="absolute top-full left-1/2 -translate-x-1/2 w-4 h-4 rotate-45
-                            bg-gray-900 border-b border-r border-gray-700/50">
-                </div>
               </div>
             </div>
           </ng-container>
@@ -63,10 +58,6 @@
                     (close)="activeFilterPopover = null">
                   </app-filter-popover>
                 </div>
-                <!-- Arrow -->
-                <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rotate-45
-                            bg-gray-900 border-b border-r border-gray-700/50">
-                </div>
               </div>
             </div>
 
@@ -95,23 +86,20 @@
                     (close)="activeSortPopover = null">
                   </app-sort-popover>
                 </div>
-                <!-- Arrow -->
-                <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rotate-45
-                            bg-gray-900 border-b border-r border-gray-700/50">
-                </div>
               </div>
             </div>
           </div>
 
           <!-- Filtres actifs -->
           <div class="flex flex-wrap gap-2">
-            <ng-container *ngFor="let search of parameters.columnSearches">
+            <ng-container *ngFor="let group of getGroupedFilters()">
               <div class="inline-flex items-center px-3 py-1 rounded-full text-sm
-                          bg-primary-900/50 text-primary-200 border border-primary-700/50">
-                <span class="font-medium">{{ search.column }}:</span>
-                <span class="ml-2">{{ search.value }}</span>
-                <button (click)="removeFilter(search.column)"
-                        class="ml-2 text-primary-400 hover:text-primary-200 transition-colors">
+                          bg-blue-900 text-blue-100 border border-blue-700 hover:bg-blue-800"
+                   [title]="group.values.join(', ')">
+                <span class="font-medium">{{ group.column }}</span>
+                <span class="ml-2">({{ group.values.length }})</span>
+                <button (click)="removeFilter(group.column)"
+                        class="ml-2 text-blue-300 hover:text-blue-100 transition-colors">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>

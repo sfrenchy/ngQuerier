@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { BaseParameterPopover } from '../base-parameter-popover/base-parameter-popover.component';
 import { ColumnSearchDto } from '@models/api.models';
 import { StoredProcedureParameter } from '@models/parameters.models';
+import { DataTableCardService } from '@cards/data-table-card/data-table-card.service';
 
 export interface FilterPopoverData {
   column: string;
@@ -13,6 +14,12 @@ export interface FilterPopoverData {
   displayName: string;
   description: string;
   position?: 'above' | 'below';
+  availableColumns?: Array<{
+    name: string;
+    type: 'string' | 'number' | 'boolean' | 'date';
+    displayName: string;
+  }>;
+  datasource?: any;
 }
 
 export interface Position {
@@ -30,9 +37,14 @@ export class FilterPopoverComponent extends BaseParameterPopover implements OnIn
   @Input() data!: FilterPopoverData;
   @Input() position?: Position;
   @Output() override close = new EventEmitter<void>();
-  @Output() filterChange = new EventEmitter<ColumnSearchDto>();
+  @Output() filterChange = new EventEmitter<ColumnSearchDto[]>();
 
-  constructor() {
+  availableValues: string[] = [];
+  selectedValues = new Set<string>();
+  isLoading = false;
+  searchTerm = '';
+
+  constructor(private dataService: DataTableCardService) {
     super();
     // Initialisation avec des valeurs par défaut
     this.parameter = {
@@ -59,10 +71,17 @@ export class FilterPopoverComponent extends BaseParameterPopover implements OnIn
       this.parameter.value = `${this.parameter.value}T00:00`;
     }
 
-    this.filterChange.emit({
-      column: this.data.column,
-      value: this.parameter.value || ''
-    });
+    // Émettre une recherche distincte pour chaque valeur sélectionnée
+    const values = Array.from(this.selectedValues);
+    if (values.length > 0) {
+      const searches: ColumnSearchDto[] = values.map(value => ({
+        column: this.data.column,
+        value: value
+      }));
+      this.filterChange.emit(searches);
+    } else {
+      this.filterChange.emit([]);
+    }
   }
 
   protected override getParameterType(): string {
@@ -79,5 +98,90 @@ export class FilterPopoverComponent extends BaseParameterPopover implements OnIn
       displayName: this.data.displayName || this.data.column,
       description: this.data.description || ''
     };
+
+    if (this.data.column) {
+      this.loadValues();
+      
+      // Si on a une valeur courante, on l'ajoute aux valeurs sélectionnées
+      if (this.data.currentValue) {
+        this.selectedValues = new Set(this.data.currentValue.split(','));
+      }
+    }
+  }
+
+  onColumnChange(columnName: string): void {
+    const column = this.data.availableColumns?.find(col => col.name === columnName);
+    if (column) {
+      this.data.column = column.name;
+      this.data.type = column.type;
+      this.data.displayName = column.displayName;
+      
+      // Reset the value when changing column
+      this.parameter = {
+        name: column.name,
+        type: column.type,
+        value: '',
+        userChangeAllowed: true,
+        displayName: column.displayName,
+        description: this.data.description || ''
+      };
+
+      this.selectedValues.clear();
+      this.loadValues();
+    }
+  }
+
+  private loadValues() {
+    if (!this.data.datasource || !this.data.column) return;
+
+    this.isLoading = true;
+    this.availableValues = [];
+
+    this.dataService.getColumnValues(this.data.datasource, this.data.column)
+      .subscribe({
+        next: (values) => {
+          this.availableValues = values;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('[FilterPopover] Error loading values:', error);
+          this.isLoading = false;
+        }
+      });
+  }
+
+  get filteredValues(): string[] {
+    if (!this.searchTerm) {
+      return this.availableValues;
+    }
+    const search = this.searchTerm.toLowerCase();
+    return this.availableValues.filter(value => 
+      value.toString().toLowerCase().includes(search)
+    );
+  }
+
+  selectAll() {
+    this.selectedValues = new Set(this.filteredValues);
+  }
+
+  selectNone() {
+    this.selectedValues.clear();
+  }
+
+  isValueSelected(value: string): boolean {
+    return this.selectedValues.has(value);
+  }
+
+  toggleValue(value: string) {
+    if (this.selectedValues.has(value)) {
+      this.selectedValues.delete(value);
+    } else {
+      this.selectedValues.add(value);
+    }
+  }
+
+  applyFilter() {
+    this.onValueChange();
+    this.close.emit();
   }
 } 

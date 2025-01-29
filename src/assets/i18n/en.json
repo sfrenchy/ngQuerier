@@ -546,5 +546,19 @@
     "AUTO_REFRESH_INTERVAL": "Refresh interval (seconds)",
     "FILTERS": "Filters",
     "SORTS": "Sorts"
+  },
+  "card": {
+    "CONFIG_TITLE": "Card Configuration",
+    "TITLE": "Title",
+    "ICON": "Icon",
+    "SHOW_HEADER": "Show header",
+    "SHOW_FOOTER": "Show footer",
+    "LAYOUT_AND_COLORS": "Layout and Colors",
+    "WIDTH": "Width",
+    "BACKGROUND_COLOR": "Background color",
+    "TEXT_COLOR": "Text color",
+    "HEADER_TEXT_COLOR": "Header text color",
+    "HEADER_BACKGROUND_COLOR": "Header background color",
+    "SPECIFIC_CONFIG": "Specific configuration"
   }
 }

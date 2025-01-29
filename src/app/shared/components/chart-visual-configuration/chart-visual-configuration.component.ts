@@ -27,9 +27,11 @@ export class ChartVisualConfigurationComponent implements OnInit {
         legendPosition: value.legend?.position,
         showTooltip: value.tooltip?.show,
         tooltipTrigger: value.tooltip?.trigger,
-        dataZoom: value.toolbox?.features?.dataZoom,
-        restore: value.toolbox?.features?.restore,
-        saveImage: value.toolbox?.features?.saveAsImage
+        dataZoom: value.toolbox?.feature?.dataZoom?.show,
+        restore: value.toolbox?.feature?.restore?.show,
+        saveImage: value.toolbox?.feature?.saveAsImage?.show,
+        dataView: value.toolbox?.feature?.dataView?.show,
+        magicType: value.toolbox?.feature?.magicType?.show
       }, { emitEvent: false });
     }
   }
@@ -159,20 +161,44 @@ export class ChartVisualConfigurationComponent implements OnInit {
           }
         },
         
-        toolbox: {
-          show: value.showToolbox,
-          orient: value.toolboxOrient,
+        toolbox: value.showToolbox ? {
+          show: true,
+          orient: value.toolboxOrient as 'horizontal' | 'vertical',
           itemSize: value.toolboxItemSize,
           itemGap: value.toolboxItemGap,
           showTitle: value.toolboxShowTitle,
-          features: {
-            dataZoom: value.dataZoom,
-            restore: value.restore,
-            saveAsImage: value.saveImage,
-            dataView: value.dataView,
-            magicType: value.magicType
+          feature: {
+            dataZoom: { 
+              show: value.dataZoom,
+              title: {
+                zoom: 'Zoom',
+                back: 'Retour'
+              }
+            },
+            restore: { 
+              show: value.restore,
+              title: 'Réinitialiser'
+            },
+            saveAsImage: { 
+              show: value.saveImage,
+              title: 'Sauvegarder'
+            },
+            dataView: { 
+              show: value.dataView,
+              title: 'Données',
+              lang: ['Vue données', 'Fermer', 'Actualiser']
+            },
+            magicType: value.magicType ? {
+              show: true,
+              type: ['line', 'bar', 'stack'],
+              title: {
+                line: 'Ligne',
+                bar: 'Barre',
+                stack: 'Empilé'
+              }
+            } : undefined
           }
-        },
+        } : undefined,
         
         title: value.showTitle ? {
           show: true,
@@ -240,11 +266,11 @@ export class ChartVisualConfigurationComponent implements OnInit {
         toolboxItemSize: this._config.toolbox?.itemSize ?? 15,
         toolboxItemGap: this._config.toolbox?.itemGap ?? 10,
         toolboxShowTitle: this._config.toolbox?.showTitle ?? true,
-        dataZoom: this._config.toolbox?.features?.dataZoom ?? true,
-        restore: this._config.toolbox?.features?.restore ?? true,
-        saveImage: this._config.toolbox?.features?.saveAsImage ?? true,
-        dataView: this._config.toolbox?.features?.dataView ?? false,
-        magicType: this._config.toolbox?.features?.magicType ?? false,
+        dataZoom: this._config.toolbox?.feature?.dataZoom?.show ?? true,
+        restore: this._config.toolbox?.feature?.restore?.show ?? true,
+        saveImage: this._config.toolbox?.feature?.saveAsImage?.show ?? true,
+        dataView: this._config.toolbox?.feature?.dataView?.show ?? false,
+        magicType: this._config.toolbox?.feature?.magicType?.show ?? false,
         
         showTitle: this._config.title?.show ?? false,
         titleText: this._config.title?.text ?? '',

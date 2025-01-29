@@ -575,5 +575,19 @@
     "LABEL_COLUMN": "Colonne des étiquettes",
     "VALUE_COLUMN": "Colonne des valeurs",
     "RADIUS": "Rayon du graphique"
+  },
+  "card": {
+    "CONFIG_TITLE": "Configuration de la carte",
+    "TITLE": "Titre",
+    "ICON": "Icône",
+    "SHOW_HEADER": "Afficher l'en-tête",
+    "SHOW_FOOTER": "Afficher le pied de page",
+    "LAYOUT_AND_COLORS": "Mise en page et couleurs",
+    "WIDTH": "Largeur",
+    "BACKGROUND_COLOR": "Couleur de fond",
+    "TEXT_COLOR": "Couleur du texte",
+    "HEADER_TEXT_COLOR": "Couleur du texte de l'en-tête",
+    "HEADER_BACKGROUND_COLOR": "Couleur de fond de l'en-tête",
+    "SPECIFIC_CONFIG": "Configuration spécifique"
   }
 }

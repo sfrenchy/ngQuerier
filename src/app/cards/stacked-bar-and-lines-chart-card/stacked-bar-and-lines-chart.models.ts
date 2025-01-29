@@ -50,10 +50,22 @@ export class StackedBarAndLinesChartCardConfig extends BaseChartConfig {
         trigger: 'axis'
       },
       toolbox: {
-        features: {
-          dataZoom: true,
-          restore: true,
-          saveAsImage: true
+        feature: {
+          dataZoom: {
+            show: true,
+            title: {
+              zoom: 'Zoom',
+              back: 'Réinitialiser'
+            }
+          },
+          restore: {
+            show: true,
+            title: 'Réinitialiser'
+          },
+          saveAsImage: {
+            show: true,
+            title: 'Enregistrer'
+          }
         }
       }
     };

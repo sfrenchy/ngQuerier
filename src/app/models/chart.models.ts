@@ -6,6 +6,9 @@ import { ChartParameters } from './parameters.models';
 export interface ChartVisualConfig {
   backgroundColor?: string;
   textColor?: string;
+  animation?: boolean;
+  animationDuration?: number;
+  animationEasing?: string;
   grid?: {
     left?: string | number;
     right?: string | number;
@@ -56,61 +59,14 @@ export interface ChartVisualConfig {
   tooltip?: {
     show?: boolean;
     trigger?: 'item' | 'axis' | 'none';
-    axisPointer?: {
-      type?: 'line' | 'shadow' | 'cross' | 'none';
-      axis?: 'x' | 'y' | 'radius' | 'angle';
-      snap?: boolean;
-      label?: {
-        show?: boolean;
-        precision?: number | string;
-        formatter?: string;
-        backgroundColor?: string;
-        borderColor?: string;
-        borderWidth?: number;
-        padding?: number | number[];
-      };
-      lineStyle?: {
-        color?: string;
-        width?: number;
-        type?: 'solid' | 'dashed' | 'dotted';
-        shadowBlur?: number;
-        shadowColor?: string;
-        shadowOffsetX?: number;
-        shadowOffsetY?: number;
-        opacity?: number;
-      };
-      shadowStyle?: {
-        color?: string;
-        shadowBlur?: number;
-        shadowColor?: string;
-        shadowOffsetX?: number;
-        shadowOffsetY?: number;
-        opacity?: number;
-      };
-      crossStyle?: {
-        color?: string;
-        width?: number;
-        type?: 'solid' | 'dashed' | 'dotted';
-        shadowBlur?: number;
-        shadowColor?: string;
-        shadowOffsetX?: number;
-        shadowOffsetY?: number;
-        opacity?: number;
-      };
-    };
     showContent?: boolean;
-    alwaysShowContent?: boolean;
     backgroundColor?: string;
     borderColor?: string;
     borderWidth?: number;
     padding?: number | number[];
     textStyle?: {
       color?: string;
-      fontStyle?: string;
-      fontWeight?: string | number;
-      fontFamily?: string;
       fontSize?: number;
-      lineHeight?: number;
     };
   };
   toolbox?: {
@@ -119,98 +75,57 @@ export interface ChartVisualConfig {
     itemSize?: number;
     itemGap?: number;
     showTitle?: boolean;
-    features?: {
-      dataZoom?: boolean;
-      restore?: boolean;
-      saveAsImage?: boolean;
-      dataView?: boolean;
-      magicType?: boolean;
+    feature?: {
+      dataZoom?: { 
+        show?: boolean;
+        title?: {
+          zoom?: string;
+          back?: string;
+        };
+      };
+      restore?: { 
+        show?: boolean;
+        title?: string;
+      };
+      saveAsImage?: { 
+        show?: boolean;
+        title?: string;
+      };
+      dataView?: { 
+        show?: boolean;
+        title?: string;
+        lang?: string[];
+      };
+      magicType?: { 
+        show?: boolean;
+        type?: string[];
+        title?: {
+          line?: string;
+          bar?: string;
+          stack?: string;
+        };
+      };
     };
     iconStyle?: {
-      normal?: {
-        borderColor?: string;
-        borderWidth?: number;
-        borderType?: 'solid' | 'dashed' | 'dotted';
-        shadowBlur?: number;
-        shadowColor?: string;
-        shadowOffsetX?: number;
-        shadowOffsetY?: number;
-        opacity?: number;
-      };
-      emphasis?: {
-        borderColor?: string;
-        borderWidth?: number;
-        borderType?: 'solid' | 'dashed' | 'dotted';
-        shadowBlur?: number;
-        shadowColor?: string;
-        shadowOffsetX?: number;
-        shadowOffsetY?: number;
-        opacity?: number;
-      };
+      color?: string;
+      borderColor?: string;
+      borderWidth?: number;
     };
   };
-  animation?: boolean;
-  animationThreshold?: number;
-  animationDuration?: number;
-  animationEasing?: string;
-  animationDelay?: number;
-  animationDurationUpdate?: number;
-  animationEasingUpdate?: string;
-  animationDelayUpdate?: number;
   title?: {
     show?: boolean;
     text?: string;
-    link?: string;
-    target?: 'self' | 'blank';
-    textStyle?: {
-      color?: string;
-      fontStyle?: string;
-      fontWeight?: string | number;
-      fontFamily?: string;
-      fontSize?: number;
-      lineHeight?: number;
-      backgroundColor?: string;
-      borderColor?: string;
-      borderWidth?: number;
-      borderRadius?: number;
-      padding?: number | number[];
-      shadowColor?: string;
-      shadowBlur?: number;
-      shadowOffsetX?: number;
-      shadowOffsetY?: number;
-    };
     subtext?: string;
-    subtextStyle?: {
-      color?: string;
-      fontStyle?: string;
-      fontWeight?: string | number;
-      fontFamily?: string;
-      fontSize?: number;
-      lineHeight?: number;
-      backgroundColor?: string;
-      borderColor?: string;
-      borderWidth?: number;
-      borderRadius?: number;
-      padding?: number | number[];
-      shadowColor?: string;
-      shadowBlur?: number;
-      shadowOffsetX?: number;
-      shadowOffsetY?: number;
-    };
-    padding?: number | number[];
-    itemGap?: number;
     left?: string | number;
     top?: string | number;
-    right?: string | number;
-    bottom?: string | number;
-    backgroundColor?: string;
-    borderColor?: string;
-    borderWidth?: number;
-    borderRadius?: number | number[];
-    shadowBlur?: number;
-    shadowColor?: string;
-    shadowOffsetX?: number;
-    shadowOffsetY?: number;
+    textStyle?: {
+      color?: string;
+      fontSize?: number;
+    };
+    subtextStyle?: {
+      color?: string;
+      fontSize?: number;
+    };
   };
 }
 

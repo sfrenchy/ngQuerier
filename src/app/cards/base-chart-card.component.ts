@@ -262,42 +262,128 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
           break;
       }
     }
-    
-    this.chartOptions = {
+
+    // Configuration de base
+    const baseOptions: EChartsOption = {
       backgroundColor: visualConfig?.backgroundColor,
       textStyle: {
         color: visualConfig?.textColor
       },
-      tooltip: visualConfig?.tooltip || {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow'
-        }
-      },
-      legend: {
-        show: visualConfig?.legend?.show ?? true,
-        orient: visualConfig?.legend?.position === 'right' || visualConfig?.legend?.position === 'left' ? 'vertical' : 'horizontal',
-        left: visualConfig?.legend?.position === 'left' ? '3%' : visualConfig?.legend?.position === 'right' ? 'right' : 'center',
-        top: visualConfig?.legend?.position === 'top' ? '3%' : visualConfig?.legend?.position === 'bottom' ? 'bottom' : 'middle',
-        textStyle: {
-          color: visualConfig?.textColor
-        }
-      },
-      toolbox: visualConfig?.toolbox || {
-        show: true,
-        feature: {
-          saveAsImage: { show: true }
-        }
-      },
-      grid: {
-        ...visualConfig?.grid,
+      animation: visualConfig?.animation,
+      animationDuration: visualConfig?.animationDuration,
+      animationEasing: visualConfig?.animationEasing,
+    };
+
+    // Configuration de la grille
+    if (visualConfig?.grid) {
+      baseOptions.grid = {
+        ...visualConfig.grid,
         left: gridMargins.left,
         right: gridMargins.right,
         top: gridMargins.top,
         bottom: gridMargins.bottom,
         containLabel: true
-      }
-    };
+      };
+    }
+
+    // Configuration de la légende
+    if (visualConfig?.legend) {
+      baseOptions.legend = {
+        ...visualConfig.legend,
+        show: visualConfig.legend.show ?? true,
+        orient: visualConfig.legend.position === 'right' || visualConfig.legend.position === 'left' ? 'vertical' : 'horizontal',
+        left: visualConfig.legend.position === 'left' ? '3%' : visualConfig.legend.position === 'right' ? 'right' : 'center',
+        top: visualConfig.legend.position === 'top' ? '3%' : visualConfig.legend.position === 'bottom' ? 'bottom' : 'middle',
+        textStyle: {
+          ...visualConfig.legend.textStyle,
+          color: visualConfig.legend.textStyle?.color ?? visualConfig.textColor
+        }
+      };
+    }
+
+    // Configuration du tooltip
+    if (visualConfig?.tooltip) {
+      baseOptions.tooltip = {
+        ...visualConfig.tooltip,
+        show: visualConfig.tooltip.show ?? true,
+        trigger: visualConfig.tooltip.trigger ?? 'axis',
+        axisPointer: {
+          type: 'shadow'
+        }
+      };
+    }
+
+    // Configuration de la toolbox
+    if (visualConfig?.toolbox) {
+      baseOptions.toolbox = {
+        ...visualConfig.toolbox,
+        show: visualConfig.toolbox.show ?? true,
+        orient: visualConfig.toolbox.orient ?? 'horizontal',
+        itemSize: visualConfig.toolbox.itemSize ?? 15,
+        itemGap: visualConfig.toolbox.itemGap ?? 10,
+        showTitle: visualConfig.toolbox.showTitle ?? true,
+        feature: {
+          dataZoom: { 
+            show: visualConfig.toolbox.feature?.dataZoom?.show ?? false,
+            title: {
+              zoom: 'Zoom',
+              back: 'Retour'
+            }
+          },
+          restore: { 
+            show: visualConfig.toolbox.feature?.restore?.show ?? false,
+            title: 'Réinitialiser'
+          },
+          saveAsImage: { 
+            show: visualConfig.toolbox.feature?.saveAsImage?.show ?? true,
+            title: 'Sauvegarder'
+          },
+          dataView: { 
+            show: visualConfig.toolbox.feature?.dataView?.show ?? false,
+            title: 'Données',
+            lang: ['Vue données', 'Fermer', 'Actualiser']
+          },
+          magicType: visualConfig.toolbox.feature?.magicType?.show ? {
+            show: true,
+            type: visualConfig.toolbox.feature.magicType.type ?? ['line', 'bar', 'stack'],
+            title: {
+              line: 'Ligne',
+              bar: 'Barre',
+              stack: 'Empilé'
+            }
+          } : undefined
+        }
+      };
+    } else {
+      // Configuration par défaut de la toolbox si aucune n'est spécifiée
+      baseOptions.toolbox = {
+        show: true,
+        feature: {
+          saveAsImage: { 
+            show: true,
+            title: 'Sauvegarder'
+          }
+        }
+      };
+    }
+
+    // Configuration du titre
+    if (visualConfig?.title) {
+      baseOptions.title = {
+        ...visualConfig.title,
+        show: visualConfig.title.show ?? false,
+        textStyle: {
+          ...visualConfig.title.textStyle,
+          color: visualConfig.title.textStyle?.color ?? visualConfig.textColor
+        },
+        subtextStyle: {
+          ...visualConfig.title.subtextStyle,
+          color: visualConfig.title.subtextStyle?.color ?? visualConfig.textColor
+        }
+      };
+    }
+
+    this.chartOptions = baseOptions;
   }
 
   protected abstract updateChartOptions(): void;

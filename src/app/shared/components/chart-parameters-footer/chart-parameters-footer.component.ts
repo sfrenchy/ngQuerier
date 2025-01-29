@@ -1,6 +1,8 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ElementRef, OnDestroy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DatasourceConfig } from '@models/datasource.models';
 import { StoredProcedureParameter } from '@models/parameters.models';
 import { DataRequestParametersDto, ColumnSearchDto, OrderByParameterDto } from '@models/api.models';
@@ -32,7 +34,7 @@ interface ColumnMetadata {
     ParameterPopoverComponent
   ]
 })
-export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
+export class ChartParametersFooterComponent implements OnChanges, OnDestroy, OnInit {
   @Input() datasource!: DatasourceConfig;
   @Input() parameters: DataRequestParametersDto = {
     pageNumber: 1,
@@ -67,12 +69,27 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
   private _activeParameters: StoredProcedureParameter[] = [];
   private _availableColumns: ColumnMetadata[] = [];
 
+  dateFormat: string = 'short';
+  private destroy$ = new Subject<void>();
+
   constructor(
     private elementRef: ElementRef,
-    private requestParametersService: RequestParametersService
+    private requestParametersService: RequestParametersService,
+    private translateService: TranslateService
   ) {
     // Gestionnaire de clic global pour fermer les popovers
     document.addEventListener('click', this.handleDocumentClick);
+
+    // S'abonner aux changements de langue
+    this.translateService.onLangChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.updateDateFormat();
+      });
+  }
+
+  ngOnInit() {
+    this.updateDateFormat();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -137,6 +154,8 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
   ngOnDestroy(): void {
     // Nettoyage du gestionnaire de clic
     document.removeEventListener('click', this.handleDocumentClick);
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   private handleDocumentClick = (event: MouseEvent) => {
@@ -390,6 +409,20 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
     this.parametersChange.emit(updatedParams);
     if (this.cardId) {
       this.requestParametersService.saveToLocalStorage(this.cardId, updatedParams);
+    }
+  }
+
+  private updateDateFormat() {
+    // Format de date en fonction de la langue
+    switch (this.translateService.currentLang) {
+      case 'fr':
+        this.dateFormat = 'dd/MM/y HH:mm';
+        break;
+      case 'en':
+        this.dateFormat = 'M/d/y h:mm a';
+        break;
+      default:
+        this.dateFormat = 'short';
     }
   }
 } 

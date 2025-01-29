@@ -1,0 +1,151 @@
+<div class="bg-gray-800 border-t border-gray-700 p-4">
+  <div class="flex items-center justify-between">
+    <div class="flex-1">
+      <!-- Mode StoredProcedure -->
+      <ng-container *ngIf="isStoredProcedure">
+        <div class="flex flex-wrap gap-2 relative">
+          <!-- Paramètres de la procédure stockée -->
+          <ng-container *ngFor="let param of activeParameters">
+            <div class="relative">
+              <button (click)="openPopover(param, $event)"
+                      class="inline-flex items-center px-3 py-1 rounded-full text-sm
+                             bg-gray-700 hover:bg-gray-600 text-gray-200
+                             border border-gray-600 transition-colors">
+                <span class="font-medium">{{ param.displayName || param.name }}:</span>
+                <span class="ml-2 text-gray-400">{{ formatValue(param) }}</span>
+              </button>
+
+              <!-- Popover pour les paramètres de procédure stockée -->
+              <div *ngIf="selectedParameter === param" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2">
+                <app-parameter-popover
+                  [parameter]="param"
+                  [cardId]="cardId"
+                  (parameterChange)="onParameterChange($event)"
+                  (close)="closePopover()">
+                </app-parameter-popover>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+
+      <!-- Mode Filtres/Tris -->
+      <ng-container *ngIf="!isStoredProcedure">
+        <div class="flex flex-wrap gap-4">
+          <!-- Actions -->
+          <div class="flex gap-2 overflow-visible">
+            <div class="relative overflow-visible">
+              <button #filterButton
+                      class="inline-flex items-center px-3 py-1 rounded-md text-sm
+                             bg-gray-700 hover:bg-gray-600 text-gray-200
+                             border border-gray-600 transition-colors"
+                      (click)="openFilterPopover('columnName', 'string', $event)">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                {{ 'PARAMETERS.ADD_FILTER' | translate }}
+              </button>
+
+              <!-- Filter Popover -->
+              <div *ngIf="activeFilterPopover" 
+                   class="fixed z-[9999]"
+                   [style.top]="(filterButton.getBoundingClientRect().top + getScrollY() - 4) + 'px'"
+                   [style.left]="(filterButton.getBoundingClientRect().left + (filterButton.offsetWidth / 2) - 150) + 'px'">
+                <div class="bg-gray-900 rounded-lg shadow-lg border border-gray-700/50 -translate-y-full">
+                  <app-filter-popover
+                    [data]="activeFilterPopover.data"
+                    (filterChange)="onFilterChange($event)"
+                    (close)="activeFilterPopover = null">
+                  </app-filter-popover>
+                </div>
+              </div>
+            </div>
+
+            <div class="relative overflow-visible">
+              <button #sortButton
+                      class="inline-flex items-center px-3 py-1 rounded-md text-sm
+                             bg-gray-700 hover:bg-gray-600 text-gray-200
+                             border border-gray-600 transition-colors"
+                      (click)="openSortPopover('columnName', $event)">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M3 4h13M3 8h9M3 12h5m0 0v6m0-6h8m4 0l-4-4m4 4l-4 4" />
+                </svg>
+                {{ 'PARAMETERS.ADD_SORT' | translate }}
+              </button>
+
+              <!-- Sort Popover -->
+              <div *ngIf="activeSortPopover"
+                   class="fixed z-[9999]"
+                   [style.top]="(sortButton.getBoundingClientRect().top + getScrollY() - 4) + 'px'"
+                   [style.left]="(sortButton.getBoundingClientRect().left + (sortButton.offsetWidth / 2) - 150) + 'px'">
+                <div class="bg-gray-900 rounded-lg shadow-lg border border-gray-700/50 -translate-y-full">
+                  <app-sort-popover
+                    [data]="activeSortPopover.data"
+                    (sortChange)="onSortChange($event)"
+                    (close)="activeSortPopover = null">
+                  </app-sort-popover>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filtres actifs -->
+          <div class="flex flex-wrap gap-2">
+            <ng-container *ngFor="let group of getGroupedFilters()">
+              <div class="inline-flex items-center px-3 py-1 rounded-full text-sm
+                          bg-blue-900 text-blue-100 border border-blue-700 hover:bg-blue-800"
+                   [title]="group.values.join(', ')">
+                <span class="font-medium">{{ group.column }}</span>
+                <span class="ml-2">({{ group.values.length }})</span>
+                <button (click)="removeFilter(group.column)"
+                        class="ml-2 text-blue-300 hover:text-blue-100 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </ng-container>
+          </div>
+
+          <!-- Tris actifs -->
+          <div class="flex flex-wrap gap-2">
+            <ng-container *ngFor="let order of parameters.orderBy">
+              <div class="inline-flex items-center px-3 py-1 rounded-full text-sm
+                          bg-purple-900 text-purple-100 border border-purple-700 hover:bg-purple-800"
+                   [title]="order.isDescending ? 'Tri décroissant' : 'Tri croissant'">
+                <span class="font-medium">{{ order.column }}</span>
+                <button (click)="toggleSortDirection(order)"
+                        class="ml-2 text-purple-300 hover:text-purple-100 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path *ngIf="!order.isDescending" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 19V5m0 0l-7 7m7-7l7 7" />
+                    <path *ngIf="order.isDescending" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 5v14m0 0l-7-7m7 7l7-7" />
+                  </svg>
+                </button>
+                <button (click)="removeSort(order.column)"
+                        class="ml-2 text-purple-300 hover:text-purple-100 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+
+    <!-- Last update info -->
+    <div class="flex items-center gap-4 text-sm text-gray-400">
+      <div *ngIf="lastUpdate">
+        {{ 'PARAMETERS.LAST_UPDATE' | translate }}: {{ lastUpdate | date:'short' }}
+      </div>
+      <div *ngIf="autoRefreshInterval">
+        {{ 'PARAMETERS.AUTO_REFRESH' | translate }}: {{ autoRefreshInterval }}s
+      </div>
+    </div>
+  </div>
+</div> 

@@ -385,6 +385,8 @@ export interface ForeignKeyIncludeConfig {
   displayColumns?: string[];
 }
 
+import { StoredProcedureParameter } from './parameters.models';
+
 export interface DataRequestParametersDto {
   pageNumber: number;
   pageSize: number;

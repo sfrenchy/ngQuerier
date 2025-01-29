@@ -475,6 +475,42 @@
           "TITLE": "Configuration spécifique"
         }
       }
+    },
+    "PARAMETERS": {
+      "TITLE": "Paramètres du graphique",
+      "DATE_TYPE": "Type de date",
+      "DATE_SPECIFIC": "Date spécifique",
+      "DATE_TODAY": "Aujourd'hui",
+      "DATE_YESTERDAY": "Hier",
+      "DATE_LAST_WEEK": "Semaine dernière",
+      "DATE_LAST_MONTH": "Mois dernier",
+      "DATE_LAST_YEAR": "Année dernière",
+      "VALUE": "Valeur",
+      "ENABLED": "Activé",
+      "DIRECTION": "Direction",
+      "ASCENDING": "Croissant",
+      "DESCENDING": "Décroissant",
+      "ADD_FILTER": "Ajouter un filtre",
+      "ADD_SORT": "Ajouter un tri",
+      "REMOVE_FILTER": "Supprimer le filtre",
+      "REMOVE_SORT": "Supprimer le tri",
+      "NO_FILTERS": "Aucun filtre",
+      "NO_SORTS": "Aucun tri",
+      "LAST_UPDATE": "Dernière mise à jour",
+      "REFRESH": "Rafraîchir",
+      "AUTO_REFRESH": "Actualisation automatique",
+      "AUTO_REFRESH_INTERVAL": "Intervalle de rafraîchissement (secondes)",
+      "FILTERS": "Filtres",
+      "SORTS": "Tris",
+      "VALIDATION": {
+        "REQUIRED": "Ce champ est requis",
+        "MIN": "La valeur minimale est {{min}}",
+        "MAX": "La valeur maximale est {{max}}",
+        "MIN_LENGTH": "La longueur minimale est {{minLength}} caractères",
+        "MAX_LENGTH": "La longueur maximale est {{maxLength}} caractères",
+        "PATTERN": "Le format n'est pas valide",
+        "INVALID_DATE": "La date n'est pas valide"
+      }
     }
   },
   "chart": {

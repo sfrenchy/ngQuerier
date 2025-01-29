@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { BaseChartCard } from '@cards/base-chart-card.component';
-import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
-import { Card } from '@cards/card.decorator';
-import { PieChartCardConfigurationComponent } from './pie-chart-card-configuration.component';
+import { TranslateService, TranslateModule } from '@ngx-translate/core';
+
+import { BaseChartCard } from '../base-chart-card.component';
+import { DatasourceService } from '../../shared/components/datasource-configuration/datasource.service';
 import { PieChartCardConfig } from './pie-chart-card.models';
+import { Card } from '../card.decorator';
+import { PieChartCardConfigurationComponent } from './pie-chart-card-configuration.component';
 import { BaseCardComponent } from '@cards/base-card.component';
+import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import { RequestParametersService } from '@shared/services/request-parameters.service';
 
 @Card({
   name: 'PieChart',
@@ -21,16 +24,22 @@ import { BaseCardComponent } from '@cards/base-card.component';
 })
 @Component({
   selector: 'app-pie-chart-card',
-  templateUrl: './pie-chart-card.component.html',
+  templateUrl: '../base-chart-card.component.html',
   standalone: true,
-  imports: [CommonModule, BaseCardComponent, TranslateModule]
+  imports: [
+    CommonModule, 
+    TranslateModule,
+    BaseCardComponent,
+    ChartParametersFooterComponent
+  ]
 })
 export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
   constructor(
     protected override translateService: TranslateService,
-    protected override datasourceService: DatasourceService
+    protected override datasourceService: DatasourceService,
+    protected override requestParametersService: RequestParametersService
   ) {
-    super(translateService, datasourceService);
+    super(translateService, datasourceService, requestParametersService);
   }
 
   get loading(): boolean {
@@ -46,13 +55,6 @@ export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
       this.card.configuration?.labelColumn &&
       this.card.configuration?.valueColumn
     );
-  }
-
-  private getPropertyValue(obj: any, propertyName: string): any {
-    if (!obj || !propertyName) return undefined;
-    const normalizedName = propertyName.toLowerCase();
-    const key = Object.keys(obj).find(k => k.toLowerCase() === normalizedName);
-    return key ? obj[key] : undefined;
   }
 
   protected override transformData(data: any[]): any[] {
@@ -91,5 +93,12 @@ export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
     if (this.chartInstance) {
       this.chartInstance.setOption(this.chartOptions);
     }
+  }
+
+  private getPropertyValue(obj: any, propertyName: string): any {
+    if (!obj || !propertyName) return undefined;
+    const normalizedName = propertyName.toLowerCase();
+    const key = Object.keys(obj).find(k => k.toLowerCase() === normalizedName);
+    return key ? obj[key] : undefined;
   }
 } 

@@ -7,6 +7,8 @@ import { StackedBarAndLinesChartCardConfig, BarSeriesConfig, LineSeriesConfig } 
 import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
 import { BaseCardComponent } from '@cards/base-card.component';
 import { StackedBarAndLinesChartConfigurationComponent } from './stacked-bar-and-lines-chart-configuration.component';
+import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import { RequestParametersService } from '@shared/services/request-parameters.service';
 
 @Card({
   name: 'StackedBarAndLinesChart',
@@ -20,47 +22,45 @@ import { StackedBarAndLinesChartConfigurationComponent } from './stacked-bar-and
 })
 @Component({
   selector: 'app-stacked-bar-and-lines-chart',
-  templateUrl: './stacked-bar-and-lines-chart.component.html',
+  templateUrl: '../base-chart-card.component.html',
   standalone: true,
-  imports: [CommonModule, BaseCardComponent, TranslateModule]
+  imports: [
+    CommonModule, 
+    TranslateModule,
+    BaseCardComponent,
+    ChartParametersFooterComponent
+  ]
 })
 export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAndLinesChartCardConfig> {
   constructor(
     protected override translateService: TranslateService,
-    protected override datasourceService: DatasourceService
+    protected override datasourceService: DatasourceService,
+    protected override requestParametersService: RequestParametersService
   ) {
-    super(translateService, datasourceService);
+    super(translateService, datasourceService, requestParametersService);
   }
 
   protected override transformData(data: any[]): any[] {
     if (!this.card.configuration) return [];
 
-    const { xAxisColumn } = this.card.configuration;
+    const { xAxisColumn, xAxisDateFormat } = this.card.configuration;
     if (!xAxisColumn) return [];
-
-    // Fonction utilitaire pour accéder aux propriétés sans tenir compte de la casse
-    const getPropertyValue = (obj: any, propertyName: string): any => {
-      if (!obj || !propertyName) return undefined;
-      const normalizedName = propertyName.toLowerCase();
-      const key = Object.keys(obj).find(k => k.toLowerCase() === normalizedName);
-      return key ? obj[key] : undefined;
-    };
 
     // Vérification et transformation des données
     return data.map(item => {
-      const xValue = getPropertyValue(item, xAxisColumn);
+      const xValue = this.getPropertyValue(item, xAxisColumn);
       if (xValue === undefined) {
         console.warn(`Missing value for X-axis column "${xAxisColumn}" in item:`, item);
         return null;
       }
 
       const result: any = {
-        x: this.formatDateIfNeeded(xValue, this.card.configuration?.xAxisDateFormat)
+        x: this.formatDateIfNeeded(xValue, xAxisDateFormat)
       };
 
       // Ajout des valeurs pour les séries de barres
       this.card.configuration.barSeries.forEach((seriesConfig: BarSeriesConfig) => {
-        const value = getPropertyValue(item, seriesConfig.dataColumn);
+        const value = this.getPropertyValue(item, seriesConfig.dataColumn);
         if (value === undefined) {
           console.warn(`Missing value for bar series "${seriesConfig.name}" column "${seriesConfig.dataColumn}" in item:`, item);
         }
@@ -69,7 +69,7 @@ export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAn
 
       // Ajout des valeurs pour les séries de lignes
       this.card.configuration.lineSeries.forEach((seriesConfig: LineSeriesConfig) => {
-        const value = getPropertyValue(item, seriesConfig.dataColumn);
+        const value = this.getPropertyValue(item, seriesConfig.dataColumn);
         if (value === undefined) {
           console.warn(`Missing value for line series "${seriesConfig.name}" column "${seriesConfig.dataColumn}" in item:`, item);
         }
@@ -125,6 +125,13 @@ export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAn
     if (this.chartInstance) {
       this.chartInstance.setOption(this.chartOptions);
     }
+  }
+
+  private getPropertyValue(obj: any, propertyName: string): any {
+    if (!obj || !propertyName) return undefined;
+    const normalizedName = propertyName.toLowerCase();
+    const key = Object.keys(obj).find(k => k.toLowerCase() === normalizedName);
+    return key ? obj[key] : undefined;
   }
 
   private formatDateIfNeeded(value: any, format?: string): any {

@@ -1,83 +1,59 @@
 import { BaseChartConfig, ChartVisualConfig } from '@models/chart.models';
-import { DatasourceConfig, ParameterValue } from '@models/datasource.models';
+import { DatasourceConfig } from '@models/datasource.models';
+import { StoredProcedureParameter } from '@models/parameters.models';
 
 export interface SeriesConfig {
   name: string;
   dataColumn: string;
-  type: 'line' | 'smooth';
-  color?: string;
+  type?: 'line' | 'smooth';
   showSymbol?: boolean;
   symbolSize?: number;
-  areaStyle?: {
-    opacity?: number;
-  };
+  color?: string;
+  areaStyle?: any;
 }
 
-export class LineChartCardConfig implements BaseChartConfig {
-  datasource: DatasourceConfig;
-  visualConfig: ChartVisualConfig;
-  xAxisColumn?: string;
+export class LineChartCardConfig extends BaseChartConfig {
+  xAxisColumn: string = '';
   xAxisDateFormat?: string;
   series: SeriesConfig[] = [];
 
   constructor() {
-    this.datasource = { 
+    super();
+    this.datasource = {
       type: 'API',
-      procedureParameters: {} as Record<string, ParameterValue>,  // Initialiser avec un objet vide typé
-      controller: {
-        route: 'api/v1/data/line-chart'  // Route par défaut
-      }
+      procedureParameters: {} as Record<string, StoredProcedureParameter>,
+      hasUserParameters: false,
+      isStoredProcedure: false
     };
     this.visualConfig = {
       backgroundColor: '#1f2937',
       textColor: '#ffffff',
-      legend: {
-        show: true
-      },
-      tooltip: {
-        show: true,
-        trigger: 'axis'
-      },
-      toolbox: {
-        features: {
-          dataZoom: true,
-          restore: true,
-          saveAsImage: true
-        }
+      grid: {
+        left: '3%',
+        right: '4%',
+        bottom: '3%',
+        containLabel: true
       }
     };
   }
 
-  toJson(): any {
+  override toJson(): any {
     return {
-      datasource: this.datasource,
+      ...super.toJson(),
       xAxisColumn: this.xAxisColumn,
       xAxisDateFormat: this.xAxisDateFormat,
-      series: this.series,
-      visualConfig: this.visualConfig
+      series: this.series
     };
   }
 
-  static fromJson(json: any): LineChartCardConfig {
+  static override fromJson(json: any): LineChartCardConfig {
     const config = new LineChartCardConfig();
-    if (json.datasource) {
-      config.datasource = json.datasource;
-    }
-    if (json.xAxisColumn) {
-      config.xAxisColumn = json.xAxisColumn;
-    }
-    if (json.xAxisDateFormat) {
-      config.xAxisDateFormat = json.xAxisDateFormat;
-    }
-    if (json.series) {
-      config.series = json.series;
-    }
-    if (json.visualConfig) {
-      config.visualConfig = {
-        ...config.visualConfig,
-        ...json.visualConfig
-      };
-    }
+    config.datasource = json.datasource;
+    config.visualConfig = json.visualConfig;
+    config.chartParameters = json.chartParameters;
+    config.xAxisColumn = json.xAxisColumn;
+    config.xAxisDateFormat = json.xAxisDateFormat;
+    config.series = json.series;
     return config;
   }
 }

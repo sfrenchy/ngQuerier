@@ -435,6 +435,27 @@
           "TITLE": "Specific configuration"
         }
       }
+    },
+    "PARAMETERS": {
+      "TITLE": "Chart Parameters",
+      "DATE_TYPE": "Date type",
+      "DATE_SPECIFIC": "Specific date",
+      "DATE_TODAY": "Today",
+      "DATE_YESTERDAY": "Yesterday",
+      "DATE_LAST_WEEK": "Last week",
+      "DATE_LAST_MONTH": "Last month",
+      "DATE_LAST_YEAR": "Last year",
+      "VALUE": "Value",
+      "ENABLED": "Enabled",
+      "VALIDATION": {
+        "REQUIRED": "This field is required",
+        "MIN": "Minimum value is {{min}}",
+        "MAX": "Maximum value is {{max}}",
+        "MIN_LENGTH": "Minimum length is {{minLength}} characters",
+        "MAX_LENGTH": "Maximum length is {{maxLength}} characters",
+        "PATTERN": "Invalid format",
+        "INVALID_DATE": "Invalid date"
+      }
     }
   },
   "chart": {
@@ -499,5 +520,31 @@
     "LABEL_COLUMN": "Label Column",
     "VALUE_COLUMN": "Value Column",
     "RADIUS": "Chart Radius"
+  },
+  "PARAMETERS": {
+    "DATE_TYPE": "Date type",
+    "DATE_SPECIFIC": "Specific date",
+    "DATE_TODAY": "Today",
+    "DATE_YESTERDAY": "Yesterday",
+    "DATE_LAST_WEEK": "Last week",
+    "DATE_LAST_MONTH": "Last month",
+    "DATE_LAST_YEAR": "Last year",
+    "VALUE": "Value",
+    "ENABLED": "Enabled",
+    "DIRECTION": "Direction",
+    "ASCENDING": "Ascending",
+    "DESCENDING": "Descending",
+    "ADD_FILTER": "Add filter",
+    "ADD_SORT": "Add sort",
+    "REMOVE_FILTER": "Remove filter",
+    "REMOVE_SORT": "Remove sort",
+    "NO_FILTERS": "No filters",
+    "NO_SORTS": "No sorts",
+    "LAST_UPDATE": "Last update",
+    "REFRESH": "Refresh",
+    "AUTO_REFRESH": "Auto refresh",
+    "AUTO_REFRESH_INTERVAL": "Refresh interval (seconds)",
+    "FILTERS": "Filters",
+    "SORTS": "Sorts"
   }
 }

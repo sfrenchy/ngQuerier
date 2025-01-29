@@ -1,22 +1,38 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, Type } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, OnDestroy, AfterViewInit, Injectable } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
-import { BaseCardComponent } from './base-card.component';
-import { BaseChartConfig, ChartState } from '@models/chart.models';
-import { EChartsOption } from 'echarts';
-import * as echarts from 'echarts';
 import { Subject } from 'rxjs';
-import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
 import { takeUntil } from 'rxjs/operators';
-import { DataRequestParametersDto } from '@models/api.models';
-import { ChartVisualConfig } from '@models/chart.models';
+import * as echarts from 'echarts';
+import { EChartsOption } from 'echarts';
+
+import { BaseCardComponent } from './base-card.component';
+import { DatasourceService } from '../shared/components/datasource-configuration/datasource.service';
+import { BaseChartConfig, ChartVisualConfig } from '../models/chart.models';
+import { DataRequestParametersDto, PaginatedResultDto } from '../models/api.models';
+import { StoredProcedureParameter } from '../models/parameters.models';
+import { ChartParametersFooterComponent } from '../shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import { RequestParametersService } from '../shared/services/request-parameters.service';
+
+interface ChartState {
+  data: any[];
+  loading: boolean;
+  error?: string;
+  lastUpdate?: Date;
+}
 
 @Component({
   selector: 'app-base-chart-card',
   templateUrl: './base-chart-card.component.html',
   standalone: true,
-  imports: [CommonModule, TranslateModule]
+  imports: [
+    CommonModule,
+    TranslateModule,
+    BaseCardComponent,
+    ChartParametersFooterComponent
+  ]
 })
+@Injectable()
 export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends BaseCardComponent<TConfig> implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('chartContainer') chartContainer!: ElementRef;
   
@@ -29,10 +45,20 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
   protected destroy$ = new Subject<void>();
   protected isChartCard = false;
   protected visualConfig?: ChartVisualConfig;
+  protected isPanelOpen = false;
+  protected requestParameters: DataRequestParametersDto = {
+    pageNumber: 1,
+    pageSize: 1000,
+    orderBy: [],
+    globalSearch: '',
+    columnSearches: []
+  };
+  private currentCacheKey?: string;
 
   constructor(
     protected override translateService: TranslateService,
-    protected datasourceService: DatasourceService
+    protected datasourceService: DatasourceService,
+    protected requestParametersService: RequestParametersService
   ) {
     super(translateService);
     this.isChartCard = true;
@@ -42,9 +68,70 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
     super.ngOnInit();
     this.loadCardTranslations();
     this.visualConfig = this.card.configuration?.visualConfig;
+
+    // Charger les paramètres sauvegardés avant le premier chargement
+    if (this.card.id) {
+      const savedParams = this.requestParametersService.loadFromLocalStorage(this.card.id);
+      if (savedParams) {
+        this.requestParameters = savedParams;
+        
+        // Mettre à jour les paramètres de procédure stockée si nécessaire
+        if (savedParams.procedureParameters && this.card.configuration?.chartParameters?.parameters) {
+          const updatedParameters = this.card.configuration.chartParameters.parameters.map((param: StoredProcedureParameter) => {
+            const savedParam = savedParams.procedureParameters?.[param.name];
+            if (savedParam) {
+              return {
+                ...param,
+                value: savedParam.value,
+                dateType: savedParam.dateType
+              };
+            }
+            return param;
+          });
+          this.card.configuration.chartParameters.parameters = updatedParameters;
+        }
+      }
+    }
+
+    // Initialiser chartParameters si nécessaire pour les stored procedures
+    if (this.card.configuration?.datasource?.isStoredProcedure) {
+      if (!this.card.configuration.chartParameters) {
+        this.card.configuration.chartParameters = {
+          parameters: [],
+          autoRefreshInterval: 0
+        };
+      }
+      // Convertir les procedureParameters en parameters si nécessaire
+      if (this.card.configuration.datasource.procedureParameters && !this.card.configuration.chartParameters.parameters.length) {
+        // Créer une copie profonde des paramètres pour éviter les références partagées
+        const parameters = Object.entries(this.card.configuration.datasource.procedureParameters as Record<string, StoredProcedureParameter>)
+          .map(([name, param]) => ({
+            name,
+            type: param.type,
+            value: param.value,
+            userChangeAllowed: param.userChangeAllowed,
+            displayName: param.displayName,
+            description: param.description,
+            dateType: param.dateType
+          }));
+
+        // Mettre à jour chartParameters
+        this.card.configuration.chartParameters.parameters = parameters;
+
+        // S'assurer que les procedureParameters sont synchronisés
+        parameters.forEach(param => {
+          if (this.card.configuration?.datasource?.procedureParameters) {
+            this.card.configuration.datasource.procedureParameters[param.name] = { ...param };
+          }
+        });
+      }
+    }
+
     this.setupCommonChartOptions();
     if (this.card.configuration?.datasource) {
+      // Charger les données seulement après avoir initialisé tous les paramètres
       this.loadData();
+      this.setupAutoRefreshIfNeeded();
     }
   }
 
@@ -57,6 +144,9 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
     super.ngOnDestroy();
     if (this.chartInstance) {
       this.chartInstance.dispose();
+    }
+    if (this.currentCacheKey) {
+      this.datasourceService.clearAutoRefresh(this.currentCacheKey);
     }
     this.destroy$.next();
     this.destroy$.complete();
@@ -71,31 +161,62 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
     this.chartState.loading = true;
     this.chartState.error = undefined;
 
-    const parameters: DataRequestParametersDto = {
-      pageNumber: 1,
-      pageSize: 1000, // Augmenter la taille pour avoir toutes les données
-      orderBy: [],
-      globalSearch: '',
-      columnSearches: []
-    };
+    // Récupérer les paramètres utilisateur si présents
+    const userParameters = this.card.configuration.chartParameters?.parameters?.reduce((acc: Record<string, StoredProcedureParameter>, param: StoredProcedureParameter) => {
+      acc[param.name] = param;
+      return acc;
+    }, {});
 
-    this.datasourceService.fetchData(this.card.configuration.datasource, parameters)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
+    // Générer une clé de cache unique pour ce jeu de paramètres
+    this.currentCacheKey = `${this.card.id}_${JSON.stringify(this.requestParameters)}_${JSON.stringify(userParameters)}`;
+
+    this.datasourceService.fetchData(
+      this.card.configuration.datasource,
+      this.requestParameters,
+      userParameters
+    )
+    .pipe(takeUntil(this.destroy$))
+    .subscribe({
+      next: (response: PaginatedResultDto<any>) => {
+        this.chartState.data = this.transformData(response.items || []);
+        this.chartState.loading = false;
+        this.chartState.lastUpdate = new Date();
+        this.updateChartOptions();
+        if (this.chartInstance) {
+          this.chartInstance.setOption(this.chartOptions);
+        }
+      },
+      error: (error: Error) => {
+        console.error('[BaseChartCard] Erreur de chargement:', error);
+        this.chartState.error = error.message || 'Error loading data';
+        this.chartState.loading = false;
+      }
+    });
+  }
+
+  protected setupAutoRefreshIfNeeded(): void {
+    const refreshInterval = this.card.configuration?.chartParameters?.autoRefreshInterval;
+    if (refreshInterval && refreshInterval > 0) {
+      const userParameters = this.card.configuration.chartParameters?.parameters?.reduce((acc: Record<string, StoredProcedureParameter>, param: StoredProcedureParameter) => {
+        acc[param.name] = param;
+        return acc;
+      }, {});
+
+      this.datasourceService.setupAutoRefresh(
+        this.card.configuration!.datasource,
+        this.requestParameters,
+        userParameters || {},
+        refreshInterval,
+        (response: PaginatedResultDto<any>) => {
           this.chartState.data = this.transformData(response.items || []);
-          this.chartState.loading = false;
+          this.chartState.lastUpdate = new Date();
           this.updateChartOptions();
           if (this.chartInstance) {
             this.chartInstance.setOption(this.chartOptions);
           }
-        },
-        error: (error) => {
-          console.error('Error loading chart data:', error);
-          this.chartState.error = error.message || 'Error loading data';
-          this.chartState.loading = false;
         }
-      });
+      );
+    }
   }
 
   protected initChart() {
@@ -190,6 +311,29 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
       this.updateChartOptions();
       if (this.chartInstance) {
         this.chartInstance.setOption(this.chartOptions);
+      }
+    }
+  }
+
+  protected onRequestParametersChange(parameters: DataRequestParametersDto) {
+    this.requestParameters = parameters;
+    this.loadData();
+  }
+
+  protected onStoredProcedureParametersChange(parameters: StoredProcedureParameter[]) {
+    if (this.card.configuration?.chartParameters) {
+      this.card.configuration.chartParameters.parameters = parameters;
+      
+      // Sync with procedureParameters
+      if (this.card.configuration.datasource?.procedureParameters) {
+        parameters.forEach(param => {
+          this.card.configuration!.datasource!.procedureParameters![param.name] = { ...param };
+        });
+      }
+      
+      // Ne pas recharger les données si c'est le chargement initial depuis localStorage
+      if (!this.chartState.loading) {
+        this.loadData();
       }
     }
   }

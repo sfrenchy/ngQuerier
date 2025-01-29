@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { ApiService } from '@services/api.service';
 import { DatasourceConfig, ParameterValue } from '@models/datasource.models';
 import { DataRequestParametersDto, PaginatedResultDto, DBConnectionEndpointRequestInfoDto, DBConnectionEndpointInfoDto } from '@models/api.models';
+import { StoredProcedureParameter } from '@models/parameters.models';
 
 interface ForeignKeyDataValue {
   id: string;
@@ -33,6 +34,7 @@ export class DatasourceService {
   config$ = this.configSubject.asObservable();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
   private cacheMap = new Map<string, CacheEntry<any>>();
+  private autoRefreshIntervals = new Map<string, number>();
 
   constructor(private apiService: ApiService) {}
 
@@ -44,15 +46,25 @@ export class DatasourceService {
     return this.configSubject.value;
   }
 
-  private getCacheKey(config: DatasourceConfig, parameters: DataRequestParametersDto): string {
-    return `${config.type}_${JSON.stringify(config)}_${JSON.stringify(parameters)}`;
+  private getCacheKey(config: DatasourceConfig, parameters: DataRequestParametersDto, userParameters?: Record<string, StoredProcedureParameter>): string {
+    return `${config.type}_${JSON.stringify(config)}_${JSON.stringify(parameters)}_${JSON.stringify(userParameters)}`;
   }
 
   fetchData(
     config: DatasourceConfig,
-    parameters: DataRequestParametersDto = { pageNumber: 1, pageSize: 10, orderBy: [], globalSearch: '', columnSearches: [] }
+    parameters: DataRequestParametersDto = { pageNumber: 1, pageSize: 10, orderBy: [], globalSearch: '', columnSearches: [] },
+    userParameters?: Record<string, StoredProcedureParameter>
   ): Observable<ExtendedPaginatedResultDto<any>> {
-    const cacheKey = this.getCacheKey(config, parameters);
+    // Fusionner les paramètres utilisateur avec les paramètres de procédure stockée
+    if (userParameters && config.procedureParameters) {
+      Object.entries(userParameters).forEach(([key, param]) => {
+        if (config.procedureParameters![key] && param.userChangeAllowed) {
+          config.procedureParameters![key].value = param.value;
+        }
+      });
+    }
+
+    const cacheKey = this.getCacheKey(config, parameters, userParameters);
     const currentCache = this.cacheMap.get(cacheKey);
 
     // Vérifier si nous avons un cache valide
@@ -66,7 +78,7 @@ export class DatasourceService {
     }
 
     // Si c'est une procédure stockée
-    if (config.controller?.route?.includes('/procedures/')) {
+    if (config.isStoredProcedure) {
       return this.executeStoredProcedure(config, parameters).pipe(
         map(response => {
           this.cacheMap.set(cacheKey, {
@@ -233,5 +245,44 @@ export class DatasourceService {
 
   getDatabaseEndpoints(id: number, controller: string | null = null, targetTable: string | null = null, action: string | null = null): Observable<DBConnectionEndpointInfoDto[]> {
     return this.apiService.getDatabaseEndpoints(id, controller, targetTable, action);
+  }
+
+  // Méthode pour configurer l'auto-refresh
+  setupAutoRefresh(
+    config: DatasourceConfig,
+    parameters: DataRequestParametersDto,
+    userParameters: Record<string, StoredProcedureParameter>,
+    intervalSeconds: number,
+    callback: (data: ExtendedPaginatedResultDto<any>) => void
+  ): void {
+    const cacheKey = this.getCacheKey(config, parameters, userParameters);
+    
+    // Nettoyer l'intervalle existant si présent
+    this.clearAutoRefresh(cacheKey);
+
+    // Configurer le nouvel intervalle
+    const intervalId = window.setInterval(() => {
+      this.fetchData(config, parameters, userParameters).subscribe(callback);
+    }, intervalSeconds * 1000);
+
+    this.autoRefreshIntervals.set(cacheKey, intervalId);
+  }
+
+  // Méthode pour arrêter l'auto-refresh
+  clearAutoRefresh(cacheKey: string): void {
+    const intervalId = this.autoRefreshIntervals.get(cacheKey);
+    if (intervalId) {
+      clearInterval(intervalId);
+      this.autoRefreshIntervals.delete(cacheKey);
+    }
+  }
+
+  // Méthode pour invalider le cache
+  invalidateCache(cacheKey?: string): void {
+    if (cacheKey) {
+      this.cacheMap.delete(cacheKey);
+    } else {
+      this.cacheMap.clear();
+    }
   }
 } 

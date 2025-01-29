@@ -7,12 +7,12 @@ import * as echarts from 'echarts';
 import { EChartsOption } from 'echarts';
 
 import { BaseCardComponent } from './base-card.component';
-import { DatasourceService } from '../shared/components/datasource-configuration/datasource.service';
-import { BaseChartConfig, ChartVisualConfig } from '../models/chart.models';
-import { DataRequestParametersDto, PaginatedResultDto } from '../models/api.models';
-import { StoredProcedureParameter } from '../models/parameters.models';
-import { ChartParametersFooterComponent } from '../shared/components/chart-parameters-footer/chart-parameters-footer.component';
-import { RequestParametersService } from '../shared/services/request-parameters.service';
+import { DatasourceService } from '../../shared/components/datasource-configuration/datasource.service';
+import { BaseChartConfig, ChartVisualConfig } from '../../models/chart.models';
+import { DataRequestParametersDto, PaginatedResultDto } from '../../models/api.models';
+import { StoredProcedureParameter } from '../../models/parameters.models';
+import { ChartParametersFooterComponent } from '../../shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import { RequestParametersService } from '../../shared/services/request-parameters.service';
 
 interface ChartState {
   data: any[];

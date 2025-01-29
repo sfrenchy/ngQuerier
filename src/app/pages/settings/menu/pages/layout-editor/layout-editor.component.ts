@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { LayoutDto, RowDto, CardDto } from '@models/api.models';
 import { DroppableRowComponent } from './rows/droppable-row.component';
-import { BaseCardConfigurationComponent } from '@cards/base-card-configuration.component';
+import { BaseCardConfigurationComponent } from '@cards/base/base-card-configuration.component';
 import { CardService } from '@cards/card.service';
 import { CardMetadata } from '@cards/card.decorator';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';

@@ -6,7 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subject, Subscription, Observable, from, of, forkJoin, mergeMap, tap, catchError, EMPTY } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil, map, mergeAll, toArray } from 'rxjs/operators';
 import { Card } from '@cards/card.decorator';
-import { BaseCardComponent } from '@cards/base-card.component';
+import { BaseCardComponent } from '@cards/base/base-card.component';
 import { DataTableCardService } from './data-table-card.service';
 import { ColumnFilterPopoverComponent } from './column-filter-popover.component';
 import { DataTableCardConfigurationComponent } from './data-table-card-configuration.component';

@@ -2,13 +2,11 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 
-import { BaseChartCard } from '../base-chart-card.component';
+import { BaseChartCard } from '../base/base-chart-card.component';
 import { DatasourceService } from '../../shared/components/datasource-configuration/datasource.service';
 import { PieChartCardConfig } from './pie-chart-card.models';
 import { Card } from '../card.decorator';
 import { PieChartCardConfigurationComponent } from './pie-chart-card-configuration.component';
-import { BaseCardComponent } from '@cards/base-card.component';
-import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 import { RequestParametersService } from '@shared/services/request-parameters.service';
 
 @Card({
@@ -28,9 +26,7 @@ import { RequestParametersService } from '@shared/services/request-parameters.se
   standalone: true,
   imports: [
     CommonModule, 
-    TranslateModule,
-    BaseCardComponent,
-    ChartParametersFooterComponent
+    TranslateModule
   ]
 })
 export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {

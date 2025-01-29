@@ -3,11 +3,9 @@ import { CommonModule } from '@angular/common';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { Card } from '@cards/card.decorator';
 import { LineChartCardConfigurationComponent } from './line-chart-card-configuration.component';
-import { BaseChartCard } from '@cards/base-chart-card.component';
+import { BaseChartCard } from '@cards/base/base-chart-card.component';
 import { LineChartCardConfig, SeriesConfig } from './line-chart-card.models';
 import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
-import { BaseCardComponent } from '@cards/base-card.component';
-import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 import { RequestParametersService } from '@shared/services/request-parameters.service';
 
 @Card({
@@ -27,9 +25,7 @@ import { RequestParametersService } from '@shared/services/request-parameters.se
   standalone: true,
   imports: [
     CommonModule, 
-    TranslateModule,
-    BaseCardComponent,
-    ChartParametersFooterComponent
+    TranslateModule
   ]
 })
 export class LineChartCardComponent extends BaseChartCard<LineChartCardConfig> {

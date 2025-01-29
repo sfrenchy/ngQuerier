@@ -1,44 +1,153 @@
-<div class="flex items-center justify-between p-2 bg-gray-800 border-t border-gray-700">
-  <!-- Parameters tags -->
-  <div class="flex items-center gap-2 flex-wrap flex-1">
-    <div *ngFor="let param of activeParameters" class="relative">
-      <button
-        (click)="openPopover(param, $event)"
-        class="inline-flex items-center px-2.5 py-1.5 rounded-full text-xs font-medium
-               bg-gray-700 text-gray-200 hover:bg-gray-600 focus:outline-none focus:ring-2
-               focus:ring-offset-2 focus:ring-primary-500">
-        {{ param.displayName || param.name }}: {{ formatValue(param) }}
-      </button>
-      
-      <!-- Popover -->
-      <div *ngIf="selectedParameter === param">
-        <!-- Overlay -->
-        <div class="fixed inset-0 z-[9998]" (click)="closePopover()"></div>
-        
-        <!-- Popover content -->
-        <div class="absolute bottom-8 left-0 z-[9999]">
-          <app-parameter-popover
-            [parameter]="param"
-            (parameterChange)="onParameterChange($event)"
-            (close)="closePopover()">
-          </app-parameter-popover>
-          
-          <!-- Arrow -->
-          <div class="absolute -bottom-2 left-4 w-4 h-4 rotate-45
-                      bg-gray-900 border-r border-b border-gray-700/50">
+<div class="bg-gray-800 border-t border-gray-700 p-4">
+  <div class="flex items-center justify-between">
+    <div class="flex-1">
+      <!-- Mode StoredProcedure -->
+      <ng-container *ngIf="isStoredProcedure">
+        <div class="flex flex-wrap gap-2 relative">
+          <!-- Paramètres de la procédure stockée -->
+          <ng-container *ngFor="let param of activeParameters">
+            <div class="relative">
+              <button (click)="openPopover(param, $event)"
+                      class="inline-flex items-center px-3 py-1 rounded-full text-sm
+                             bg-gray-700 hover:bg-gray-600 text-gray-200
+                             border border-gray-600 transition-colors">
+                <span class="font-medium">{{ param.displayName || param.name }}:</span>
+                <span class="ml-2 text-gray-400">{{ formatValue(param) }}</span>
+              </button>
+
+              <!-- Popover pour les paramètres de procédure stockée -->
+              <div *ngIf="selectedParameter === param" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2">
+                <app-parameter-popover
+                  [parameter]="param"
+                  (parameterChange)="onParameterChange($event)"
+                  (close)="closePopover()">
+                </app-parameter-popover>
+                
+                <!-- Arrow -->
+                <div class="absolute top-full left-1/2 -translate-x-1/2 w-4 h-4 rotate-45
+                            bg-gray-900 border-b border-r border-gray-700/50">
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+
+      <!-- Mode Filtres/Tris -->
+      <ng-container *ngIf="!isStoredProcedure">
+        <div class="flex flex-wrap gap-4">
+          <!-- Actions -->
+          <div class="flex gap-2 overflow-visible">
+            <div class="relative overflow-visible">
+              <button #filterButton
+                      class="inline-flex items-center px-3 py-1 rounded-md text-sm
+                             bg-gray-700 hover:bg-gray-600 text-gray-200
+                             border border-gray-600 transition-colors"
+                      (click)="openFilterPopover('columnName', 'string', $event)">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+                {{ 'PARAMETERS.ADD_FILTER' | translate }}
+              </button>
+
+              <!-- Filter Popover -->
+              <div *ngIf="activeFilterPopover" 
+                   class="fixed z-[9999]"
+                   [style.top]="(filterButton.getBoundingClientRect().top + getScrollY() - 4) + 'px'"
+                   [style.left]="(filterButton.getBoundingClientRect().left + (filterButton.offsetWidth / 2) - 150) + 'px'">
+                <div class="bg-gray-900 rounded-lg shadow-lg border border-gray-700/50 -translate-y-full">
+                  <app-filter-popover
+                    [data]="activeFilterPopover.data"
+                    (filterChange)="onFilterChange($event)"
+                    (close)="activeFilterPopover = null">
+                  </app-filter-popover>
+                </div>
+                <!-- Arrow -->
+                <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rotate-45
+                            bg-gray-900 border-b border-r border-gray-700/50">
+                </div>
+              </div>
+            </div>
+
+            <div class="relative overflow-visible">
+              <button #sortButton
+                      class="inline-flex items-center px-3 py-1 rounded-md text-sm
+                             bg-gray-700 hover:bg-gray-600 text-gray-200
+                             border border-gray-600 transition-colors"
+                      (click)="openSortPopover('columnName', $event)">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                        d="M3 4h13M3 8h9M3 12h5m0 0v6m0-6h8m4 0l-4-4m4 4l-4 4" />
+                </svg>
+                {{ 'PARAMETERS.ADD_SORT' | translate }}
+              </button>
+
+              <!-- Sort Popover -->
+              <div *ngIf="activeSortPopover"
+                   class="fixed z-[9999]"
+                   [style.top]="(sortButton.getBoundingClientRect().top + getScrollY() - 4) + 'px'"
+                   [style.left]="(sortButton.getBoundingClientRect().left + (sortButton.offsetWidth / 2) - 150) + 'px'">
+                <div class="bg-gray-900 rounded-lg shadow-lg border border-gray-700/50 -translate-y-full">
+                  <app-sort-popover
+                    [data]="activeSortPopover.data"
+                    (sortChange)="onSortChange($event)"
+                    (close)="activeSortPopover = null">
+                  </app-sort-popover>
+                </div>
+                <!-- Arrow -->
+                <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 rotate-45
+                            bg-gray-900 border-b border-r border-gray-700/50">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filtres actifs -->
+          <div class="flex flex-wrap gap-2">
+            <ng-container *ngFor="let search of parameters.columnSearches">
+              <div class="inline-flex items-center px-3 py-1 rounded-full text-sm
+                          bg-primary-900/50 text-primary-200 border border-primary-700/50">
+                <span class="font-medium">{{ search.column }}:</span>
+                <span class="ml-2">{{ search.value }}</span>
+                <button (click)="removeFilter(search.column)"
+                        class="ml-2 text-primary-400 hover:text-primary-200 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </ng-container>
+          </div>
+
+          <!-- Tris actifs -->
+          <div class="flex flex-wrap gap-2">
+            <ng-container *ngFor="let order of parameters.orderBy">
+              <div class="inline-flex items-center px-3 py-1 rounded-full text-sm
+                          bg-secondary-900/50 text-secondary-200 border border-secondary-700/50">
+                <span class="font-medium">{{ order.column }}:</span>
+                <span class="ml-2">{{ order.isDescending ? '↓' : '↑' }}</span>
+                <button (click)="removeSort(order.column)"
+                        class="ml-2 text-secondary-400 hover:text-secondary-200 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </ng-container>
           </div>
         </div>
-      </div>
+      </ng-container>
     </div>
-  </div>
 
-  <!-- Last update info -->
-  <div class="flex items-center gap-4 text-sm text-gray-400">
-    <div *ngIf="lastUpdate">
-      {{ 'PARAMETERS.LAST_UPDATE' | translate }}: {{ lastUpdate | date:'short' }}
-    </div>
-    <div *ngIf="autoRefreshInterval">
-      {{ 'PARAMETERS.AUTO_REFRESH' | translate }}: {{ autoRefreshInterval }}s
+    <!-- Last update info -->
+    <div class="flex items-center gap-4 text-sm text-gray-400">
+      <div *ngIf="lastUpdate">
+        {{ 'PARAMETERS.LAST_UPDATE' | translate }}: {{ lastUpdate | date:'short' }}
+      </div>
+      <div *ngIf="autoRefreshInterval">
+        {{ 'PARAMETERS.AUTO_REFRESH' | translate }}: {{ autoRefreshInterval }}s
+      </div>
     </div>
   </div>
 </div> 

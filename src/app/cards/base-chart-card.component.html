@@ -29,11 +29,14 @@
   <div footer>
     <!-- Parameters footer -->
     <app-chart-parameters-footer
-      *ngIf="card.configuration?.chartParameters?.parameters?.length"
-      [parameters]="card.configuration.chartParameters.parameters"
+      [datasource]="card.configuration?.datasource"
+      [parameters]="requestParameters"
+      [storedProcedureParameters]="card.configuration?.chartParameters?.parameters || []"
       [lastUpdate]="chartState.lastUpdate"
-      [autoRefreshInterval]="card.configuration.chartParameters?.autoRefreshInterval"
-      (parameterChange)="onParametersChange($event)">
+      [autoRefreshInterval]="card.configuration?.chartParameters?.autoRefreshInterval"
+      (parametersChange)="onRequestParametersChange($event)"
+      (storedProcedureParametersChange)="onStoredProcedureParametersChange($event)"
+      (refresh)="loadData()">
     </app-chart-parameters-footer>
   </div>
 </app-base-card>

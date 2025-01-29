@@ -45,6 +45,13 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
   protected isChartCard = false;
   protected visualConfig?: ChartVisualConfig;
   protected isPanelOpen = false;
+  protected requestParameters: DataRequestParametersDto = {
+    pageNumber: 1,
+    pageSize: 1000,
+    orderBy: [],
+    globalSearch: '',
+    columnSearches: []
+  };
   private currentCacheKey?: string;
 
   constructor(
@@ -131,14 +138,6 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
     this.chartState.loading = true;
     this.chartState.error = undefined;
 
-    const parameters: DataRequestParametersDto = {
-      pageNumber: 1,
-      pageSize: 1000,
-      orderBy: [],
-      globalSearch: '',
-      columnSearches: []
-    };
-
     // Récupérer les paramètres utilisateur si présents
     const userParameters = this.card.configuration.chartParameters?.parameters?.reduce((acc: Record<string, StoredProcedureParameter>, param: StoredProcedureParameter) => {
       acc[param.name] = param;
@@ -147,16 +146,17 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
 
     console.log('[BaseChartCard] Chargement des données avec paramètres:', {
       chartParameters: this.card.configuration.chartParameters,
+      requestParameters: this.requestParameters,
       userParameters,
       isStoredProcedure: this.card.configuration.datasource.isStoredProcedure
     });
 
     // Générer une clé de cache unique pour ce jeu de paramètres
-    this.currentCacheKey = `${this.card.id}_${JSON.stringify(parameters)}_${JSON.stringify(userParameters)}`;
+    this.currentCacheKey = `${this.card.id}_${JSON.stringify(this.requestParameters)}_${JSON.stringify(userParameters)}`;
 
     this.datasourceService.fetchData(
       this.card.configuration.datasource,
-      parameters,
+      this.requestParameters,
       userParameters
     )
     .pipe(takeUntil(this.destroy$))
@@ -185,14 +185,6 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
   protected setupAutoRefreshIfNeeded(): void {
     const refreshInterval = this.card.configuration?.chartParameters?.autoRefreshInterval;
     if (refreshInterval && refreshInterval > 0) {
-      const parameters: DataRequestParametersDto = {
-        pageNumber: 1,
-        pageSize: 1000,
-        orderBy: [],
-        globalSearch: '',
-        columnSearches: []
-      };
-
       const userParameters = this.card.configuration.chartParameters?.parameters?.reduce((acc: Record<string, StoredProcedureParameter>, param: StoredProcedureParameter) => {
         acc[param.name] = param;
         return acc;
@@ -200,7 +192,7 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
 
       this.datasourceService.setupAutoRefresh(
         this.card.configuration!.datasource,
-        parameters,
+        this.requestParameters,
         userParameters || {},
         refreshInterval,
         (response: PaginatedResultDto<any>) => {
@@ -311,25 +303,23 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
     }
   }
 
-  protected onParametersChange(parameters: StoredProcedureParameter[]): void {
-    console.log('[BaseChartCard] Changement de paramètres:', {
-      newParameters: parameters,
-      currentConfig: this.card.configuration?.chartParameters
-    });
+  protected onRequestParametersChange(parameters: DataRequestParametersDto) {
+    this.requestParameters = parameters;
+    this.loadData();
+  }
+
+  protected onStoredProcedureParametersChange(parameters: StoredProcedureParameter[]) {
     if (this.card.configuration?.chartParameters) {
-      // Mettre à jour les paramètres dans chartParameters
       this.card.configuration.chartParameters.parameters = parameters;
       
-      // Mettre à jour aussi les procedureParameters
+      // Sync with procedureParameters
       if (this.card.configuration.datasource?.procedureParameters) {
         parameters.forEach(param => {
-          if (this.card.configuration?.datasource?.procedureParameters) {
-            this.card.configuration.datasource.procedureParameters[param.name] = param;
-          }
+          this.card.configuration!.datasource!.procedureParameters![param.name] = { ...param };
         });
       }
       
-      this.loadData(); // Recharger les données avec les nouveaux paramètres
+      this.loadData();
     }
   }
 } 

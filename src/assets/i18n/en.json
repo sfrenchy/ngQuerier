@@ -515,5 +515,24 @@
     "LABEL_COLUMN": "Label Column",
     "VALUE_COLUMN": "Value Column",
     "RADIUS": "Chart Radius"
+  },
+  "PARAMETERS": {
+    "VALUE": "Value",
+    "ENABLED": "Enabled",
+    "DIRECTION": "Direction",
+    "ASCENDING": "Ascending",
+    "DESCENDING": "Descending",
+    "ADD_FILTER": "Add filter",
+    "ADD_SORT": "Add sort",
+    "REMOVE_FILTER": "Remove filter",
+    "REMOVE_SORT": "Remove sort",
+    "NO_FILTERS": "No filters",
+    "NO_SORTS": "No sorts",
+    "LAST_UPDATE": "Last update",
+    "REFRESH": "Refresh",
+    "AUTO_REFRESH": "Auto refresh",
+    "AUTO_REFRESH_INTERVAL": "Refresh interval (seconds)",
+    "FILTERS": "Filters",
+    "SORTS": "Sorts"
   }
 }

@@ -497,7 +497,20 @@
         "MAX_LENGTH": "La longueur maximale est {{maxLength}} caractères",
         "PATTERN": "Le format n'est pas valide",
         "INVALID_DATE": "La date n'est pas valide"
-      }
+      },
+      "DIRECTION": "Direction",
+      "ASCENDING": "Croissant",
+      "DESCENDING": "Décroissant",
+      "ADD_FILTER": "Ajouter un filtre",
+      "ADD_SORT": "Ajouter un tri",
+      "REMOVE_FILTER": "Supprimer le filtre",
+      "REMOVE_SORT": "Supprimer le tri",
+      "NO_FILTERS": "Aucun filtre",
+      "NO_SORTS": "Aucun tri",
+      "REFRESH": "Rafraîchir",
+      "AUTO_REFRESH_INTERVAL": "Intervalle de rafraîchissement (secondes)",
+      "FILTERS": "Filtres",
+      "SORTS": "Tris"
     }
   },
   "chart": {

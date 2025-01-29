@@ -24,15 +24,10 @@ export class ChartParametersPanelComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('[ChartParametersPanel] Initialisation:', {
-      parameters: this.parameters,
-      isOpen: this.isOpen
-    });
     this.initForm();
   }
 
   private initForm() {
-    console.log('[ChartParametersPanel] Initialisation du formulaire');
     // Créer un contrôle pour chaque paramètre
     this.parameters.forEach(param => {
       if (param.userChangeAllowed) {
@@ -42,7 +37,6 @@ export class ChartParametersPanelComponent implements OnInit {
 
     // S'abonner aux changements
     this.form.valueChanges.subscribe(values => {
-      console.log('[ChartParametersPanel] Changement de valeur:', values);
       const updatedParameters = this.parameters.map(param => ({
         ...param,
         value: param.userChangeAllowed ? values[param.name] : param.value
@@ -52,10 +46,6 @@ export class ChartParametersPanelComponent implements OnInit {
   }
 
   togglePanel(): void {
-    console.log('[ChartParametersPanel] Toggle panneau:', {
-      currentState: this.isOpen,
-      newState: !this.isOpen
-    });
     this.isOpen = !this.isOpen;
     this.isOpenChange.emit(this.isOpen);
   }

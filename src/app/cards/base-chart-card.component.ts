@@ -127,10 +127,6 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
       }
     }
 
-    console.log('[BaseChartCard] Configuration initiale:', {
-      chartParameters: this.card.configuration?.chartParameters,
-      datasource: this.card.configuration?.datasource
-    });
     this.setupCommonChartOptions();
     if (this.card.configuration?.datasource) {
       // Charger les données seulement après avoir initialisé tous les paramètres
@@ -171,13 +167,6 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
       return acc;
     }, {});
 
-    console.log('[BaseChartCard] Chargement des données avec paramètres:', {
-      chartParameters: this.card.configuration.chartParameters,
-      requestParameters: this.requestParameters,
-      userParameters,
-      isStoredProcedure: this.card.configuration.datasource.isStoredProcedure
-    });
-
     // Générer une clé de cache unique pour ce jeu de paramètres
     this.currentCacheKey = `${this.card.id}_${JSON.stringify(this.requestParameters)}_${JSON.stringify(userParameters)}`;
 
@@ -189,10 +178,6 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
     .pipe(takeUntil(this.destroy$))
     .subscribe({
       next: (response: PaginatedResultDto<any>) => {
-        console.log('[BaseChartCard] Données reçues:', {
-          itemCount: response.items?.length,
-          lastUpdate: new Date()
-        });
         this.chartState.data = this.transformData(response.items || []);
         this.chartState.loading = false;
         this.chartState.lastUpdate = new Date();

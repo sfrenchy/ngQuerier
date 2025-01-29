@@ -76,7 +76,6 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('[ChartParametersFooter] Changes detected:', changes);
     
     // Sauvegarder le paramètre sélectionné actuel
     const currentSelectedParameter = this.selectedParameter;
@@ -131,13 +130,7 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
     }
 
     if (changes['datasource']) {
-      console.log('[ChartParametersFooter] Datasource structure:', {
-        entity: this.datasource?.entity,
-        controller: this.datasource?.controller,
-        schema: this.datasource?.controller?.responseEntityJsonSchema
-      });
       this._availableColumns = this.getAvailableColumns();
-      console.log('[ChartParametersFooter] Available columns:', this._availableColumns);
     }
   }
 
@@ -149,12 +142,7 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
   private handleDocumentClick = (event: MouseEvent) => {
     const target = event.target as HTMLElement;
     const isInsidePopover = this.elementRef.nativeElement.contains(target);
-    console.log('[ChartParametersFooter] handleDocumentClick:', {
-      target,
-      isInsidePopover,
-      selectedParameter: this.selectedParameter
-    });
-    
+        
     if (!isInsidePopover) {
       this.activeFilterPopover = null;
       this.activeSortPopover = null;
@@ -172,11 +160,6 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
 
   // Méthodes pour les paramètres de procédure stockée
   openPopover(parameter: StoredProcedureParameter, event: MouseEvent): void {
-    console.log('[ChartParametersFooter] openPopover called with:', {
-      parameter,
-      event,
-      currentStoredParameters: this.storedProcedureParameters
-    });
     event.stopPropagation(); // Empêcher la propagation de l'événement
     
     // Si le paramètre est déjà sélectionné, on le désélectionne
@@ -186,13 +169,11 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
     }
     
     this.selectedParameter = parameter;
-    console.log('[ChartParametersFooter] selectedParameter set to:', this.selectedParameter);
     this.activeFilterPopover = null;
     this.activeSortPopover = null;
   }
 
   closePopover(): void {
-    console.log('[ChartParametersFooter] closePopover called, selectedParameter was:', this.selectedParameter);
     this.selectedParameter = undefined;
   }
 

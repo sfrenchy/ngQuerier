@@ -1,9 +1,11 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { StoredProcedureParameter } from '@models/parameters.models';
 import { RequestParametersService } from '@shared/services/request-parameters.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-parameter-popover',
@@ -11,15 +13,27 @@ import { RequestParametersService } from '@shared/services/request-parameters.se
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule]
 })
-export class ParameterPopoverComponent implements OnChanges, OnInit {
+export class ParameterPopoverComponent implements OnChanges, OnInit, OnDestroy {
   @Input() parameter!: StoredProcedureParameter;
   @Input() cardId?: number;
   @Output() parameterChange = new EventEmitter<StoredProcedureParameter>();
   @Output() close = new EventEmitter<void>();
 
   localParameter?: StoredProcedureParameter;
+  private destroy$ = new Subject<void>();
 
-  constructor(private requestParametersService: RequestParametersService) {}
+  constructor(
+    private requestParametersService: RequestParametersService,
+    private translateService: TranslateService
+  ) {
+    // S'abonner aux changements de langue
+    this.translateService.onLangChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        // Forcer la mise à jour des traductions
+        this.translateService.use(this.translateService.currentLang);
+      });
+  }
 
   ngOnInit(): void {
     // Charger les paramètres sauvegardés au démarrage
@@ -38,9 +52,7 @@ export class ParameterPopoverComponent implements OnChanges, OnInit {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('[ParameterPopover] Changes detected:', changes);
     if (changes['parameter']) {
-      console.log('[ParameterPopover] Parameter updated:', this.parameter);
       // Ne mettre à jour le paramètre local que s'il n'existe pas déjà ou si les valeurs sont différentes
       if (!this.localParameter || 
           this.localParameter.value !== this.parameter.value || 
@@ -49,10 +61,14 @@ export class ParameterPopoverComponent implements OnChanges, OnInit {
         if (this.localParameter.type === 'date' && this.localParameter.value) {
           const [datePart] = this.localParameter.value.split('T');
           this.localParameter.value = datePart;
-          console.log('[ParameterPopover] Formatted date value:', this.localParameter.value);
         }
       }
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onValueChange(): void {
@@ -60,7 +76,6 @@ export class ParameterPopoverComponent implements OnChanges, OnInit {
       if (this.localParameter.type === 'date' && this.localParameter.value) {
         this.localParameter.value = `${this.localParameter.value}T00:00`;
       }
-      console.log('[ParameterPopover] Value changed, emitting:', this.localParameter);
       this.parameterChange.emit(this.localParameter);
 
       // Sauvegarder dans le localStorage si un cardId est fourni

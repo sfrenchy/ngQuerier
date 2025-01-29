@@ -438,10 +438,15 @@
     },
     "PARAMETERS": {
       "TITLE": "Chart Parameters",
-      "PARAMETERS": "Parameters",
+      "DATE_TYPE": "Date type",
+      "DATE_SPECIFIC": "Specific date",
+      "DATE_TODAY": "Today",
+      "DATE_YESTERDAY": "Yesterday",
+      "DATE_LAST_WEEK": "Last week",
+      "DATE_LAST_MONTH": "Last month",
+      "DATE_LAST_YEAR": "Last year",
+      "VALUE": "Value",
       "ENABLED": "Enabled",
-      "LAST_UPDATE": "Last update",
-      "AUTO_REFRESH": "Auto refresh",
       "VALIDATION": {
         "REQUIRED": "This field is required",
         "MIN": "Minimum value is {{min}}",
@@ -517,6 +522,13 @@
     "RADIUS": "Chart Radius"
   },
   "PARAMETERS": {
+    "DATE_TYPE": "Date type",
+    "DATE_SPECIFIC": "Specific date",
+    "DATE_TODAY": "Today",
+    "DATE_YESTERDAY": "Yesterday",
+    "DATE_LAST_WEEK": "Last week",
+    "DATE_LAST_MONTH": "Last month",
+    "DATE_LAST_YEAR": "Last year",
     "VALUE": "Value",
     "ENABLED": "Enabled",
     "DIRECTION": "Direction",

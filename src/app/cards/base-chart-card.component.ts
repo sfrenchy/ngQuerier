@@ -74,6 +74,22 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
       const savedParams = this.requestParametersService.loadFromLocalStorage(this.card.id);
       if (savedParams) {
         this.requestParameters = savedParams;
+        
+        // Mettre à jour les paramètres de procédure stockée si nécessaire
+        if (savedParams.procedureParameters && this.card.configuration?.chartParameters?.parameters) {
+          const updatedParameters = this.card.configuration.chartParameters.parameters.map((param: StoredProcedureParameter) => {
+            const savedParam = savedParams.procedureParameters?.[param.name];
+            if (savedParam) {
+              return {
+                ...param,
+                value: savedParam.value,
+                dateType: savedParam.dateType
+              };
+            }
+            return param;
+          });
+          this.card.configuration.chartParameters.parameters = updatedParameters;
+        }
       }
     }
 
@@ -117,6 +133,7 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
     });
     this.setupCommonChartOptions();
     if (this.card.configuration?.datasource) {
+      // Charger les données seulement après avoir initialisé tous les paramètres
       this.loadData();
       this.setupAutoRefreshIfNeeded();
     }
@@ -329,7 +346,10 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
         });
       }
       
-      this.loadData();
+      // Ne pas recharger les données si c'est le chargement initial depuis localStorage
+      if (!this.chartState.loading) {
+        this.loadData();
+      }
     }
   }
 } 

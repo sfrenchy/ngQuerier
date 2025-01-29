@@ -407,20 +407,10 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
   }
 
   protected onStoredProcedureParametersChange(parameters: StoredProcedureParameter[]) {
+    
     if (this.card.configuration?.chartParameters) {
       this.card.configuration.chartParameters.parameters = parameters;
-      
-      // Sync with procedureParameters
-      if (this.card.configuration.datasource?.procedureParameters) {
-        parameters.forEach(param => {
-          this.card.configuration!.datasource!.procedureParameters![param.name] = { ...param };
-        });
-      }
-      
-      // Ne pas recharger les données si c'est le chargement initial depuis localStorage
-      if (!this.chartState.loading) {
-        this.loadData();
-      }
     }
+    this.loadData();
   }
 } 

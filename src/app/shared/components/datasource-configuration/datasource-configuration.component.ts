@@ -69,9 +69,17 @@ export class DatasourceConfigurationComponent implements OnInit {
     if (!this.config) {
       this.config = { 
         type: 'API',
-        isStoredProcedure: false  // Initialiser à false par défaut
+        isStoredProcedure: false
       };
     }
+
+    // Si on a déjà des paramètres de procédure stockée, initialiser l'interface
+    if (this.config.procedureParameters && this.config.controller) {
+      this.isStoredProcedure = true;
+      this.config.isStoredProcedure = true;
+      this.initializeStoredProcedureParameters(this.config.controller);
+    }
+
     this.loadInitialData();
     this.datasourceService.setConfig(this.config);
   }
@@ -173,12 +181,12 @@ export class DatasourceConfigurationComponent implements OnInit {
             };
           });
           
-          // Initialiser les paramètres avec des valeurs par défaut
+          // Initialiser ou mettre à jour les paramètres en préservant les valeurs existantes
           const parameters: StoredProcedureParameter[] = [];
-            Object.entries(paramSchema.properties).forEach(([paramName, prop]: [string, any]) => {
-              const defaultValue = prop.default !== undefined ? prop.default : null;
-              const isDateType = prop.type === 'string' && (prop.format === 'date' || prop.format === 'date-time');
-              
+          Object.entries(paramSchema.properties).forEach(([paramName, prop]: [string, any]) => {
+            const existingParam = this.config.procedureParameters?.[paramName];
+            const isDateType = prop.type === 'string' && (prop.format === 'date' || prop.format === 'date-time');
+            
             if (!this.config.procedureParameters) {
               this.config.procedureParameters = {};
             }
@@ -186,9 +194,9 @@ export class DatasourceConfigurationComponent implements OnInit {
             const parameter: StoredProcedureParameter = {
               name: paramName,
               type: isDateType ? 'date' : (prop.type as 'string' | 'number' | 'date' | 'boolean' | 'array'),
-                value: defaultValue,
-                dateType: isDateType ? 'specific' : undefined,
-              userChangeAllowed: prop.userChangeAllowed ?? true,
+              value: existingParam?.value ?? (prop.default !== undefined ? prop.default : null),
+              dateType: existingParam?.dateType ?? (isDateType ? 'specific' : undefined),
+              userChangeAllowed: existingParam?.userChangeAllowed ?? (prop.userChangeAllowed ?? true),
               displayName: prop.title || paramName,
               description: prop.description
             };
@@ -310,10 +318,10 @@ export class DatasourceConfigurationComponent implements OnInit {
             };
           });
           
-          // Initialiser les paramètres avec des valeurs par défaut
+          // Initialiser ou mettre à jour les paramètres en préservant les valeurs existantes
           const parameters: StoredProcedureParameter[] = [];
           Object.entries(paramSchema.properties).forEach(([paramName, prop]: [string, any]) => {
-            const defaultValue = prop.default !== undefined ? prop.default : null;
+            const existingParam = this.config.procedureParameters?.[paramName];
             const isDateType = prop.type === 'string' && (prop.format === 'date' || prop.format === 'date-time');
             
             if (!this.config.procedureParameters) {
@@ -323,9 +331,9 @@ export class DatasourceConfigurationComponent implements OnInit {
             const parameter: StoredProcedureParameter = {
               name: paramName,
               type: isDateType ? 'date' : (prop.type as 'string' | 'number' | 'date' | 'boolean' | 'array'),
-              value: defaultValue,
-              dateType: isDateType ? 'specific' : undefined,
-              userChangeAllowed: prop.userChangeAllowed ?? true,
+              value: existingParam?.value ?? (prop.default !== undefined ? prop.default : null),
+              dateType: existingParam?.dateType ?? (isDateType ? 'specific' : undefined),
+              userChangeAllowed: existingParam?.userChangeAllowed ?? (prop.userChangeAllowed ?? true),
               displayName: prop.title || paramName,
               description: prop.description
             };

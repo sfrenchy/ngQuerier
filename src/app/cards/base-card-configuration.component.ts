@@ -118,7 +118,7 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
       
       // Définir les inputs
       componentRef.setInput('card', this.card);
-      
+     
       // S'abonner aux outputs
       componentRef.instance.save?.subscribe((configuration: any) => {
         this.onCardConfigSave(configuration);
@@ -190,13 +190,18 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
   }
 
   onCardConfigSave(configuration: any) {
+    const newConfig = configuration.toJson();
+    
     // Ne pas inclure les propriétés de base dans la configuration
     const updatedCard: CardDto = {
       ...this.card,
       configuration: {
-        ...configuration.toJson(),
-        // Utiliser la configuration visuelle de la carte plutôt que this.visualConfig
-        visualConfig: this.card.configuration?.visualConfig
+        ...newConfig,
+        visualConfig: this.card.configuration?.visualConfig,
+        datasource: {
+          ...newConfig.datasource,
+          procedureParameters: this.card.configuration?.datasource?.procedureParameters
+        }
       }
     };
     this.save.emit(updatedCard);

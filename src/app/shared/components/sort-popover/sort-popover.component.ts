@@ -12,6 +12,11 @@ export interface SortPopoverData {
   displayName?: string;
   description?: string;
   position?: 'above' | 'below';
+  availableColumns?: Array<{
+    name: string;
+    type: 'string' | 'number' | 'boolean' | 'date';
+    displayName: string;
+  }>;
 }
 
 export interface Position {
@@ -31,6 +36,8 @@ export class SortPopoverComponent extends BaseParameterPopover implements OnInit
   @Output() override close = new EventEmitter<void>();
   @Output() sortChange = new EventEmitter<OrderByParameterDto>();
 
+  selectedColumn: string = '';
+
   constructor() {
     super();
     // Initialisation avec des valeurs par défaut
@@ -42,6 +49,16 @@ export class SortPopoverComponent extends BaseParameterPopover implements OnInit
       displayName: '',
       description: ''
     };
+  }
+
+  onColumnChange(columnName: string): void {
+    const column = this.data.availableColumns?.find(col => col.name === columnName);
+    if (column && this.localParameter) {
+      this.data.column = column.name;
+      this.localParameter.name = column.name;
+      this.localParameter.displayName = column.displayName;
+      this.onValueChange();
+    }
   }
 
   protected override onParameterChange(): void {
@@ -69,5 +86,7 @@ export class SortPopoverComponent extends BaseParameterPopover implements OnInit
       displayName: this.data.displayName || this.data.column,
       description: this.data.description || ''
     };
+    this.selectedColumn = this.data.column;
+    this.localParameter = { ...this.parameter };
   }
 } 

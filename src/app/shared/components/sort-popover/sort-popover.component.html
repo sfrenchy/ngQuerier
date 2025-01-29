@@ -2,7 +2,7 @@
   <!-- Header -->
   <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
     <h3 class="text-lg font-medium text-gray-100">
-      {{ parameter?.displayName || parameter?.name || data.column }}
+      {{ localParameter?.displayName || localParameter?.name || data.column }}
     </h3>
     <button 
       (click)="close.emit()"
@@ -21,28 +21,27 @@
 
   <!-- Input controls -->
   <div class="space-y-4" *ngIf="localParameter">
-    <!-- Direction selector -->
-    <div class="space-y-2">
+    <!-- Column selector -->
+    <div class="space-y-2" *ngIf="data.availableColumns">
       <label class="block text-sm font-medium text-gray-200 px-1">
-        {{ 'PARAMETERS.DIRECTION' | translate }}
+        {{ 'PARAMETERS.COLUMN' | translate }}
       </label>
-      <div class="flex items-center gap-4 px-1">
-        <label class="flex items-center">
-          <input type="radio"
-                 [ngModel]="!localParameter.value"
-                 (ngModelChange)="localParameter.value = !$event; onValueChange()"
-                 class="w-4 h-4 text-primary-600 bg-gray-800/50 border-gray-600 
-                        focus:ring-2 focus:ring-primary-500 focus:ring-offset-gray-900">
-          <span class="ml-2 text-sm text-gray-200">{{ 'PARAMETERS.ASCENDING' | translate }}</span>
-        </label>
-        <label class="flex items-center">
-          <input type="radio"
-                 [ngModel]="localParameter.value"
-                 (ngModelChange)="localParameter.value = $event; onValueChange()"
-                 class="w-4 h-4 text-primary-600 bg-gray-800/50 border-gray-600 
-                        focus:ring-2 focus:ring-primary-500 focus:ring-offset-gray-900">
-          <span class="ml-2 text-sm text-gray-200">{{ 'PARAMETERS.DESCENDING' | translate }}</span>
-        </label>
+      <div class="relative">
+        <select [(ngModel)]="selectedColumn"
+                (ngModelChange)="onColumnChange($event)"
+                class="block w-full rounded-md bg-gray-800 border-gray-600 text-gray-200
+                       focus:border-primary-500 focus:ring-primary-500
+                       appearance-none pr-8 pl-3 py-2">
+          <option *ngFor="let col of data.availableColumns"
+                  [value]="col.name">
+            {{ col.displayName }}
+          </option>
+        </select>
+        <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
+          <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
     </div>
   </div>

@@ -112,11 +112,20 @@
           <div class="flex flex-wrap gap-2">
             <ng-container *ngFor="let order of parameters.orderBy">
               <div class="inline-flex items-center px-3 py-1 rounded-full text-sm
-                          bg-secondary-900/50 text-secondary-200 border border-secondary-700/50">
-                <span class="font-medium">{{ order.column }}:</span>
-                <span class="ml-2">{{ order.isDescending ? '↓' : '↑' }}</span>
+                          bg-purple-900 text-purple-100 border border-purple-700 hover:bg-purple-800"
+                   [title]="order.isDescending ? 'Tri décroissant' : 'Tri croissant'">
+                <span class="font-medium">{{ order.column }}</span>
+                <button (click)="toggleSortDirection(order)"
+                        class="ml-2 text-purple-300 hover:text-purple-100 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path *ngIf="!order.isDescending" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 19V5m0 0l-7 7m7-7l7 7" />
+                    <path *ngIf="order.isDescending" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M12 5v14m0 0l-7-7m7 7l7-7" />
+                  </svg>
+                </button>
                 <button (click)="removeSort(order.column)"
-                        class="ml-2 text-secondary-400 hover:text-secondary-200 transition-colors">
+                        class="ml-2 text-purple-300 hover:text-purple-100 transition-colors">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                   </svg>

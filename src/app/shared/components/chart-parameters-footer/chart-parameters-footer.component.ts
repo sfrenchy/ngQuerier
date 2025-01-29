@@ -212,7 +212,12 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
       data: {
         column: columnName,
         displayName: columnName,
-        description: `Sort by ${columnName}`
+        description: `Sort by ${columnName}`,
+        availableColumns: this.availableColumns.map(col => ({
+          name: col.name,
+          type: col.type,
+          displayName: col.name
+        }))
       },
     };
   }
@@ -223,18 +228,9 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
   }
 
   onSortChange(order: OrderByParameterDto): void {
-    const orderBy = [...this.parameters.orderBy];
-    const existingIndex = orderBy.findIndex(o => o.column === order.column);
-
-    if (existingIndex !== -1) {
-      orderBy[existingIndex] = order;
-    } else {
-      orderBy.push(order);
-    }
-
     this.parametersChange.emit({
       ...this.parameters,
-      orderBy
+      orderBy: [order]  // Un seul tri à la fois
     });
   }
 
@@ -314,5 +310,15 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
       column,
       values
     }));
+  }
+
+  toggleSortDirection(order: OrderByParameterDto): void {
+    this.parametersChange.emit({
+      ...this.parameters,
+      orderBy: [{
+        ...order,
+        isDescending: !order.isDescending
+      }]
+    });
   }
 } 

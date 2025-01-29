@@ -64,7 +64,7 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
   };
 
   selectedParameter?: StoredProcedureParameter;
-
+  private _activeParameters: StoredProcedureParameter[] = [];
   private _availableColumns: ColumnMetadata[] = [];
 
   constructor(
@@ -72,23 +72,64 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
     private requestParametersService: RequestParametersService
   ) {
     // Gestionnaire de clic global pour fermer les popovers
-    document.addEventListener('click', (event) => {
-      const target = event.target as HTMLElement;
-      const isInsidePopover = this.elementRef.nativeElement.contains(target);
-      
-      if (!isInsidePopover) {
-        this.activeFilterPopover = null;
-        this.activeSortPopover = null;
-        this.activeParameterPopover = undefined;
-      }
-    });
+    document.addEventListener('click', this.handleDocumentClick);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     console.log('[ChartParametersFooter] Changes detected:', changes);
-    if (changes['storedProcedureParameters']) {
-      console.log('[ChartParametersFooter] Parameters updated:', this.storedProcedureParameters);
+    
+    // Sauvegarder le paramètre sélectionné actuel
+    const currentSelectedParameter = this.selectedParameter;
+    
+    // Charger les paramètres sauvegardés si disponibles
+    if ((changes['cardId'] || changes['storedProcedureParameters']?.firstChange) && this.cardId) {
+      const savedParams = this.requestParametersService.loadFromLocalStorage(this.cardId);
+      if (savedParams?.procedureParameters && this.storedProcedureParameters.length > 0) {
+        let hasChanges = false;
+        const updatedParameters = this.storedProcedureParameters.map(param => {
+          const savedParam = savedParams.procedureParameters?.[param.name];
+          if (savedParam && (savedParam.value !== param.value || savedParam.dateType !== param.dateType)) {
+            hasChanges = true;
+            return {
+              ...param,
+              value: savedParam.value,
+              dateType: savedParam.dateType
+            };
+          }
+          return param;
+        });
+        
+        if (hasChanges) {
+          // Mettre à jour la propriété locale
+          this.storedProcedureParameters = updatedParameters;
+          this._activeParameters = updatedParameters.filter(p => p.userChangeAllowed);
+          // Émettre les paramètres mis à jour
+          this.storedProcedureParametersChange.emit(updatedParameters);
+        }
+
+        // Mettre à jour les paramètres de requête
+        this.parameters = savedParams;
+      }
     }
+
+    // Mettre à jour les paramètres actifs si les storedProcedureParameters changent
+    if (changes['storedProcedureParameters']) {
+      this._activeParameters = this.storedProcedureParameters.filter(p => p.userChangeAllowed);
+      
+      // Si nous avons un paramètre sélectionné, le mettre à jour avec la nouvelle version
+      if (currentSelectedParameter) {
+        const updatedParameter = this.storedProcedureParameters.find(
+          p => p.name === currentSelectedParameter.name
+        );
+        if (updatedParameter && JSON.stringify(updatedParameter) !== JSON.stringify(currentSelectedParameter)) {
+          this.selectedParameter = updatedParameter;
+        } else if (!updatedParameter) {
+          // Si le paramètre n'existe plus dans la liste, le désélectionner
+          this.selectedParameter = undefined;
+        }
+      }
+    }
+
     if (changes['datasource']) {
       console.log('[ChartParametersFooter] Datasource structure:', {
         entity: this.datasource?.entity,
@@ -97,15 +138,6 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
       });
       this._availableColumns = this.getAvailableColumns();
       console.log('[ChartParametersFooter] Available columns:', this._availableColumns);
-    }
-
-    // Charger les paramètres sauvegardés si disponibles
-    if (changes['cardId'] && this.cardId) {
-      const savedParams = this.requestParametersService.loadFromLocalStorage(this.cardId);
-      if (savedParams) {
-        this.parameters = savedParams;
-        // Ne pas émettre l'événement, juste mettre à jour les paramètres locaux
-      }
     }
   }
 
@@ -117,6 +149,11 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
   private handleDocumentClick = (event: MouseEvent) => {
     const target = event.target as HTMLElement;
     const isInsidePopover = this.elementRef.nativeElement.contains(target);
+    console.log('[ChartParametersFooter] handleDocumentClick:', {
+      target,
+      isInsidePopover,
+      selectedParameter: this.selectedParameter
+    });
     
     if (!isInsidePopover) {
       this.activeFilterPopover = null;
@@ -130,16 +167,32 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
   }
 
   get activeParameters(): StoredProcedureParameter[] {
-    console.log('[ChartParametersFooter] Active parameters:', this.storedProcedureParameters);
-    return this.storedProcedureParameters.filter(p => p.userChangeAllowed);
+    return this._activeParameters;
   }
 
   // Méthodes pour les paramètres de procédure stockée
   openPopover(parameter: StoredProcedureParameter, event: MouseEvent): void {
+    console.log('[ChartParametersFooter] openPopover called with:', {
+      parameter,
+      event,
+      currentStoredParameters: this.storedProcedureParameters
+    });
+    event.stopPropagation(); // Empêcher la propagation de l'événement
+    
+    // Si le paramètre est déjà sélectionné, on le désélectionne
+    if (this.selectedParameter?.name === parameter.name) {
+      this.selectedParameter = undefined;
+      return;
+    }
+    
     this.selectedParameter = parameter;
+    console.log('[ChartParametersFooter] selectedParameter set to:', this.selectedParameter);
+    this.activeFilterPopover = null;
+    this.activeSortPopover = null;
   }
 
   closePopover(): void {
+    console.log('[ChartParametersFooter] closePopover called, selectedParameter was:', this.selectedParameter);
     this.selectedParameter = undefined;
   }
 
@@ -147,6 +200,9 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
     const updatedParameters = this.storedProcedureParameters.map(p => 
       p.name === updatedParameter.name ? updatedParameter : p
     );
+    // Mettre à jour la propriété locale
+    this.storedProcedureParameters = updatedParameters;
+    // Émettre l'événement
     this.storedProcedureParametersChange.emit(updatedParameters);
   }
 

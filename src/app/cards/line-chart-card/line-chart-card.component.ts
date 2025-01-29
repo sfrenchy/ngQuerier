@@ -8,6 +8,7 @@ import { LineChartCardConfig, SeriesConfig } from './line-chart-card.models';
 import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
 import { BaseCardComponent } from '@cards/base-card.component';
 import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import { RequestParametersService } from '@shared/services/request-parameters.service';
 
 @Card({
   name: 'LineChart',
@@ -33,10 +34,11 @@ import { ChartParametersFooterComponent } from '@shared/components/chart-paramet
 })
 export class LineChartCardComponent extends BaseChartCard<LineChartCardConfig> {
   constructor(
-    protected override translateService: TranslateService,
-    protected override datasourceService: DatasourceService
+    translateService: TranslateService,
+    datasourceService: DatasourceService,
+    requestParametersService: RequestParametersService
   ) {
-    super(translateService, datasourceService);
+    super(translateService, datasourceService, requestParametersService);
   }
 
   protected override transformData(data: any[]): any[] {

@@ -8,6 +8,7 @@ import { DatasourceService } from '@shared/components/datasource-configuration/d
 import { BaseCardComponent } from '@cards/base-card.component';
 import { StackedBarAndLinesChartConfigurationComponent } from './stacked-bar-and-lines-chart-configuration.component';
 import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import { RequestParametersService } from '@shared/services/request-parameters.service';
 
 @Card({
   name: 'StackedBarAndLinesChart',
@@ -33,9 +34,10 @@ import { ChartParametersFooterComponent } from '@shared/components/chart-paramet
 export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAndLinesChartCardConfig> {
   constructor(
     protected override translateService: TranslateService,
-    protected override datasourceService: DatasourceService
+    protected override datasourceService: DatasourceService,
+    protected override requestParametersService: RequestParametersService
   ) {
-    super(translateService, datasourceService);
+    super(translateService, datasourceService, requestParametersService);
   }
 
   protected override transformData(data: any[]): any[] {

@@ -7,6 +7,7 @@ import { DataRequestParametersDto, ColumnSearchDto, OrderByParameterDto } from '
 import { FilterPopoverComponent, FilterPopoverData } from '../filter-popover/filter-popover.component';
 import { SortPopoverComponent, SortPopoverData } from '../sort-popover/sort-popover.component';
 import { ParameterPopoverComponent } from '../parameter-popover/parameter-popover.component';
+import { RequestParametersService } from '../../services/request-parameters.service';
 
 interface ParameterPopoverData {
   parameter: StoredProcedureParameter;
@@ -43,6 +44,7 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
   @Input() storedProcedureParameters: StoredProcedureParameter[] = [];
   @Input() lastUpdate?: Date;
   @Input() autoRefreshInterval?: number;
+  @Input() cardId!: number;
 
   @Output() parametersChange = new EventEmitter<DataRequestParametersDto>();
   @Output() storedProcedureParametersChange = new EventEmitter<StoredProcedureParameter[]>();
@@ -65,7 +67,10 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
 
   private _availableColumns: ColumnMetadata[] = [];
 
-  constructor(private elementRef: ElementRef) {
+  constructor(
+    private elementRef: ElementRef,
+    private requestParametersService: RequestParametersService
+  ) {
     // Gestionnaire de clic global pour fermer les popovers
     document.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;
@@ -92,6 +97,15 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
       });
       this._availableColumns = this.getAvailableColumns();
       console.log('[ChartParametersFooter] Available columns:', this._availableColumns);
+    }
+
+    // Charger les paramètres sauvegardés si disponibles
+    if (changes['cardId'] && this.cardId) {
+      const savedParams = this.requestParametersService.loadFromLocalStorage(this.cardId);
+      if (savedParams) {
+        this.parameters = savedParams;
+        // Ne pas émettre l'événement, juste mettre à jour les paramètres locaux
+      }
     }
   }
 
@@ -189,17 +203,25 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
     // Ajouter les nouvelles recherches
     columnSearches.push(...searches);
 
-    this.parametersChange.emit({
+    const updatedParams = {
       ...this.parameters,
       columnSearches
-    });
+    };
+    this.parametersChange.emit(updatedParams);
+    if (this.cardId) {
+      this.requestParametersService.saveToLocalStorage(this.cardId, updatedParams);
+    }
   }
 
   removeFilter(column: string): void {
-    this.parametersChange.emit({
+    const updatedParams = {
       ...this.parameters,
       columnSearches: this.parameters.columnSearches.filter(s => s.column !== column)
-    });
+    };
+    this.parametersChange.emit(updatedParams);
+    if (this.cardId) {
+      this.requestParametersService.saveToLocalStorage(this.cardId, updatedParams);
+    }
   }
 
   // Méthodes pour les tris
@@ -228,17 +250,25 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
   }
 
   onSortChange(order: OrderByParameterDto): void {
-    this.parametersChange.emit({
+    const updatedParams = {
       ...this.parameters,
-      orderBy: [order]  // Un seul tri à la fois
-    });
+      orderBy: [order]
+    };
+    this.parametersChange.emit(updatedParams);
+    if (this.cardId) {
+      this.requestParametersService.saveToLocalStorage(this.cardId, updatedParams);
+    }
   }
 
   removeSort(column: string): void {
-    this.parametersChange.emit({
+    const updatedParams = {
       ...this.parameters,
       orderBy: this.parameters.orderBy.filter(o => o.column !== column)
-    });
+    };
+    this.parametersChange.emit(updatedParams);
+    if (this.cardId) {
+      this.requestParametersService.saveToLocalStorage(this.cardId, updatedParams);
+    }
   }
 
   // Méthode commune de rafraîchissement
@@ -313,12 +343,16 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy {
   }
 
   toggleSortDirection(order: OrderByParameterDto): void {
-    this.parametersChange.emit({
+    const updatedParams = {
       ...this.parameters,
       orderBy: [{
         ...order,
         isDescending: !order.isDescending
       }]
-    });
+    };
+    this.parametersChange.emit(updatedParams);
+    if (this.cardId) {
+      this.requestParametersService.saveToLocalStorage(this.cardId, updatedParams);
+    }
   }
 } 

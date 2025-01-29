@@ -34,6 +34,7 @@
       [storedProcedureParameters]="card.configuration?.chartParameters?.parameters || []"
       [lastUpdate]="chartState.lastUpdate"
       [autoRefreshInterval]="card.configuration?.chartParameters?.autoRefreshInterval"
+      [cardId]="card.id"
       (parametersChange)="onRequestParametersChange($event)"
       (storedProcedureParametersChange)="onStoredProcedureParametersChange($event)"
       (refresh)="loadData()">

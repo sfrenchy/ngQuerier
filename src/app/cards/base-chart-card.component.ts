@@ -12,6 +12,7 @@ import { BaseChartConfig, ChartVisualConfig } from '../models/chart.models';
 import { DataRequestParametersDto, PaginatedResultDto } from '../models/api.models';
 import { StoredProcedureParameter } from '../models/parameters.models';
 import { ChartParametersFooterComponent } from '../shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import { RequestParametersService } from '../shared/services/request-parameters.service';
 
 interface ChartState {
   data: any[];
@@ -56,7 +57,8 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
 
   constructor(
     protected override translateService: TranslateService,
-    protected datasourceService: DatasourceService
+    protected datasourceService: DatasourceService,
+    protected requestParametersService: RequestParametersService
   ) {
     super(translateService);
     this.isChartCard = true;
@@ -66,6 +68,14 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
     super.ngOnInit();
     this.loadCardTranslations();
     this.visualConfig = this.card.configuration?.visualConfig;
+
+    // Charger les paramètres sauvegardés avant le premier chargement
+    if (this.card.id) {
+      const savedParams = this.requestParametersService.loadFromLocalStorage(this.card.id);
+      if (savedParams) {
+        this.requestParameters = savedParams;
+      }
+    }
 
     // Initialiser chartParameters si nécessaire pour les stored procedures
     if (this.card.configuration?.datasource?.isStoredProcedure) {

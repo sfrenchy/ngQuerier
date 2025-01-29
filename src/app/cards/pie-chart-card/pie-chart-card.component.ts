@@ -9,6 +9,7 @@ import { Card } from '../card.decorator';
 import { PieChartCardConfigurationComponent } from './pie-chart-card-configuration.component';
 import { BaseCardComponent } from '@cards/base-card.component';
 import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import { RequestParametersService } from '@shared/services/request-parameters.service';
 
 @Card({
   name: 'PieChart',
@@ -35,9 +36,10 @@ import { ChartParametersFooterComponent } from '@shared/components/chart-paramet
 export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
   constructor(
     protected override translateService: TranslateService,
-    protected override datasourceService: DatasourceService
+    protected override datasourceService: DatasourceService,
+    protected override requestParametersService: RequestParametersService
   ) {
-    super(translateService, datasourceService);
+    super(translateService, datasourceService, requestParametersService);
   }
 
   get loading(): boolean {

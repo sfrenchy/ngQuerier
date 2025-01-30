@@ -1,7 +1,7 @@
 import { Type } from '@angular/core';
 import { CardRegistry } from '@cards/card.registry';
 import { BaseCardConfig } from '@models/api.models';
-import { CardConfigFactory } from '@services/card-config.factory';
+import { CardConfigFactory } from '@cards/card-config.factory';
 
 export interface CardMetadata {
   name: string;
@@ -51,4 +51,4 @@ export function Card(metadata: CardMetadata): ClassDecorator {
 // Fonction pour récupérer tous les composants décorés
 export function getRegisteredCards(): Type<any>[] {
   return [...cardRegistry]; // Retourne une copie pour éviter les modifications externes
-} 
+}

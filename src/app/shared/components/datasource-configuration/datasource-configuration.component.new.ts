@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { CardDatabaseService } from '@services/card-database.service';
+import { CardDatabaseService } from '@cards/card-database.service';
 import { DBConnectionDto, DBConnectionControllerInfoDto, SQLQueryDto, DataStructureDefinitionDto } from '@models/api.models';
 import { TranslateModule } from '@ngx-translate/core';
 import { DatasourceConfig, ParameterValue } from '@models/datasource.models';
@@ -74,19 +74,19 @@ export class DatasourceConfigurationComponent implements OnInit {
 
   private loadInitialData() {
     if (!this.config) return;
-    
+
     switch (this.config.type) {
       case 'API':
         const savedConnection = this.config.connection;
         const savedController = this.config.controller;
-        
+
         this.cardDatabaseService.getDBConnections().subscribe(connections => {
           this.connections = connections;
           if (savedConnection) {
             const matchingConnection = connections.find(c => c.id === savedConnection.id);
             if (matchingConnection) {
               this.config.connection = matchingConnection;
-              
+
               this.cardDatabaseService.getControllers(matchingConnection.id).subscribe(controllers => {
                 this.controllers = controllers;
                 if (savedController) {
@@ -141,12 +141,12 @@ export class DatasourceConfigurationComponent implements OnInit {
   private initializeStoredProcedureParameters(controller: DBConnectionControllerInfoDto) {
     // Vérifier si c'est une procédure stockée
     this.isStoredProcedure = controller?.route?.includes('/procedures/') ?? false;
-    
+
     // Si c'est une procédure stockée et qu'il y a un schéma de paramètres
     if (this.isStoredProcedure && controller?.parameterJsonSchema) {
       try {
         const paramSchema = JSON.parse(controller.parameterJsonSchema);
-        
+
         // Générer la liste des paramètres une seule fois
         if (paramSchema.properties) {
           this.parametersList = Object.entries(paramSchema.properties).map(([name, prop]: [string, any]) => {
@@ -167,14 +167,14 @@ export class DatasourceConfigurationComponent implements OnInit {
               pattern: prop.pattern
             };
           });
-          
+
           // Initialiser les paramètres seulement s'ils n'existent pas déjà
           if (!this.config.procedureParameters) {
             this.config.procedureParameters = {};
             Object.entries(paramSchema.properties).forEach(([paramName, prop]: [string, any]) => {
               const defaultValue = prop.default !== undefined ? prop.default : null;
               const isDateType = prop.type === 'string' && (prop.format === 'date' || prop.format === 'date-time');
-              
+
               this.config.procedureParameters![paramName] = {
                 value: defaultValue,
                 dateType: isDateType ? 'specific' : undefined,
@@ -230,7 +230,7 @@ export class DatasourceConfigurationComponent implements OnInit {
     this.config.connection = connection;
     const savedController = this.config.controller;
     this.config.controller = undefined;
-    
+
     this.cardDatabaseService.getControllers(connection.id).subscribe(controllers => {
       this.controllers = controllers;
       if (savedController) {
@@ -245,22 +245,22 @@ export class DatasourceConfigurationComponent implements OnInit {
 
   onControllerChange(controller: DBConnectionControllerInfoDto) {
     this.config.controller = controller;
-    
+
     // Vérifier si c'est une procédure stockée
     const wasStoredProcedure = this.isStoredProcedure;
     this.isStoredProcedure = controller?.route?.includes('/procedures/') ?? false;
-    
+
     // Réinitialiser les paramètres seulement si nécessaire
     if (this.isStoredProcedure || wasStoredProcedure) {
       this.config.procedureParameters = {};
       this.parametersList = [];
     }
-    
+
     // Si c'est une procédure stockée et qu'il y a un schéma de paramètres
     if (this.isStoredProcedure && controller?.parameterJsonSchema) {
       try {
         const paramSchema = JSON.parse(controller.parameterJsonSchema);
-        
+
         // Générer la liste des paramètres une seule fois
         if (paramSchema.properties) {
           this.parametersList = Object.entries(paramSchema.properties).map(([name, prop]: [string, any]) => {
@@ -281,16 +281,16 @@ export class DatasourceConfigurationComponent implements OnInit {
               pattern: prop.pattern
             };
           });
-          
+
           // Initialiser les paramètres avec des valeurs par défaut
           Object.entries(paramSchema.properties).forEach(([paramName, prop]: [string, any]) => {
             const defaultValue = prop.default !== undefined ? prop.default : null;
             const isDateType = prop.type === 'string' && (prop.format === 'date' || prop.format === 'date-time');
-            
+
             if (!this.config.procedureParameters) {
               this.config.procedureParameters = {};
             }
-            
+
             this.config.procedureParameters[paramName] = {
               value: defaultValue,
               dateType: isDateType ? 'specific' : undefined,
@@ -302,7 +302,7 @@ export class DatasourceConfigurationComponent implements OnInit {
         console.error('Erreur lors du parsing du schéma des paramètres:', error);
       }
     }
-    
+
     // Émettre les changements une seule fois
     this.configChange.emit(this.config);
     this.emitSchema();
@@ -312,7 +312,7 @@ export class DatasourceConfigurationComponent implements OnInit {
     this.config.context = context;
     const savedEntity = this.config.entity;
     this.loadEntities(context);
-    
+
     if (savedEntity) {
       this.cardDatabaseService.getDatasourceContextEntities(context).subscribe(
         entities => {
@@ -348,13 +348,13 @@ export class DatasourceConfigurationComponent implements OnInit {
     if (!this.config.procedureParameters?.[paramName]) {
       return;
     }
-    
+
     const paramValue = this.config.procedureParameters[paramName];
     paramValue.dateType = dateType as ParameterValue['dateType'];
-    
+
     if (dateType !== 'specific') {
       const date = new Date();
-      
+
       switch (dateType) {
         case 'today':
           break;
@@ -371,10 +371,10 @@ export class DatasourceConfigurationComponent implements OnInit {
           date.setFullYear(date.getFullYear() - 1);
           break;
       }
-      
+
       paramValue.value = date.toISOString().split('T')[0];
     }
-    
+
     this.emitChange(false);
   }
 
@@ -382,7 +382,7 @@ export class DatasourceConfigurationComponent implements OnInit {
     if (!this.config.procedureParameters) {
       this.config.procedureParameters = {};
     }
-    
+
     // Créer un nouvel objet ParameterValue si nécessaire
     if (!this.config.procedureParameters[paramName] || typeof this.config.procedureParameters[paramName] !== 'object') {
       this.config.procedureParameters[paramName] = {
@@ -390,10 +390,10 @@ export class DatasourceConfigurationComponent implements OnInit {
         userChangeAllowed: true
       };
     }
-    
+
     const target = event.target as HTMLInputElement;
     this.config.procedureParameters[paramName].userChangeAllowed = target.checked;
-    
+
     // Ne pas reformater les paramètres lors du changement de userChangeAllowed
     this.configChange.emit(this.config);
   }
@@ -474,7 +474,7 @@ export class DatasourceConfigurationComponent implements OnInit {
     if (!this.config.procedureParameters) {
       this.config.procedureParameters = {};
     }
-    
+
     // Créer un nouvel objet ParameterValue si nécessaire
     if (!this.config.procedureParameters[paramName] || typeof this.config.procedureParameters[paramName] !== 'object') {
       this.config.procedureParameters[paramName] = {
@@ -482,20 +482,20 @@ export class DatasourceConfigurationComponent implements OnInit {
         userChangeAllowed: true
       };
     }
-    
+
     // Mettre à jour la valeur
     this.config.procedureParameters[paramName].value = value;
-    
+
     // Valider le paramètre modifié
     this.validateParameters();
-    
+
     // Ne pas reformater les paramètres lors du changement de valeur
     this.configChange.emit(this.config);
   }
 
   private formatParameterValues(): Record<string, any> {
     const formattedParams: Record<string, any> = {};
-    
+
     if (!this.isStoredProcedure || !this.config.controller?.parameterJsonSchema || !this.config.procedureParameters) {
       return {};
     }
@@ -552,4 +552,4 @@ export class DatasourceConfigurationComponent implements OnInit {
       this.schemaChange.emit(schema);
     }
   }
-} 
+}

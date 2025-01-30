@@ -28,6 +28,11 @@ interface CardMetadataWithSafeIcon extends CardMetadata {
   ]
 })
 export class LayoutEditorComponent implements OnInit, OnDestroy {
+  constructor(
+    private cardService: CardService,
+    private sanitizer: DomSanitizer
+  ) {}
+
   @Input() set pageId(value: number | null) {
     if (value) {
       this._layout = {
@@ -47,7 +52,7 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   }
 
   set layout(value: LayoutDto) {
-    
+
 
     // Désérialiser les configurations des cartes
     const updatedLayout = {
@@ -55,15 +60,15 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
       rows: value.rows.map(row => ({
         ...row,
         cards: row.cards.map(card => {
-          const deserializedCard = this.cardService.deserializeCardConfig(card);
+          return card;
           // Préserver les valeurs des couleurs
-          return {
+          /*return {
             ...deserializedCard,
             backgroundColor: card.backgroundColor,
             textColor: card.textColor,
             headerTextColor: card.headerTextColor,
             headerBackgroundColor: card.headerBackgroundColor
-          };
+          };*/
         })
       }))
     };
@@ -89,10 +94,7 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
 
   availableCards: CardMetadataWithSafeIcon[] = [];
 
-  constructor(
-    private cardService: CardService,
-    private sanitizer: DomSanitizer
-  ) {}
+
 
   ngOnInit() {
     this.availableCards = this.cardService.getAvailableCards().map(card => ({
@@ -145,7 +147,7 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     this.isDraggingCard = false;
     this.isDraggingRowItem = false;
     this.isDraggingCardItem = false;
-    
+
     if (!event.dataTransfer) return;
 
     const type = event.dataTransfer.getData('text/plain');
@@ -171,36 +173,23 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     const row = this.layout.rows[rowIndex];
     const usedSpace = row.cards.reduce((total, card) => total + (card.gridWidth || 4), 0);
     const availableSpace = 12 - usedSpace;
-    
+
     if (availableSpace <= 0) return; // Pas d'espace disponible
 
     const cardType = event.cardType || 'label';
     const metadata = CardRegistry.getMetadata(cardType);
     const configuration = metadata?.defaultConfig?.();
 
-    const newCard: CardDto = {
-      id: this.nextCardId++,
-      type: cardType,
-      title: [{ languageCode: 'fr', value: 'Nouvelle carte' }],
-      order: row.cards.length,
-      gridWidth: availableSpace,
-      backgroundColor: hexToUint('#ffffff'),  // blanc
-      textColor: hexToUint('#000000'),       // noir
-      headerTextColor: hexToUint('#000000'), // noir
-      headerBackgroundColor: hexToUint('#f3f4f6'), // gris clair
-      rowId: event.rowId,
-      configuration: configuration,
-      displayHeader: true,
-      displayFooter: false,
-      icon: 'fa-solid fa-circle-plus'
-    };
+    const newCard: CardDto = this.cardService.createCard(cardType);
+    newCard.rowId = event.rowId;
+    newCard.gridWidth = availableSpace;
 
     const updatedRows = [...this.layout.rows];
     updatedRows[rowIndex] = {
       ...updatedRows[rowIndex],
       cards: [...updatedRows[rowIndex].cards, newCard]
     };
-    
+
     this.layout = {
       ...this.layout,
       rows: updatedRows
@@ -254,11 +243,9 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     const cardIndex = updatedRows[rowIndex].cards.findIndex(c => c.id === data.cardId);
     if (cardIndex === -1) return;
 
-    // S'assurer que la configuration est correctement sérialisée et que gridWidth est préservé
     const cardWithSerializedConfig = {
       ...updatedCard,
-      gridWidth: updatedCard.gridWidth || 12, // Assure que gridWidth est défini
-      configuration: updatedCard.configuration?.toJson()
+      gridWidth: updatedCard.gridWidth || 12
     };
 
     updatedRows[rowIndex] = {

@@ -31,5 +31,5 @@ export class CardConfigAdapterService {
     // as it extends BaseCardConfig
     return dto.configuration as T;
   }
-} 
+}
 

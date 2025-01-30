@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ApiService } from './api.service';
+import { ApiService } from '../services/api.service';
 import {
   DBConnectionDatabaseSchemaDto,
   DBConnectionDto,
@@ -56,4 +56,4 @@ export class CardDatabaseService {
   getDatabaseEndpoints(id: number, controller: string | null = null, targetTable: string | null = null, action: string | null = null): Observable<DBConnectionEndpointInfoDto[]> {
     return this.apiService.getDatabaseEndpoints(id, controller, targetTable, action);
   }
-} 
+}

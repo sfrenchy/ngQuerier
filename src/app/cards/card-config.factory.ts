@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BaseCardConfig, CardDto } from '@models/api.models';
 import { CardValidationService } from './card-validation.service';
+import { ValidationResult } from './validation/validation.models';
 
 @Injectable({
   providedIn: 'root'
@@ -10,14 +11,14 @@ export abstract class CardConfigFactory<T extends BaseCardConfig> {
 
   abstract createDefaultConfig(): T;
 
-  validateConfig(config: T): boolean {
+  validateConfig(config: T): ValidationResult {
     // Base validation
     if (!this.validationService.validateConfig(config)) {
-      return false;
+      return { isValid: false, errors: [] };
     }
 
     // Derived classes can add their own validations
-    return true;
+    return { isValid: true, errors: [] };
   }
 
   protected createBaseConfig(): CardDto {
@@ -37,4 +38,4 @@ export abstract class CardConfigFactory<T extends BaseCardConfig> {
       icon: ''  // Will be filled by component
     };
   }
-} 
+}

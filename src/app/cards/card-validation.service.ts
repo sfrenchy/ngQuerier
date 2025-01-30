@@ -10,9 +10,9 @@ export class CardValidationService {
     if (!config) return false;
 
     // Required fields validation
-    if (!config.toJson) {
-      return false;
-    }
+    // if (!config.toJson) {
+    //   return false;
+    // }
 
     return true;
   }
@@ -51,4 +51,4 @@ export class CardValidationService {
 
     return true;
   }
-} 
+}

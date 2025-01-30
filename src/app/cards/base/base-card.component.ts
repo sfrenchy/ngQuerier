@@ -110,4 +110,4 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
         console.warn(`No translations found for card type ${cardType}:`, error);
       });
   }
-} 
+}

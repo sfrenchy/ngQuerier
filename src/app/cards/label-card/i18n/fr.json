@@ -1,0 +1,17 @@
+{
+  "LABEL-CARD": {
+    "TEXT": "Texte",
+    "FONT-SIZE": "Taille de police",
+    "FONT-WEIGHT": "Style de police",
+    "TEXT-ALIGN": "Alignement du texte",
+    "ALIGN": {
+      "LEFT": "Gauche",
+      "CENTER": "Centre",
+      "RIGHT": "Droite"
+    },
+    "ERRORS": {
+      "TEXT_REQUIRED": "Le texte est requis",
+      "INVALID_FONT_SIZE": "La taille de police doit être comprise entre 8 et 72"
+    }
+  }
+}

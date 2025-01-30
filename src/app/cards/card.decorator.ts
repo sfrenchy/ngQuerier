@@ -1,13 +1,15 @@
 import { Type } from '@angular/core';
 import { CardRegistry } from '@cards/card.registry';
 import { BaseCardConfig } from '@models/api.models';
+import { CardConfigFactory } from '@services/card-config.factory';
 
 export interface CardMetadata {
   name: string;
   icon: string;
   configComponent: Type<any>;
-  configType: Type<any>;
-  defaultConfig: () => any;
+  configType: Type<BaseCardConfig>;
+  configFactory: Type<CardConfigFactory<BaseCardConfig>>;
+  defaultConfig: () => BaseCardConfig;
   translationPath: string;  // Path for translations
 }
 
@@ -19,8 +21,9 @@ export interface CardConfig {
   name: string;
   icon: string;
   configComponent: Type<any>;
-  configType: Type<any>;
-  defaultConfig: () => any;
+  configType: Type<BaseCardConfig>;
+  configFactory: Type<CardConfigFactory<BaseCardConfig>>;
+  defaultConfig: () => BaseCardConfig;
   translationPath: string;  // Path for translations
 }
 

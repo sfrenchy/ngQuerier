@@ -4,6 +4,7 @@ import { LabelCardConfigurationComponent } from './label-card-configuration.comp
 import { BaseCardConfig } from '@models/api.models';
 import { BaseCardComponent } from '@cards/base/base-card.component';
 import { CommonModule } from '@angular/common';
+import { LabelCardConfigFactory } from './label-card.factory';
 
 export class LabelCardConfig extends BaseCardConfig {
   constructor(public label: string) {
@@ -28,6 +29,7 @@ export class LabelCardConfig extends BaseCardConfig {
   </svg>`,
   configComponent: LabelCardConfigurationComponent,
   configType: LabelCardConfig,
+  configFactory: LabelCardConfigFactory,
   defaultConfig: () => new LabelCardConfig('Label'),
   translationPath: 'label-card'
 })

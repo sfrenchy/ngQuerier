@@ -1,17 +1,7 @@
-import { BaseCardConfig, CardDto } from './api.models';
+import { BaseCardConfig, CardDto, TranslatableString } from './api.models';
 import { DatasourceConfig } from './datasource.models';
 import { ChartParameters } from './parameters.models';
 import { ChartVisualConfig, BaseChartConfig } from './chart.models';
-
-// Card-specific interfaces
-export interface ILabelCardConfig extends BaseCardConfig {
-  content: {
-    text: string;
-    fontSize?: number;
-    fontWeight?: string;
-    textAlign?: 'left' | 'center' | 'right';
-  };
-}
 
 export interface IDataTableCardConfig extends BaseCardConfig {
   dataConfig: DatasourceConfig;

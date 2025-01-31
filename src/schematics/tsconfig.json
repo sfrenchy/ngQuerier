@@ -10,7 +10,7 @@
     "noImplicitAny": true,
     "noImplicitThis": true,
     "noUnusedParameters": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "rootDir": ".",
     "outDir": "../../dist/schematics",
     "skipDefaultLibCheck": true,
@@ -21,5 +21,5 @@
     "types": ["node"]
   },
   "include": ["**/*"],
-  "exclude": ["*/files/**/*"]
+  "exclude": []
 }

@@ -13,29 +13,28 @@ import {
 } from '@angular-devkit/schematics';
 import { strings, normalize } from '@angular-devkit/core';
 import { Schema } from './schema';
+import { files } from './files';
 
 export function card(_options: Schema): Rule {
   return (tree: Tree, _context: SchematicContext) => {
+    console.log('Available templates:', files);
+
     const sourceTemplates = url('./files');
+    console.log('Source templates:', sourceTemplates);
+
     const sourceParametrizedTemplates = apply(sourceTemplates, [
       template({
         ..._options,
         ...strings,
       }),
       forEach((entry: FileEntry) => {
-        // Log pour debug
         console.log('Processing file:', entry.path);
-
-        // Ne pas filtrer les fichiers, traiter tous les templates
-        if (entry.path.endsWith('.template')) {
-          const newPath = entry.path.replace('.template', '');
-          console.log('New path:', newPath);
-          return {
-            ...entry,
-            path: normalize(newPath)
-          };
-        }
-        return entry;
+        const newPath = entry.path.replace('.template', '');
+        console.log('New path:', newPath);
+        return {
+          ...entry,
+          path: normalize(newPath)
+        };
       }),
       move(`src/app/cards/${strings.dasherize(_options.name)}-card`)
     ]);

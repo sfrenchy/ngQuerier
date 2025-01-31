@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, OnInit, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CardDto, BaseCardConfig } from '@models/api.models';
-import { uintToHex } from '../shared/utils/color.utils';
+import { uintToHex } from '../../shared/utils/color.utils';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -110,4 +110,4 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
         console.warn(`No translations found for card type ${cardType}:`, error);
       });
   }
-} 
+}

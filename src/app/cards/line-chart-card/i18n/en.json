@@ -42,10 +42,13 @@
         }
       },
       "VALIDATION": {
+        "INVALID_DATASOURCE": "Invalid datasource configuration",
         "REQUIRED_X_AXIS": "X axis column is required",
         "REQUIRED_SERIES": "At least one series is required",
         "REQUIRED_SERIES_NAME": "Series name is required",
-        "REQUIRED_SERIES_COLUMN": "Series column is required"
+        "REQUIRED_SERIES_COLUMN": "Series data column is required",
+        "INVALID_SYMBOL_SIZE": "Symbol size must be greater than 0",
+        "INVALID_AREA_OPACITY": "Area opacity must be between 0 and 1"
       }
     },
     "OPTIONS": "Chart Options",
@@ -113,4 +116,4 @@
       "LAST_YEAR": "Last year"
     }
   }
-} 
+}

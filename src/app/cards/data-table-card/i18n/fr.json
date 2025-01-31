@@ -27,6 +27,14 @@
       "DESELECT_ALL": "Tout désélectionner"
     },
     "LOADING": "Chargement...",
-    "ACTIONS": "Actions"
+    "ACTIONS": "Actions",
+    "ERRORS": {
+      "INVALID_DATASOURCE": "Configuration de la source de données invalide",
+      "COLUMN_KEY_REQUIRED": "La clé de colonne est requise",
+      "INVALID_DECIMALS": "Nombre de décimales invalide",
+      "INVALID_HEADER_BG_COLOR": "Couleur de fond d'en-tête invalide",
+      "INVALID_ROW_BG_COLOR": "Couleur de fond de ligne invalide",
+      "CRUD_REQUIRES_DATASOURCE": "Les opérations CRUD nécessitent une source de données valide"
+    }
   }
-} 
+}

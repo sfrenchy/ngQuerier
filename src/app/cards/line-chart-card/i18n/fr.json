@@ -42,10 +42,13 @@
         }
       },
       "VALIDATION": {
+        "INVALID_DATASOURCE": "Configuration de la source de données invalide",
         "REQUIRED_X_AXIS": "La colonne de l'axe X est requise",
         "REQUIRED_SERIES": "Au moins une série est requise",
         "REQUIRED_SERIES_NAME": "Le nom de la série est requis",
-        "REQUIRED_SERIES_COLUMN": "La colonne de données est requise"
+        "REQUIRED_SERIES_COLUMN": "La colonne de données de la série est requise",
+        "INVALID_SYMBOL_SIZE": "La taille des symboles doit être supérieure à 0",
+        "INVALID_AREA_OPACITY": "L'opacité de la zone doit être comprise entre 0 et 1"
       }
     },
     "OPTIONS": "Options du graphique",
@@ -105,4 +108,4 @@
       "LAST_YEAR": "Il y a un an"
     }
   }
-} 
+}

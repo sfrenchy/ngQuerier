@@ -1,16 +1,18 @@
-import { Component, EventEmitter, Input, OnInit, Output, Type, ViewChild, ViewContainerRef, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, Type, ViewChild, ViewContainerRef, AfterViewInit, OnDestroy, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { CardDto, RowDto } from '@models/api.models';
 import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
 import { TileComponent } from '@shared/components/tile/tile.component';
-import { CardRegistry } from './card.registry';
-import { hexToUint, uintToHex } from '../shared/utils/color.utils';
+import { CardRegistry } from '../card.registry';
+import { hexToUint, uintToHex } from '../../shared/utils/color.utils';
 import { IconSelectorComponent } from '@shared/components/icon-selector/icon-selector.component';
-import { CardDatabaseService } from '../services/card-database.service';
+import { CardDatabaseService } from '../card-database.service';
 import { ChartVisualConfig } from '@models/chart.models';
 import { ChartVisualConfigurationComponent } from '@shared/components/chart-visual-configuration/chart-visual-configuration.component';
 import { TranslateModule } from '@ngx-translate/core';
+import { CardConfigFactory } from '../card-config.factory';
+import { ValidationError } from '../validation/validation.models';
 
 @Component({
   selector: 'app-base-card-configuration',
@@ -72,10 +74,14 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
   form!: FormGroup;
   cardConfigComponent?: Type<any>;
   private colorFields = ['backgroundColor', 'textColor', 'headerTextColor', 'headerBackgroundColor'];
+  private cardConfigFactory?: CardConfigFactory<any>;
+  validationErrors: ValidationError[] = [];
+  private componentRef?: any;
 
   constructor(
     private fb: FormBuilder,
-    protected cardDatabaseService: CardDatabaseService
+    protected cardDatabaseService: CardDatabaseService,
+    private injector: Injector
   ) {}
 
   ngOnInit() {
@@ -108,24 +114,26 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
     const metadata = CardRegistry.getMetadata(this.card.type);
     if (metadata) {
       this.cardConfigComponent = metadata.configComponent;
+      this.cardConfigFactory = this.injector.get(metadata.configFactory);
     }
   }
 
   ngAfterViewInit() {
     if (this.cardConfigComponent && this.configContainer) {
-      // Créer le composant de configuration
-      const componentRef = this.configContainer.createComponent(this.cardConfigComponent);
-      
+      // Stocker la référence du composant
+      this.componentRef = this.configContainer.createComponent(this.cardConfigComponent);
+
       // Définir les inputs
-      componentRef.setInput('card', this.card);
-     
+      this.componentRef.setInput('card', this.card);
+      this.componentRef.setInput('validationErrors', this.validationErrors);
+
       // S'abonner aux outputs
-      componentRef.instance.save?.subscribe((configuration: any) => {
+      this.componentRef.instance.save?.subscribe((configuration: any) => {
         this.onCardConfigSave(configuration);
       });
 
       // S'abonner aux changements en temps réel
-      componentRef.instance.configChange?.subscribe((configuration: any) => {
+      this.componentRef.instance.configChange?.subscribe((configuration: any) => {
         this.card = {
           ...this.card,
           configuration
@@ -147,12 +155,12 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
   onColorTextInput(event: Event, controlName: string) {
     const input = event.target as HTMLInputElement;
     let value = input.value.trim();
-    
+
     // Add # if missing
     if (value && !value.startsWith('#')) {
       value = '#' + value;
     }
-    
+
     // Validate hex format
     if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
       this.form.patchValue({ [controlName]: value }, { emitEvent: false });
@@ -181,7 +189,13 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
         ...baseProperties
       };
 
-      this.save.emit(updatedCard);
+      // Valider avec la factory si elle existe
+      if (!this.cardConfigFactory || this.validateCard(updatedCard)) {
+        this.save.emit(updatedCard);
+      } else {
+        console.error('Card configuration validation failed');
+        // Optionnellement, afficher un message à l'utilisateur
+      }
     }
   }
 
@@ -191,7 +205,7 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
 
   onCardConfigSave(configuration: any) {
     const newConfig = configuration.toJson();
-    
+
     // Ne pas inclure les propriétés de base dans la configuration
     const updatedCard: CardDto = {
       ...this.card,
@@ -212,7 +226,7 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
     const usedSpace = this.row.cards
       .filter(c => c.id !== this.card.id) // Exclure la carte en cours d'édition
       .reduce((total, card) => total + (card.gridWidth || 4), 0);
-    
+
     // La largeur maximale est l'espace disponible dans la ligne
     this.maxAvailableWidth = 12 - usedSpace;
     return this.maxAvailableWidth;
@@ -226,7 +240,48 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
     this.visualConfigChange.emit(config);
   }
 
+  validateCard(card: CardDto): boolean {
+    // Réinitialiser les erreurs
+    this.validationErrors = [];
+
+    const result = this.cardConfigFactory?.validateConfig(card.configuration);
+    if (result) {
+      this.validationErrors = result.errors;
+      this.applyValidationErrorsToForm();
+      return result.isValid;
+    }
+    return true;
+  }
+
+  private applyValidationErrorsToForm() {
+    // Reset form errors
+    Object.keys(this.form.controls).forEach(key => {
+      this.form.get(key)?.setErrors(null);
+    });
+
+    // Apply new errors
+    this.validationErrors.forEach(error => {
+      if (error.controlPath) {
+        const control = this.form.get(error.controlPath);
+        if (control) {
+          const errors = control.errors || {};
+          errors[error.code] = true;
+          control.setErrors(errors);
+        }
+      }
+    });
+
+    // Transmettre les erreurs au composant enfant
+    if (this.componentRef) {
+      this.componentRef.setInput('validationErrors', this.validationErrors);
+    }
+  }
+
+  getControlErrors(controlPath: string): ValidationError[] {
+    return this.validationErrors.filter(error => error.controlPath === controlPath);
+  }
+
   ngOnDestroy() {
     // Clean up any subscriptions or resources if needed
   }
-} 
+}

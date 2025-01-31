@@ -1,6 +1,10 @@
 import { Type } from '@angular/core';
 import { RegisteredCardMetadata } from './card.decorator';
+import { Injectable } from '@angular/core';
 
+@Injectable({
+  providedIn: 'root'
+})
 export class CardRegistry {
   private static registry = new Map<string, RegisteredCardMetadata>();
 
@@ -15,4 +19,4 @@ export class CardRegistry {
   static getAllCards(): RegisteredCardMetadata[] {
     return Array.from(this.registry.values());
   }
-} 
+}

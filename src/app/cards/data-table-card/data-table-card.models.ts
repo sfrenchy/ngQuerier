@@ -120,7 +120,7 @@ export class DataTableCardConfig extends BaseCardConfig {
     }
     return config;
   }
-} 
+}
 
 export interface DataState {
   items: any[];

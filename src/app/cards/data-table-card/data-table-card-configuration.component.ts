@@ -10,8 +10,9 @@ import { DatasourceConfigurationComponent } from '@shared/components/datasource-
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DataTableCardService } from './data-table-card.service';
-import { CardDatabaseService } from '@services/card-database.service';
+import { CardDatabaseService } from '@cards/card-database.service';
 import { ChangeDetectorRef } from '@angular/core';
+import { ValidationError } from '@cards/validation/validation.models';
 
 @Component({
   selector: 'app-data-table-card-configuration',
@@ -29,7 +30,15 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   @Input() card!: CardDto<DataTableCardConfig>;
   @Output() save = new EventEmitter<DataTableCardConfig>();
   @Output() configChange = new EventEmitter<DataTableCardConfig>();
-
+  @Input() set validationErrors(errors: ValidationError[]) {
+    this._validationErrors = errors;
+    this.updateErrorMessages();
+  }
+  get validationErrors(): ValidationError[] {
+    return this._validationErrors;
+  }
+  private _validationErrors: ValidationError[] = [];
+  errorMessages: { [key: string]: string } = {};
   form: FormGroup;
   jsonSchema: string | null = null;
   columns: ColumnConfig[] = [];
@@ -194,7 +203,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
   onDrop(event: DragEvent, targetIndex: number) {
     event.preventDefault();
-    
+
     if (this.draggedColumnIndex === null || this.draggedColumnIndex === targetIndex) {
       return;
     }
@@ -206,7 +215,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
     // Mettre à jour le formulaire
     this.form.patchValue({ columns: this.columns }, { emitEvent: true });
-    
+
     this.draggedColumnIndex = null;
   }
 
@@ -236,7 +245,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     const button = event.currentTarget as HTMLButtonElement;
     const alignment = button.dataset['alignment'] as 'left' | 'center' | 'right';
-    
+
     if (alignment) {
       this.columns[index].alignment = alignment;
       this.form.patchValue({ columns: this.columns }, { emitEvent: true });
@@ -253,27 +262,27 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   handleColumnVisibilityChange(index: number, event: Event) {
     this.onCheckboxChange(event, (checked) => {
       this.columns[index].visible = checked;
-      
+
       // Si on cache une colonne fixe, on doit mettre à jour l'état des colonnes fixes
       if (!checked && this.columns[index].isFixed) {
         this.columns[index].isFixed = false;
-        
+
         // Vérifier si les colonnes suivantes peuvent rester fixes
         const visibleColumns = this.columns.filter(c => c.visible);
         let shouldUnfix = true;
-        
+
         for (const column of this.columns) {
           if (column === this.columns[index]) {
             shouldUnfix = true;
             continue;
           }
-          
+
           if (shouldUnfix && column.isFixed) {
             column.isFixed = false;
           }
         }
       }
-      
+
       this.form.patchValue({ columns: this.columns }, { emitEvent: true });
     });
   }
@@ -288,13 +297,13 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   canBeFixed(index: number): boolean {
     const visibleColumns = this.columns.filter(c => c.visible);
     const currentVisibleIndex = visibleColumns.findIndex(c => c === this.columns[index]);
-    
+
     // Si la colonne n'est pas visible, elle ne peut pas être fixée
     if (currentVisibleIndex === -1) return false;
-    
+
     // La première colonne visible peut toujours être fixée
     if (currentVisibleIndex === 0) return true;
-    
+
     // Pour les autres colonnes visibles, vérifier si toutes les colonnes visibles précédentes sont fixées
     for (let i = 0; i < currentVisibleIndex; i++) {
       if (!visibleColumns[i].isFixed) {
@@ -307,13 +316,13 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   canBeFixedRight(index: number): boolean {
     const visibleColumns = this.columns.filter(c => c.visible);
     const currentVisibleIndex = visibleColumns.findIndex(c => c === this.columns[index]);
-    
+
     // Si la colonne n'est pas visible, elle ne peut pas être fixée
     if (currentVisibleIndex === -1) return false;
-    
+
     // La dernière colonne visible peut toujours être fixée
     if (currentVisibleIndex === visibleColumns.length - 1) return true;
-    
+
     // Pour les autres colonnes visibles, vérifier si toutes les colonnes visibles suivantes sont fixées à droite
     for (let i = visibleColumns.length - 1; i > currentVisibleIndex; i--) {
       if (!visibleColumns[i].isFixedRight) {
@@ -332,7 +341,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
       const visibleColumns = this.columns.filter(c => c.visible);
       const currentVisibleIndex = visibleColumns.findIndex(c => c === this.columns[index]);
-      
+
       // Si on désactive une colonne fixe, on désactive aussi toutes les colonnes visibles suivantes
       if (!checked) {
         for (let i = currentVisibleIndex; i < visibleColumns.length; i++) {
@@ -343,7 +352,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         // Si on fixe une colonne à gauche, on s'assure qu'elle n'est pas fixée à droite
         this.columns[index].isFixedRight = false;
       }
-      
+
       this.form.patchValue({ columns: this.columns }, { emitEvent: true });
     });
   }
@@ -357,7 +366,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
       const visibleColumns = this.columns.filter(c => c.visible);
       const currentVisibleIndex = visibleColumns.findIndex(c => c === this.columns[index]);
-      
+
       // Si on désactive une colonne fixe à droite, on désactive aussi toutes les colonnes visibles précédentes
       if (!checked) {
         for (let i = currentVisibleIndex; i >= 0; i--) {
@@ -368,7 +377,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         // Si on fixe une colonne à droite, on s'assure qu'elle n'est pas fixée à gauche
         this.columns[index].isFixed = false;
       }
-      
+
       this.form.patchValue({ columns: this.columns }, { emitEvent: true });
     });
   }
@@ -443,7 +452,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
   getForeignKeyTables(): string[] {
     if (!this.columns) return [];
-    
+
     const tables = new Set<string>();
     this.columns.forEach(column => {
       if (column.entityMetadata?.isForeignKey && column.entityMetadata?.foreignKeyTable) {
@@ -529,11 +538,11 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         const isNotCollection = !metadata?.isCollection;
         const isNotPrimaryKey = !metadata?.isPrimaryKey;
         const isNotForeignKey = !metadata?.isForeignKey;
-        
+
         return isNotNavigation && isNotCollection && isNotPrimaryKey && isNotForeignKey;
       })
       .map(([key]) => key);
-    
+
     return columns;
   }
 
@@ -545,14 +554,14 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   private ensureForeignKeyConfig(table: string): ForeignKeyDisplayConfig {
     const currentConfig = this.form.getRawValue().crudConfig || {};
     const foreignKeyConfigs = currentConfig.foreignKeyConfigs || {};
-    
+
     if (!foreignKeyConfigs[table]) {
       foreignKeyConfigs[table] = {
         table,
         displayColumns: [],
         searchColumns: []
       };
-      
+
       this.form.patchValue({
         crudConfig: {
           ...currentConfig,
@@ -560,35 +569,35 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         }
       });
     }
-    
+
     return foreignKeyConfigs[table];
   }
 
   toggleDisplayColumn(table: string, column: string) {
     const config = this.ensureForeignKeyConfig(table);
     const index = config.displayColumns.indexOf(column);
-    
+
     if (index === -1) {
       config.displayColumns.push(column);
     } else {
       config.displayColumns.splice(index, 1);
     }
-    
+
     this.updateForeignKeyConfig(table, config);
   }
 
   toggleSearchColumn(table: string, column: string) {
     const config = this.ensureForeignKeyConfig(table);
     if (!config.searchColumns) config.searchColumns = [];
-    
+
     const index = config.searchColumns.indexOf(column);
-    
+
     if (index === -1) {
       config.searchColumns.push(column);
     } else {
       config.searchColumns.splice(index, 1);
     }
-    
+
     this.updateForeignKeyConfig(table, config);
   }
 
@@ -615,7 +624,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       ...currentConfig.foreignKeyConfigs,
       [table]: config
     };
-    
+
     this.form.patchValue({
       crudConfig: {
         ...currentConfig,
@@ -674,24 +683,24 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         const config = rawConfig as ForeignKeyDisplayConfig;
         if (config.showInTable) {
           // Trouver la colonne de clé étrangère correspondante
-          const foreignKeyColumn = this.columns.find(col => 
-            col.entityMetadata?.isForeignKey && 
+          const foreignKeyColumn = this.columns.find(col =>
+            col.entityMetadata?.isForeignKey &&
             col.entityMetadata?.foreignKeyTable === table
           );
 
           if (foreignKeyColumn) {
             const virtualColumnKey = `${foreignKeyColumn.key}_display`;
             // Récupérer l'état précédent de la colonne virtuelle
-            const existingVirtualColumn = virtualColumnsState.get(foreignKeyColumn.key) || 
+            const existingVirtualColumn = virtualColumnsState.get(foreignKeyColumn.key) ||
                                        (existingColumnsMap?.get(virtualColumnKey));
 
             // Créer une colonne virtuelle
             const virtualColumn: ColumnConfig = {
               key: virtualColumnKey,
               type: 'string',
-              label: { 
-                en: `${table}`, 
-                fr: `${table}` 
+              label: {
+                en: `${table}`,
+                fr: `${table}`
               },
               alignment: 'left',
               visible: existingVirtualColumn ? existingVirtualColumn.visible : true, // Par défaut visible
@@ -710,4 +719,13 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     // Mettre à jour le formulaire
     this.form.patchValue({ columns: this.columns }, { emitEvent: true });
   }
-} 
+
+  private updateErrorMessages() {
+    this.errorMessages = {};
+    this._validationErrors.forEach(error => {
+      if (error.controlPath) {
+        this.errorMessages[error.controlPath] = error.message;
+      }
+    });
+  }
+}

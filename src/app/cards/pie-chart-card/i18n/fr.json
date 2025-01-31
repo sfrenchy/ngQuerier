@@ -14,6 +14,12 @@
     "BACKGROUND_COLOR": "Couleur de fond",
     "TEXT_COLOR": "Couleur du texte",
     "SHOW_LEGEND": "Afficher la légende",
-    "SHOW_TOOLTIP": "Afficher l'infobulle"
+    "SHOW_TOOLTIP": "Afficher l'infobulle",
+    "VALIDATION": {
+      "INVALID_DATASOURCE": "Configuration de la source de données invalide",
+      "REQUIRED_LABEL_COLUMN": "La colonne des étiquettes est requise",
+      "REQUIRED_VALUE_COLUMN": "La colonne des valeurs est requise",
+      "INVALID_RADIUS": "Le rayon doit être un pourcentage valide (ex: '75%')"
+    }
   }
-} 
+}

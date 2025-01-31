@@ -2,13 +2,15 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { Card } from '@cards/card.decorator';
-import { BaseChartCard } from '@cards/base-chart-card.component';
+import { BaseChartCard } from '@cards/base/base-chart-card.component';
 import { StackedBarAndLinesChartCardConfig, BarSeriesConfig, LineSeriesConfig } from './stacked-bar-and-lines-chart.models';
 import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
-import { BaseCardComponent } from '@cards/base-card.component';
 import { StackedBarAndLinesChartConfigurationComponent } from './stacked-bar-and-lines-chart-configuration.component';
-import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 import { RequestParametersService } from '@shared/services/request-parameters.service';
+import { BaseCardComponent } from '@cards/base/base-card.component';
+import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { StackedBarAndLinesChartConfigFactory } from './stacked-bar-and-lines-chart.factory';
 
 @Card({
   name: 'StackedBarAndLinesChart',
@@ -17,15 +19,16 @@ import { RequestParametersService } from '@shared/services/request-parameters.se
     <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
   </svg>`,
   configComponent: StackedBarAndLinesChartConfigurationComponent,
-  configType: StackedBarAndLinesChartCardConfig,
+  configFactory: StackedBarAndLinesChartConfigFactory,
   defaultConfig: () => new StackedBarAndLinesChartCardConfig()
 })
 @Component({
   selector: 'app-stacked-bar-and-lines-chart',
-  templateUrl: '../base-chart-card.component.html',
+  templateUrl: '../base/base-chart-card.component.html',
   standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
-    CommonModule, 
+    CommonModule,
     TranslateModule,
     BaseCardComponent,
     ChartParametersFooterComponent
@@ -108,7 +111,7 @@ export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAn
       areaStyle: seriesConfig.areaStyle,
       smooth: seriesConfig.type === 'smooth'
     }));
-    
+
     this.chartOptions = {
       ...this.chartOptions,
       xAxis: {
@@ -146,7 +149,7 @@ export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAn
         return this.formatDate(date, format);
       }
     }
-    
+
     return value;
   }
 
@@ -166,4 +169,4 @@ export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAn
         return date.toLocaleDateString();
     }
   }
-} 
+}

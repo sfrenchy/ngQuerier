@@ -1,13 +1,14 @@
 import { Type } from '@angular/core';
 import { CardRegistry } from '@cards/card.registry';
 import { BaseCardConfig } from '@models/api.models';
+import { CardConfigFactory } from '@cards/card-config.factory';
 
 export interface CardMetadata {
   name: string;
   icon: string;
   configComponent: Type<any>;
-  configType: Type<any>;
-  defaultConfig: () => any;
+  configFactory: Type<CardConfigFactory<BaseCardConfig>>;
+  defaultConfig: () => BaseCardConfig;
   translationPath: string;  // Path for translations
 }
 
@@ -19,8 +20,9 @@ export interface CardConfig {
   name: string;
   icon: string;
   configComponent: Type<any>;
-  configType: Type<any>;
-  defaultConfig: () => any;
+  configType: Type<BaseCardConfig>;
+  configFactory: Type<CardConfigFactory<BaseCardConfig>>;
+  defaultConfig: () => BaseCardConfig;
   translationPath: string;  // Path for translations
 }
 
@@ -48,4 +50,4 @@ export function Card(metadata: CardMetadata): ClassDecorator {
 // Fonction pour récupérer tous les composants décorés
 export function getRegisteredCards(): Type<any>[] {
   return [...cardRegistry]; // Retourne une copie pour éviter les modifications externes
-} 
+}

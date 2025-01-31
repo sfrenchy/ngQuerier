@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { Card } from '@cards/card.decorator';
 import { LineChartCardConfigurationComponent } from './line-chart-card-configuration.component';
-import { BaseChartCard } from '@cards/base-chart-card.component';
+import { BaseChartCard } from '@cards/base/base-chart-card.component';
 import { LineChartCardConfig, SeriesConfig } from './line-chart-card.models';
 import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
-import { BaseCardComponent } from '@cards/base-card.component';
-import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 import { RequestParametersService } from '@shared/services/request-parameters.service';
+import { LineChartCardConfigFactory } from './line-chart-card.factory';
+import { BaseCardComponent } from '@cards/base/base-card.component';
+import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 
 @Card({
   name: 'LineChart',
@@ -18,15 +19,15 @@ import { RequestParametersService } from '@shared/services/request-parameters.se
     <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
   </svg>`,
   configComponent: LineChartCardConfigurationComponent,
-  configType: LineChartCardConfig,
+  configFactory: LineChartCardConfigFactory,
   defaultConfig: () => new LineChartCardConfig()
 })
 @Component({
   selector: 'app-line-chart-card',
-  templateUrl: '../base-chart-card.component.html',
+  templateUrl: '../base/base-chart-card.component.html',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     TranslateModule,
     BaseCardComponent,
     ChartParametersFooterComponent
@@ -95,7 +96,7 @@ export class LineChartCardComponent extends BaseChartCard<LineChartCardConfig> {
       areaStyle: seriesConfig.areaStyle,
       smooth: seriesConfig.type === 'smooth'
     }));
-    
+
     this.chartOptions = {
       ...this.chartOptions,
       xAxis: {
@@ -126,7 +127,7 @@ export class LineChartCardComponent extends BaseChartCard<LineChartCardConfig> {
         return this.formatDate(date, format);
       }
     }
-    
+
     return value;
   }
 
@@ -146,4 +147,4 @@ export class LineChartCardComponent extends BaseChartCard<LineChartCardConfig> {
         return date.toLocaleDateString();
     }
   }
-} 
+}

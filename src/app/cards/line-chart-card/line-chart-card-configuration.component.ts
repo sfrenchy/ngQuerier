@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LineChartCardConfig, SeriesConfig } from './line-chart-card.models';
 import { DatasourceConfig } from '@models/datasource.models';
+import { ValidationError } from '@cards/validation/validation.models';
 
 @Component({
   selector: 'app-line-chart-card-configuration',
@@ -25,8 +26,18 @@ import { DatasourceConfig } from '@models/datasource.models';
 })
 export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
   @Input() card!: CardDto<LineChartCardConfig>;
+  @Input() set validationErrors(errors: ValidationError[]) {
+    this._validationErrors = errors;
+    this.updateErrorMessages();
+  }
+  get validationErrors(): ValidationError[] {
+    return this._validationErrors;
+  }
   @Output() save = new EventEmitter<LineChartCardConfig>();
   @Output() configChange = new EventEmitter<LineChartCardConfig>();
+
+  private _validationErrors: ValidationError[] = [];
+  errorMessages: { [key: string]: string } = {};
 
   form: FormGroup;
   jsonSchema: string | null = null;
@@ -139,14 +150,14 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
   handleSeriesChange(index: number, property: keyof SeriesConfig, event: Event) {
     const series = this.form.get('series')?.value || [];
     let value: any;
-    
+
     if (event instanceof Event) {
       const target = event.target as HTMLInputElement;
       value = target.type === 'checkbox' ? (target as HTMLInputElement).checked : target.value;
     } else {
       value = event;
     }
-    
+
     series[index] = {
       ...series[index],
       [property]: value
@@ -159,7 +170,7 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
     const target = event.target as HTMLInputElement;
     const opacity = parseFloat(target.value);
     const series = this.form.get('series')?.value || [];
-    
+
     series[index] = {
       ...series[index],
       areaStyle: {
@@ -181,4 +192,29 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
   }
-} 
+
+  private updateErrorMessages() {
+    this.errorMessages = {};
+    this._validationErrors.forEach(error => {
+      if (error.controlPath) {
+        this.errorMessages[error.controlPath] = error.message;
+      }
+    });
+  }
+
+  hasError(controlPath: string): boolean {
+    return !!this.errorMessages[controlPath];
+  }
+
+  hasSeriesErrors(index: number): boolean {
+    return Object.keys(this.errorMessages).some(key => key.startsWith(`series.${index}`));
+  }
+
+  getSeriesErrorKey(index: number, field: string): string {
+    return `series.${index}.${field}`;
+  }
+
+  hasSeriesError(index: number, field: string): boolean {
+    return !!this.errorMessages[this.getSeriesErrorKey(index, field)];
+  }
+}

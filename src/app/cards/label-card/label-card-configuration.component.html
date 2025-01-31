@@ -1,13 +1,60 @@
-<form [formGroup]="form">
-  <div class="mb-4">
-    <label class="block text-gray-700 text-sm font-bold mb-2" for="label">
-      Label
+<form [formGroup]="form" class="space-y-6">
+  <!-- Text translations -->
+  <div>
+    <label class="block text-sm font-medium text-gray-200 mb-2">
+      {{ 'LABEL-CARD.TEXT' | translate }}
+    </label>
+    <app-translatable-string-form formControlName="text"></app-translatable-string-form>
+    <div *ngFor="let error of getControlErrors('text')"
+         class="mt-1 text-sm text-red-500">
+      {{ error.message | translate }}
+    </div>
+  </div>
+
+  <!-- Font size -->
+  <div>
+    <label class="block text-sm font-medium text-gray-200 mb-2" for="fontSize">
+      {{ 'LABEL-CARD.FONT-SIZE' | translate }}
     </label>
     <input
-      id="label"
-      type="text"
-      formControlName="label"
-      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      id="fontSize"
+      type="number"
+      formControlName="fontSize"
+      class="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      min="8"
+      max="72"
     >
+  </div>
+
+  <!-- Font weight -->
+  <div>
+    <label class="block text-sm font-medium text-gray-200 mb-2" for="fontWeight">
+      {{ 'LABEL-CARD.FONT-WEIGHT' | translate }}
+    </label>
+    <select
+      id="fontWeight"
+      formControlName="fontWeight"
+      class="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+      <option value="normal">Normal</option>
+      <option value="bold">Bold</option>
+      <option value="lighter">Light</option>
+    </select>
+  </div>
+
+  <!-- Text align -->
+  <div>
+    <label class="block text-sm font-medium text-gray-200 mb-2" for="textAlign">
+      {{ 'LABEL-CARD.TEXT-ALIGN' | translate }}
+    </label>
+    <select
+      id="textAlign"
+      formControlName="textAlign"
+      class="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+      <option value="left">{{ 'LABEL-CARD.ALIGN.LEFT' | translate }}</option>
+      <option value="center">{{ 'LABEL-CARD.ALIGN.CENTER' | translate }}</option>
+      <option value="right">{{ 'LABEL-CARD.ALIGN.RIGHT' | translate }}</option>
+    </select>
   </div>
 </form>

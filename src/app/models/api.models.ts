@@ -278,7 +278,7 @@ export interface BaseCardProperties {
 }
 
 export abstract class BaseCardConfig {
-  abstract toJson(): any;
+  // abstract toJson(): any;
 }
 
 export class PlaceholderCardConfig extends BaseCardConfig {
@@ -321,7 +321,7 @@ export type CardConfigFactory<T extends BaseCardConfig> = (json: any) => T;
 
 // Fonction utilitaire pour mapper une CardDto depuis le JSON de l'API
 export function mapCardFromApi<T extends BaseCardConfig>(
-  jsonData: any, 
+  jsonData: any,
   configFactory: CardConfigFactory<T>
 ): CardDto<T> {
   return {
@@ -344,7 +344,7 @@ export function mapCardFromApi<T extends BaseCardConfig>(
 
 // Fonction utilitaire pour mapper un tableau de CardDto depuis le JSON de l'API
 export function mapCardsFromApi<T extends BaseCardConfig>(
-  jsonData: any[], 
+  jsonData: any[],
   configFactory: CardConfigFactory<T>
 ): CardDto<T>[] {
   return jsonData.map(card => mapCardFromApi<T>(card, configFactory));
@@ -358,7 +358,7 @@ export function mapCardToApi<T extends BaseCardConfig>(card: CardDto<T>): any {
   // Retourner l'objet avec la configuration spécifique séparée
   return {
     ...baseProperties,
-    configuration: configuration?.toJson() // toJson() ne retourne que les propriétés spécifiques
+    configuration: JSON.stringify(configuration) // toJson() ne retourne que les propriétés spécifiques
   };
 }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, Output, EventEmitter, Renderer2 } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, Output, EventEmitter, Renderer2, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
@@ -6,7 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subject, Subscription, Observable, from, of, forkJoin, mergeMap, tap, catchError, EMPTY } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil, map, mergeAll, toArray } from 'rxjs/operators';
 import { Card } from '@cards/card.decorator';
-import { BaseCardComponent } from '@cards/base-card.component';
+import { BaseCardComponent } from '@cards/base/base-card.component';
 import { DataTableCardService } from './data-table-card.service';
 import { ColumnFilterPopoverComponent } from './column-filter-popover.component';
 import { DataTableCardConfigurationComponent } from './data-table-card-configuration.component';
@@ -19,6 +19,8 @@ import { FormDataSubmitWithId } from './data-table-card.service';
 import { ForeignKeyService } from './foreign-key.service';
 import { TableStateService } from './table-state.service';
 import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
+import { DataTableCardConfigFactory } from './data-table-card.factory';
+import { ValidationError } from '@cards/validation/validation.models';
 
 // Modifier l'interface ModalConfig
 interface ModalConfig {
@@ -28,14 +30,14 @@ interface ModalConfig {
 }
 
 @Card({
-  name: 'DataTableCard',
+  name: 'DataTable',
   translationPath: 'data-table-card',
   icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
     <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd" />
   </svg>`,
   configComponent: DataTableCardConfigurationComponent,
-  configType: DataTableCardConfig,
+  configFactory: DataTableCardConfigFactory,
   defaultConfig: () => new DataTableCardConfig()
 })
 @Component({
@@ -216,7 +218,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
           .subscribe(state => {
             this.data = state.items;
             this.totalItems = state.total;
-            
+
             if (state.loading) {
               this.isLoadingData = true;
               if (this.isPageChange) {
@@ -265,11 +267,11 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     if (this.isValidConfiguration()) {
       this.isCalculatingRows = true;
       this.cdr.detectChanges();
-      
+
       setTimeout(() => {
         // Initialiser les largeurs de colonnes si elles ne sont pas déjà définies
         this.initializeColumnWidths();
-        
+
         // Calculer la taille optimale sans déclencher de rechargement
         this.calculateAndSetOptimalSize();
 
@@ -285,7 +287,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
           this.dataService.loadData(this.card.configuration!.datasource, parameters);
         }
-        
+
         this.isCalculatingRows = false;
         this.initialLoadDone = true;
         this.cdr.detectChanges();
@@ -345,7 +347,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       // 2. Calculer le nombre de lignes qui peuvent tenir
       const rowTotalSpace = this.ROW_HEIGHT + this.ROW_BORDER + (this.CELL_PADDING * 2); // Hauteur + bordure + padding haut et bas
       const optimalRows = Math.floor(availableHeightForRows / rowTotalSpace);
-      
+
       // 3. Déterminer le nombre final de lignes avec une ligne de sécurité en moins
       const targetSize = Math.min(optimalRows - 1, this.totalItems || (optimalRows - 1));
       const newPageSize = Math.max(1, targetSize);
@@ -356,10 +358,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
       if (newRowHeight > 0) {
         this.adjustedRowHeight = newRowHeight;
-        
+
         if (this.pageSize !== newPageSize && newPageSize > 0) {
           this.pageSize = newPageSize;
-          
+
           if (this.card.configuration) {
             this.card.configuration.visualConfig.rowCount = newPageSize;
             this.configurationChanged.emit(this.card);
@@ -424,7 +426,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   getFixedColumnLeft(column: ColumnConfig): string | null {
     if (!column.isFixed) return null;
-    
+
     let left = 0;
     for (const col of this.getVisibleColumns()) {
       if (col === column) break;
@@ -467,7 +469,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     // Mettre à jour les styles CSS pour le conteneur de table
     const containerWidth = this.tableContainerRef.nativeElement.clientWidth;
     const scrollableWidth = containerWidth - fixedLeftWidth - fixedRightWidth;
-    
+
     // Ajuster la largeur totale de la table si nécessaire
     let contentWidth = Array.from(this.columnWidths.values()).reduce((sum, width) => sum + width, 0);
     this.tableWidth = Math.max(contentWidth, containerWidth);
@@ -478,7 +480,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   getFixedColumnRight(column: ColumnConfig): string | null {
     if (!column.isFixedRight) return null;
-    
+
     let right = 0;
     const visibleColumns = this.getVisibleColumns();
 
@@ -486,7 +488,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     if (this.hasActions()) {
       right += this.actionsColumnWidth;
     }
-    
+
     for (let i = visibleColumns.length - 1; i >= 0; i--) {
       const col = visibleColumns[i];
       if (col === column) break;
@@ -499,13 +501,13 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   getRowBackgroundColor(index: number): string {
     const baseColor = this.card.configuration?.visualConfig.rowBackgroundColor || '#111827';
-    
-    if (this.card.configuration?.visualConfig.alternateRowColors && 
-        this.card.configuration?.visualConfig.alternateRowsBrightness > 0 && 
+
+    if (this.card.configuration?.visualConfig.alternateRowColors &&
+        this.card.configuration?.visualConfig.alternateRowsBrightness > 0 &&
         index % 2 === 0) {
       return this.adjustColor(baseColor, this.card.configuration.visualConfig.alternateRowsBrightness);
     }
-    
+
     return baseColor;
   }
 
@@ -542,11 +544,11 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   getTotalPages(): number[] {
     if (this.pageSize <= 0) return [1];
-    
+
     const totalPages = Math.ceil(this.totalItems / this.pageSize);
     // Limiter à un maximum raisonnable de pages (par exemple 10000)
     const safeTotal = Math.min(Math.max(1, totalPages), 10000);
-    
+
     try {
       return Array.from({ length: safeTotal }, (_, i) => i + 1);
     } catch (error) {
@@ -621,19 +623,19 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   onScrollbarClick(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     if (!this.tableContainerRef?.nativeElement || event.target !== event.currentTarget) return;
-    
+
     const container = this.tableContainerRef.nativeElement;
     const scrollbar = event.currentTarget as HTMLElement;
     const rect = scrollbar.getBoundingClientRect();
     const thumbWidth = this.getScrollThumbWidth();
-    
+
     // Ajuster la position de clic en fonction de la largeur du thumb
     const thumbOffset = (thumbWidth / 100) * rect.width / 2;
     const clickPosition = event.clientX - rect.left - thumbOffset;
     const scrollRatio = clickPosition / (rect.width - (thumbWidth / 100) * rect.width);
-    
+
     const targetScroll = (container.scrollWidth - container.clientWidth) * scrollRatio;
     container.scrollLeft = Math.max(0, Math.min(container.scrollWidth - container.clientWidth, targetScroll));
     this.cdr.detectChanges();
@@ -642,9 +644,9 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   onThumbMouseDown(event: MouseEvent) {
     event.preventDefault();
     event.stopPropagation();
-    
+
     if (!this.tableContainerRef?.nativeElement) return;
-    
+
     const container = this.tableContainerRef.nativeElement;
     const thumb = event.target as HTMLElement;
     const scrollbar = thumb.parentElement as HTMLElement;
@@ -652,34 +654,34 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     const startScrollLeft = container.scrollLeft;
     const maxScroll = container.scrollWidth - container.clientWidth;
     const scrollbarRect = scrollbar.getBoundingClientRect();
-    
+
     // Calculer le ratio de défilement en fonction de la largeur totale de la table
     const scrollRatio = container.scrollWidth / scrollbarRect.width;
-    
+
     const onMouseMove = (e: MouseEvent) => {
       if (!this.tableContainerRef?.nativeElement) return;
-      
+
       const deltaX = e.clientX - startX;
       // Appliquer un multiplicateur pour augmenter la sensibilité
       const scrollDelta = deltaX * scrollRatio * 1.5;
       const newScroll = startScrollLeft + scrollDelta;
-      
+
       container.scrollLeft = Math.max(0, Math.min(maxScroll, newScroll));
       this.cdr.detectChanges();
     };
-    
+
     const onMouseUp = () => {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
     };
-    
+
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
   }
 
   private updateScrollbarVisibility() {
     if (!this.tableContainerRef?.nativeElement) return;
-    
+
     const container = this.tableContainerRef.nativeElement;
     this.isScrollbarNeeded = container.scrollWidth > container.clientWidth;
     this.cdr.detectChanges();
@@ -714,7 +716,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
     this.closeFilterPopover();
     this.activeFilterPopover = { column, element: button };
-    
+
     // Charger les valeurs uniques si pas déjà fait
     if (!this.columnValues.has(column.key)) {
       this.loadUniqueValues(column);
@@ -770,7 +772,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     } else {
       this.activeFilters.delete(column.key);
     }
-    
+
     this.currentPage = 1; // Retour à la première page
     this.loadData();
     this.saveCurrentState();
@@ -795,7 +797,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   // Méthode pour gérer le tri
   toggleSort(event: MouseEvent, column: ColumnConfig) {
     event.stopPropagation();
-    
+
     const currentIndex = this.getSortIndex(column);
     const isShiftPressed = event.shiftKey;
 
@@ -843,7 +845,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
         }
       }
     }
-    
+
     // Assigner la nouvelle configuration et recharger
     this.sortConfig = newSortConfig;
     this.loadData();
@@ -887,10 +889,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       showFullscreenButton: true
     };
     this.cdr.detectChanges();
-    
+
     // Extraire le nom du contrôleur de la route
     const controllerName = this.card.configuration.datasource.controller.route.split('/').pop() || '';
-    
+
     this.dataService.getReadActionParameterDefinition({
       ...this.card.configuration.datasource,
       controller: {
@@ -912,7 +914,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
           if (parameters.length === 1) {
             try {
               this.addFormSchema = JSON.parse(parameters[0].jsonSchema);
-              
+
               // Charger les données des clés étrangères
               this.loadForeignKeyData().subscribe(() => {
                 this.isFormLoading = false;
@@ -987,8 +989,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       });
 
     // Attendre que toutes les données soient chargées
-    return foreignKeyObservables.length > 0 ? 
-      forkJoin(foreignKeyObservables) : 
+    return foreignKeyObservables.length > 0 ?
+      forkJoin(foreignKeyObservables) :
       of([]);
   }
 
@@ -1120,7 +1122,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
           if (parameters.length > 0) {
             const schema = JSON.parse(parameters[0].jsonSchema);
             const primaryKeyValue = this.dataService.getPrimaryKeyValue(this.rowToDelete, schema);
-            
+
             if (primaryKeyValue) {
               this.dataService.deleteData(this.card.configuration.datasource!, primaryKeyValue).subscribe({
                 next: () => {
@@ -1272,5 +1274,4 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   onHeaderMouseLeave(column: ColumnConfig) {
   }
-} 
-  
+}

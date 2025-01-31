@@ -26,11 +26,15 @@
       (configChange)="onDatasourceChange($event)"
       (schemaChange)="onSchemaChange($event)">
     </app-datasource-configuration>
+    <!-- Message d'erreur pour la datasource -->
+    <div *ngIf="errorMessages['datasource']" class="mt-2 text-sm text-red-500">
+      {{ errorMessages['datasource'] | translate }}
+    </div>
   </app-tile>
 
   <app-tile [title]="'COLUMNS.TITLE' | translate" *ngIf="columns.length > 0">
     <div class="flex flex-col gap-4">
-      <div *ngFor="let column of columns; let i = index" 
+      <div *ngFor="let column of columns; let i = index"
            class="column-item bg-gray-800 border border-gray-700 rounded-lg shadow-lg"
            [class.dragging]="draggedColumnIndex === i"
            [class.drag-over]="draggedColumnIndex !== i && draggedColumnIndex !== null"
@@ -66,7 +70,7 @@
           <div class="flex items-center gap-4">
             <!-- Boutons d'alignement -->
             <div class="flex rounded-md shadow-sm" role="group" (click)="$event.stopPropagation()">
-              <button type="button" 
+              <button type="button"
                 class="px-2 py-1 text-gray-400 hover:text-white disabled:text-gray-600 border border-gray-700 first:rounded-l-md last:rounded-r-md"
                 [class.bg-gray-700]="column.alignment === 'left'"
                 (click)="handleColumnAlignmentChange(i, $event)"
@@ -173,6 +177,15 @@
             </div>
           </div>
         </div>
+        <!-- Message d'erreur pour la clé de colonne -->
+        <div *ngIf="errorMessages['columns.' + i + '.key']" class="mt-2 text-sm text-red-500">
+          {{ errorMessages['columns.' + i + '.key'] | translate }}
+        </div>
+
+        <!-- Message d'erreur pour les décimales -->
+        <div *ngIf="errorMessages['columns.' + i + '.decimals']" class="mt-2 text-sm text-red-500">
+          {{ errorMessages['columns.' + i + '.decimals'] | translate }}
+        </div>
       </div>
     </div>
   </app-tile>
@@ -183,10 +196,10 @@
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'TABLE_APPEARANCE.HEADER_BG_COLOR' | translate }}</label>
         <div class="flex gap-2">
-          <input type="color" [value]="form.getRawValue().visualConfig.headerBackgroundColor" 
+          <input type="color" [value]="form.getRawValue().visualConfig.headerBackgroundColor"
                  (change)="handleVisualConfigChange('headerBackgroundColor', $event)"
                  class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
-          <input type="text" [value]="form.getRawValue().visualConfig.headerBackgroundColor" 
+          <input type="text" [value]="form.getRawValue().visualConfig.headerBackgroundColor"
                  (input)="handleVisualConfigChange('headerBackgroundColor', $event)"
                  class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
         </div>
@@ -196,10 +209,10 @@
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'TABLE_APPEARANCE.ROW_BG_COLOR' | translate }}</label>
         <div class="flex gap-2">
-          <input type="color" [value]="form.getRawValue().visualConfig.rowBackgroundColor" 
+          <input type="color" [value]="form.getRawValue().visualConfig.rowBackgroundColor"
                  (change)="handleVisualConfigChange('rowBackgroundColor', $event)"
                  class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
-          <input type="text" [value]="form.getRawValue().visualConfig.rowBackgroundColor" 
+          <input type="text" [value]="form.getRawValue().visualConfig.rowBackgroundColor"
                  (input)="handleVisualConfigChange('rowBackgroundColor', $event)"
                  class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
         </div>
@@ -209,10 +222,10 @@
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'TABLE_APPEARANCE.HEADER_TEXT_COLOR' | translate }}</label>
         <div class="flex gap-2">
-          <input type="color" [value]="form.getRawValue().visualConfig.headerTextColor" 
+          <input type="color" [value]="form.getRawValue().visualConfig.headerTextColor"
                  (change)="handleVisualConfigChange('headerTextColor', $event)"
                  class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
-          <input type="text" [value]="form.getRawValue().visualConfig.headerTextColor" 
+          <input type="text" [value]="form.getRawValue().visualConfig.headerTextColor"
                  (input)="handleVisualConfigChange('headerTextColor', $event)"
                  class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
         </div>
@@ -222,10 +235,10 @@
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'TABLE_APPEARANCE.ROW_TEXT_COLOR' | translate }}</label>
         <div class="flex gap-2">
-          <input type="color" [value]="form.getRawValue().visualConfig.rowTextColor" 
+          <input type="color" [value]="form.getRawValue().visualConfig.rowTextColor"
                  (change)="handleVisualConfigChange('rowTextColor', $event)"
                  class="h-9 w-16 bg-gray-800 border border-gray-700 rounded">
-          <input type="text" [value]="form.getRawValue().visualConfig.rowTextColor" 
+          <input type="text" [value]="form.getRawValue().visualConfig.rowTextColor"
                  (input)="handleVisualConfigChange('rowTextColor', $event)"
                  class="flex-1 px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
         </div>
@@ -234,7 +247,7 @@
       <!-- Mode compact -->
       <div class="flex items-center justify-between">
         <label class="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" 
+          <input type="checkbox"
                  [checked]="form.getRawValue().visualConfig.isCompactMode"
                  (change)="handleVisualConfigChange('isCompactMode', $event)"
                  class="sr-only peer">
@@ -247,7 +260,7 @@
       <div class="flex flex-col gap-2">
         <div class="flex items-center justify-between">
           <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" 
+            <input type="checkbox"
                    [checked]="form.getRawValue().visualConfig.alternateRowColors"
                    (change)="handleVisualConfigChange('alternateRowColors', $event)"
                    class="sr-only peer">
@@ -255,22 +268,29 @@
             <span class="ml-3 text-sm font-medium text-gray-300">{{ 'TABLE_APPEARANCE.ALTERNATE_ROWS' | translate }}</span>
           </label>
         </div>
-        
+
         <!-- Contrôle du pourcentage d'éclaircissement -->
         <div *ngIf="form.getRawValue().visualConfig.alternateRowColors" class="flex flex-col gap-1 ml-14">
           <label class="text-sm font-medium text-gray-300">{{ 'TABLE_APPEARANCE.ALTERNATE_ROWS_BRIGHTNESS' | translate }}</label>
           <div class="flex gap-2 items-center">
-            <input type="range" 
-                   [value]="form.getRawValue().visualConfig.alternateRowsBrightness" 
+            <input type="range"
+                   [value]="form.getRawValue().visualConfig.alternateRowsBrightness"
                    (input)="handleVisualConfigChange('alternateRowsBrightness', $event)"
-                   min="0" 
-                   max="100" 
+                   min="0"
+                   max="100"
                    step="5"
                    class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
             <span class="text-sm text-gray-300 min-w-[3rem]">{{ form.getRawValue().visualConfig.alternateRowsBrightness }}%</span>
           </div>
         </div>
       </div>
+    </div>
+    <!-- Messages d'erreur pour les couleurs -->
+    <div *ngIf="errorMessages['visualConfig.headerBackgroundColor']" class="mt-2 text-sm text-red-500">
+      {{ errorMessages['visualConfig.headerBackgroundColor'] | translate }}
+    </div>
+    <div *ngIf="errorMessages['visualConfig.rowBackgroundColor']" class="mt-2 text-sm text-red-500">
+      {{ errorMessages['visualConfig.rowBackgroundColor'] | translate }}
     </div>
   </app-tile>
 
@@ -279,7 +299,7 @@
       <!-- Option d'ajout -->
       <div class="flex items-center justify-between">
         <label class="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" 
+          <input type="checkbox"
                  [checked]="form.getRawValue().crudConfig.canAdd"
                  (change)="handleCrudConfigChange('canAdd', $event)"
                  class="sr-only peer">
@@ -291,7 +311,7 @@
       <!-- Option de modification -->
       <div class="flex items-center justify-between">
         <label class="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" 
+          <input type="checkbox"
                  [checked]="form.getRawValue().crudConfig.canUpdate"
                  (change)="handleCrudConfigChange('canUpdate', $event)"
                  class="sr-only peer">
@@ -303,7 +323,7 @@
       <!-- Option de suppression -->
       <div class="flex items-center justify-between">
         <label class="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" 
+          <input type="checkbox"
                  [checked]="form.getRawValue().crudConfig.canDelete"
                  (change)="handleCrudConfigChange('canDelete', $event)"
                  class="sr-only peer">
@@ -311,6 +331,10 @@
           <span class="ml-3 text-sm font-medium text-gray-300">{{ 'CRUD_OPTIONS.CAN_DELETE' | translate }}</span>
         </label>
       </div>
+    </div>
+    <!-- Message d'erreur pour la configuration CRUD -->
+    <div *ngIf="errorMessages['crudConfig']" class="mt-2 text-sm text-red-500">
+      {{ errorMessages['crudConfig'] | translate }}
     </div>
   </app-tile>
 
@@ -415,4 +439,4 @@
       </div>
     </div>
   </app-tile>
-</div> 
+</div>

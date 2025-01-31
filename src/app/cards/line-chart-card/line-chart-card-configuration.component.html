@@ -7,6 +7,10 @@
         (configChange)="onDatasourceChange($event)"
         (schemaChange)="onSchemaChange($event)">
       </app-datasource-configuration>
+      <!-- Affichage des erreurs de datasource -->
+      <div *ngIf="errorMessages['datasource']" class="mt-2 text-sm text-red-500">
+        {{ errorMessages['datasource'] | translate }}
+      </div>
     </app-tile>
 
     <!-- Configuration de l'axe X -->
@@ -15,10 +19,15 @@
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.X_AXIS_COLUMN' | translate }}</label>
           <select [formControl]="xAxisColumnControl"
-                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  [class.border-red-500]="errorMessages['xAxisColumn']">
             <option value="">{{ 'line-chart-card.SELECT_COLUMN' | translate }}</option>
             <option *ngFor="let column of availableColumns" [value]="column">{{ column }}</option>
           </select>
+          <!-- Affichage des erreurs de l'axe X -->
+          <div *ngIf="errorMessages['xAxisColumn']" class="mt-2 text-sm text-red-500">
+            {{ errorMessages['xAxisColumn'] | translate }}
+          </div>
         </div>
 
         <!-- Format de date pour l'axe X -->
@@ -37,11 +46,17 @@
 
     <!-- Configuration des séries -->
     <app-tile [title]="'line-chart-card.SERIES' | translate" *ngIf="availableColumns.length > 0">
+      <!-- Affichage des erreurs générales des séries -->
+      <div *ngIf="errorMessages['series']" class="mb-4 text-sm text-red-500">
+        {{ errorMessages['series'] | translate }}
+      </div>
+
       <div class="space-y-4">
         <!-- Liste des séries -->
         <div class="flex flex-col gap-4">
           <div *ngFor="let series of form.getRawValue().series; let i = index"
-               class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
+               class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg"
+               [class.border-red-500]="hasSeriesErrors(i)">
             <!-- En-tête de la série -->
             <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700" (click)="toggleSeriesExpand(i)">
               <div class="flex items-center gap-4">
@@ -49,20 +64,20 @@
                 <span class="text-sm text-gray-400">({{ series.dataColumn || 'No column selected' }})</span>
               </div>
               <div class="flex items-center gap-2">
-                <button type="button" 
+                <button type="button"
                         (click)="removeSeries(i); $event.stopPropagation()"
                         class="p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                   </svg>
                 </button>
-                <button type="button" 
+                <button type="button"
                         (click)="toggleSeriesExpand(i)"
                         class="p-1 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" 
-                       class="h-5 w-5 transform transition-transform" 
+                  <svg xmlns="http://www.w3.org/2000/svg"
+                       class="h-5 w-5 transform transition-transform"
                        [class.rotate-180]="expandedSeriesIndex === i"
-                       viewBox="0 0 20 20" 
+                       viewBox="0 0 20 20"
                        fill="currentColor">
                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                   </svg>
@@ -75,10 +90,15 @@
                 <!-- Nom de la série -->
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.SERIES_NAME' | translate }}</label>
-                  <input type="text" 
+                  <input type="text"
                          [value]="series.name"
                          (change)="handleSeriesChange(i, 'name', $event)"
+                         [class.border-red-500]="hasSeriesError(i, 'name')"
                          class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <!-- Affichage des erreurs du nom de série -->
+                  <div *ngIf="hasSeriesError(i, 'name')" class="mt-2 text-sm text-red-500">
+                    {{ errorMessages[getSeriesErrorKey(i, 'name')] | translate }}
+                  </div>
                 </div>
 
                 <!-- Colonne de données -->
@@ -86,10 +106,15 @@
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.DATA_COLUMN' | translate }}</label>
                   <select [value]="series.dataColumn"
                           (change)="handleSeriesChange(i, 'dataColumn', $event)"
+                          [class.border-red-500]="hasSeriesError(i, 'dataColumn')"
                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">{{ 'line-chart-card.SELECT_COLUMN' | translate }}</option>
                     <option *ngFor="let column of availableColumns" [value]="column">{{ column }}</option>
                   </select>
+                  <!-- Affichage des erreurs de la colonne de données -->
+                  <div *ngIf="hasSeriesError(i, 'dataColumn')" class="mt-2 text-sm text-red-500">
+                    {{ errorMessages[getSeriesErrorKey(i, 'dataColumn')] | translate }}
+                  </div>
                 </div>
 
                 <!-- Type de ligne -->
@@ -106,7 +131,7 @@
                 <!-- Couleur -->
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.COLOR' | translate }}</label>
-                  <input type="color" 
+                  <input type="color"
                          [value]="series.color"
                          (change)="handleSeriesChange(i, 'color', $event)"
                          class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
@@ -114,7 +139,7 @@
 
                 <!-- Afficher les points -->
                 <div class="flex items-center">
-                  <input type="checkbox" 
+                  <input type="checkbox"
                          [checked]="series.showSymbol"
                          (change)="handleSeriesChange(i, 'showSymbol', $event)"
                          class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-offset-gray-800">
@@ -124,7 +149,7 @@
                 <!-- Taille des points -->
                 <div *ngIf="series.showSymbol">
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.POINT_SIZE' | translate }}</label>
-                  <input type="number" 
+                  <input type="number"
                          [value]="series.symbolSize"
                          (change)="handleSeriesChange(i, 'symbolSize', $event)"
                          min="1"
@@ -135,7 +160,7 @@
                 <!-- Opacité de la zone -->
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.AREA_OPACITY' | translate }}</label>
-                  <input type="range" 
+                  <input type="range"
                          [value]="series.areaStyle?.opacity || 0"
                          (change)="onAreaOpacityChange(i, $event)"
                          min="0"
@@ -160,4 +185,4 @@
       </div>
     </app-tile>
   </form>
-</div> 
+</div>

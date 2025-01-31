@@ -1,0 +1,17 @@
+{
+  "LABEL-CARD": {
+    "TEXT": "Text",
+    "FONT-SIZE": "Font size",
+    "FONT-WEIGHT": "Font weight",
+    "TEXT-ALIGN": "Text alignment",
+    "ALIGN": {
+      "LEFT": "Left",
+      "CENTER": "Center",
+      "RIGHT": "Right"
+    },
+    "ERRORS": {
+      "TEXT_REQUIRED": "Text is required",
+      "INVALID_FONT_SIZE": "Font size must be between 8 and 72"
+    }
+  }
+}

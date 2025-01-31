@@ -1,5 +1,11 @@
 <app-base-card [card]="card" [isEditing]="isEditing">
-  <div class="h-full flex items-center justify-center" body>
-    <span class="text-lg">{{card.configuration?.label || 'Label'}}</span>
+  <div class="h-full w-full flex items-center" body>
+    <span class="w-full" [ngStyle]="{
+      'font-size': (card.configuration?.content.fontSize || 16) + 'px',
+      'font-weight': card.configuration?.content.fontWeight || 'normal',
+      'text-align': card.configuration?.content.textAlign || 'left'
+    }">
+      {{ getTranslatedText() }}
+    </span>
   </div>
-</app-base-card> 
+</app-base-card>

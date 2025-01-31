@@ -141,10 +141,10 @@
     <!-- Last update info -->
     <div class="flex items-center gap-4 text-sm text-gray-400">
       <div *ngIf="lastUpdate">
-        {{ 'PARAMETERS.LAST_UPDATE' | translate }}: {{ lastUpdate | date:'short' }}
+        {{ 'CARDS.PARAMETERS.LAST_UPDATE' | translate }}: {{ lastUpdate | date:dateFormat }}
       </div>
       <div *ngIf="autoRefreshInterval">
-        {{ 'PARAMETERS.AUTO_REFRESH' | translate }}: {{ autoRefreshInterval }}s
+        {{ 'CARDS.PARAMETERS.AUTO_REFRESH' | translate }}: {{ autoRefreshInterval }}s
       </div>
     </div>
   </div>

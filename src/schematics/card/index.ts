@@ -8,9 +8,10 @@ import {
   url,
   move,
   chain,
-  forEach
+  forEach,
+  FileEntry
 } from '@angular-devkit/schematics';
-import { strings } from '@angular-devkit/core';
+import { strings, normalize } from '@angular-devkit/core';
 import { Schema } from './schema';
 
 export function card(_options: Schema): Rule {
@@ -21,13 +22,13 @@ export function card(_options: Schema): Rule {
         ..._options,
         ...strings,
       }),
-      forEach(entry => {
+      forEach((entry: FileEntry) => {
         if (!entry.path.endsWith('.template')) {
           return null;
         }
         return {
           ...entry,
-          path: entry.path.replace('.template', '')
+          path: normalize(entry.path.replace('.template', ''))
         };
       }),
       move(`src/app/cards/${strings.dasherize(_options.name)}-card`)

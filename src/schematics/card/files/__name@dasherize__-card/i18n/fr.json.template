@@ -1,0 +1,8 @@
+{
+  "<%= upperCase(name) %>-CARD": {
+    "TEXT": "Texte",
+    "ERRORS": {
+      "TEXT_REQUIRED": "Le texte est requis"
+    }
+  }
+}

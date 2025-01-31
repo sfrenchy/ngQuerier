@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "build:schematics": "cd scripts/schematics && npm install && npm run build",
+    "build:schematics": "tsc -p src/schematics/tsconfig.json",
     "install:schematics": "npm run build:schematics && cd scripts/schematics && npm pack && cd ../.. && npm install -D ./scripts/schematics/querier-schematics-1.0.0.tgz",
     "postinstall": "npm run install:schematics"
   },

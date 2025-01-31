@@ -1,0 +1,36 @@
+import { Injectable } from '@angular/core';
+import { CardConfigFactory } from '@cards/card-config.factory';
+import { CardValidationService } from '@cards/card-validation.service';
+import { <%= classify(name) %>CardConfig } from './<%= dasherize(name) %>-card.config';
+import { ValidationResult, ValidationError } from '@cards/validation/validation.models';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class <%= classify(name) %>CardConfigFactory extends CardConfigFactory<<%= classify(name) %>CardConfig> {
+  constructor(protected override validationService: CardValidationService) {
+    super(validationService);
+  }
+
+  createDefaultConfig(): <%= classify(name) %>CardConfig {
+    return new <%= classify(name) %>CardConfig();
+  }
+
+  override validateConfig(config: <%= classify(name) %>CardConfig): ValidationResult {
+    const errors: ValidationError[] = [];
+
+    // Add your validation rules here
+    if (!config?.content?.text?.length) {
+      errors.push({
+        code: 'TEXT_REQUIRED',
+        message: '<%= upperCase(name) %>-CARD.ERRORS.TEXT_REQUIRED',
+        controlPath: 'text'
+      });
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+}

@@ -1,0 +1,68 @@
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { <%= classify(name) %>CardConfig } from './<%= dasherize(name) %>-card.config';
+import { CardDto, TranslatableString } from '@models/api.models';
+import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
+import { TranslateModule } from '@ngx-translate/core';
+import { ValidationError } from '@cards/validation/validation.models';
+
+@Component({
+  selector: 'app-<%= dasherize(name) %>-card-configuration',
+  templateUrl: './<%= dasherize(name) %>-card-configuration.component.html',
+  standalone: true,
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    TranslatableStringFormComponent,
+    TranslateModule
+  ]
+})
+export class <%= classify(name) %>CardConfigurationComponent implements OnInit {
+  @Input() card!: CardDto<<%= classify(name) %>CardConfig>;
+  @Input() set validationErrors(errors: ValidationError[]) {
+    this._validationErrors = errors;
+  }
+  get validationErrors(): ValidationError[] {
+    return this._validationErrors;
+  }
+  private _validationErrors: ValidationError[] = [];
+  @Output() save = new EventEmitter<<%= classify(name) %>CardConfig>();
+  @Output() configChange = new EventEmitter<<%= classify(name) %>CardConfig>();
+
+  form: FormGroup;
+
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      text: [[] as TranslatableString[]]
+    });
+
+    this.form.valueChanges.subscribe((value: any) => {
+      if (this.form.valid) {
+        const config = new <%= classify(name) %>CardConfig();
+        config.content.text = value.text || [];
+        this.configChange.emit(config);
+      }
+    });
+  }
+
+  ngOnInit() {
+    if (this.card.configuration) {
+      this.form.patchValue({
+        text: this.card.configuration.content.text || []
+      }, { emitEvent: false });
+    }
+  }
+
+  onSave() {
+    if (this.form.valid) {
+      const config = new <%= classify(name) %>CardConfig();
+      config.content.text = this.form.value.text || [];
+      this.save.emit(config);
+    }
+  }
+
+  getControlErrors(controlPath: string): ValidationError[] {
+    return this.validationErrors.filter(error => error.controlPath === controlPath);
+  }
+}

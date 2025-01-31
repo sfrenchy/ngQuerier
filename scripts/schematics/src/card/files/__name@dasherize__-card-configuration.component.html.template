@@ -1,0 +1,13 @@
+<form [formGroup]="form" class="space-y-6">
+  <!-- Text translations -->
+  <div>
+    <label class="block text-sm font-medium text-gray-200 mb-2">
+      {{ '<%= upperCase(name) %>-CARD.TEXT' | translate }}
+    </label>
+    <app-translatable-string-form formControlName="text"></app-translatable-string-form>
+    <div *ngFor="let error of getControlErrors('text')"
+         class="mt-1 text-sm text-red-500">
+      {{ error.message | translate }}
+    </div>
+  </div>
+</form>

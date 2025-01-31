@@ -1,0 +1,3 @@
+<div class="card-content">
+  {{ config.content.text[0].value | translate }}
+</div>

@@ -3,9 +3,8 @@
   "schematics": {
     "card": {
       "description": "Generate a new card",
-      "factory": "./card/index#card",
-      "schema": "./card/schema.json",
-      "aliases": ["cd"]
+      "factory": "./card",
+      "schema": "./card/schema.json"
     }
   }
 }

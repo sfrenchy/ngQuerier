@@ -1,4 +1,5 @@
 import { BaseCardConfig, TranslatableString } from '@models/api.models';
+import { Card } from '@models/api.models';
 
 export class <%= classify(name) %>CardConfig extends BaseCardConfig {
   content: {
@@ -18,3 +19,8 @@ export class <%= classify(name) %>CardConfig extends BaseCardConfig {
     };
   }
 }
+
+@Card({
+  name: '<%= classify(name) %>',
+  translationPath: '<%= dasherize(name) %>-card'
+})

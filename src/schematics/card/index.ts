@@ -4,43 +4,47 @@ import {
   Tree,
   apply,
   mergeWith,
-  template,
   url,
   move,
   chain,
   forEach,
-  FileEntry
+  FileEntry,
+  Source,
+  template,
+  filter
 } from '@angular-devkit/schematics';
-import { strings, normalize } from '@angular-devkit/core';
+import { strings, normalize, Path } from '@angular-devkit/core';
 import { Schema } from './schema';
-import { files } from './files';
 
 export function card(_options: Schema): Rule {
-  return (tree: Tree, _context: SchematicContext) => {
-    console.log('Available templates:', files);
+  return (tree: Tree, context: SchematicContext) => {
+    context.logger.info('Starting card schematic');
 
-    const sourceTemplates = url('./files');
-    console.log('Source templates:', sourceTemplates);
+    const basePath = `/src/app/cards/${strings.dasherize(_options.name)}-card`;
+    context.logger.info(`Base path: ${basePath}`);
 
-    const sourceParametrizedTemplates = apply(sourceTemplates, [
-      template({
-        ..._options,
-        ...strings,
-      }),
-      forEach((entry: FileEntry) => {
-        console.log('Processing file:', entry.path);
-        const newPath = entry.path.replace('.template', '');
-        console.log('New path:', newPath);
-        return {
-          ...entry,
-          path: normalize(newPath)
-        };
-      }),
-      move(`src/app/cards/${strings.dasherize(_options.name)}-card`)
-    ]);
+    const templateSource = apply(
+      url('./files'),
+      [
+        filter(path => path.endsWith('.template')),
+        template({
+          ...strings,
+          name: _options.name
+        }),
+        forEach((entry: FileEntry) => {
+          let newPath = entry.path.replace('__name@dasherize__-card', '');
+          newPath = newPath.replace('.template', '');
+          return {
+            ...entry,
+            path: normalize(newPath) as Path
+          };
+        }),
+        move(normalize(basePath) as Path)
+      ]
+    );
 
     return chain([
-      mergeWith(sourceParametrizedTemplates)
-    ])(tree, _context);
+      mergeWith(templateSource)
+    ])(tree, context);
   };
 }

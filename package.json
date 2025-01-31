@@ -7,8 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "build:schematics": "tsc -p src/schematics/tsconfig.json && mkdir -p dist/schematics/card && cp -r src/schematics/card/files dist/schematics/card/",
-    "install:schematics": "npm run build:schematics && cd scripts/schematics && npm pack && cd ../.. && npm install -D ./scripts/schematics/querier-schematics-1.0.0.tgz",
+    "build:schematics": "cd scripts/schematics && npm run build",
+    "install:schematics": "cd scripts/schematics && npm pack && cd ../.. && npm install -D ./scripts/schematics/querier-schematics-1.0.0.tgz",
     "postinstall": "npm run install:schematics"
   },
   "private": true,

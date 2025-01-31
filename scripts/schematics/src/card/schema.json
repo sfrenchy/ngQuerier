@@ -1,7 +1,5 @@
 {
   "$schema": "http://json-schema.org/schema",
-  "$id": "GenerateQuerierCard",
-  "title": "Generate Querier Card",
   "type": "object",
   "properties": {
     "name": {
@@ -15,4 +13,4 @@
     }
   },
   "required": ["name"]
-} 
+}

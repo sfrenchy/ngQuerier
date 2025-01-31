@@ -1,0 +1,4 @@
+export * from './<%= dasherize(name) %>-card.component';
+export * from './<%= dasherize(name) %>-card.config';
+export * from './<%= dasherize(name) %>-card.factory';
+export * from './<%= dasherize(name) %>-card-configuration.component';

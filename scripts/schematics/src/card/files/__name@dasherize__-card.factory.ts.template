@@ -22,19 +22,9 @@ export class <%= classify(name) %>CardConfigFactory extends CardConfigFactory<<%
     if (!config?.content?.text?.length) {
       errors.push({
         code: 'TEXT_REQUIRED',
-        message: '<%= dasherize(name).toUpperCase() %>_CARD.ERRORS.TEXT_REQUIRED',
+        message: '<%= upperCase(name) %>_CARD.ERRORS.TEXT_REQUIRED',
         controlPath: 'text'
       });
-    }
-
-    if (config?.content?.fontSize) {
-      if (config.content.fontSize < 8 || config.content.fontSize > 72) {
-        errors.push({
-          code: 'INVALID_FONT_SIZE',
-          message: '<%= dasherize(name).toUpperCase() %>_CARD.ERRORS.INVALID_FONT_SIZE',
-          controlPath: 'fontSize'
-        });
-      }
     }
 
     return {

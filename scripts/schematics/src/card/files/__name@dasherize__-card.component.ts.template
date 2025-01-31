@@ -1,0 +1,13 @@
+import { Component, Input } from '@angular/core';
+import { <%= classify(name) %>CardConfig } from './<%= dasherize(name) %>-card.config';
+import { TranslateModule } from '@ngx-translate/core';
+
+@Component({
+  selector: 'app-<%= dasherize(name) %>-card',
+  templateUrl: './<%= dasherize(name) %>-card.component.html',
+  standalone: true,
+  imports: [TranslateModule]
+})
+export class <%= classify(name) %>CardComponent {
+  @Input() config!: <%= classify(name) %>CardConfig;
+}

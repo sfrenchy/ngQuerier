@@ -36,6 +36,18 @@
     },
     "DATASOURCE": {
       "TITLE": "Data Source"
+    },
+    "VALIDATION": {
+      "INVALID_DATASOURCE": "Invalid datasource configuration",
+      "REQUIRED_X_AXIS": "X axis column is required",
+      "REQUIRED_BAR_SERIES": "At least one bar series is required",
+      "REQUIRED_BAR_SERIES_NAME": "Bar series name is required",
+      "REQUIRED_BAR_SERIES_COLUMN": "Bar series data column is required",
+      "INVALID_BAR_WIDTH": "Bar width must be between 0 and 100",
+      "REQUIRED_LINE_SERIES_NAME": "Line series name is required",
+      "REQUIRED_LINE_SERIES_COLUMN": "Line series data column is required",
+      "INVALID_SYMBOL_SIZE": "Symbol size must be between 1 and 20",
+      "INVALID_AREA_OPACITY": "Area opacity must be between 0 and 1"
     }
   }
-} 
+}

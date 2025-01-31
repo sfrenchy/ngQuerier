@@ -36,6 +36,18 @@
     },
     "DATASOURCE": {
       "TITLE": "Source de données"
+    },
+    "VALIDATION": {
+      "INVALID_DATASOURCE": "Configuration de la source de données invalide",
+      "REQUIRED_X_AXIS": "La colonne de l'axe X est requise",
+      "REQUIRED_BAR_SERIES": "Au moins une série de barres est requise",
+      "REQUIRED_BAR_SERIES_NAME": "Le nom de la série de barres est requis",
+      "REQUIRED_BAR_SERIES_COLUMN": "La colonne de données de la série de barres est requise",
+      "INVALID_BAR_WIDTH": "La largeur des barres doit être comprise entre 0 et 100",
+      "REQUIRED_LINE_SERIES_NAME": "Le nom de la série de lignes est requis",
+      "REQUIRED_LINE_SERIES_COLUMN": "La colonne de données de la série de lignes est requise",
+      "INVALID_SYMBOL_SIZE": "La taille des symboles doit être comprise entre 1 et 20",
+      "INVALID_AREA_OPACITY": "L'opacité de la zone doit être comprise entre 0 et 1"
     }
   }
-} 
+}

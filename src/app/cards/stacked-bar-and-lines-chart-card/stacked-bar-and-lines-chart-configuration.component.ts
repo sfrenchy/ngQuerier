@@ -9,6 +9,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StackedBarAndLinesChartCardConfig, BarSeriesConfig, LineSeriesConfig } from './stacked-bar-and-lines-chart.models';
 import { DatasourceConfig } from '@models/datasource.models';
+import { ValidationError } from '@cards/validation/validation.models';
 
 @Component({
   selector: 'app-stacked-bar-and-lines-chart-configuration',
@@ -28,12 +29,21 @@ import { DatasourceConfig } from '@models/datasource.models';
 export class StackedBarAndLinesChartConfigurationComponent implements OnInit, OnDestroy {
   @Input() card!: CardDto<StackedBarAndLinesChartCardConfig>;
   @Output() configChange = new EventEmitter<StackedBarAndLinesChartCardConfig>();
+  @Input() set validationErrors(errors: ValidationError[]) {
+    this._validationErrors = errors;
+    this.updateErrorMessages();
+  }
+  get validationErrors(): ValidationError[] {
+    return this._validationErrors;
+  }
 
   form: FormGroup;
   availableColumns: string[] = [];
   expandedBarSeriesIndex: number | null = null;
   expandedLineSeriesIndex: number | null = null;
   private destroy$ = new Subject<void>();
+  private _validationErrors: ValidationError[] = [];
+  errorMessages: { [key: string]: string } = {};
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -213,4 +223,13 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
 
     this.configChange.emit(config);
   }
-} 
+
+  private updateErrorMessages() {
+    this.errorMessages = {};
+    this._validationErrors.forEach(error => {
+      if (error.controlPath) {
+        this.errorMessages[error.controlPath] = error.message;
+      }
+    });
+  }
+}

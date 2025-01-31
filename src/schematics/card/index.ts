@@ -25,8 +25,10 @@ export function card(_options: Schema): Rule {
         if (!entry.path.endsWith('.template')) {
           return null;
         }
-        entry.path = entry.path.replace('.template', '');
-        return entry;
+        return {
+          ...entry,
+          path: entry.path.replace('.template', '')
+        };
       }),
       move(`src/app/cards/${strings.dasherize(_options.name)}-card`)
     ]);

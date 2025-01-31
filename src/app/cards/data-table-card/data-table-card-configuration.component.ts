@@ -12,6 +12,7 @@ import { takeUntil } from 'rxjs/operators';
 import { DataTableCardService } from './data-table-card.service';
 import { CardDatabaseService } from '@cards/card-database.service';
 import { ChangeDetectorRef } from '@angular/core';
+import { ValidationError } from '@cards/validation/validation.models';
 
 @Component({
   selector: 'app-data-table-card-configuration',
@@ -29,7 +30,13 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   @Input() card!: CardDto<DataTableCardConfig>;
   @Output() save = new EventEmitter<DataTableCardConfig>();
   @Output() configChange = new EventEmitter<DataTableCardConfig>();
-
+  @Input() set validationErrors(errors: ValidationError[]) {
+    this._validationErrors = errors;
+  }
+  get validationErrors(): ValidationError[] {
+    return this._validationErrors;
+  }
+  private _validationErrors: ValidationError[] = [];
   form: FormGroup;
   jsonSchema: string | null = null;
   columns: ColumnConfig[] = [];

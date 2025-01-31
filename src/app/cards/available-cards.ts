@@ -4,8 +4,9 @@ import { getRegisteredCards } from '@cards/card.decorator';
 //import '@cards/line-chart-card/line-chart-card.component';
 //import '@cards/data-table-card/data-table-card.component';
 //import '@cards/stacked-bar-and-lines-chart-card/stacked-bar-and-lines-chart.component';
-
+import './line-chart-card/line-chart-card.component';
 import './label-card/label-card.component';
+import './data-table-card/data-table-card.component';
 
 @Injectable({
   providedIn: 'root'
@@ -20,7 +21,7 @@ export class CardInitializerService {
   initialize() {
     // Récupérer tous les composants décorés avec @Card
     const registeredCards = getRegisteredCards();
-    
+
     // Créer une instance de chaque composant pour forcer leur inclusion
     registeredCards.forEach((cardComponent: Type<any>) => {
       // Créer le composant de manière imperceptible
@@ -28,9 +29,9 @@ export class CardInitializerService {
         environmentInjector: this.injector,
         hostElement: document.createElement('div')
       });
-      
+
       // Détruire immédiatement le composant
       componentRef.destroy();
     });
   }
-} 
+}

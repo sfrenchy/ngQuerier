@@ -7,12 +7,12 @@ import * as echarts from 'echarts';
 import { EChartsOption } from 'echarts';
 
 import { BaseCardComponent } from './base-card.component';
-import { DatasourceService } from '../../shared/components/datasource-configuration/datasource.service';
-import { BaseChartConfig, ChartVisualConfig } from '../../models/chart.models';
-import { DataRequestParametersDto, PaginatedResultDto } from '../../models/api.models';
-import { StoredProcedureParameter } from '../../models/parameters.models';
-import { ChartParametersFooterComponent } from '../../shared/components/chart-parameters-footer/chart-parameters-footer.component';
-import { RequestParametersService } from '../../shared/services/request-parameters.service';
+import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
+import { BaseChartConfig, ChartVisualConfig } from '@models/chart.models';
+import { DataRequestParametersDto, PaginatedResultDto } from '@models/api.models';
+import { StoredProcedureParameter } from '@models/parameters.models';
+import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import { RequestParametersService } from '@shared/services/request-parameters.service';
 
 interface ChartState {
   data: any[];
@@ -35,7 +35,7 @@ interface ChartState {
 @Injectable()
 export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends BaseCardComponent<TConfig> implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('chartContainer') chartContainer!: ElementRef;
-  
+
   protected chartInstance?: echarts.ECharts;
   protected chartState: ChartState = {
     data: [],
@@ -74,7 +74,7 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
       const savedParams = this.requestParametersService.loadFromLocalStorage(this.card.id);
       if (savedParams) {
         this.requestParameters = savedParams;
-        
+
         // Mettre à jour les paramètres de procédure stockée si nécessaire
         if (savedParams.procedureParameters && this.card.configuration?.chartParameters?.parameters) {
           const updatedParameters = this.card.configuration.chartParameters.parameters.map((param: StoredProcedureParameter) => {
@@ -236,7 +236,7 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
 
   protected setupCommonChartOptions() {
     const visualConfig = this.card.configuration?.visualConfig;
-    
+
     // Calculer les marges de la grille en fonction de la position de la légende
     const gridMargins = {
       left: '3%',
@@ -323,22 +323,22 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
         itemGap: visualConfig.toolbox.itemGap ?? 10,
         showTitle: visualConfig.toolbox.showTitle ?? true,
         feature: {
-          dataZoom: { 
+          dataZoom: {
             show: visualConfig.toolbox.feature?.dataZoom?.show ?? false,
             title: {
               zoom: 'Zoom',
               back: 'Retour'
             }
           },
-          restore: { 
+          restore: {
             show: visualConfig.toolbox.feature?.restore?.show ?? false,
             title: 'Réinitialiser'
           },
-          saveAsImage: { 
+          saveAsImage: {
             show: visualConfig.toolbox.feature?.saveAsImage?.show ?? true,
             title: 'Sauvegarder'
           },
-          dataView: { 
+          dataView: {
             show: visualConfig.toolbox.feature?.dataView?.show ?? false,
             title: 'Données',
             lang: ['Vue données', 'Fermer', 'Actualiser']
@@ -359,7 +359,7 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
       baseOptions.toolbox = {
         show: true,
         feature: {
-          saveAsImage: { 
+          saveAsImage: {
             show: true,
             title: 'Sauvegarder'
           }
@@ -407,10 +407,10 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
   }
 
   protected onStoredProcedureParametersChange(parameters: StoredProcedureParameter[]) {
-    
+
     if (this.card.configuration?.chartParameters) {
       this.card.configuration.chartParameters.parameters = parameters;
     }
     this.loadData();
   }
-} 
+}

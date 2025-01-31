@@ -22,7 +22,6 @@ export class LabelCardConfigurationComponent implements OnInit {
   @Input() card!: CardDto<LabelCardConfig>;
   @Input() set validationErrors(errors: ValidationError[]) {
     this._validationErrors = errors;
-    // Optionnel: mettre à jour l'état du formulaire si nécessaire
   }
   get validationErrors(): ValidationError[] {
     return this._validationErrors;

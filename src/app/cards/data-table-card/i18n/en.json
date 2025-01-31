@@ -28,5 +28,15 @@
     },
     "LOADING": "Loading...",
     "ACTIONS": "Actions"
+  },
+  "DATA_TABLE_CARD": {
+    "ERRORS": {
+      "INVALID_DATASOURCE": "Invalid datasource configuration",
+      "COLUMN_KEY_REQUIRED": "Column key is required",
+      "INVALID_DECIMALS": "Invalid number of decimals",
+      "INVALID_HEADER_BG_COLOR": "Invalid header background color",
+      "INVALID_ROW_BG_COLOR": "Invalid row background color",
+      "CRUD_REQUIRES_DATASOURCE": "CRUD operations require a valid datasource"
+    }
   }
-} 
+}

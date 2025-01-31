@@ -7,7 +7,6 @@ export interface CardMetadata {
   name: string;
   icon: string;
   configComponent: Type<any>;
-  configType: Type<BaseCardConfig>;
   configFactory: Type<CardConfigFactory<BaseCardConfig>>;
   defaultConfig: () => BaseCardConfig;
   translationPath: string;  // Path for translations

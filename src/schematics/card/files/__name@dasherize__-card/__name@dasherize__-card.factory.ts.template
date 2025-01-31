@@ -19,13 +19,22 @@ export class <%= classify(name) %>CardConfigFactory extends CardConfigFactory<<%
   override validateConfig(config: <%= classify(name) %>CardConfig): ValidationResult {
     const errors: ValidationError[] = [];
 
-    // Add your validation rules here
     if (!config?.content?.text?.length) {
       errors.push({
         code: 'TEXT_REQUIRED',
         message: '<%= upperCase(name) %>-CARD.ERRORS.TEXT_REQUIRED',
         controlPath: 'text'
       });
+    }
+
+    if (config?.content?.fontSize) {
+      if (config.content.fontSize < 8 || config.content.fontSize > 72) {
+        errors.push({
+          code: 'INVALID_FONT_SIZE',
+          message: '<%= upperCase(name) %>-CARD.ERRORS.INVALID_FONT_SIZE',
+          controlPath: 'fontSize'
+        });
+      }
     }
 
     return {

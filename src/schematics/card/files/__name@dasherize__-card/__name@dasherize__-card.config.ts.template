@@ -2,17 +2,19 @@ import { BaseCardConfig, TranslatableString } from '@models/api.models';
 
 export class <%= classify(name) %>CardConfig extends BaseCardConfig {
   content: {
-    // Add your card specific configuration properties here
     text: TranslatableString[];
+    fontSize?: number;
+    fontWeight?: string;
+    textAlign?: 'left' | 'center' | 'right';
   };
 
   constructor() {
     super();
     this.content = {
-      text: [
-        { languageCode: 'fr', value: 'Nouveau <%= camelize(name) %>' },
-        { languageCode: 'en', value: 'New <%= camelize(name) %>' }
-      ]
+      text: [{ languageCode: 'fr', value: 'Nouveau <%= camelize(name) %>' }, { languageCode: 'en', value: 'New <%= camelize(name) %>' }],
+      fontSize: 16,
+      fontWeight: 'normal',
+      textAlign: 'left'
     };
   }
 }

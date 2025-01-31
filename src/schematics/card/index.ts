@@ -7,7 +7,8 @@ import {
   template,
   url,
   move,
-  chain
+  chain,
+  forEach
 } from '@angular-devkit/schematics';
 import { strings } from '@angular-devkit/core';
 import { Schema } from './schema';
@@ -19,6 +20,13 @@ export function card(_options: Schema): Rule {
       template({
         ..._options,
         ...strings,
+      }),
+      forEach(entry => {
+        if (!entry.path.endsWith('.template')) {
+          return null;
+        }
+        entry.path = entry.path.replace('.template', '');
+        return entry;
       }),
       move(`src/app/cards/${strings.dasherize(_options.name)}-card`)
     ]);

@@ -32,11 +32,13 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   @Output() configChange = new EventEmitter<DataTableCardConfig>();
   @Input() set validationErrors(errors: ValidationError[]) {
     this._validationErrors = errors;
+    this.updateErrorMessages();
   }
   get validationErrors(): ValidationError[] {
     return this._validationErrors;
   }
   private _validationErrors: ValidationError[] = [];
+  errorMessages: { [key: string]: string } = {};
   form: FormGroup;
   jsonSchema: string | null = null;
   columns: ColumnConfig[] = [];
@@ -716,5 +718,14 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
     // Mettre à jour le formulaire
     this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+  }
+
+  private updateErrorMessages() {
+    this.errorMessages = {};
+    this._validationErrors.forEach(error => {
+      if (error.controlPath) {
+        this.errorMessages[error.controlPath] = error.message;
+      }
+    });
   }
 }

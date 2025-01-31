@@ -8,6 +8,9 @@ import { PieChartCardConfig } from './pie-chart-card.models';
 import { Card } from '../card.decorator';
 import { PieChartCardConfigurationComponent } from './pie-chart-card-configuration.component';
 import { RequestParametersService } from '@shared/services/request-parameters.service';
+import { PieChartCardConfigFactory } from './pie-chart-card.factory';
+import { BaseCardComponent } from '@cards/base/base-card.component';
+import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 
 @Card({
   name: 'PieChart',
@@ -17,16 +20,18 @@ import { RequestParametersService } from '@shared/services/request-parameters.se
     <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
   </svg>`,
   configComponent: PieChartCardConfigurationComponent,
-  configType: PieChartCardConfig,
+  configFactory: PieChartCardConfigFactory,
   defaultConfig: () => new PieChartCardConfig()
 })
 @Component({
   selector: 'app-pie-chart-card',
-  templateUrl: '../base-chart-card.component.html',
+  templateUrl: '../base/base-chart-card.component.html',
   standalone: true,
   imports: [
-    CommonModule, 
-    TranslateModule
+    CommonModule,
+    TranslateModule,
+    BaseCardComponent,
+    ChartParametersFooterComponent
   ]
 })
 export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
@@ -97,4 +102,4 @@ export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
     const key = Object.keys(obj).find(k => k.toLowerCase() === normalizedName);
     return key ? obj[key] : undefined;
   }
-} 
+}

@@ -14,6 +14,12 @@
     "BACKGROUND_COLOR": "Background Color",
     "TEXT_COLOR": "Text Color",
     "SHOW_LEGEND": "Show Legend",
-    "SHOW_TOOLTIP": "Show Tooltip"
+    "SHOW_TOOLTIP": "Show Tooltip",
+    "VALIDATION": {
+      "INVALID_DATASOURCE": "Invalid datasource configuration",
+      "REQUIRED_LABEL_COLUMN": "Label column is required",
+      "REQUIRED_VALUE_COLUMN": "Value column is required",
+      "INVALID_RADIUS": "Radius must be a valid percentage (e.g. '75%')"
+    }
   }
-} 
+}

@@ -7,6 +7,7 @@ import { DatasourceConfigurationComponent } from '@shared/components/datasource-
 import { PieChartCardConfig } from './pie-chart-card.models';
 import { CardDto } from '@models/api.models';
 import { DatasourceConfig } from '@models/datasource.models';
+import { ValidationError } from '@cards/validation/validation.models';
 
 @Component({
   selector: 'app-pie-chart-card-configuration',
@@ -23,7 +24,16 @@ import { DatasourceConfig } from '@models/datasource.models';
 export class PieChartCardConfigurationComponent implements OnInit {
   @Input() card!: CardDto<PieChartCardConfig>;
   @Output() configChange = new EventEmitter<PieChartCardConfig>();
+  @Input() set validationErrors(errors: ValidationError[]) {
+    this._validationErrors = errors;
+    this.updateErrorMessages();
+  }
+  get validationErrors(): ValidationError[] {
+    return this._validationErrors;
+  }
 
+  private _validationErrors: ValidationError[] = [];
+  errorMessages: { [key: string]: string } = {};
   form: FormGroup;
   availableColumns: string[] = [];
 
@@ -88,4 +98,13 @@ export class PieChartCardConfigurationComponent implements OnInit {
     }
     this.configChange.emit(config);
   }
-} 
+
+  private updateErrorMessages() {
+    this.errorMessages = {};
+    this._validationErrors.forEach(error => {
+      if (error.controlPath) {
+        this.errorMessages[error.controlPath] = error.message;
+      }
+    });
+  }
+}

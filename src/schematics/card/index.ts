@@ -23,13 +23,19 @@ export function card(_options: Schema): Rule {
         ...strings,
       }),
       forEach((entry: FileEntry) => {
-        if (!entry.path.endsWith('.template')) {
-          return null;
+        // Log pour debug
+        console.log('Processing file:', entry.path);
+
+        // Ne pas filtrer les fichiers, traiter tous les templates
+        if (entry.path.endsWith('.template')) {
+          const newPath = entry.path.replace('.template', '');
+          console.log('New path:', newPath);
+          return {
+            ...entry,
+            path: normalize(newPath)
+          };
         }
-        return {
-          ...entry,
-          path: normalize(entry.path.replace('.template', ''))
-        };
+        return entry;
       }),
       move(`src/app/cards/${strings.dasherize(_options.name)}-card`)
     ]);

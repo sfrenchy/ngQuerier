@@ -1,0 +1,28 @@
+<form [formGroup]="form" class="space-y-6">
+  <div>
+    <div class="flex items-center justify-between mb-4">
+      <label class="block text-sm font-medium text-gray-200">
+        {{ 'HTMLCONTENT_CARD.HTML' | translate }}
+      </label>
+      <select
+        [value]="currentLanguage"
+        (change)="onLanguageChange($event)"
+        class="bg-gray-700 text-white rounded px-3 py-1.5 text-sm">
+        <option *ngFor="let lang of availableLanguages" [value]="lang.code">
+          {{ lang.label }}
+        </option>
+      </select>
+    </div>
+
+    <angular-editor
+      formControlName="htmlContent"
+      [config]="editorConfig"
+      class="editor-container">
+    </angular-editor>
+
+    <div *ngFor="let error of getControlErrors('html')"
+         class="mt-2 text-sm text-red-500">
+      {{ error.message | translate }}
+    </div>
+  </div>
+</form>

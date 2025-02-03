@@ -54,28 +54,27 @@ export class HTMLContentCardConfigurationComponent implements OnInit {
     showToolbar: true,
     placeholder: 'Enter text here...',
     defaultParagraphSeparator: 'p',
-    defaultFontName: '',
-    defaultFontSize: '',
+    defaultFontName: 'Arial',
+    defaultFontSize: '3',
     toolbarPosition: 'top',
     toolbarHiddenButtons: [
       [
         'subscript',
         'superscript',
-        'fontName',
-        'fontSize',
-        'backgroundColor',
         'customClasses',
         'insertVideo',
         'insertHorizontalRule',
         'toggleEditorMode'
-      ]
+      ],
+      [] // Second array pour organiser les boutons en groupes
     ],
     customClasses: [],
     sanitize: false,
     fonts: [
       {class: 'arial', name: 'Arial'},
       {class: 'times-new-roman', name: 'Times New Roman'},
-      {class: 'calibri', name: 'Calibri'}
+      {class: 'calibri', name: 'Calibri'},
+      {class: 'roboto', name: 'Roboto'}
     ]
   };
 
@@ -98,6 +97,9 @@ export class HTMLContentCardConfigurationComponent implements OnInit {
         htmlContent: content?.value || ''
       }, { emitEvent: false });
     }
+
+    // Définir la couleur de fond
+    document.documentElement.style.setProperty('--card-bg-color', this.getBackgroundColor());
   }
 
   onLanguageChange(event: Event) {
@@ -140,5 +142,16 @@ export class HTMLContentCardConfigurationComponent implements OnInit {
 
   getControlErrors(controlPath: string): ValidationError[] {
     return this.validationErrors.filter(error => error.controlPath === controlPath);
+  }
+
+  getBackgroundColor(): string {
+    if (typeof this.card.backgroundColor === 'number') {
+      // Convertit le nombre en RGB
+      const r = (this.card.backgroundColor >> 16) & 255;
+      const g = (this.card.backgroundColor >> 8) & 255;
+      const b = this.card.backgroundColor & 255;
+      return `rgb(${r} ${g} ${b})`;
+    }
+    return 'rgb(17 24 39)'; // Valeur par défaut
   }
 }

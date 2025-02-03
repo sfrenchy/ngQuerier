@@ -14,11 +14,14 @@
       </select>
     </div>
 
-    <angular-editor
-      formControlName="htmlContent"
-      [config]="editorConfig"
-      class="editor-container">
-    </angular-editor>
+    <div class="reset">
+      <div style="background-color: {{ getBackgroundColor() }};">
+        <angular-editor
+          [formControlName]="'htmlContent'"
+          [config]="editorConfig"
+        ></angular-editor>
+      </div>
+    </div>
 
     <div *ngFor="let error of getControlErrors('html')"
          class="mt-2 text-sm text-red-500">

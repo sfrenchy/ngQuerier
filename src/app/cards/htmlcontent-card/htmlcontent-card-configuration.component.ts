@@ -41,40 +41,7 @@ export class HTMLContentCardConfigurationComponent implements OnInit {
     { code: 'en', label: 'English' }
   ];
 
-  editorConfig: AngularEditorConfig = {
-    editable: true,
-    spellcheck: true,
-    height: '300px',
-    minHeight: '200px',
-    maxHeight: '400px',
-    width: 'auto',
-    minWidth: '0',
-    translate: 'yes',
-    enableToolbar: true,
-    showToolbar: true,
-    placeholder: 'Enter text here...',
-    defaultParagraphSeparator: 'p',
-    defaultFontName: 'Arial',
-    defaultFontSize: '3',
-    toolbarPosition: 'top',
-    toolbarHiddenButtons: [
-      [
-        'subscript',
-        'superscript',
-        'customClasses',
-        'insertVideo',
-      ],
-      [] // Second array pour organiser les boutons en groupes
-    ],
-    customClasses: [],
-    sanitize: false,
-    fonts: [
-      {class: 'arial', name: 'Arial'},
-      {class: 'times-new-roman', name: 'Times New Roman'},
-      {class: 'calibri', name: 'Calibri'},
-      {class: 'roboto', name: 'Roboto'}
-    ]
-  };
+  isFullscreen = false;
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -151,5 +118,46 @@ export class HTMLContentCardConfigurationComponent implements OnInit {
       return `rgb(${r} ${g} ${b})`;
     }
     return 'rgb(17 24 39)'; // Valeur par défaut
+  }
+
+  get editorConfig(): AngularEditorConfig {
+    return {
+      editable: true,
+      spellcheck: true,
+      height: this.isFullscreen ? 'calc(100vh - 8rem)' : '300px',
+      minHeight: this.isFullscreen ? 'calc(100vh - 8rem)' : '200px',
+      maxHeight: this.isFullscreen ? 'calc(100vh - 8rem)' : '400px',
+      width: 'auto',
+      minWidth: '0',
+      translate: 'yes',
+      enableToolbar: true,
+      showToolbar: true,
+      placeholder: 'Enter text here...',
+      defaultParagraphSeparator: 'p',
+      defaultFontName: 'Arial',
+      defaultFontSize: '3',
+      toolbarPosition: 'top',
+      toolbarHiddenButtons: [
+        [
+          'subscript',
+          'superscript',
+          'customClasses',
+          'insertVideo',
+        ],
+        []
+      ],
+      customClasses: [],
+      sanitize: false,
+      fonts: [
+        {class: 'arial', name: 'Arial'},
+        {class: 'times-new-roman', name: 'Times New Roman'},
+        {class: 'calibri', name: 'Calibri'},
+        {class: 'roboto', name: 'Roboto'}
+      ]
+    };
+  }
+
+  toggleFullscreen() {
+    this.isFullscreen = !this.isFullscreen;
   }
 }

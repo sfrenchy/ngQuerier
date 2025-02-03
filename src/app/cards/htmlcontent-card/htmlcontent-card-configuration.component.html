@@ -1,21 +1,35 @@
 <form [formGroup]="form" class="space-y-6">
-  <div>
+  <div [class.fixed]="isFullscreen" [class.inset-0]="isFullscreen" [class.z-50]="isFullscreen" [class.bg-gray-900]="isFullscreen">
     <div class="flex items-center justify-between mb-4">
       <label class="block text-sm font-medium text-gray-200">
         {{ 'HTMLCONTENT_CARD.HTML' | translate }}
       </label>
-      <select
-        [value]="currentLanguage"
-        (change)="onLanguageChange($event)"
-        class="bg-gray-700 text-white rounded px-3 py-1.5 text-sm">
-        <option *ngFor="let lang of availableLanguages" [value]="lang.code">
-          {{ lang.label }}
-        </option>
-      </select>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          (click)="toggleFullscreen()"
+          class="inline-flex items-center justify-center p-2 rounded-md text-gray-200 hover:text-white hover:bg-gray-700 focus:outline-none"
+        >
+          <svg *ngIf="!isFullscreen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+          <svg *ngIf="isFullscreen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <select
+          [value]="currentLanguage"
+          (change)="onLanguageChange($event)"
+          class="bg-gray-700 text-white rounded px-3 py-1.5 text-sm">
+          <option *ngFor="let lang of availableLanguages" [value]="lang.code">
+            {{ lang.label }}
+          </option>
+        </select>
+      </div>
     </div>
 
-    <div class="reset">
-      <div style="background-color: {{ getBackgroundColor() }};">
+    <div class="reset" [class.h-[calc(100vh-6rem)]="isFullscreen">
+      <div [style.background-color]="getBackgroundColor()" [class.h-full]="isFullscreen">
         <angular-editor
           [formControlName]="'htmlContent'"
           [config]="editorConfig"

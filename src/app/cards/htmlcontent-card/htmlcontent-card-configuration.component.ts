@@ -63,8 +63,6 @@ export class HTMLContentCardConfigurationComponent implements OnInit {
         'superscript',
         'customClasses',
         'insertVideo',
-        'insertHorizontalRule',
-        'toggleEditorMode'
       ],
       [] // Second array pour organiser les boutons en groupes
     ],

@@ -1,0 +1,79 @@
+PLAN D'IMPLÉMENTATION DU SYSTÈME DE TEMPLATING
+
+1. STRUCTURE DU SYSTÈME DE VARIABLES
+--------------------------------
+Interface TemplateVariable {
+  key: string         // Identifiant unique
+  category: string    // Système/Contexte/Custom
+  label: string      // Nom affiché
+  description: string // Explication
+  path: string       // Chemin d'accès (ex: user.firstName)
+}
+
+2. VARIABLES DISPONIBLES INITIALEMENT
+--------------------------------
+Système:
+- user.firstName
+- user.lastName
+- user.email
+- date.now
+- date.today
+
+Contexte:
+- databases[] : liste des connexions
+- config : configuration globale
+
+3. MODIFICATIONS DE L'INTERFACE
+--------------------------------
+- Ajouter bouton "Variables" dans toolbar
+- Menu déroulant avec catégories
+- Style spécial pour variables dans éditeur
+- Prévisualisation avec syntaxe $[variable]
+
+4. IMPLÉMENTATION TECHNIQUE
+--------------------------------
+Phase 1 - Variables simples:
+- Service de gestion des variables
+- Insertion dans l'éditeur
+- Parser pour le rendu
+- Résolution des variables système
+
+Phase 2 - Structures de contrôle:
+- Syntaxe #if, #for
+- Parser pour les structures
+- Logique d'évaluation
+- Gestion des erreurs
+
+Phase 3 - Variables personnalisées:
+- Définition de variables custom
+- Persistance
+- Interface de configuration
+
+5. COMPOSANTS À MODIFIER
+--------------------------------
+HTMLContentCardConfigurationComponent:
+- Nouveau bouton toolbar
+- Menu de sélection
+- Prévisualisation
+
+HTMLContentCardComponent:
+- Parser de template
+- Résolution des variables
+- Rendu final
+
+6. TESTS NÉCESSAIRES
+--------------------------------
+- Parser de template
+- Résolution des variables
+- Structures de contrôle
+- Rendu complet
+- Cas d'erreur
+- Performance
+
+ORDRE DE DÉVELOPPEMENT SUGGÉRÉ:
+1. Service de gestion des variables
+2. Ajout du bouton dans la toolbar
+3. Implémentation du parser basique
+4. Système de rendu simple
+5. Ajout des structures de contrôle
+6. Variables personnalisées

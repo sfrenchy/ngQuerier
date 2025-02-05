@@ -1,132 +1,183 @@
 <div class="p-6">
   <div class="bg-gray-800 rounded-lg shadow-lg text-gray-100">
-    <div class="p-6 border-b border-gray-700">
-      <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-semibold">{{ 'DATABASES.TITLE' | translate }}</h2>
-        <button
-          (click)="onAddClick()"
-          class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
-        >
-          <i class="fas fa-plus"></i>
-          {{ 'DATABASES.ADD' | translate }}
-        </button>
-      </div>
-    </div>
-    
     <div class="p-6">
       <div class="space-y-4">
-        <div *ngIf="showAddForm" class="bg-gray-700 rounded-lg p-6 mb-4">
-          <form [formGroup]="dbForm" (ngSubmit)="onSubmit()" class="space-y-4">
-            <div>
-              <label class="block text-sm font-medium mb-2">
-                {{ 'DATABASES.NAME' | translate }}
-              </label>
-              <input
-                type="text"
-                formControlName="name"
-                class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                [placeholder]="'DATABASES.NAME_PLACEHOLDER' | translate"
-              />
-            </div>
+        <ng-container *ngIf="!showAddForm">
+          <div class="flex justify-between items-center mb-4">
+            <h1 class="text-2xl">{{ 'DATABASES.TITLE' | translate }}</h1>
+            <button
+              (click)="onAddClick()"
+              class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors flex items-center gap-2"
+            >
+              <i class="fas fa-plus"></i>
+              {{ 'DATABASES.ADD' | translate }}
+            </button>
+          </div>
 
-            <div>
-              <label class="block text-sm font-medium mb-2">
-                {{ 'DATABASES.PROVIDER' | translate }}
-              </label>
-              <select
-                formControlName="connectionType"
-                class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">{{ 'DATABASES.SELECT_PROVIDER' | translate }}</option>
-                <option *ngFor="let provider of providers" [value]="provider.value">
-                  {{ provider.label }}
-                </option>
-              </select>
-            </div>
+          <div *ngIf="connections.length === 0" class="text-center py-8 text-gray-500">
+            {{ 'DATABASES.NO_CONNECTIONS' | translate }}
+          </div>
 
-            <div>
-              <label class="block text-sm font-medium mb-2">
-                {{ 'DATABASES.CONNECTION_STRING' | translate }}
-              </label>
-              <input
-                type="text"
-                formControlName="connectionString"
-                class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                [placeholder]="'DATABASES.CONNECTION_STRING_PLACEHOLDER' | translate"
-              />
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium mb-2">
-                {{ 'DATABASES.CONTEXT_API_ROUTE' | translate }}
-              </label>
-              <input
-                type="text"
-                formControlName="contextApiRoute"
-                class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                [placeholder]="'DATABASES.CONTEXT_API_ROUTE_PLACEHOLDER' | translate"
-              />
-            </div>
-
-            <div class="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="generateProcedures"
-                formControlName="generateProcedureControllersAndServices"
-                class="w-4 h-4 text-blue-600 bg-gray-900 border-gray-600 rounded focus:ring-blue-500"
-              />
-              <label for="generateProcedures" class="text-sm font-medium">
-                {{ 'DATABASES.GENERATE_PROCEDURES' | translate }}
-              </label>
-            </div>
-            
-            <div class="flex justify-end gap-4">
-              <button
-                type="button"
-                (click)="onCancelClick()"
-                class="px-4 py-2 text-gray-300 hover:text-white transition-colors"
-              >
-                {{ 'COMMON.CANCEL' | translate }}
-              </button>
-              <button
-                type="submit"
-                [disabled]="!dbForm.valid"
-                class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {{ 'COMMON.SAVE' | translate }}
-              </button>
-            </div>
-          </form>
-        </div>
-
-        <div *ngFor="let connection of connections" class="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="flex flex-col gap-2">
-              <span class="text-lg">{{ connection.name }}</span>
-              <div class="flex gap-2">
-                <span class="px-2 py-1 text-xs rounded bg-blue-600 text-white">
-                  {{ getProviderLabel(connection.connectionType) }}
-                </span>
-                <span class="px-2 py-1 text-xs rounded bg-gray-600 text-white">
-                  /{{ connection.apiRoute }}
-                </span>
+          <div class="p-6Dans le menu repliable">
+            <div *ngFor="let connection of connections" class="bg-gray-700 rounded-lg p-4 flex items-center justify-between">
+              <div class="flex items-center gap-4">
+                <div class="flex flex-col gap-2">
+                  <span class="text-lg">{{ connection.name }}</span>
+                  <div class="flex gap-2">
+                    <span class="px-2 py-1 text-xs rounded bg-blue-600 text-white">
+                      {{ getProviderLabel(connection.connectionType) }}
+                    </span>
+                    <span class="px-2 py-1 text-xs rounded bg-gray-600 text-white">
+                      /{{ connection.apiRoute }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <button
+                  (click)="onDeleteClick(connection)"
+                  class="text-red-400 hover:text-red-300 transition-colors"
+                  title="{{ 'COMMON.DELETE' | translate }}"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
               </div>
             </div>
           </div>
-          <div class="flex items-center gap-3">
-            <button
-              (click)="onDeleteClick(connection)"
-              class="text-red-400 hover:text-red-300 transition-colors"
-              title="{{ 'COMMON.DELETE' | translate }}"
-            >
-              <i class="fas fa-trash"></i>
-            </button>
+        </ng-container>
+
+        <ng-container *ngIf="showAddForm">
+          <div class="bg-gray-700 rounded-lg p-6 mb-4">
+            <form [formGroup]="dbForm" (ngSubmit)="onSubmit()" class="space-y-4">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-sm font-medium mb-2">
+                    {{ 'DATABASES.NAME' | translate }}
+                  </label>
+                  <input
+                    type="text"
+                    formControlName="name"
+                    class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                    [class.border-red-500]="nameErrors"
+                    [placeholder]="'DATABASES.NAME_PLACEHOLDER' | translate"
+                  />
+                  <div *ngIf="nameErrors" class="mt-1 text-sm text-red-500">
+                    {{ nameErrors | translate }}
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-sm font-medium mb-2">
+                    {{ 'DATABASES.PROVIDER' | translate }}
+                  </label>
+                  <select
+                    formControlName="connectionType"
+                    class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  >
+                    <option value="">{{ 'DATABASES.SELECT_PROVIDER' | translate }}</option>
+                    <option *ngFor="let provider of providers" [value]="provider.value">
+                      {{ provider.label }}
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="space-y-4" formArrayName="parameters">
+                <div class="flex justify-between items-center">
+                  <h3 class="text-lg font-medium">{{ 'DATABASES.CONNECTION_PARAMS' | translate }}</h3>
+                  <button
+                    type="button"
+                    (click)="addParameter()"
+                    class="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                  >
+                    <i class="fas fa-plus mr-2"></i>
+                    {{ 'DATABASES.ADD_PARAM' | translate }}
+                  </button>
+                </div>
+
+                <div *ngFor="let param of parameters.controls; let i = index" [formGroupName]="i"
+                     class="grid grid-cols-12 gap-4 items-start bg-gray-800 p-4 rounded">
+                  <div class="col-span-3">
+                    <label class="block text-sm font-medium mb-2">{{ 'DATABASES.PARAM_KEY' | translate }}</label>
+                    <input
+                      type="text"
+                      formControlName="key"
+                      class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600"
+                    />
+                  </div>
+
+                  <div class="col-span-7">
+                    <label class="block text-sm font-medium mb-2">{{ 'DATABASES.PARAM_VALUE' | translate }}</label>
+                    <input
+                      [type]="param.get('isEncrypted')?.value ? 'password' : 'text'"
+                      formControlName="value"
+                      class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600"
+                    />
+                  </div>
+
+                  <div class="col-span-1 pt-8">
+                    <label class="inline-flex items-center">
+                      <input type="checkbox" formControlName="isEncrypted" class="form-checkbox h-5 w-5"/>
+                      <i class="fas fa-lock ml-2" title="{{ 'DATABASES.ENCRYPT_VALUE' | translate }}"></i>
+                    </label>
+                  </div>
+
+                  <div class="col-span-1 pt-8">
+                    <button
+                      type="button"
+                      (click)="removeParameter(i)"
+                      class="text-red-400 hover:text-red-300"
+                      title="{{ 'COMMON.DELETE' | translate }}"
+                    >
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium mb-2">
+                  {{ 'DATABASES.CONTEXT_API_ROUTE' | translate }}
+                </label>
+                <input
+                  type="text"
+                  formControlName="contextApiRoute"
+                  class="w-full px-3 py-2 bg-gray-900 rounded border border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  [placeholder]="'DATABASES.CONTEXT_API_ROUTE_PLACEHOLDER' | translate"
+                />
+              </div>
+
+              <div class="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="generateProcedures"
+                  formControlName="generateProcedureControllersAndServices"
+                  class="w-4 h-4 text-blue-600 bg-gray-900 border-gray-600 rounded focus:ring-blue-500"
+                />
+                <label for="generateProcedures" class="text-sm font-medium">
+                  {{ 'DATABASES.GENERATE_PROCEDURES' | translate }}
+                </label>
+              </div>
+
+              <div class="flex justify-end gap-4">
+                <button
+                  type="button"
+                  (click)="onCancelClick()"
+                  class="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+                >
+                  {{ 'COMMON.CANCEL' | translate }}
+                </button>
+                <button
+                  type="submit"
+                  [disabled]="!dbForm.valid"
+                  class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {{ 'COMMON.SAVE' | translate }}
+                </button>
+              </div>
+            </form>
           </div>
-        </div>
-        
-        <div *ngIf="connections.length === 0" class="text-center text-gray-400 py-8">
-          {{ 'DATABASES.NO_CONNECTIONS' | translate }}
-        </div>
+        </ng-container>
       </div>
     </div>
   </div>
@@ -138,4 +189,4 @@
   [messageParams]="{ name: connectionToDelete?.name }"
   (confirm)="onConfirmDelete()"
   (cancel)="onCancelDelete()"
-></app-confirmation-dialog> 
+></app-confirmation-dialog>

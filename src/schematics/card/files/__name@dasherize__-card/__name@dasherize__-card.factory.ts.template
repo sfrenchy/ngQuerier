@@ -1,0 +1,45 @@
+import { Injectable } from '@angular/core';
+import { CardConfigFactory } from '@cards/card-config.factory';
+import { CardValidationService } from '@cards/card-validation.service';
+import { <%= classify(name) %>CardConfig } from './<%= dasherize(name) %>-card.config';
+import { ValidationResult, ValidationError } from '@cards/validation/validation.models';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class <%= classify(name) %>CardConfigFactory extends CardConfigFactory<<%= classify(name) %>CardConfig> {
+  constructor(protected override validationService: CardValidationService) {
+    super(validationService);
+  }
+
+  createDefaultConfig(): <%= classify(name) %>CardConfig {
+    return new <%= classify(name) %>CardConfig();
+  }
+
+  override validateConfig(config: <%= classify(name) %>CardConfig): ValidationResult {
+    const errors: ValidationError[] = [];
+
+    if (!config?.content?.text?.length) {
+      errors.push({
+        code: 'TEXT_REQUIRED',
+        message: '<%= dasherize(name).toUpperCase() %>_CARD.ERRORS.TEXT_REQUIRED',
+        controlPath: 'text'
+      });
+    }
+
+    if (config?.content?.fontSize) {
+      if (config.content.fontSize < 8 || config.content.fontSize > 72) {
+        errors.push({
+          code: 'INVALID_FONT_SIZE',
+          message: '<%= dasherize(name).toUpperCase() %>_CARD.ERRORS.INVALID_FONT_SIZE',
+          controlPath: 'fontSize'
+        });
+      }
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+}

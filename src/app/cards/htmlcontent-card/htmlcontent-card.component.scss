@@ -1,0 +1,21 @@
+.reset {
+  all: unset;
+}
+
+:host ::ng-deep {
+  .angular-editor {
+    border: none !important;
+
+    .angular-editor-wrapper {
+      .angular-editor-textarea {
+        resize: none !important;
+        overflow: hidden !important;
+        border: none !important;
+        padding: 0 !important;
+        outline: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+      }
+    }
+  }
+}

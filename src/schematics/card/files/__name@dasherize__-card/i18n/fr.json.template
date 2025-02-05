@@ -1,0 +1,8 @@
+{
+  "<%= dasherize(name).toUpperCase() %>_CARD": {
+    "TEXT": "Texte",
+    "ERRORS": {
+      "TEXT_REQUIRED": "Le texte est requis"
+    }
+  }
+}

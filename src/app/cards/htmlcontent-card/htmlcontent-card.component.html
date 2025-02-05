@@ -1,0 +1,8 @@
+<app-base-card [card]="card" [isEditing]="isEditing">
+  <div body class="h-full w-full reset">
+    <angular-editor
+      [config]="viewerConfig"
+      [(ngModel)]="htmlContent"
+    ></angular-editor>
+  </div>
+</app-base-card>

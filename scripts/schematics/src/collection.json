@@ -1,0 +1,10 @@
+{
+  "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "card": {
+      "description": "Generate a new card",
+      "factory": "./card",
+      "schema": "./card/schema.json"
+    }
+  }
+}

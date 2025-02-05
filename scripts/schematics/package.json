@@ -1,22 +1,16 @@
 {
   "name": "@querier/schematics",
   "version": "1.0.0",
-  "description": "Schematics for Querier",
-  "schematics": "./collection.json",
+  "schematics": "./dist/collection.json",
   "scripts": {
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
     "build": "tsc -p tsconfig.json",
-    "postbuild": "copyfiles collection.json */schema.json */files/** dist/"
+    "postbuild": "cp src/collection.json dist/ && cp -r src/card/files dist/card/ && cp src/card/schema.json dist/card/"
   },
-  "keywords": [
-    "schematics",
-    "querier"
-  ],
   "dependencies": {
     "@angular-devkit/core": "^19.0.6",
     "@angular-devkit/schematics": "^19.0.6",
     "typescript": "~5.6.2"
-  },
-  "devDependencies": {
-    "copyfiles": "^2.4.1"
   }
-} 
+}

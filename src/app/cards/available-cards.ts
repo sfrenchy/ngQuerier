@@ -5,6 +5,7 @@ import '@cards/stacked-bar-and-lines-chart-card/stacked-bar-and-lines-chart.comp
 import '@cards/line-chart-card/line-chart-card.component';
 import '@cards/label-card/label-card.component';
 import '@cards/data-table-card/data-table-card.component';
+import '@cards/htmlcontent-card/htmlcontent-card.component';
 
 @Injectable({
   providedIn: 'root'

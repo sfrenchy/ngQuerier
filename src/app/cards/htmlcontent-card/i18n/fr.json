@@ -1,0 +1,10 @@
+{
+  "HTMLCONTENT_CARD": {
+    "TITLE": "Contenu HTML",
+    "HTML": "Contenu",
+    "EDITOR_PLACEHOLDER": "Saisissez votre contenu ici...",
+    "ERRORS": {
+      "NO_CONTENT": "Le contenu est requis"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+import { BaseCardConfig, TranslatableString } from '@models/api.models';
+
+export class <%= classify(name) %>CardConfig extends BaseCardConfig {
+  content: {
+    text: TranslatableString[];
+  };
+
+  constructor() {
+    super();
+    this.content = {
+      text: []
+    };
+  }
+}

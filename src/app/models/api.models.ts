@@ -75,8 +75,9 @@ export interface RoleDto {
 export interface DBConnectionCreateDto {
   name: string;
   connectionType: DBConnectionType;
-  connectionString: string;
-  contextApiRoute: string;
+  parameters: Omit<ConnectionStringParameterDto, 'id'>[];
+  contextName: string;
+  apiRoute: string;
   generateProcedureControllersAndServices: boolean;
 }
 
@@ -84,10 +85,9 @@ export interface DBConnectionDto {
   id: number;
   name: string;
   connectionType: DBConnectionType;
-  connectionString: string;
-  apiRoute: string;
+  parameters: ConnectionStringParameterDto[];
   contextName: string;
-  description: string;
+  apiRoute: string;
 }
 
 export enum DBConnectionType {
@@ -460,4 +460,11 @@ export enum DataSourceType {
   StoredProcedure = 1,
   View = 2,
   Query = 3
+}
+
+export interface ConnectionStringParameterDto {
+  id: number;
+  key: string;
+  value: string;
+  isEncrypted: boolean;
 }

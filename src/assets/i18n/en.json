@@ -294,18 +294,50 @@
     "REDIS_PORT": "Redis Port"
   },
   "DATABASES": {
-    "TITLE": "Databases",
-    "ADD": "Add database",
-    "NAME": "Name",
-    "NAME_PLACEHOLDER": "Database name",
+    "TITLE": "Database Connections",
+    "ADD": "Add Connection",
+    "CONNECTION_TYPE": "Connection Type",
     "PROVIDER": "Provider",
-    "SELECT_PROVIDER": "Select a provider",
-    "CONNECTION_STRING": "Connection string",
-    "CONNECTION_STRING_PLACEHOLDER": "Database connection string",
+    "NAME": "Name",
+    "NAME_PLACEHOLDER": "Enter connection name",
+    "PARAMETERS": "Connection Parameters",
+    "CONNECTION_PARAMS": "Connection Parameters",
+    "ADD_PARAM": "Add Parameter",
+    "CONTEXT_NAME": "Context Name",
+    "CONTEXT_NAME_PLACEHOLDER": "Enter context name",
+    "API_ROUTE": "API Route",
+    "API_ROUTE_PLACEHOLDER": "Enter API route",
     "CONTEXT_API_ROUTE": "API Route",
-    "CONTEXT_API_ROUTE_PLACEHOLDER": "API route separator (e.g. api/v1)",
-    "GENERATE_PROCEDURES": "Generate controllers for stored procedures",
-    "NO_CONNECTIONS": "No database configured"
+    "CONTEXT_API_ROUTE_PLACEHOLDER": "API route separator (e.g. mssql/northwind)",
+    "ADVANCED_OPTIONS": "Advanced Options",
+    "GENERATE_PROCEDURES": "Generate controllers and services for stored procedures",
+    "DELETE_CONFIRM": "Are you sure you want to delete this connection?",
+    "DELETE_TITLE": "Delete Connection",
+    "NO_CONNECTIONS": "No database connections configured",
+    "PARAMETER": {
+      "KEY": "Parameter Name",
+      "VALUE": "Value",
+      "IS_ENCRYPTED": "Encrypt Value",
+      "ADD": "Add Parameter",
+      "REMOVE": "Remove Parameter"
+    },
+    "PARAM_KEY": "Parameter Name",
+    "PARAM_VALUE": "Value",
+    "ENCRYPT_VALUE": "Encrypt Value",
+    "VALIDATION": {
+      "NAME_REQUIRED": "Name is required",
+      "NAME_PATTERN": "Name can only contain letters, numbers and underscores",
+      "NAME_NO_LEADING_DIGIT": "Name cannot start with a number",
+      "CONTEXT_NAME_REQUIRED": "Context name is required",
+      "API_ROUTE_REQUIRED": "API route is required",
+      "PARAMETER_KEY_REQUIRED": "Parameter name is required",
+      "PARAMETER_VALUE_REQUIRED": "Parameter value is required"
+    },
+    "CONNECTION_TYPES": {
+      "SQLSERVER": "SQL Server",
+      "MYSQL": "MySQL",
+      "POSTGRESQL": "PostgreSQL"
+    }
   },
   "LANGUAGES": {
     "EN": "English",

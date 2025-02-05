@@ -1,10 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, AbstractControl, ValidatorFn } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApiService } from '@services/api.service';
-import { DBConnectionCreateDto, DBConnectionDto, DBConnectionType } from '@models/api.models';
+import { DBConnectionCreateDto, DBConnectionDto, DBConnectionType, ConnectionStringParameterDto } from '@models/api.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+
+interface DBProviderConfig {
+  value: number;
+  label: string;
+  defaultParams: { key: string; isEncrypted: boolean }[];
+}
 
 @Component({
   selector: 'app-databases',
@@ -17,24 +23,101 @@ export class DatabasesComponent implements OnInit {
   showDeleteConfirmation = false;
   connectionToDelete: DBConnectionDto | null = null;
   showAddForm = false;
-  dbForm: FormGroup;
-  providers = [
-    { value: DBConnectionType.SqlServer, label: 'SQL Server' },
-    { value: DBConnectionType.MySQL, label: 'MySQL' },
-    { value: DBConnectionType.PgSQL, label: 'PostgreSQL' }
+  dbForm!: FormGroup;
+  showAdvancedOptions = false;
+
+  providers: DBProviderConfig[] = [
+    {
+      value: 0,
+      label: 'SQL Server',
+      defaultParams: [
+        { key: 'Server', isEncrypted: false },
+        { key: 'Database', isEncrypted: false },
+        { key: 'User Id', isEncrypted: false },
+        { key: 'Password', isEncrypted: true },
+        { key: 'TrustServerCertificate', isEncrypted: false }
+      ]
+    },
+    {
+      value: 1,
+      label: 'MySQL',
+      defaultParams: [
+        { key: 'Server', isEncrypted: false },
+        { key: 'Database', isEncrypted: false },
+        { key: 'Uid', isEncrypted: false },
+        { key: 'Pwd', isEncrypted: true },
+        { key: 'Port', isEncrypted: false }
+      ]
+    },
+    {
+      value: 2,
+      label: 'PostgreSQL',
+      defaultParams: [
+        { key: 'Host', isEncrypted: false },
+        { key: 'Database', isEncrypted: false },
+        { key: 'Username', isEncrypted: false },
+        { key: 'Password', isEncrypted: true },
+        { key: 'Port', isEncrypted: false }
+      ]
+    }
   ];
 
   constructor(
     private apiService: ApiService,
     private fb: FormBuilder
   ) {
+    this.initForm();
+  }
+
+  private initForm(): void {
     this.dbForm = this.fb.group({
-      name: ['', [Validators.required]],
+      name: ['', [
+        Validators.required,
+        Validators.pattern('^[a-zA-Z0-9_]+$'), // Uniquement lettres, chiffres et underscore
+        this.noLeadingDigitValidator() // Pas de chiffre en premier caractère
+      ]],
       connectionType: ['', [Validators.required]],
-      connectionString: ['', [Validators.required]],
       contextApiRoute: ['', [Validators.required]],
-      generateProcedureControllersAndServices: [false]
+      generateProcedureControllersAndServices: [false],
+      parameters: this.fb.array([])
     });
+
+    // Réagir aux changements du type de connexion
+    this.dbForm.get('connectionType')?.valueChanges.subscribe((type: DBConnectionType) => {
+      console.log('Connection type changed:', type); // Debug
+      if (type) {
+        this.updateParametersForType(type);
+      }
+    });
+  }
+
+  private updateParametersForType(type: DBConnectionType): void {
+    console.log('Updating parameters for type:', type); // Debug
+    const parameters = this.dbForm.get('parameters') as FormArray;
+
+    // Vider les paramètres existants
+    while (parameters.length !== 0) {
+      parameters.removeAt(0);
+    }
+
+    const providerConfig = this.providers.find(p => p.value === Number(type));
+    console.log('Provider config:', providerConfig); // Debug
+
+    if (providerConfig) {
+      providerConfig.defaultParams.forEach(param => {
+        console.log('Adding parameter:', param); // Debug
+        this.addParameter(param.key, '', param.isEncrypted);
+      });
+    }
+  }
+
+  get parameters(): FormArray {
+    return this.dbForm.get('parameters') as FormArray;
+  }
+
+  removeParameter(index: number): void {
+    const parameters = this.dbForm.get('parameters') as FormArray;
+    parameters.removeAt(index);
   }
 
   ngOnInit(): void {
@@ -120,8 +203,9 @@ export class DatabasesComponent implements OnInit {
       const connection: DBConnectionCreateDto = {
         name: formValue.name,
         connectionType: formValue.connectionType,
-        connectionString: formValue.connectionString,
-        contextApiRoute: formValue.contextApiRoute,
+        parameters: formValue.parameters,
+        contextName: formValue.contextApiRoute,
+        apiRoute: formValue.contextApiRoute,
         generateProcedureControllersAndServices: formValue.generateProcedureControllersAndServices
       };
 
@@ -145,4 +229,40 @@ export class DatabasesComponent implements OnInit {
     this.showAddForm = false;
     this.dbForm.reset();
   }
-} 
+
+  addParameter(key: string = '', value: string = '', isEncrypted: boolean = false): void {
+    const parameters = this.dbForm.get('parameters') as FormArray;
+    parameters.push(
+      this.fb.group({
+        key: [key, Validators.required],
+        value: [value, Validators.required],
+        isEncrypted: [isEncrypted]
+      })
+    );
+  }
+
+  // Validateur pour empêcher un chiffre en premier caractère
+  private noLeadingDigitValidator(): ValidatorFn {
+    return (control: AbstractControl): {[key: string]: any} | null => {
+      const forbidden = /^[0-9]/.test(control.value);
+      return forbidden ? {'noLeadingDigit': {value: control.value}} : null;
+    };
+  }
+
+  // Getter pour faciliter l'accès aux erreurs dans le template
+  get nameErrors() {
+    const control = this.dbForm.get('name');
+    if (control?.errors && control.touched) {
+      if (control.errors['required']) {
+        return 'DATABASES.VALIDATION.NAME_REQUIRED';
+      }
+      if (control.errors['pattern']) {
+        return 'DATABASES.VALIDATION.NAME_PATTERN';
+      }
+      if (control.errors['noLeadingDigit']) {
+        return 'DATABASES.VALIDATION.NAME_NO_LEADING_DIGIT';
+      }
+    }
+    return null;
+  }
+}

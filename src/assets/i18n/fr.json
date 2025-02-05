@@ -302,18 +302,50 @@
     "REDIS_PORT": "Port Redis"
   },
   "DATABASES": {
-    "TITLE": "Bases de données",
-    "ADD": "Ajouter une base de données",
-    "NAME": "Nom",
-    "NAME_PLACEHOLDER": "Nom de la base de données",
+    "TITLE": "Connexions aux bases de données",
+    "ADD": "Ajouter une connexion",
+    "CONNECTION_TYPE": "Type de connexion",
     "PROVIDER": "Fournisseur",
-    "SELECT_PROVIDER": "Sélectionner un fournisseur",
-    "CONNECTION_STRING": "Chaîne de connexion",
-    "CONNECTION_STRING_PLACEHOLDER": "Chaîne de connexion à la base de données",
-    "CONTEXT_API_ROUTE": "Route de l'API",
-    "CONTEXT_API_ROUTE_PLACEHOLDER": "Séparateur de route d'API (ex: api/v1)",
-    "GENERATE_PROCEDURES": "Générer les contrôleurs pour les procédures stockées",
-    "NO_CONNECTIONS": "Aucune base de données configurée"
+    "NAME": "Nom",
+    "NAME_PLACEHOLDER": "Entrez le nom de la connexion",
+    "PARAMETERS": "Paramètres de connexion",
+    "CONNECTION_PARAMS": "Paramètres de connexion",
+    "ADD_PARAM": "Ajouter un paramètre",
+    "CONTEXT_NAME": "Nom du contexte",
+    "CONTEXT_NAME_PLACEHOLDER": "Entrez le nom du contexte",
+    "API_ROUTE": "Route API",
+    "API_ROUTE_PLACEHOLDER": "Entrez la route API",
+    "CONTEXT_API_ROUTE": "Route API",
+    "CONTEXT_API_ROUTE_PLACEHOLDER": "Séparateur de route d'API (ex: mssql/northwind)",
+    "ADVANCED_OPTIONS": "Options avancées",
+    "GENERATE_PROCEDURES": "Générer les contrôleurs et services pour les procédures stockées",
+    "DELETE_CONFIRM": "Êtes-vous sûr de vouloir supprimer cette connexion ?",
+    "DELETE_TITLE": "Supprimer la connexion",
+    "NO_CONNECTIONS": "Aucune connexion configurée",
+    "PARAMETER": {
+      "KEY": "Nom du paramètre",
+      "VALUE": "Valeur",
+      "IS_ENCRYPTED": "Chiffrer la valeur",
+      "ADD": "Ajouter un paramètre",
+      "REMOVE": "Supprimer le paramètre"
+    },
+    "PARAM_KEY": "Nom du paramètre",
+    "PARAM_VALUE": "Valeur",
+    "ENCRYPT_VALUE": "Chiffrer la valeur",
+    "VALIDATION": {
+      "NAME_REQUIRED": "Le nom est requis",
+      "CONTEXT_NAME_REQUIRED": "Le nom du contexte est requis",
+      "API_ROUTE_REQUIRED": "La route API est requise",
+      "PARAMETER_KEY_REQUIRED": "Le nom du paramètre est requis",
+      "PARAMETER_VALUE_REQUIRED": "La valeur du paramètre est requise",
+      "NAME_PATTERN": "Le nom ne peut contenir que des lettres, des chiffres et des underscores",
+      "NAME_NO_LEADING_DIGIT": "Le nom ne peut pas commencer par un chiffre"
+    },
+    "CONNECTION_TYPES": {
+      "SQLSERVER": "SQL Server",
+      "MYSQL": "MySQL",
+      "POSTGRESQL": "PostgreSQL"
+    }
   },
   "LANGUAGES": {
     "EN": "Anglais",

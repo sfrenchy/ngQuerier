@@ -764,6 +764,8 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
   }
 
   onTableSelect(cardId: number | null): void {
+    console.log('[DatasourceConfig] Table sélectionnée:', cardId);
+
     if (!this.config) return;
 
     if (cardId === null) {

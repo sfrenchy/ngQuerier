@@ -170,6 +170,7 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
   }
 
   onDatasourceChange(config: DatasourceConfig) {
+    console.log('[LineChartConfig] Nouvelle config datasource:', config);
     this.form.patchValue({ datasource: config });
 
     // Si c'est une table locale, initialiser les colonnes

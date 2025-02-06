@@ -11,6 +11,7 @@ import { LineChartCardConfigFactory } from './line-chart-card.factory';
 import { BaseCardComponent } from '@cards/base/base-card.component';
 import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
+import { takeUntil } from 'rxjs/operators';
 
 @Card({
   name: 'LineChart',
@@ -147,6 +148,35 @@ export class LineChartCardComponent extends BaseChartCard<LineChartCardConfig> {
         return year.toString();
       default:
         return date.toLocaleDateString();
+    }
+  }
+
+  protected setupDataSource(): void {
+    if (this.card.configuration?.datasource?.type === 'LocalDataTable') {
+      const cardId = this.card.configuration.datasource.localDataTable?.cardId;
+      if (cardId) {
+        // S'abonner aux données de la table
+        this.localDataSourceService.getTableData(cardId)!
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(event => {
+            if (event?.data) {
+              // Transformer les données pour le graphique
+              const chartData = event.data.map(row => ({
+                x: this.formatDateIfNeeded(
+                  row[this.card.configuration!.xAxisColumn!],
+                  this.card.configuration!.xAxisDateFormat
+                ),
+                ...this.card.configuration!.series.reduce((acc: Record<string, any>, series: SeriesConfig) => ({
+                  ...acc,
+                  [series.name]: row[series.dataColumn]
+                }), {})
+              }));
+
+              this.chartState.data = chartData;
+              this.updateChartOptions();
+            }
+          });
+      }
     }
   }
 }

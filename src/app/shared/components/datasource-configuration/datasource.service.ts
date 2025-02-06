@@ -68,7 +68,7 @@ export class DatasourceService {
     const currentCache = this.cacheMap.get(cacheKey);
 
     // Vérifier si nous avons un cache valide
-    if (currentCache && 
+    if (currentCache &&
         Date.now() - currentCache.timestamp < this.CACHE_DURATION &&
         JSON.stringify(currentCache.parameters) === JSON.stringify(parameters)) {
       return new Observable(observer => {
@@ -119,7 +119,7 @@ export class DatasourceService {
           throw new Error('SQLQuery configuration requires a query');
         }
         return this.apiService.executeQuery(
-          config.query.name,
+          config.query.id,
           parameters
         ).pipe(
           map(response => {
@@ -256,7 +256,7 @@ export class DatasourceService {
     callback: (data: ExtendedPaginatedResultDto<any>) => void
   ): void {
     const cacheKey = this.getCacheKey(config, parameters, userParameters);
-    
+
     // Nettoyer l'intervalle existant si présent
     this.clearAutoRefresh(cacheKey);
 
@@ -285,4 +285,4 @@ export class DatasourceService {
       this.cacheMap.clear();
     }
   }
-} 
+}

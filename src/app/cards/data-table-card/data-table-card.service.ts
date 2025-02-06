@@ -59,15 +59,46 @@ export class DataTableCardService {
   constructor(private datasourceService: DatasourceService) {}
 
   private getStateKey(config: DatasourceConfig): string {
-    if (!config?.connection?.id || !config?.controller?.route) {
-        console.warn('[DataTableCardService] Configuration invalide pour getStateKey', {
-            connectionId: config?.connection?.id,
-            controllerRoute: config?.controller?.route
-        });
+    if (!config) {
+        console.warn('[DataTableCardService] Configuration manquante pour getStateKey');
         return '';
     }
-    const controllerName = config.controller.route.split('/').pop() || '';
-    return `${config.connection.id}_${controllerName}`;
+
+    switch (config.type) {
+        case 'API':
+            if (!config.connection?.id || !config.controller?.route) {
+                console.warn('[DataTableCardService] Configuration API invalide pour getStateKey', {
+                    connectionId: config.connection?.id,
+                    controllerRoute: config.controller?.route
+                });
+                return '';
+            }
+            const controllerName = config.controller.route.split('/').pop() || '';
+            return `api_${config.connection.id}_${controllerName}`;
+
+        case 'SQLQuery':
+            if (!config.query?.id) {
+                console.warn('[DataTableCardService] Configuration SQLQuery invalide pour getStateKey', {
+                    queryId: config.query?.id
+                });
+                return '';
+            }
+            return `sqlquery_${config.query.id}`;
+
+        case 'EntityFramework':
+            if (!config.context || !config.entity) {
+                console.warn('[DataTableCardService] Configuration EntityFramework invalide pour getStateKey', {
+                    context: config.context,
+                    entity: config.entity
+                });
+                return '';
+            }
+            return `ef_${config.context}_${config.entity}`;
+
+        default:
+            console.warn('[DataTableCardService] Type de datasource non supporté', config.type);
+            return '';
+    }
   }
 
   private getOrCreateState(config: DatasourceConfig): BehaviorSubject<TableState> {
@@ -92,16 +123,16 @@ export class DataTableCardService {
     const key = this.getStateKey(config);
     const state = this.getOrCreateState(config);
     const currentCache = this.cacheMap.get(key);
-    
+
     // Ajouter les includes pour les clés étrangères
     const foreignKeyIncludes = this.getForeignKeyIncludes(columns);
     const paramsWithIncludes: DataRequestParametersDto = {
         ...parameters,
         includes: foreignKeyIncludes
     };
-    
+
     // Vérifier si nous avons un cache valide avec les mêmes paramètres
-    if (currentCache && 
+    if (currentCache &&
         Date.now() - currentCache.timestamp < this.CACHE_DURATION &&
         JSON.stringify(currentCache.parameters) === JSON.stringify(paramsWithIncludes)) {
         state.next({
@@ -145,7 +176,7 @@ export class DataTableCardService {
 
   private getForeignKeyIncludes(columns: ColumnConfig[]): ForeignKeyIncludeConfig[] {
     const includes: ForeignKeyIncludeConfig[] = [];
-    
+
     columns.forEach(column => {
       if (column.isVirtualForeignKey && column.sourceColumn && column.foreignKeyConfig) {
         // Ajouter l'include avec la configuration d'affichage
@@ -156,7 +187,7 @@ export class DataTableCardService {
         });
       }
     });
-    
+
     return includes;
   }
 
@@ -214,7 +245,7 @@ export class DataTableCardService {
 
     const controllerName = config.controller.route.split('/').pop() || '';
     const entitySchemaCacheKey = `${config.connection.id}_${controllerName}_entity_schema`;
-    
+
     if (!this.cacheMap.has(entitySchemaCacheKey)) {
       this.getReadActionParameterDefinition(config).subscribe();
     }
@@ -258,11 +289,11 @@ export class DataTableCardService {
 
   isNumberColumn(column: ColumnConfig): boolean {
     const type = column.entityMetadata?.columnType?.toLowerCase() || '';
-    return type.includes('int') || 
-           type.includes('decimal') || 
-           type.includes('float') || 
-           type.includes('double') || 
-           type.includes('money') || 
+    return type.includes('int') ||
+           type.includes('decimal') ||
+           type.includes('float') ||
+           type.includes('double') ||
+           type.includes('money') ||
            type.includes('number');
   }
 
@@ -300,11 +331,11 @@ export class DataTableCardService {
     if (column.isVirtualForeignKey && column.sourceColumn && column.foreignKeyConfig) {
       return this.formatForeignKeyValue(item, column);
     }
-    
+
     const camelCaseKey = column.key.charAt(0).toLowerCase() + column.key.slice(1);
     const keys = camelCaseKey.split('.');
     let value = item;
-    
+
     for (const key of keys) {
       if (value === null || value === undefined) {
         return '';
@@ -328,8 +359,8 @@ export class DataTableCardService {
 
     // Get the current state which contains the foreignKeyData
     const state = this.getOrCreateState(this.currentDatasource).getValue();
-    
-    const foreignKeyData = state.foreignKeyData?.find((fk: { foreignKey: string }) => 
+
+    const foreignKeyData = state.foreignKeyData?.find((fk: { foreignKey: string }) =>
       fk.foreignKey === column.sourceColumn
     );
     if (!foreignKeyData) {
@@ -337,7 +368,7 @@ export class DataTableCardService {
     }
 
     // Find the matching value in the foreignKeyData values array
-    const matchingValue = foreignKeyData.values.find((v: { id: string; value: string }) => 
+    const matchingValue = foreignKeyData.values.find((v: { id: string; value: string }) =>
       v.id.toString() === foreignKeyValue.toString()
     );
     return matchingValue?.value || '';
@@ -383,4 +414,4 @@ export class DataTableCardService {
     const rowKey = Object.keys(row).find(k => k.toLowerCase() === primaryKeyField[0].toLowerCase());
     return rowKey ? row[rowKey] : null;
   }
-} 
+}

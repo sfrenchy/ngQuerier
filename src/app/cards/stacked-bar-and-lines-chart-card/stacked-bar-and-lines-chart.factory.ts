@@ -20,12 +20,48 @@ export class StackedBarAndLinesChartConfigFactory extends CardConfigFactory<Stac
     const errors: ValidationError[] = [];
 
     // Validation de la datasource
-    if (!config.datasource?.connection?.id || !config.datasource?.controller?.route) {
+    if (!config.datasource) {
       errors.push({
-        code: 'INVALID_DATASOURCE',
-        message: 'stacked-bar-and-lines-chart-card.VALIDATION.INVALID_DATASOURCE',
+        code: 'MISSING_DATASOURCE',
+        message: 'DATA_TABLE_CARD.ERRORS.MISSING_DATASOURCE',
         controlPath: 'datasource'
       });
+    } else {
+      switch (config.datasource.type) {
+        case 'API':
+          if (!config.datasource.connection?.id || !config.datasource.controller?.route) {
+            errors.push({
+              code: 'INVALID_API_DATASOURCE',
+              message: 'DATA_TABLE_CARD.ERRORS.INVALID_API_DATASOURCE',
+              controlPath: 'datasource'
+            });
+          }
+          break;
+        case 'SQLQuery':
+          if (!config.datasource.query?.id) {
+            errors.push({
+              code: 'INVALID_SQL_QUERY_DATASOURCE',
+              message: 'DATA_TABLE_CARD.ERRORS.INVALID_SQL_QUERY_DATASOURCE',
+              controlPath: 'datasource'
+            });
+          }
+          break;
+        case 'EntityFramework':
+          if (!config.datasource.context || !config.datasource.entity) {
+            errors.push({
+              code: 'INVALID_ENTITY_FRAMEWORK_DATASOURCE',
+              message: 'DATA_TABLE_CARD.ERRORS.INVALID_ENTITY_FRAMEWORK_DATASOURCE',
+              controlPath: 'datasource'
+            });
+          }
+          break;
+        default:
+          errors.push({
+            code: 'INVALID_DATASOURCE_TYPE',
+            message: 'DATA_TABLE_CARD.ERRORS.INVALID_DATASOURCE_TYPE',
+            controlPath: 'datasource.type'
+          });
+      }
     }
 
     // Validation de l'axe X

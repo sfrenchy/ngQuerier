@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardDatabaseService } from '@cards/card-database.service';
@@ -10,6 +10,7 @@ import { StoredProcedureParameter, ChartParameters } from '@models/parameters.mo
 import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
 import { Observable } from 'rxjs';
 import { RegisteredDataTable } from '@cards/models/registered-data-table.model';
+import { take } from 'rxjs/operators';
 
 interface ParameterInfo {
   name: string;
@@ -34,7 +35,7 @@ interface ParameterInfo {
     TranslateModule
   ]
 })
-export class DatasourceConfigurationComponent implements OnInit {
+export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
   @Input() config: DatasourceConfig = { type: 'API' };
   @Input() excludeCardId?: number;
   @Output() configChange = new EventEmitter<DatasourceConfig>();
@@ -71,6 +72,9 @@ export class DatasourceConfigurationComponent implements OnInit {
   currentLang: string;
   availableTables$: Observable<RegisteredDataTable[]>;
   sourceTableSchema: any = null;
+
+  isLoadingTables = false;
+  tableError?: string;
 
   constructor(
     private cardDatabaseService: CardDatabaseService,
@@ -727,19 +731,86 @@ export class DatasourceConfigurationComponent implements OnInit {
     return (typeof title === 'string' ? title : 'Unknown');
   }
 
-  onTableSelect(cardId: number | null) {
+  getTableStatus(cardId: number): string {
+    let status = 'COMMON.LOADING';
+    this.localDataSourceService.getTableReadyState$(cardId)
+      .pipe(take(1))
+      .subscribe(state => {
+        if (state.error) {
+          status = 'DATASOURCE.LOCAL_TABLE.ERROR';
+        } else if (!state.isSchemaReady) {
+          status = 'DATASOURCE.LOCAL_TABLE.LOADING_SCHEMA';
+        } else if (!state.isDataReady) {
+          status = 'DATASOURCE.LOCAL_TABLE.LOADING_DATA';
+        }
+      });
+    return status;
+  }
+
+  getTableTooltip(cardId: number): string {
+    let tooltip = '';
+    this.localDataSourceService.getTableReadyState$(cardId)
+      .pipe(take(1))
+      .subscribe(state => {
+        if (state.error) {
+          tooltip = state.error;
+        } else if (!state.isSchemaReady) {
+          tooltip = this.translateService.instant('DATASOURCE.LOCAL_TABLE.SCHEMA_LOADING_INFO');
+        } else if (!state.isDataReady) {
+          tooltip = this.translateService.instant('DATASOURCE.LOCAL_TABLE.DATA_LOADING_INFO');
+        }
+      });
+    return tooltip;
+  }
+
+  onTableSelect(cardId: number | null): void {
     if (!this.config) return;
 
     if (cardId === null) {
-      this.config.localDataTable = undefined;
+      // Nettoyage complet lors de la désélection
+      this.cleanupTableSelection();
     } else {
       this.config.localDataTable = {
         cardId,
         useFilteredData: false,
         columns: []
       };
+      // Observer l'état de la table sélectionnée
+      this.localDataSourceService.getTableReadyState$(cardId)
+        .pipe(take(1))
+        .subscribe(state => {
+          if (state.error) {
+            this.tableError = state.error;
+          } else {
+            this.tableError = undefined;
+          }
+        });
     }
 
     this.configChange.emit(this.config);
+  }
+
+  private cleanupTableSelection(): void {
+    if (this.config) {
+      this.config.localDataTable = undefined;
+      this.sourceTableSchema = null;
+      this.tableError = undefined;
+    }
+  }
+
+  // Réajouter la méthode isTableReady
+  isTableReady(cardId: number): boolean {
+    let isReady = false;
+    this.localDataSourceService.getTableReadyState$(cardId)
+      .pipe(take(1))
+      .subscribe(state => {
+        isReady = state.isSchemaReady && state.isDataReady && !state.error;
+      });
+    return isReady;
+  }
+
+  // Ajouter la méthode ngOnDestroy requise par l'interface
+  ngOnDestroy(): void {
+    // Nettoyer les souscriptions si nécessaire
   }
 }

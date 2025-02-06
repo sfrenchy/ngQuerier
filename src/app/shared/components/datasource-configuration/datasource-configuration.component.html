@@ -196,49 +196,64 @@
 
   <!-- LocalDataTable Configuration -->
   <ng-container *ngIf="config.type === 'LocalDataTable'">
-    <div class="flex flex-col gap-4">
-      <!-- Sélection de la table source -->
-      <div class="flex flex-col">
-        <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.LOCAL_TABLE.SOURCE' | translate }}</label>
+    <div class="flex flex-col">
+      <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.LOCAL_TABLE.SELECT_TABLE' | translate }}</label>
+      <div class="relative">
         <select
           class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
           [ngModel]="config.localDataTable?.cardId || null"
-          (ngModelChange)="onTableSelect($event)">
+          (ngModelChange)="onTableSelect($event)"
+          [disabled]="isLoadingTables">
           <option [ngValue]="null">{{ 'DATASOURCE.SELECT_TABLE' | translate }}</option>
-          <option *ngFor="let table of availableTables$ | async" [ngValue]="table.cardId">
+          <option *ngFor="let table of availableTables$ | async"
+                  [ngValue]="table.cardId"
+                  [disabled]="!isTableReady(table.cardId)"
+                  [title]="getTableTooltip(table.cardId)">
             {{ getTableTitle(table) }}
+            <span *ngIf="!isTableReady(table.cardId)" class="text-gray-400">
+              ({{ getTableStatus(table.cardId) | translate }})
+            </span>
           </option>
         </select>
+        <!-- Indicateur de chargement -->
+        <div *ngIf="isLoadingTables"
+             class="absolute right-2 top-1/2 transform -translate-y-1/2">
+          <div class="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
       </div>
-
-      <!-- Options de filtrage -->
-      <div class="flex items-center gap-2" *ngIf="config.localDataTable">
-        <input
-          type="checkbox"
-          class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2"
-          [(ngModel)]="config.localDataTable.useFilteredData"
-          (ngModelChange)="onConfigChange()">
-        <label class="text-sm font-medium text-gray-300">
-          {{ 'DATASOURCE.LOCAL_TABLE.USE_FILTERED_DATA' | translate }}
-        </label>
+      <!-- Message d'erreur -->
+      <div *ngIf="tableError" class="mt-1 text-sm text-red-500">
+        {{ tableError }}
       </div>
+    </div>
 
-      <!-- Ne pas afficher la sélection de colonnes pour les graphiques -->
-      <ng-container *ngIf="!isChartCard">
-        <div *ngIf="sourceTableSchema" class="flex flex-col gap-2">
-          <label class="text-sm font-medium text-gray-300">{{ 'DATASOURCE.LOCAL_TABLE.SELECT_COLUMNS' | translate }}</label>
-          <div class="flex flex-wrap gap-2">
-            <div *ngFor="let column of getSchemaColumns()" class="flex items-center gap-2">
-              <input
-                type="checkbox"
-                class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2"
-                [checked]="isColumnSelected(column.key)"
-                (change)="toggleColumn(column.key)">
-              <label class="text-sm text-gray-300">{{ column.title }}</label>
-            </div>
+    <!-- Options de filtrage -->
+    <div class="flex items-center gap-2" *ngIf="config.localDataTable">
+      <input
+        type="checkbox"
+        class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2"
+        [(ngModel)]="config.localDataTable.useFilteredData"
+        (ngModelChange)="onConfigChange()">
+      <label class="text-sm font-medium text-gray-300">
+        {{ 'DATASOURCE.LOCAL_TABLE.USE_FILTERED_DATA' | translate }}
+      </label>
+    </div>
+
+    <!-- Ne pas afficher la sélection de colonnes pour les graphiques -->
+    <ng-container *ngIf="!isChartCard">
+      <div *ngIf="sourceTableSchema" class="flex flex-col gap-2">
+        <label class="text-sm font-medium text-gray-300">{{ 'DATASOURCE.LOCAL_TABLE.SELECT_COLUMNS' | translate }}</label>
+        <div class="flex flex-wrap gap-2">
+          <div *ngFor="let column of getSchemaColumns()" class="flex items-center gap-2">
+            <input
+              type="checkbox"
+              class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2"
+              [checked]="isColumnSelected(column.key)"
+              (change)="toggleColumn(column.key)">
+            <label class="text-sm text-gray-300">{{ column.title }}</label>
           </div>
         </div>
-      </ng-container>
-    </div>
+      </div>
+    </ng-container>
   </ng-container>
 </div>

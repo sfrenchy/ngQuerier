@@ -375,9 +375,15 @@
       "LocalDataTable": "Local Table"
     },
     "LOCAL_TABLE": {
-      "SOURCE": "Select source table",
+      "SELECT_TABLE": "Select a table",
       "USE_FILTERED_DATA": "Use filtered data",
-      "SELECT_COLUMNS": "Select columns"
+      "SELECT_COLUMNS": "Select columns",
+      "ERROR": "Error",
+      "LOADING_SCHEMA": "Loading schema...",
+      "LOADING_DATA": "Loading data...",
+      "SCHEMA_LOADING_INFO": "The table schema is being loaded",
+      "DATA_LOADING_INFO": "The table data is being loaded",
+      "SOURCE": "Source table"
     }
   },
   "COLUMNS": {

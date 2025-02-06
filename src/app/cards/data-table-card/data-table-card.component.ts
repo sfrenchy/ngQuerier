@@ -158,7 +158,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     private foreignKeyService: ForeignKeyService,
     private tableStateService: TableStateService,
     private renderer: Renderer2,
-    private datasourceService: DatasourceService
+    private datasourceService: DatasourceService,
+    private configFactory: DataTableCardConfigFactory
   ) {
     super(translateService);
     this.currentLanguage = this.translateService.currentLang;
@@ -201,12 +202,18 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     document.addEventListener('click', this.documentClickListener);
   }
 
+  private get isConfigurationValid(): boolean {
+    if (!this.card?.configuration) return false;
+    const validationResult = this.configFactory.validateConfig(this.card.configuration);
+    return validationResult.isValid;
+  }
+
   override ngOnInit() {
     super.ngOnInit();
     this.loadCardTranslations();
     this.loadSavedState();
     try {
-      if (this.card.configuration?.datasource && this.isValidConfiguration()) {
+      if (this.card.configuration?.datasource) {
         // Précharger le schéma du formulaire uniquement si on peut ajouter ou modifier
         if (this.canAdd() || this.canUpdate() || this.canDelete()) {
           this.dataService.preloadSchemaDefinitions(this.card.configuration.datasource);
@@ -246,11 +253,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             this.cdr.detectChanges();
           });
       } else {
-        console.warn('[DataTableCard] Configuration invalide', {
-            hasConfig: !!this.card.configuration,
-            hasDatasource: !!this.card.configuration?.datasource,
-            isValid: this.isValidConfiguration()
-        });
+        console.warn('[DataTableCard] Configuration manquante');
       }
     } catch (error) {
       console.error('[DataTableCard] Erreur dans ngOnInit', error);
@@ -258,13 +261,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     }
   }
 
-  private isValidConfiguration(): boolean {
-    const isValid = !!(this.card.configuration?.datasource?.connection && this.card.configuration?.datasource?.controller);
-    return isValid;
-  }
-
   ngAfterViewInit() {
-    if (this.isValidConfiguration()) {
+    if (this.isConfigurationValid) {
       this.isCalculatingRows = true;
       this.cdr.detectChanges();
 
@@ -324,7 +322,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   private calculateAndSetOptimalSize() {
     try {
-      if (!this.isValidConfiguration()) {
+      if (!this.isConfigurationValid) {
         return;
       }
 
@@ -386,7 +384,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   private loadData(): void {
-    if (!this.isValidConfiguration()) return;
+    if (!this.isConfigurationValid) return;
 
     const parameters: DataRequestParametersDto = {
       pageNumber: this.currentPage,
@@ -854,15 +852,15 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   // Méthodes pour vérifier les permissions CRUD
   canAdd(): boolean {
-    return this.card.configuration?.crudConfig?.canAdd && this.isValidConfiguration();
+    return this.card.configuration?.crudConfig?.canAdd && this.isConfigurationValid;
   }
 
   canUpdate(): boolean {
-    return this.card.configuration?.crudConfig?.canUpdate && this.isValidConfiguration();
+    return this.card.configuration?.crudConfig?.canUpdate && this.isConfigurationValid;
   }
 
   canDelete(): boolean {
-    return this.card.configuration?.crudConfig?.canDelete && this.isValidConfiguration();
+    return this.card.configuration?.crudConfig?.canDelete && this.isConfigurationValid;
   }
 
   hasActions(): boolean {

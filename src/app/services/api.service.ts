@@ -310,9 +310,9 @@ export class ApiService {
   getDatabaseEndpoints(id:number, controller: string | null = null, targetTable: string | null = null, action: string | null = null): Observable<DBConnectionEndpointInfoDto[]> {
     return this.http.get<DBConnectionEndpointInfoDto[]>(
       ApiEndpoints.buildUrl(
-        this.baseUrl, 
+        this.baseUrl,
         ApiEndpoints.replaceUrlParams(
-          ApiEndpoints.dbConnectionEndPoints, 
+          ApiEndpoints.dbConnectionEndPoints,
           { connectionId: id.toString(), controller: controller || '', targetTable: targetTable || '',  action: action || '' }
         )
       )
@@ -517,7 +517,7 @@ export class ApiService {
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.datasourceContextEntityRecords, {
         contextName: contextName,
         entityName: entityName
-      })), 
+      })),
       paginationParameters
     );
   }
@@ -583,33 +583,25 @@ export class ApiService {
   }
 
   executeQuery(
-    queryName: string,
-    paginationParameters: DataRequestParametersDto
+    queryId: number | string,
+    parameters: DataRequestParametersDto
   ): Observable<ExtendedPaginatedResultDto<any>> {
-    return this.getSQLQueries().pipe(
-      map(queries => {
-        const query = queries.find(q => q.name === queryName);
-        if (!query) {
-          throw new Error(`Query not found: ${queryName}`);
-        }
-        return query;
-      }),
-      switchMap(query => {
-        const dataRequestParametersWithSQLParameters: DataRequestDataRequestParametersWithSQLParametersDto = {
-          dataRequestParameters: paginationParameters,
-          sqlParameters: {}
-        };
-
-        return this.http.post<ExtendedPaginatedResultDto<any>>(
-          ApiEndpoints.buildUrl(
-            this.baseUrl,
-            ApiEndpoints.replaceUrlParams(ApiEndpoints.executeSqlQuery, {
-              id: query.id.toString()
-            })
-          ),
-          { dataRequestParametersWithSQLParameters }
-        );
-      })
+    return this.http.post<ExtendedPaginatedResultDto<any>>(
+      ApiEndpoints.buildUrl(
+        this.baseUrl,
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.executeSqlQuery, {
+          id: queryId.toString()
+        })
+      ),
+      {
+        pageNumber: parameters.pageNumber,
+        pageSize: parameters.pageSize,
+        globalSearch: parameters.globalSearch,
+        columnSearches: parameters.columnSearches,
+        orderBy: parameters.orderBy,
+        includes: parameters.includes,
+        sqlParameters: {}
+      }
     );
   }
 
@@ -683,4 +675,4 @@ export class ApiService {
   getColumnValues(route: string, columnName: string): Observable<string[]> {
     return this.http.get<string[]>(`${this.baseUrl}/${route}/columns/${columnName}/values`);
   }
-} 
+}

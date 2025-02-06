@@ -29,6 +29,7 @@
   <div footer>
     <!-- Parameters footer -->
     <app-chart-parameters-footer
+      *ngIf="card.configuration?.datasource?.type !== 'LocalDataTable'"
       [datasource]="card.configuration?.datasource"
       [parameters]="requestParameters"
       [storedProcedureParameters]="card.configuration?.chartParameters?.parameters || []"

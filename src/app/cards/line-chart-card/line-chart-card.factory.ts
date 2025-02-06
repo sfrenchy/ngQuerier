@@ -20,119 +20,64 @@ export class LineChartCardConfigFactory extends CardConfigFactory<LineChartCardC
   override validateConfig(config: LineChartCardConfig): ValidationResult {
     const errors: ValidationError[] = [];
 
-    // Validation de la datasource
+    // Validation de base existante
     if (!config.datasource) {
       errors.push({
         code: 'MISSING_DATASOURCE',
         message: 'LINE_CHART_CARD.ERRORS.MISSING_DATASOURCE',
         controlPath: 'datasource'
       });
-    } else {
-      // Validation spécifique selon le type de source
-      switch (config.datasource.type) {
-        case 'API':
-          if (!config.datasource.connection?.id || !config.datasource.controller?.route) {
-            errors.push({
-              code: 'INVALID_API_DATASOURCE',
-              message: 'LINE_CHART_CARD.ERRORS.INVALID_API_DATASOURCE',
-              controlPath: 'datasource'
-            });
-          }
-          break;
-        case 'SQLQuery':
-          if (!config.datasource.query?.id) {
-            errors.push({
-              code: 'INVALID_SQL_QUERY_DATASOURCE',
-              message: 'LINE_CHART_CARD.ERRORS.INVALID_SQL_QUERY_DATASOURCE',
-              controlPath: 'datasource'
-            });
-          }
-          break;
-        case 'EntityFramework':
-          if (!config.datasource.context || !config.datasource.entity) {
-            errors.push({
-              code: 'INVALID_ENTITY_FRAMEWORK_DATASOURCE',
-              message: 'LINE_CHART_CARD.ERRORS.INVALID_ENTITY_FRAMEWORK_DATASOURCE',
-              controlPath: 'datasource'
-            });
-          }
-          break;
-        case 'LocalDataTable':
-          if (!config.datasource.localDataTable?.cardId) {
-            errors.push({
-              code: 'INVALID_LOCAL_TABLE_DATASOURCE',
-              message: 'LINE_CHART_CARD.ERRORS.INVALID_LOCAL_TABLE_DATASOURCE',
-              controlPath: 'datasource.localDataTable.cardId'
-            });
-          }
-          break;
-        default:
-          errors.push({
-            code: 'INVALID_DATASOURCE_TYPE',
-            message: 'DATA_TABLE_CARD.ERRORS.INVALID_DATASOURCE_TYPE',
-            controlPath: 'datasource.type'
-          });
-      }
+      return { isValid: false, errors };
     }
 
-    // Validation des colonnes et séries
-    if (!config.xAxisColumn) {
-      errors.push({
-        code: 'MISSING_X_AXIS_COLUMN',
-        message: 'LINE_CHART_CARD.ERRORS.MISSING_X_AXIS_COLUMN',
-        controlPath: 'xAxisColumn'
-      });
-    }
-
-    if (!config.series || config.series.length === 0) {
-      errors.push({
-        code: 'NO_SERIES_DEFINED',
-        message: 'LINE_CHART_CARD.ERRORS.NO_SERIES_DEFINED',
-        controlPath: 'series'
-      });
-    } else {
-      config.series.forEach((series, index) => {
-        if (!series.name || !series.dataColumn) {
-          errors.push({
-            code: 'INVALID_SERIES_CONFIG',
-            message: 'LINE_CHART_CARD.ERRORS.INVALID_SERIES_CONFIG',
-            controlPath: `series[${index}]`
-          });
-        }
-      });
-    }
-
-    if (config.datasource?.type === 'LocalDataTable') {
-      if (!config.datasource.localDataTable?.cardId) {
+    // Validation spécifique pour LocalDataTable
+    if (config.datasource.type === 'LocalDataTable') {
+      const cardId = config.datasource.localDataTable?.cardId;
+      if (!cardId) {
         errors.push({
           code: 'MISSING_TABLE',
           message: 'LINE_CHART_CARD.ERRORS.MISSING_TABLE',
           controlPath: 'datasource.localDataTable.cardId'
         });
-      }
-    }
-
-    // Vérifier que les colonnes sélectionnées existent toujours
-    if (config.datasource?.type === 'LocalDataTable' && config.datasource.localDataTable?.cardId) {
-      const schema = this.localDataSourceService.getTableSchema(config.datasource.localDataTable.cardId);
-      if (schema) {
-        if (config.xAxisColumn && !schema.properties[config.xAxisColumn]) {
+      } else {
+        const schema = this.localDataSourceService.getTableSchema(cardId);
+        if (!schema) {
           errors.push({
-            code: 'INVALID_X_AXIS',
-            message: 'LINE_CHART_CARD.ERRORS.INVALID_X_AXIS',
-            controlPath: 'xAxisColumn'
+            code: 'TABLE_NOT_FOUND',
+            message: 'LINE_CHART_CARD.ERRORS.TABLE_NOT_FOUND',
+            controlPath: 'datasource.localDataTable.cardId'
+          });
+        } else {
+          // Validation de l'axe X
+          if (config.xAxisColumn) {
+            const xAxisProp = schema.properties[config.xAxisColumn];
+            if (!xAxisProp) {
+              errors.push({
+                code: 'INVALID_X_AXIS',
+                message: 'LINE_CHART_CARD.ERRORS.INVALID_X_AXIS',
+                controlPath: 'xAxisColumn'
+              });
+            }
+          }
+
+          // Validation des séries
+          config.series?.forEach((series, index) => {
+            const prop = schema.properties[series.dataColumn];
+            if (!prop) {
+              errors.push({
+                code: 'INVALID_SERIES_COLUMN',
+                message: 'LINE_CHART_CARD.ERRORS.INVALID_SERIES_COLUMN',
+                controlPath: `series.${index}.dataColumn`
+              });
+            } else if (!['number', 'integer'].includes(prop.type)) {
+              errors.push({
+                code: 'INVALID_SERIES_COLUMN_TYPE',
+                message: 'LINE_CHART_CARD.ERRORS.INVALID_SERIES_COLUMN_TYPE',
+                controlPath: `series.${index}.dataColumn`
+              });
+            }
           });
         }
-
-        config.series.forEach((series, index) => {
-          if (!schema.properties[series.dataColumn]) {
-            errors.push({
-              code: 'INVALID_SERIES_COLUMN',
-              message: 'LINE_CHART_CARD.ERRORS.INVALID_SERIES_COLUMN',
-              controlPath: `series.${index}.dataColumn`
-            });
-          }
-        });
       }
     }
 

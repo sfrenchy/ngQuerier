@@ -104,8 +104,9 @@
                 <!-- Colonne de données -->
                 <div>
                   <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.DATA_COLUMN' | translate }}</label>
-                  <select [value]="series.dataColumn"
-                          (change)="handleSeriesChange(i, 'dataColumn', $event)"
+                  <select [(ngModel)]="series.dataColumn"
+                          [ngModelOptions]="{standalone: true}"
+                          (ngModelChange)="handleSeriesChange(i, 'dataColumn', $event)"
                           [class.border-red-500]="hasSeriesError(i, 'dataColumn')"
                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">{{ 'line-chart-card.SELECT_COLUMN' | translate }}</option>

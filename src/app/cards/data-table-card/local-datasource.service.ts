@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject } from 'rxjs';
-import { map, takeUntil } from 'rxjs/operators';
+import { BehaviorSubject, Observable, Subject, ReplaySubject } from 'rxjs';
+import { map, takeUntil, distinctUntilChanged } from 'rxjs/operators';
 import { RegisteredDataTable, TableDataEvent } from './data-table-card.models';
 
 // Ajouter cette interface en haut du fichier
@@ -16,10 +16,11 @@ interface TableReadyState {
 export class LocalDataSourceService {
   private registeredTables = new Map<number, RegisteredDataTable>();
   private availableTablesSubject = new BehaviorSubject<RegisteredDataTable[]>([]);
-  private tableDataSubjects = new Map<number, BehaviorSubject<TableDataEvent | null>>();
+  private tableDataSubjects = new Map<number, ReplaySubject<TableDataEvent | null>>();
   private destroySubjects = new Map<number, Subject<void>>();
   private registeredTableCache = new Map<number, RegisteredDataTable>();
   private tableReadyStates = new Map<number, BehaviorSubject<TableReadyState>>();
+  private schemaCache = new Map<number, any>();
 
   constructor() {}
 
@@ -46,6 +47,7 @@ export class LocalDataSourceService {
           isSchemaReady: true,
           error: undefined // Effacer les erreurs précédentes
         });
+        this.schemaCache.set(table.cardId, table.schema);
       } else {
         readyState.next({
           ...readyState.value,
@@ -67,13 +69,27 @@ export class LocalDataSourceService {
       // Mettre en cache
       this.registeredTableCache.set(table.cardId, table);
 
-      // Créer un nouveau subject pour les données de cette table
-      const dataSubject = new BehaviorSubject<TableDataEvent | null>(null);
+      // Créer un ReplaySubject au lieu d'un BehaviorSubject
+      const dataSubject = new ReplaySubject<TableDataEvent | null>(1);
       const destroySubject = new Subject<void>();
 
       // S'abonner aux données de la table
       table.currentData$
-        .pipe(takeUntil(destroySubject))
+        .pipe(
+          takeUntil(destroySubject),
+          distinctUntilChanged((prev, curr) => {
+            // Comparer les données pertinentes pour éviter les mises à jour inutiles
+            return JSON.stringify({
+              data: prev?.data,
+              filters: prev?.filters,
+              sorting: prev?.sorting
+            }) === JSON.stringify({
+              data: curr?.data,
+              filters: curr?.filters,
+              sorting: curr?.sorting
+            });
+          })
+        )
         .subscribe({
           next: (data) => {
             console.log('[LocalDataSourceService] New data received for table:', {
@@ -156,6 +172,9 @@ export class LocalDataSourceService {
     // Supprimer la table du registre
     this.registeredTables.delete(cardId);
     this.updateAvailableTables();
+
+    // Nettoyer le cache des schémas
+    this.schemaCache.delete(cardId);
   }
 
   // Obtenir la liste des tables disponibles (excluant éventuellement une table spécifique)
@@ -196,9 +215,21 @@ export class LocalDataSourceService {
 
   // Obtenir le schéma d'une table spécifique
   getTableSchema(cardId: number): any | undefined {
-    // Chercher d'abord dans le cache
+    // Vérifier d'abord le cache des schémas
+    const cachedSchema = this.schemaCache.get(cardId);
+    if (cachedSchema) {
+      return cachedSchema;
+    }
+
+    // Si pas en cache, chercher dans les tables
     const table = this.registeredTables.get(cardId) || this.registeredTableCache.get(cardId);
-    return table?.schema;
+    if (table?.schema) {
+      // Mettre en cache pour la prochaine fois
+      this.schemaCache.set(cardId, table.schema);
+      return table.schema;
+    }
+
+    return undefined;
   }
 
   // Vérifier si une table est disponible
@@ -231,6 +262,9 @@ export class LocalDataSourceService {
 
     // Réinitialiser le subject principal
     this.availableTablesSubject.next([]);
+
+    // Nettoyer le cache des schémas
+    this.schemaCache.clear();
   }
 
   // Attendre qu'une table soit prête

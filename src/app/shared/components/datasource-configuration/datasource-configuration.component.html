@@ -1,9 +1,9 @@
 <div class="flex flex-col gap-4 p-4" *ngIf="config">
   <div class="flex flex-col">
     <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.TYPE' | translate }}</label>
-    <select 
+    <select
       class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
-      [(ngModel)]="config.type" 
+      [(ngModel)]="config.type"
       (ngModelChange)="onTypeChange()">
       <option *ngFor="let type of datasourceTypes" [value]="type" class="bg-gray-700 text-white">
         {{ 'DATASOURCE.TYPES.' + type | translate }}
@@ -15,9 +15,9 @@
   <ng-container *ngIf="config.type === 'API'">
     <div class="flex flex-col">
       <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.CONNECTION' | translate }}</label>
-      <select 
+      <select
         class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
-        [(ngModel)]="config.connection" 
+        [(ngModel)]="config.connection"
         (ngModelChange)="onConnectionChange($event)">
         <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
         <option *ngFor="let connection of connections" [ngValue]="connection" class="bg-gray-700 text-white">
@@ -28,9 +28,9 @@
 
     <div class="flex flex-col" *ngIf="config.connection">
       <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.CONTROLLER' | translate }}</label>
-      <select 
+      <select
         class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
-        [(ngModel)]="config.controller" 
+        [(ngModel)]="config.controller"
         (ngModelChange)="onControllerChange($event)">
         <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
         <option *ngFor="let controller of controllers" [ngValue]="controller" class="bg-gray-700 text-white">
@@ -50,8 +50,8 @@
               <span *ngIf="param.required" class="text-red-500 ml-1">*</span>
             </label>
             <div class="flex items-center gap-2">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500"
                 [checked]="config.procedureParameters?.[param.name]?.userChangeAllowed"
                 (change)="onUserChangeAllowedChange(param.name, $event)">
@@ -61,7 +61,7 @@
 
           <!-- Date Type Selector for Date Parameters -->
           <div class="flex flex-col gap-2" *ngIf="param.type === 'date' || param.type === 'datetime'">
-            <select 
+            <select
               class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
               [ngModel]="config.procedureParameters?.[param.name]?.dateType"
               (ngModelChange)="onDateTypeChange(param.name, $event)">
@@ -153,9 +153,9 @@
   <ng-container *ngIf="config.type === 'EntityFramework'">
     <div class="flex flex-col">
       <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.CONTEXT' | translate }}</label>
-      <select 
+      <select
         class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
-        [(ngModel)]="config.context" 
+        [(ngModel)]="config.context"
         (ngModelChange)="onContextChange($event)">
         <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
         <option *ngFor="let context of contexts" [ngValue]="context" class="bg-gray-700 text-white">
@@ -166,9 +166,9 @@
 
     <div class="flex flex-col" *ngIf="config.context">
       <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.ENTITY' | translate }}</label>
-      <select 
+      <select
         class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
-        [(ngModel)]="config.entity" 
+        [(ngModel)]="config.entity"
         (ngModelChange)="onEntityChange($event)">
         <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
         <option *ngFor="let entity of entities" [ngValue]="entity" class="bg-gray-700 text-white">
@@ -182,9 +182,9 @@
   <ng-container *ngIf="config.type === 'SQLQuery'">
     <div class="flex flex-col">
       <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.QUERY' | translate }}</label>
-      <select 
+      <select
         class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
-        [(ngModel)]="config.query" 
+        [(ngModel)]="config.query"
         (ngModelChange)="onQueryChange($event)">
         <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
         <option *ngFor="let query of queries" [ngValue]="query" class="bg-gray-700 text-white">
@@ -193,4 +193,52 @@
       </select>
     </div>
   </ng-container>
-</div> 
+
+  <!-- LocalDataTable Configuration -->
+  <ng-container *ngIf="config.type === 'LocalDataTable'">
+    <div class="flex flex-col gap-4">
+      <ng-container *ngIf="initLocalDataTable() as localConfig">
+        <!-- Sélection de la table source -->
+        <div class="flex flex-col">
+          <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.LOCAL_TABLE.SOURCE' | translate }}</label>
+          <select
+            class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+            [(ngModel)]="localConfig.cardId"
+            (ngModelChange)="onSourceTableChange($event)">
+            <option [ngValue]="null">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
+            <option *ngFor="let table of availableTables$ | async" [ngValue]="table.cardId" class="bg-gray-700 text-white">
+              {{ getTableTitle(table) }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Options de filtrage -->
+        <div class="flex items-center gap-2">
+          <input
+            type="checkbox"
+            class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2"
+            [(ngModel)]="localConfig.useFilteredData"
+            (ngModelChange)="onConfigChange()">
+          <label class="text-sm font-medium text-gray-300">
+            {{ 'DATASOURCE.LOCAL_TABLE.USE_FILTERED_DATA' | translate }}
+          </label>
+        </div>
+
+        <!-- Sélection des colonnes -->
+        <div *ngIf="sourceTableSchema" class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-300">{{ 'DATASOURCE.LOCAL_TABLE.SELECT_COLUMNS' | translate }}</label>
+          <div class="flex flex-wrap gap-2">
+            <div *ngFor="let column of getSchemaColumns()" class="flex items-center gap-2">
+              <input
+                type="checkbox"
+                class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2"
+                [checked]="isColumnSelected(column.key)"
+                (change)="toggleColumn(column.key)">
+              <label class="text-sm text-gray-300">{{ column.title }}</label>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </ng-container>
+</div>

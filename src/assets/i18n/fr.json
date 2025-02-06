@@ -411,7 +411,13 @@
     "TYPES": {
       "API": "Appel API",
       "EntityFramework": "Entity Framework",
-      "SQLQuery": "Requête SQL"
+      "SQLQuery": "Requête SQL",
+      "LocalDataTable": "Table locale"
+    },
+    "LOCAL_TABLE": {
+      "SOURCE": "Sélectionner une table source",
+      "USE_FILTERED_DATA": "Utiliser les données filtrées",
+      "SELECT_COLUMNS": "Sélectionner les colonnes"
     }
   },
   "COLUMNS": {

@@ -2,11 +2,14 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardDatabaseService } from '@cards/card-database.service';
-import { DBConnectionDto, DBConnectionControllerInfoDto, SQLQueryDto, DataStructureDefinitionDto } from '@models/api.models';
-import { TranslateModule } from '@ngx-translate/core';
+import { DBConnectionDto, DBConnectionControllerInfoDto, SQLQueryDto, DataStructureDefinitionDto, TranslatableString } from '@models/api.models';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DatasourceConfig, ParameterValue } from '@models/datasource.models';
 import { DatasourceService } from './datasource.service';
 import { StoredProcedureParameter, ChartParameters } from '@models/parameters.models';
+import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
+import { Observable } from 'rxjs';
+import { RegisteredDataTable } from '@cards/models/registered-data-table.model';
 
 interface ParameterInfo {
   name: string;
@@ -33,10 +36,11 @@ interface ParameterInfo {
 })
 export class DatasourceConfigurationComponent implements OnInit {
   @Input() config: DatasourceConfig = { type: 'API' };
+  @Input() excludeCardId?: number;
   @Output() configChange = new EventEmitter<DatasourceConfig>();
   @Output() schemaChange = new EventEmitter<string>();
 
-  datasourceTypes = ['API', 'EntityFramework', 'SQLQuery'];
+  datasourceTypes = ['API', 'EntityFramework', 'SQLQuery', 'LocalDataTable'];
   connections: DBConnectionDto[] = [];
   controllers: DBConnectionControllerInfoDto[] = [];
   contexts: string[] = [];
@@ -60,10 +64,24 @@ export class DatasourceConfigurationComponent implements OnInit {
   parameterErrors: Record<string, string> = {};
   hasValidationErrors = false;
 
+  private translateService: TranslateService;
+  private localDataSourceService: LocalDataSourceService;
+
+  currentLang: string;
+  availableTables$: Observable<RegisteredDataTable[]>;
+  sourceTableSchema: any = null;
+
   constructor(
     private cardDatabaseService: CardDatabaseService,
-    private datasourceService: DatasourceService
-  ) {}
+    private datasourceService: DatasourceService,
+    localDataSourceService: LocalDataSourceService,
+    translateService: TranslateService
+  ) {
+    this.translateService = translateService;
+    this.localDataSourceService = localDataSourceService;
+    this.currentLang = this.translateService.currentLang;
+    this.availableTables$ = this.localDataSourceService.getAvailableTables(this.excludeCardId);
+  }
 
   ngOnInit() {
     if (!this.config) {
@@ -609,5 +627,70 @@ export class DatasourceConfigurationComponent implements OnInit {
     if (schema) {
       this.schemaChange.emit(schema);
     }
+  }
+
+  onSourceTableChange(cardId: number) {
+    if (cardId) {
+      this.sourceTableSchema = this.localDataSourceService.getTableSchema(cardId);
+      if (!this.config.localDataTable) {
+        this.config.localDataTable = {
+          cardId,
+          useFilteredData: false,
+          columns: []
+        };
+      }
+    } else {
+      this.sourceTableSchema = null;
+    }
+    this.onConfigChange();
+  }
+
+  getSchemaColumns(): Array<{key: string, title: string}> {
+    if (!this.sourceTableSchema?.properties) return [];
+    return Object.entries(this.sourceTableSchema.properties).map(([key, prop]: [string, any]) => ({
+      key,
+      title: prop.title || key
+    }));
+  }
+
+  isColumnSelected(columnKey: string): boolean {
+    return this.config.localDataTable?.columns?.includes(columnKey) ?? false;
+  }
+
+  toggleColumn(columnKey: string) {
+    if (!this.config.localDataTable) return;
+
+    const columns = this.config.localDataTable.columns || [];
+    const index = columns.indexOf(columnKey);
+
+    if (index === -1) {
+      columns.push(columnKey);
+    } else {
+      columns.splice(index, 1);
+    }
+
+    this.config.localDataTable.columns = columns;
+    this.onConfigChange();
+  }
+
+  onConfigChange() {
+    this.configChange.emit(this.config);
+    this.emitSchema();
+  }
+
+  initLocalDataTable(): DatasourceConfig['localDataTable'] {
+    if (!this.config.localDataTable) {
+      this.config.localDataTable = {
+        cardId: 0,
+        useFilteredData: false,
+        columns: []
+      };
+    }
+    return this.config.localDataTable;
+  }
+
+  getTableTitle(table: RegisteredDataTable): string {
+    const title = table.title[this.currentLang as keyof TranslatableString[]];
+    return typeof title === 'string' ? title : 'Unknown';
   }
 }

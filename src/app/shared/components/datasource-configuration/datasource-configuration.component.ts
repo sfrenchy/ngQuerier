@@ -39,6 +39,7 @@ export class DatasourceConfigurationComponent implements OnInit {
   @Input() excludeCardId?: number;
   @Output() configChange = new EventEmitter<DatasourceConfig>();
   @Output() schemaChange = new EventEmitter<string>();
+  @Input() isChartCard = false;
 
   datasourceTypes = ['API', 'EntityFramework', 'SQLQuery', 'LocalDataTable'];
   connections: DBConnectionDto[] = [];
@@ -610,6 +611,7 @@ export class DatasourceConfigurationComponent implements OnInit {
   }
 
   private emitSchema() {
+    console.log('[DatasourceConfig] emitSchema called');
     let schema: string | undefined;
 
     switch (this.config.type) {
@@ -622,23 +624,45 @@ export class DatasourceConfigurationComponent implements OnInit {
       case 'SQLQuery':
         schema = this.config.query?.outputDescription;
         break;
+      case 'LocalDataTable':
+        if (this.sourceTableSchema) {
+          schema = JSON.stringify(this.sourceTableSchema);
+          console.log('[DatasourceConfig] Local table schema:', this.sourceTableSchema);
+        }
+        break;
     }
 
+    console.log('[DatasourceConfig] Emitting schema:', schema);
     if (schema) {
       this.schemaChange.emit(schema);
     }
   }
 
   onSourceTableChange(cardId: number) {
+    console.log('[DatasourceConfig] onSourceTableChange called with cardId:', cardId);
+    console.log('[DatasourceConfig] Current config:', this.config);
+
     if (cardId) {
       this.sourceTableSchema = this.localDataSourceService.getTableSchema(cardId);
+      console.log('[DatasourceConfig] Retrieved schema:', this.sourceTableSchema);
+
+      if (!this.sourceTableSchema) {
+        console.error('[DatasourceConfig] No schema found for table:', cardId);
+        return;
+      }
+
       if (!this.config.localDataTable) {
         this.config.localDataTable = {
           cardId,
           useFilteredData: false,
           columns: []
         };
+      } else {
+        this.config.localDataTable.cardId = cardId;
       }
+
+      console.log('[DatasourceConfig] Updated config:', this.config);
+      this.emitSchema();
     } else {
       this.sourceTableSchema = null;
     }
@@ -690,7 +714,32 @@ export class DatasourceConfigurationComponent implements OnInit {
   }
 
   getTableTitle(table: RegisteredDataTable): string {
-    const title = table.title[this.currentLang as keyof TranslatableString[]];
-    return typeof title === 'string' ? title : 'Unknown';
+    console.log('[DatasourceConfig] getTableTitle called for table:', table);
+
+    // Si title est un tableau, prendre le premier élément
+    if (Array.isArray(table.title)) {
+      return table.title[0].value || 'Unknown';
+    }
+
+    // Sinon c'est un objet TranslatableString, prendre la valeur pour la langue courante
+    const title = table.title[this.currentLang as keyof typeof table.title];
+    console.log('[DatasourceConfig] Resolved title:', title);
+    return (typeof title === 'string' ? title : 'Unknown');
+  }
+
+  onTableSelect(cardId: number | null) {
+    if (!this.config) return;
+
+    if (cardId === null) {
+      this.config.localDataTable = undefined;
+    } else {
+      this.config.localDataTable = {
+        cardId,
+        useFilteredData: false,
+        columns: []
+      };
+    }
+
+    this.configChange.emit(this.config);
   }
 }

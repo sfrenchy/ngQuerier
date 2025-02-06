@@ -10,6 +10,7 @@ import { RequestParametersService } from '@shared/services/request-parameters.se
 import { LineChartCardConfigFactory } from './line-chart-card.factory';
 import { BaseCardComponent } from '@cards/base/base-card.component';
 import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
 
 @Card({
   name: 'LineChart',
@@ -37,9 +38,10 @@ export class LineChartCardComponent extends BaseChartCard<LineChartCardConfig> {
   constructor(
     translateService: TranslateService,
     datasourceService: DatasourceService,
-    requestParametersService: RequestParametersService
+    requestParametersService: RequestParametersService,
+    localDataSourceService: LocalDataSourceService
   ) {
-    super(translateService, datasourceService, requestParametersService);
+    super(translateService, datasourceService, requestParametersService, localDataSourceService);
   }
 
   protected override transformData(data: any[]): any[] {

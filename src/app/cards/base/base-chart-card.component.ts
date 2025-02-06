@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import * as echarts from 'echarts';
 import { EChartsOption } from 'echarts';
+import { filter } from 'rxjs/operators';
 
 import { BaseCardComponent } from './base-card.component';
 import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
@@ -13,6 +14,8 @@ import { DataRequestParametersDto, PaginatedResultDto } from '@models/api.models
 import { StoredProcedureParameter } from '@models/parameters.models';
 import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 import { RequestParametersService } from '@shared/services/request-parameters.service';
+import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
+import { TableDataEvent } from '@cards/data-table-card/data-table-card.models';
 
 interface ChartState {
   data: any[];
@@ -58,7 +61,8 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
   constructor(
     protected override translateService: TranslateService,
     protected datasourceService: DatasourceService,
-    protected requestParametersService: RequestParametersService
+    protected requestParametersService: RequestParametersService,
+    protected localDataSourceService: LocalDataSourceService
   ) {
     super(translateService);
     this.isChartCard = true;
@@ -152,46 +156,77 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
     this.destroy$.complete();
   }
 
-  protected loadData() {
+  protected loadData(): void {
     if (!this.card.configuration?.datasource) {
-      console.warn('No datasource configuration found');
+      console.warn('[BaseChartCard] No datasource configuration');
       return;
     }
 
     this.chartState.loading = true;
     this.chartState.error = undefined;
 
-    // Récupérer les paramètres utilisateur si présents
-    const userParameters = this.card.configuration.chartParameters?.parameters?.reduce((acc: Record<string, StoredProcedureParameter>, param: StoredProcedureParameter) => {
-      acc[param.name] = param;
-      return acc;
-    }, {});
-
-    // Générer une clé de cache unique pour ce jeu de paramètres
-    this.currentCacheKey = `${this.card.id}_${JSON.stringify(this.requestParameters)}_${JSON.stringify(userParameters)}`;
-
-    this.datasourceService.fetchData(
-      this.card.configuration.datasource,
-      this.requestParameters,
-      userParameters
-    )
-    .pipe(takeUntil(this.destroy$))
-    .subscribe({
-      next: (response: PaginatedResultDto<any>) => {
-        this.chartState.data = this.transformData(response.items || []);
+    // Pour LocalDataTable, s'abonner aux mises à jour
+    if (this.card.configuration.datasource.type === 'LocalDataTable') {
+      const cardId = this.card.configuration.datasource.localDataTable?.cardId;
+      if (!cardId) {
+        this.chartState.error = 'No source table selected';
         this.chartState.loading = false;
-        this.chartState.lastUpdate = new Date();
-        this.updateChartOptions();
-        if (this.chartInstance) {
-          this.chartInstance.setOption(this.chartOptions);
-        }
-      },
-      error: (error: Error) => {
-        console.error('[BaseChartCard] Erreur de chargement:', error);
-        this.chartState.error = error.message || 'Error loading data';
-        this.chartState.loading = false;
+        return;
       }
-    });
+
+      const tableData = this.localDataSourceService.getTableData(cardId);
+      if (!tableData) {
+        this.chartState.error = 'Source table not registered';
+        this.chartState.loading = false;
+        return;
+      }
+
+      tableData.pipe(
+        filter(event => !!event),
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: (event: TableDataEvent | null) => {
+          if (!event) {
+            this.chartState.error = 'No data received';
+            this.chartState.loading = false;
+            return;
+          }
+          this.chartState.data = this.transformData(event.data || []);
+          this.chartState.loading = false;
+          this.chartState.lastUpdate = new Date();
+          this.updateChartOptions();
+        },
+        error: (error: Error) => {
+          console.error('[BaseChartCard] Error loading data:', error);
+          this.chartState.error = error.message || 'Error loading data';
+          this.chartState.loading = false;
+        }
+      });
+      return;
+    }
+
+    // Pour les autres types de sources
+    this.datasourceService
+      .fetchData(this.card.configuration.datasource, this.requestParameters)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (result) => {
+          if (!result) {
+            this.chartState.error = 'No data received';
+            this.chartState.loading = false;
+            return;
+          }
+          this.chartState.data = this.transformData(result.items || []);
+          this.chartState.loading = false;
+          this.chartState.lastUpdate = new Date();
+          this.updateChartOptions();
+        },
+        error: (error: Error) => {
+          console.error('[BaseChartCard] Error loading data:', error);
+          this.chartState.error = error.message || 'Error loading data';
+          this.chartState.loading = false;
+        }
+      });
   }
 
   protected setupAutoRefreshIfNeeded(): void {

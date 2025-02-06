@@ -23,16 +23,17 @@ export class LineChartCardConfigFactory extends CardConfigFactory<LineChartCardC
     if (!config.datasource) {
       errors.push({
         code: 'MISSING_DATASOURCE',
-        message: 'DATA_TABLE_CARD.ERRORS.MISSING_DATASOURCE',
+        message: 'LINE_CHART_CARD.ERRORS.MISSING_DATASOURCE',
         controlPath: 'datasource'
       });
     } else {
+      // Validation spécifique selon le type de source
       switch (config.datasource.type) {
         case 'API':
           if (!config.datasource.connection?.id || !config.datasource.controller?.route) {
             errors.push({
               code: 'INVALID_API_DATASOURCE',
-              message: 'DATA_TABLE_CARD.ERRORS.INVALID_API_DATASOURCE',
+              message: 'LINE_CHART_CARD.ERRORS.INVALID_API_DATASOURCE',
               controlPath: 'datasource'
             });
           }
@@ -41,7 +42,7 @@ export class LineChartCardConfigFactory extends CardConfigFactory<LineChartCardC
           if (!config.datasource.query?.id) {
             errors.push({
               code: 'INVALID_SQL_QUERY_DATASOURCE',
-              message: 'DATA_TABLE_CARD.ERRORS.INVALID_SQL_QUERY_DATASOURCE',
+              message: 'LINE_CHART_CARD.ERRORS.INVALID_SQL_QUERY_DATASOURCE',
               controlPath: 'datasource'
             });
           }
@@ -50,8 +51,17 @@ export class LineChartCardConfigFactory extends CardConfigFactory<LineChartCardC
           if (!config.datasource.context || !config.datasource.entity) {
             errors.push({
               code: 'INVALID_ENTITY_FRAMEWORK_DATASOURCE',
-              message: 'DATA_TABLE_CARD.ERRORS.INVALID_ENTITY_FRAMEWORK_DATASOURCE',
+              message: 'LINE_CHART_CARD.ERRORS.INVALID_ENTITY_FRAMEWORK_DATASOURCE',
               controlPath: 'datasource'
+            });
+          }
+          break;
+        case 'LocalDataTable':
+          if (!config.datasource.localDataTable?.cardId) {
+            errors.push({
+              code: 'INVALID_LOCAL_TABLE_DATASOURCE',
+              message: 'LINE_CHART_CARD.ERRORS.INVALID_LOCAL_TABLE_DATASOURCE',
+              controlPath: 'datasource.localDataTable.cardId'
             });
           }
           break;
@@ -64,57 +74,28 @@ export class LineChartCardConfigFactory extends CardConfigFactory<LineChartCardC
       }
     }
 
-    // Validation de l'axe X
+    // Validation des colonnes et séries
     if (!config.xAxisColumn) {
       errors.push({
-        code: 'REQUIRED_X_AXIS',
-        message: 'line-chart-card.CONFIGURATION.VALIDATION.REQUIRED_X_AXIS',
+        code: 'MISSING_X_AXIS_COLUMN',
+        message: 'LINE_CHART_CARD.ERRORS.MISSING_X_AXIS_COLUMN',
         controlPath: 'xAxisColumn'
       });
     }
 
-    // Validation des séries
     if (!config.series || config.series.length === 0) {
       errors.push({
-        code: 'REQUIRED_SERIES',
-        message: 'line-chart-card.CONFIGURATION.VALIDATION.REQUIRED_SERIES',
+        code: 'NO_SERIES_DEFINED',
+        message: 'LINE_CHART_CARD.ERRORS.NO_SERIES_DEFINED',
         controlPath: 'series'
       });
     } else {
       config.series.forEach((series, index) => {
-        // Validation du nom de la série
-        if (!series.name) {
+        if (!series.name || !series.dataColumn) {
           errors.push({
-            code: 'REQUIRED_SERIES_NAME',
-            message: 'line-chart-card.CONFIGURATION.VALIDATION.REQUIRED_SERIES_NAME',
-            controlPath: `series.${index}.name`
-          });
-        }
-
-        // Validation de la colonne de données
-        if (!series.dataColumn) {
-          errors.push({
-            code: 'REQUIRED_SERIES_COLUMN',
-            message: 'line-chart-card.CONFIGURATION.VALIDATION.REQUIRED_SERIES_COLUMN',
-            controlPath: `series.${index}.dataColumn`
-          });
-        }
-
-        // Validation de la taille des symboles
-        if (series.showSymbol && (series.symbolSize ?? 0) <= 0) {
-          errors.push({
-            code: 'INVALID_SYMBOL_SIZE',
-            message: 'line-chart-card.CONFIGURATION.VALIDATION.INVALID_SYMBOL_SIZE',
-            controlPath: `series.${index}.symbolSize`
-          });
-        }
-
-        // Validation de l'opacité de la zone
-        if (series.areaStyle && (series.areaStyle.opacity < 0 || series.areaStyle.opacity > 1)) {
-          errors.push({
-            code: 'INVALID_AREA_OPACITY',
-            message: 'line-chart-card.CONFIGURATION.VALIDATION.INVALID_AREA_OPACITY',
-            controlPath: `series.${index}.areaStyle.opacity`
+            code: 'INVALID_SERIES_CONFIG',
+            message: 'LINE_CHART_CARD.ERRORS.INVALID_SERIES_CONFIG',
+            controlPath: `series[${index}]`
           });
         }
       });

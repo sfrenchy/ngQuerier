@@ -1305,10 +1305,25 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   private registerAsDataSource(): void {
     if (!this.card?.id) return;
 
+    // Construire le schéma à partir des colonnes configurées
+    const schema = {
+      type: 'object',
+      properties: this.card.configuration?.columns?.reduce((acc: Record<string, any>, column: { key: string; type?: string; title?: string; description?: string }) => {
+        acc[column.key] = {
+          type: column.type || 'string',
+          title: column.title || column.key,
+          description: column.description
+        };
+        return acc;
+      }, {} as Record<string, any>) || {}
+    };
+
+    console.log('[DataTableCard] Registering with schema:', schema);
+
     const tableInfo = {
       cardId: this.card.id,
       title: this.card.title,
-      schema: this.card.configuration?.datasource?.controller?.responseEntityJsonSchema || {},
+      schema: schema,
       currentData$: this.currentDataSubject.asObservable()
     };
 

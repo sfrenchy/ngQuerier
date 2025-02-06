@@ -1,4 +1,4 @@
-import { BaseCardConfig, ColumnSearchDto, OrderByParameterDto } from '@models/api.models';
+import { BaseCardConfig, ColumnSearchDto, OrderByParameterDto, TranslatableString } from '@models/api.models';
 import { DatasourceConfig } from '@models/datasource.models';
 import { Observable } from 'rxjs';
 
@@ -203,8 +203,8 @@ export interface TableDataEvent {
 }
 
 export interface RegisteredDataTable {
-  cardId: string;
-  name: string;
+  cardId: number;
+  title: TranslatableString[];
   schema: any;
   currentData$: Observable<TableDataEvent>;
 }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Subject, Subscription, Observable, from, of, forkJoin, mergeMap, tap, catchError, EMPTY } from 'rxjs';
+import { Subject, Subscription, Observable, from, of, forkJoin, mergeMap, tap, catchError, EMPTY, BehaviorSubject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil, map, mergeAll, toArray } from 'rxjs/operators';
 import { Card } from '@cards/card.decorator';
 import { BaseCardComponent } from '@cards/base/base-card.component';
@@ -21,6 +21,8 @@ import { TableStateService } from './table-state.service';
 import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
 import { DataTableCardConfigFactory } from './data-table-card.factory';
 import { ValidationError } from '@cards/validation/validation.models';
+import { LocalDataSourceService } from './local-datasource.service';
+import { TableDataEvent } from './data-table-card.models';
 
 // Modifier l'interface ModalConfig
 interface ModalConfig {
@@ -146,6 +148,14 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   @ViewChild('filterContainer') filterContainer!: ElementRef;
   @ViewChild('filterOverlay') filterOverlay!: ElementRef;
 
+  private currentDataSubject = new BehaviorSubject<TableDataEvent>({
+    data: [],
+    total: 0,
+    schema: null
+  });
+
+  private previousConfig: DatasourceConfig | null = null;
+
   // Méthode utilitaire pour convertir les pixels en chaîne
   private px(value: number): string {
     return `${value}px`;
@@ -159,7 +169,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     private tableStateService: TableStateService,
     private renderer: Renderer2,
     private datasourceService: DatasourceService,
-    private configFactory: DataTableCardConfigFactory
+    private configFactory: DataTableCardConfigFactory,
+    private localDataSourceService: LocalDataSourceService
   ) {
     super(translateService);
     this.currentLanguage = this.translateService.currentLang;
@@ -212,6 +223,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     super.ngOnInit();
     this.loadCardTranslations();
     this.loadSavedState();
+    this.registerAsDataSource();
     try {
       if (this.card.configuration?.datasource) {
         // Précharger le schéma du formulaire uniquement si on peut ajouter ou modifier
@@ -250,6 +262,22 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
               this.isPageChange = false;
               this.loadingStartTime = 0;
             }
+
+            // Mettre à jour le currentDataSubject avec les nouvelles données
+            this.currentDataSubject.next({
+              data: this.data,
+              total: this.totalItems,
+              schema: this.card.configuration?.datasource?.controller?.responseEntityJsonSchema || {},
+              filters: {
+                globalSearch: this.globalSearch,
+                columnSearches: Array.from(this.activeFilters.entries()).map(([key, values]) => ({
+                  columnKey: key,
+                  values: Array.from(values)
+                }))
+              },
+              sorting: this.sortConfig
+            });
+
             this.cdr.detectChanges();
           });
       } else {
@@ -589,6 +617,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     if (this.documentClickListener) {
       document.removeEventListener('click', this.documentClickListener);
     }
+    this.unregisterAsDataSource();
   }
 
   onTableScroll(event: Event) {
@@ -1271,5 +1300,46 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   onHeaderMouseLeave(column: ColumnConfig) {
+  }
+
+  private registerAsDataSource(): void {
+    if (!this.card?.id) return;
+
+    const tableInfo = {
+      cardId: this.card.id,
+      title: this.card.title,
+      schema: this.card.configuration?.datasource?.controller?.responseEntityJsonSchema || {},
+      currentData$: this.currentDataSubject.asObservable()
+    };
+
+    this.localDataSourceService.registerDataTable(tableInfo);
+  }
+
+  private unregisterAsDataSource(): void {
+    if (this.card?.id) {
+      this.localDataSourceService.unregisterDataTable(this.card.id);
+    }
+  }
+
+  private validateDatasourceConfig(config: DatasourceConfig): boolean {
+    if (config.type === 'LocalDataTable' && config.localDataTable?.cardId === this.card.id) {
+      console.error('Une table ne peut pas utiliser ses propres données comme source');
+      return false;
+    }
+    return true;
+  }
+
+  onDatasourceConfigChange(config: DatasourceConfig) {
+    if (!this.validateDatasourceConfig(config)) {
+      if (this.previousConfig) {
+        this.card.configuration.datasource = { ...this.previousConfig };
+      }
+      return;
+    }
+
+    this.previousConfig = { ...this.card.configuration.datasource };
+    this.card.configuration.datasource = config;
+    this.configurationChanged.emit(this.card.configuration);
+    this.loadData();
   }
 }

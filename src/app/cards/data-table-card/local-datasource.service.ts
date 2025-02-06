@@ -7,10 +7,10 @@ import { RegisteredDataTable, TableDataEvent } from './data-table-card.models';
   providedIn: 'root'
 })
 export class LocalDataSourceService {
-  private registeredTables = new Map<string, RegisteredDataTable>();
+  private registeredTables = new Map<number, RegisteredDataTable>();
   private availableTablesSubject = new BehaviorSubject<RegisteredDataTable[]>([]);
-  private tableDataSubjects = new Map<string, BehaviorSubject<TableDataEvent | null>>();
-  private destroySubjects = new Map<string, Subject<void>>();
+  private tableDataSubjects = new Map<number, BehaviorSubject<TableDataEvent | null>>();
+  private destroySubjects = new Map<number, Subject<void>>();
 
   constructor() {}
 
@@ -34,7 +34,7 @@ export class LocalDataSourceService {
   }
 
   // Désenregistrer une table
-  unregisterDataTable(cardId: string): void {
+  unregisterDataTable(cardId: number): void {
     // Nettoyer les souscriptions
     const destroySubject = this.destroySubjects.get(cardId);
     if (destroySubject) {
@@ -56,30 +56,30 @@ export class LocalDataSourceService {
   }
 
   // Obtenir la liste des tables disponibles (excluant éventuellement une table spécifique)
-  getAvailableTables(excludeCardId?: string): Observable<RegisteredDataTable[]> {
+  getAvailableTables(excludeCardId?: number): Observable<RegisteredDataTable[]> {
     return this.availableTablesSubject.pipe(
       map(tables => tables.filter(table => table.cardId !== excludeCardId))
     );
   }
 
   // Obtenir une table spécifique
-  getDataTable(cardId: string): RegisteredDataTable | undefined {
+  getDataTable(cardId: number): RegisteredDataTable | undefined {
     return this.registeredTables.get(cardId);
   }
 
   // Obtenir le flux de données d'une table spécifique
-  getTableData(cardId: string): Observable<TableDataEvent | null> | undefined {
+  getTableData(cardId: number): Observable<TableDataEvent | null> | undefined {
     const subject = this.tableDataSubjects.get(cardId);
     return subject?.asObservable();
   }
 
   // Obtenir le schéma d'une table spécifique
-  getTableSchema(cardId: string): any | undefined {
+  getTableSchema(cardId: number): any | undefined {
     return this.registeredTables.get(cardId)?.schema;
   }
 
   // Vérifier si une table est disponible
-  isTableAvailable(cardId: string): boolean {
+  isTableAvailable(cardId: number): boolean {
     return this.registeredTables.has(cardId);
   }
 

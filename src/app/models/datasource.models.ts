@@ -3,7 +3,7 @@ import { StoredProcedureParameter } from './parameters.models';
 
 // Nouvelle interface pour la configuration de la source de données locale
 export interface LocalDataTableConfig {
-  cardId: string;
+  cardId: number;
   useFilteredData: boolean;
   columns?: string[]; // Colonnes à utiliser depuis la table source
 }

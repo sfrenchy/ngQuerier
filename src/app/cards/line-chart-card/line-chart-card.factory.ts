@@ -3,12 +3,13 @@ import { CardConfigFactory } from '@cards/card-config.factory';
 import { CardValidationService } from '@cards/card-validation.service';
 import { LineChartCardConfig } from './line-chart-card.models';
 import { ValidationResult, ValidationError } from '@cards/validation/validation.models';
+import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LineChartCardConfigFactory extends CardConfigFactory<LineChartCardConfig> {
-  constructor(protected override validationService: CardValidationService) {
+  constructor(protected override validationService: CardValidationService, private localDataSourceService: LocalDataSourceService) {
     super(validationService);
   }
 
@@ -99,6 +100,40 @@ export class LineChartCardConfigFactory extends CardConfigFactory<LineChartCardC
           });
         }
       });
+    }
+
+    if (config.datasource?.type === 'LocalDataTable') {
+      if (!config.datasource.localDataTable?.cardId) {
+        errors.push({
+          code: 'MISSING_TABLE',
+          message: 'LINE_CHART_CARD.ERRORS.MISSING_TABLE',
+          controlPath: 'datasource.localDataTable.cardId'
+        });
+      }
+    }
+
+    // Vérifier que les colonnes sélectionnées existent toujours
+    if (config.datasource?.type === 'LocalDataTable' && config.datasource.localDataTable?.cardId) {
+      const schema = this.localDataSourceService.getTableSchema(config.datasource.localDataTable.cardId);
+      if (schema) {
+        if (config.xAxisColumn && !schema.properties[config.xAxisColumn]) {
+          errors.push({
+            code: 'INVALID_X_AXIS',
+            message: 'LINE_CHART_CARD.ERRORS.INVALID_X_AXIS',
+            controlPath: 'xAxisColumn'
+          });
+        }
+
+        config.series.forEach((series, index) => {
+          if (!schema.properties[series.dataColumn]) {
+            errors.push({
+              code: 'INVALID_SERIES_COLUMN',
+              message: 'LINE_CHART_CARD.ERRORS.INVALID_SERIES_COLUMN',
+              controlPath: `series.${index}.dataColumn`
+            });
+          }
+        });
+      }
     }
 
     return {

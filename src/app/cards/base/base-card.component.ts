@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CardDto, BaseCardConfig } from '@models/api.models';
 import { uintToHex } from '../../shared/utils/color.utils';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
+import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
 
 @Component({
   selector: 'app-base-card',
@@ -29,7 +30,8 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
   @Output() fullscreenChange = new EventEmitter<boolean>();
 
   constructor(
-    protected translateService: TranslateService
+    protected translateService: TranslateService,
+    protected cardConfigAdapter: CardConfigAdapterService
   ) {}
 
   ngOnInit() {
@@ -109,5 +111,18 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
       .catch(error => {
         console.warn(`No translations found for card type ${cardType}:`, error);
       });
+  }
+
+  exportConfig() {
+    const config = this.cardConfigAdapter.toCardDto(this.card.configuration);
+    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${this.card.type}-config.json`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
   }
 }

@@ -13,6 +13,7 @@ import { PieChartCardConfigFactory } from './pie-chart-card.factory';
 import { BaseCardComponent } from '@cards/base/base-card.component';
 import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
+import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
 @Card({
   name: 'PieChart',
   translationPath: 'pie-chart-card',
@@ -38,11 +39,12 @@ import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.
 export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
   constructor(
     protected override translateService: TranslateService,
+    protected override cardConfigAdapter: CardConfigAdapterService,
     protected override datasourceService: DatasourceService,
     protected override requestParametersService: RequestParametersService,
     protected override localDataSourceService: LocalDataSourceService
   ) {
-    super(translateService, datasourceService, requestParametersService, localDataSourceService);
+    super(translateService, cardConfigAdapter, datasourceService, requestParametersService, localDataSourceService);
   }
 
   get loading(): boolean {

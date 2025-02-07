@@ -12,6 +12,7 @@ import { BaseCardComponent } from '@cards/base/base-card.component';
 import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
 import { takeUntil } from 'rxjs/operators';
+import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
 
 @Card({
   name: 'LineChart',
@@ -37,12 +38,13 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class LineChartCardComponent extends BaseChartCard<LineChartCardConfig> {
   constructor(
-    translateService: TranslateService,
-    datasourceService: DatasourceService,
-    requestParametersService: RequestParametersService,
-    localDataSourceService: LocalDataSourceService
+    protected override translateService: TranslateService,
+    protected override cardConfigAdapter: CardConfigAdapterService,
+    protected override datasourceService: DatasourceService,
+    protected override requestParametersService: RequestParametersService,
+    protected override localDataSourceService: LocalDataSourceService
   ) {
-    super(translateService, datasourceService, requestParametersService, localDataSourceService);
+    super(translateService, cardConfigAdapter, datasourceService, requestParametersService, localDataSourceService);
   }
 
   protected override transformData(data: any[]): any[] {

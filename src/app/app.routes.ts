@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '@guards/auth.guard';
+import { DynamicPageComponent } from '@pages/dynamic-page/dynamic-page.component';
 
 export const routes: Routes = [
   {
@@ -104,6 +105,11 @@ export const routes: Routes = [
   {
     path: 'queries',
     loadComponent: () => import('./pages/queries/queries.component').then(m => m.QueriesComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'page/:id',
+    component: DynamicPageComponent,
     canActivate: [authGuard]
   }
 ];

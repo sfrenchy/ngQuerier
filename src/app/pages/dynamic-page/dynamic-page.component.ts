@@ -23,6 +23,8 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private static layoutCache = new Map<number, LayoutDto>();
   private static dataCache = new Map<string, any>();
+  private refreshIntervals = new Map<string, number>();
+  private cardUpdateTimes = new Map<string, number>();
 
   constructor(
     private route: ActivatedRoute,
@@ -51,6 +53,12 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    // Nettoyer les intervalles
+    this.refreshIntervals.forEach(intervalId => {
+      clearInterval(intervalId);
+    });
+    this.refreshIntervals.clear();
+    
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -103,10 +111,10 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
   private preloadCardComponents() {
     if (!this.layout) return;
 
-    // Précharger tous les composants de cartes pour éviter les micro-délais lors du rendu
     this.layout.rows.forEach(row => {
       row.cards.forEach(card => {
         this.getCardComponent(card);
+        this.setupCardRefresh(card);
       });
     });
   }
@@ -168,6 +176,63 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
       DynamicPageComponent.layoutCache.delete(pageId);
     } else {
       DynamicPageComponent.layoutCache.clear();
+    }
+  }
+
+  private setupCardRefresh(card: CardDto) {
+    const factory = this.cardService.getConfigFactory(card.type);
+    if (!factory || !factory.getRefreshInterval) return;
+
+    const refreshInterval = factory.getRefreshInterval(card.configuration);
+    if (!refreshInterval) return;
+
+    const cardKey = `${card.type}_${card.id}`;
+    
+    // Éviter les doublons d'intervalles
+    if (this.refreshIntervals.has(cardKey)) {
+      clearInterval(this.refreshIntervals.get(cardKey));
+    }
+
+    const intervalId = window.setInterval(() => {
+      this.updateCardData(card);
+    }, refreshInterval);
+
+    this.refreshIntervals.set(cardKey, intervalId);
+  }
+
+  private updateCardData(card: CardDto) {
+    const factory = this.cardService.getConfigFactory(card.type);
+    if (!factory) return;
+
+    const cacheKey = `${card.type}_${JSON.stringify(card.configuration)}`;
+    const lastUpdate = this.cardUpdateTimes.get(cacheKey) || 0;
+    const now = Date.now();
+
+    // Éviter les mises à jour trop fréquentes
+    if (now - lastUpdate < 1000) return;
+
+    factory.loadData(card.configuration).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (data: any) => {
+        DynamicPageComponent.dataCache.set(cacheKey, data);
+        this.cardUpdateTimes.set(cacheKey, now);
+        this.updateCardComponent(card);
+      }
+    });
+  }
+
+  private updateCardComponent(card: CardDto) {
+    const type = card.type;
+    if (this.cardComponents.has(type)) {
+      const cardComponent = this.cardComponents.get(type);
+      cardComponent.inputs = {
+        ...cardComponent.inputs,
+        card: {
+          ...card,
+          data: this.getCardData(card)
+        }
+      };
     }
   }
 }

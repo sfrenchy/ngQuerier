@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
+import { takeUntil } from 'rxjs/operators';
 
 import { BaseChartCard } from '../base/base-chart-card.component';
 import { DatasourceService } from '../../shared/components/datasource-configuration/datasource.service';
@@ -11,7 +12,7 @@ import { RequestParametersService } from '@shared/services/request-parameters.se
 import { PieChartCardConfigFactory } from './pie-chart-card.factory';
 import { BaseCardComponent } from '@cards/base/base-card.component';
 import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
-
+import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
 @Card({
   name: 'PieChart',
   translationPath: 'pie-chart-card',
@@ -38,9 +39,10 @@ export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
   constructor(
     protected override translateService: TranslateService,
     protected override datasourceService: DatasourceService,
-    protected override requestParametersService: RequestParametersService
+    protected override requestParametersService: RequestParametersService,
+    protected override localDataSourceService: LocalDataSourceService
   ) {
-    super(translateService, datasourceService, requestParametersService);
+    super(translateService, datasourceService, requestParametersService, localDataSourceService);
   }
 
   get loading(): boolean {
@@ -101,5 +103,21 @@ export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
     const normalizedName = propertyName.toLowerCase();
     const key = Object.keys(obj).find(k => k.toLowerCase() === normalizedName);
     return key ? obj[key] : undefined;
+  }
+
+  protected setupDataSource(): void {
+    if (this.card.configuration?.datasource?.type === 'LocalDataTable') {
+      const cardId = this.card.configuration.datasource.localDataTable?.cardId;
+      if (cardId) {
+        this.localDataSourceService.getTableData(cardId)!
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(event => {
+            if (event?.data) {
+              this.chartState.data = this.transformData(event.data);
+              this.updateChartOptions();
+            }
+          });
+      }
+    }
   }
 }

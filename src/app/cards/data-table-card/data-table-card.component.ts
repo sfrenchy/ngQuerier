@@ -1326,8 +1326,9 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       schema: schema,
       currentData$: this.currentDataSubject.asObservable()
     };
-
-    this.localDataSourceService.registerDataTable(tableInfo);
+    if (this.card.id > 0) {
+      this.localDataSourceService.registerDataTable(tableInfo);
+    }
   }
 
   private unregisterAsDataSource(): void {
@@ -1337,9 +1338,18 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   }
 
   private validateDatasourceConfig(config: DatasourceConfig): boolean {
-    if (config.type === 'LocalDataTable' && config.localDataTable?.cardId === this.card.id) {
-      console.error('Une table ne peut pas utiliser ses propres données comme source');
-      return false;
+    if (config.type === 'LocalDataTable') {
+      // Vérifier que la table n'utilise pas ses propres données
+      if (config.localDataTable?.cardId === this.card.id) {
+        console.error('Une table ne peut pas utiliser ses propres données comme source');
+        return false;
+      }
+
+      // Vérifier que la table source existe
+      if (config.localDataTable?.cardId && !this.localDataSourceService.isTableAvailable(config.localDataTable.cardId)) {
+        console.error('La table source n\'est pas disponible');
+        return false;
+      }
     }
     return true;
   }

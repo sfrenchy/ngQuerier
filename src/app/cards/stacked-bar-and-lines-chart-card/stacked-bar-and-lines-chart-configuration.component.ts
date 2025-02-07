@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, OnDestroy, Output, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -6,10 +6,11 @@ import { CardDto } from '@models/api.models';
 import { TileComponent } from '@shared/components/tile/tile.component';
 import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, take } from 'rxjs/operators';
 import { StackedBarAndLinesChartCardConfig, BarSeriesConfig, LineSeriesConfig } from './stacked-bar-and-lines-chart.models';
 import { DatasourceConfig } from '@models/datasource.models';
 import { ValidationError } from '@cards/validation/validation.models';
+import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
 
 @Component({
   selector: 'app-stacked-bar-and-lines-chart-configuration',
@@ -45,12 +46,21 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
   private _validationErrors: ValidationError[] = [];
   errorMessages: { [key: string]: string } = {};
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private localDataSourceService: LocalDataSourceService
+  ) {
     this.form = this.fb.group({
       xAxisColumn: [''],
       xAxisDateFormat: [''],
       barSeries: this.fb.array([]),
-      lineSeries: this.fb.array([])
+      lineSeries: this.fb.array([]),
+      datasource: this.fb.group({
+        type: [''],
+        localDataTable: this.fb.group({
+          cardId: ['']
+        })
+      })
     });
 
     this.form.valueChanges
@@ -98,7 +108,12 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
 
   ngOnInit() {
     if (this.card.configuration) {
-      // Initialiser l'axe X
+      // D'abord mettre à jour la source de données
+      if (this.card.configuration.datasource) {
+        this.form.get('datasource')?.patchValue(this.card.configuration.datasource, { emitEvent: false });
+      }
+
+      // Puis le reste de la configuration
       this.form.patchValue({
         xAxisColumn: this.card.configuration.xAxisColumn,
         xAxisDateFormat: this.card.configuration.xAxisDateFormat
@@ -117,7 +132,58 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
           this.lineSeriesArray.push(this.createLineSeriesFormGroup(series));
         });
       }
+
+      // Initialiser les colonnes si c'est une source locale
+      if (this.card.configuration.datasource?.type === 'LocalDataTable') {
+        const cardId = this.card.configuration.datasource.localDataTable?.cardId;
+        if (cardId) {
+          const schema = this.localDataSourceService.getTableSchema(cardId);
+          if (schema) {
+            this.availableColumns = Object.entries(schema.properties)
+              .filter(([_, prop]: [string, any]) =>
+                prop.type === 'number' ||
+                prop.type === 'integer' ||
+                prop.type === 'date' ||
+                prop.type === 'datetime')
+              .map(([key]) => key);
+          }
+        }
+      }
     }
+
+    // Observer les changements de type de source
+    this.form.get('datasource.type')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(type => {
+        if (type === 'LocalDataTable') {
+          this.setupLocalTableSubscription();
+        }
+      });
+  }
+
+  private setupLocalTableSubscription() {
+    const cardIdControl = this.form.get('datasource.localDataTable.cardId');
+
+    cardIdControl?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(cardId => {
+        this.localDataSourceService.getTableReadyState$(cardId)
+          .pipe(take(1))
+          .subscribe(state => {
+            if (state.isSchemaReady) {
+              const schema = this.localDataSourceService.getTableSchema(cardId);
+              if (schema) {
+                this.availableColumns = Object.entries(schema.properties)
+                  .filter(([_, prop]: [string, any]) =>
+                    prop.type === 'number' ||
+                    prop.type === 'integer' ||
+                    prop.type === 'date' ||
+                    prop.type === 'datetime')
+                  .map(([key]) => key);
+              }
+            }
+          });
+      });
   }
 
   ngOnDestroy() {
@@ -126,7 +192,25 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
   }
 
   onDatasourceChange(config: DatasourceConfig) {
+    // Mettre à jour le formulaire avec la nouvelle configuration
+    this.form.get('datasource')?.patchValue(config);
+
+    // Émettre la configuration
     this.emitConfig({ ...this.form.value, datasource: config });
+
+    // Si c'est une table locale, initialiser les colonnes
+    if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
+      const schema = this.localDataSourceService.getTableSchema(config.localDataTable.cardId);
+      if (schema) {
+        this.availableColumns = Object.entries(schema.properties)
+          .filter(([_, prop]: [string, any]) =>
+            prop.type === 'number' ||
+            prop.type === 'integer' ||
+            prop.type === 'date' ||
+            prop.type === 'datetime')
+          .map(([key]) => key);
+      }
+    }
   }
 
   onSchemaChange(schema: string) {
@@ -210,12 +294,20 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
 
   private emitConfig(formValue: any) {
     const config = new StackedBarAndLinesChartCardConfig();
-    if (this.card.configuration?.datasource) {
+
+    // Conserver la configuration de la source de données
+    if (formValue.datasource) {
+      config.datasource = formValue.datasource;
+    } else if (this.card.configuration?.datasource) {
       config.datasource = this.card.configuration.datasource;
     }
+
+    // Conserver la configuration visuelle
     if (this.card.configuration?.visualConfig) {
       config.visualConfig = this.card.configuration.visualConfig;
     }
+
+    // Mettre à jour les autres propriétés
     config.xAxisColumn = formValue.xAxisColumn;
     config.xAxisDateFormat = formValue.xAxisDateFormat;
     config.barSeries = formValue.barSeries;

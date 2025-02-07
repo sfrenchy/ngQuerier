@@ -3,7 +3,7 @@
     <!-- Data Source Configuration -->
     <app-tile [title]="'stacked-bar-and-lines-chart-card.DATASOURCE.TITLE' | translate">
       <app-datasource-configuration
-        [config]="card.configuration?.datasource || { type: 'API' }"
+        [config]="form.getRawValue().datasource"
         (configChange)="onDatasourceChange($event)"
         (schemaChange)="onSchemaChange($event)">
       </app-datasource-configuration>

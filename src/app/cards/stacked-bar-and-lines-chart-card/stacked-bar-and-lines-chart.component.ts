@@ -11,6 +11,8 @@ import { BaseCardComponent } from '@cards/base/base-card.component';
 import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { StackedBarAndLinesChartConfigFactory } from './stacked-bar-and-lines-chart.factory';
+import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
+import { takeUntil } from 'rxjs/operators';
 
 @Card({
   name: 'StackedBarAndLinesChart',
@@ -38,9 +40,10 @@ export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAn
   constructor(
     protected override translateService: TranslateService,
     protected override datasourceService: DatasourceService,
-    protected override requestParametersService: RequestParametersService
+    protected override requestParametersService: RequestParametersService,
+    protected override localDataSourceService: LocalDataSourceService
   ) {
-    super(translateService, datasourceService, requestParametersService);
+    super(translateService, datasourceService, requestParametersService, localDataSourceService);
   }
 
   protected override transformData(data: any[]): any[] {
@@ -167,6 +170,22 @@ export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAn
         return year.toString();
       default:
         return date.toLocaleDateString();
+    }
+  }
+
+  protected setupDataSource(): void {
+    if (this.card.configuration?.datasource?.type === 'LocalDataTable') {
+      const cardId = this.card.configuration.datasource.localDataTable?.cardId;
+      if (cardId) {
+        this.localDataSourceService.getTableData(cardId)!
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(event => {
+            if (event?.data) {
+              this.chartState.data = this.transformData(event.data);
+              this.updateChartOptions();
+            }
+          });
+      }
     }
   }
 }

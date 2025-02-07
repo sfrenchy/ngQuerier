@@ -2,7 +2,7 @@
   <!-- Configuration de la source de données -->
   <app-tile [title]="'DATASOURCE.TITLE' | translate">
     <app-datasource-configuration
-      [config]="card.configuration?.datasource || { type: 'API' }"
+      [config]="form.getRawValue().datasource"
       (configChange)="onDatasourceChange($event)"
       (schemaChange)="onSchemaChange($event)">
     </app-datasource-configuration>

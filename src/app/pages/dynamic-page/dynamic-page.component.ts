@@ -21,6 +21,7 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
   error: string | null = null;
   private cardComponents = new Map<string, any>();
   private destroy$ = new Subject<void>();
+  private static layoutCache = new Map<number, LayoutDto>();
 
   constructor(
     private route: ActivatedRoute,
@@ -57,10 +58,20 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
 
+    // Vérifier si le layout est en cache
+    if (DynamicPageComponent.layoutCache.has(pageId)) {
+      this.layout = DynamicPageComponent.layoutCache.get(pageId)!;
+      this.isLoading = false;
+      this.preloadCardComponents();
+      return;
+    }
+
     this.apiService.getLayout(pageId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (layout) => {
+          // Mettre en cache le layout
+          DynamicPageComponent.layoutCache.set(pageId, layout);
           this.layout = layout;
           this.isLoading = false;
           this.preloadCardComponents();
@@ -113,5 +124,14 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
       };
     }
     return this.cardComponents.get(type);
+  }
+
+  // Optionnel : méthode pour invalider le cache si nécessaire
+  static clearLayoutCache(pageId?: number) {
+    if (pageId) {
+      DynamicPageComponent.layoutCache.delete(pageId);
+    } else {
+      DynamicPageComponent.layoutCache.clear();
+    }
   }
 }

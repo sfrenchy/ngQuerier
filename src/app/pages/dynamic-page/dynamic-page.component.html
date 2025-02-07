@@ -1,0 +1,31 @@
+<div class="p-6">
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="flex justify-center items-center min-h-[200px]">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error" class="text-error text-center py-8">
+    {{ error }}
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && !error && layout" class="space-y-4">
+    <div *ngFor="let row of layout.rows"
+         class="bg-card rounded-lg"
+         [style.height.px]="row.height">
+      <div class="h-full w-full grid gap-4"
+           style="grid-template-columns: repeat(12, 1fr);">
+        <ng-container *ngFor="let card of row.cards">
+          <div [style.grid-column]="'span ' + (card.gridWidth || 12)"
+               class="h-full">
+            <ng-container *ngComponentOutlet="getCardComponent(card).component;
+                                          injector: moduleRef.injector;
+                                          inputs: getCardComponent(card).inputs">
+            </ng-container>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>

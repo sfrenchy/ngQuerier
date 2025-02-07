@@ -5,7 +5,7 @@ import { NgComponentOutlet } from '@angular/common';
 import { CardService } from '@cards/card.service';
 import { LayoutDto, RowDto, CardDto } from '@models/api.models';
 import { ApiService } from '@services/api.service';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, tap, switchMap, forkJoin, of, Observable } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -22,6 +22,7 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
   private cardComponents = new Map<string, any>();
   private destroy$ = new Subject<void>();
   private static layoutCache = new Map<number, LayoutDto>();
+  private static dataCache = new Map<string, any>();
 
   constructor(
     private route: ActivatedRoute,
@@ -58,21 +59,26 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     this.error = null;
 
-    // Vérifier si le layout est en cache
+    // Vérifier le cache du layout
     if (DynamicPageComponent.layoutCache.has(pageId)) {
       this.layout = DynamicPageComponent.layoutCache.get(pageId)!;
       this.isLoading = false;
       this.preloadCardComponents();
+      this.preloadCardData();
       return;
     }
 
     this.apiService.getLayout(pageId)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (layout) => {
-          // Mettre en cache le layout
+      .pipe(
+        tap(layout => {
           DynamicPageComponent.layoutCache.set(pageId, layout);
           this.layout = layout;
+        }),
+        switchMap(layout => this.preloadCardData()),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: () => {
           this.isLoading = false;
           this.preloadCardComponents();
         },
@@ -124,6 +130,36 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
       };
     }
     return this.cardComponents.get(type);
+  }
+
+  private preloadCardData(): Observable<any> {
+    if (!this.layout) return of(null);
+
+    const dataRequests = this.layout.rows
+      .flatMap(row => row.cards)
+      .map(card => {
+        const cacheKey = `${card.type}_${JSON.stringify(card.configuration)}`;
+        if (DynamicPageComponent.dataCache.has(cacheKey)) {
+          return of(DynamicPageComponent.dataCache.get(cacheKey));
+        }
+
+        // Obtenir la factory pour ce type de carte
+        const factory = this.cardService.getConfigFactory(card.type);
+        if (!factory) return of(null);
+
+        // Utiliser la factory pour charger les données
+        return factory.loadData(card.configuration).pipe(
+          tap(data => DynamicPageComponent.dataCache.set(cacheKey, data))
+        );
+      });
+
+    return forkJoin(dataRequests);
+  }
+
+  // Méthode pour récupérer les données préchargées
+  getCardData(card: CardDto): any {
+    const cacheKey = `${card.type}_${JSON.stringify(card.configuration)}`;
+    return DynamicPageComponent.dataCache.get(cacheKey);
   }
 
   // Optionnel : méthode pour invalider le cache si nécessaire

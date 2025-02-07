@@ -69,7 +69,7 @@
                    class="pl-4 mt-1 space-y-1 overflow-hidden transition-all duration-300">
                 <ng-container *ngFor="let page of getCategoryPages(menu.id)">
                   <a *ngIf="shouldShowPage(page)"
-                     [routerLink]="['/page', page.id]"
+                     [routerLink]="['/home/page', page.id]"
                      class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
                     <i [class]="page.icon + ' mr-2'"></i>
                     <span class="truncate">

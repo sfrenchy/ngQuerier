@@ -102,16 +102,14 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
         component,
         inputs: {
           card: card,
-          isEditing: false,
-          height: card.height
+          isEditing: false
         }
       });
     } else {
       const cardComponent = this.cardComponents.get(type);
       cardComponent.inputs = {
         card: card,
-        isEditing: false,
-        height: card.height
+        isEditing: false
       };
     }
     return this.cardComponents.get(type);

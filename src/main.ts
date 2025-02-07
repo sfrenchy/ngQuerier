@@ -68,6 +68,10 @@ bootstrapApplication(AppComponent, {
               loadComponent: () => import('./app/pages/queries/queries.component').then(m => m.QueriesComponent)
             },
             {
+              path: 'page/:id',
+              loadComponent: () => import('./app/pages/dynamic-page/dynamic-page.component').then(m => m.DynamicPageComponent)
+            },
+            {
               path: 'contents',
               children: [
                 {

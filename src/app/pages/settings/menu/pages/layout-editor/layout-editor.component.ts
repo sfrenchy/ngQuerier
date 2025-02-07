@@ -81,8 +81,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   private isDraggingRowItem = false;
   private isDraggingCardItem = false;
 
-  nextRowId = 1;
-  nextCardId = 1;
   resizing = false;
   private currentRowId: number | null = null;
   private startY = 0;
@@ -153,7 +151,7 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     const type = event.dataTransfer.getData('text/plain');
     if (type === 'row') {
       const newRow: RowDto = {
-        id: this.nextRowId++,
+        id: -1,
         order: this.layout.rows.length,
         height: 300,
         cards: []
@@ -180,9 +178,12 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     const metadata = CardRegistry.getMetadata(cardType);
     const configuration = metadata?.defaultConfig?.();
 
-    const newCard: CardDto = this.cardService.createCard(cardType);
-    newCard.rowId = event.rowId;
-    newCard.gridWidth = availableSpace;
+    const newCard: CardDto = {
+      ...this.cardService.createCard(cardType),
+      id: -1,
+      rowId: event.rowId,
+      gridWidth: availableSpace
+    };
 
     const updatedRows = [...this.layout.rows];
     updatedRows[rowIndex] = {
@@ -233,6 +234,9 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   }
 
   onCardConfigSave(updatedCard: CardDto) {
+    console.log('[LayoutEditor] Sauvegarde de la carte:', updatedCard);
+    console.log('[LayoutEditor] Configuration complète:', updatedCard.configuration);
+
     const data = this.configCardData;
     if (!data) return;
 

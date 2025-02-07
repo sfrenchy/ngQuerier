@@ -55,6 +55,15 @@ export class DataTableCardConfigFactory extends CardConfigFactory<DataTableCardC
             });
           }
           break;
+        case 'LocalDataTable':
+          if (!config.datasource.localDataTable?.cardId) {
+            errors.push({
+              code: 'INVALID_LOCAL_TABLE_DATASOURCE',
+              message: 'DATA_TABLE_CARD.ERRORS.INVALID_LOCAL_TABLE_DATASOURCE',
+              controlPath: 'datasource'
+            });
+          }
+          break;
         default:
           errors.push({
             code: 'INVALID_DATASOURCE_TYPE',

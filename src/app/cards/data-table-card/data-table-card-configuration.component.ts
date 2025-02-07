@@ -13,6 +13,7 @@ import { DataTableCardService } from './data-table-card.service';
 import { CardDatabaseService } from '@cards/card-database.service';
 import { ChangeDetectorRef } from '@angular/core';
 import { ValidationError } from '@cards/validation/validation.models';
+import { LocalDataSourceService } from './local-datasource.service';
 
 @Component({
   selector: 'app-data-table-card-configuration',
@@ -53,7 +54,8 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private dataTableService: DataTableCardService,
     private cardDatabaseService: CardDatabaseService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private localDataSourceService: LocalDataSourceService
   ) {
     this.form = this.fb.group({
       datasource: [null],
@@ -106,7 +108,27 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   }
 
   onDatasourceChange(datasource: DatasourceConfig) {
-    this.form.patchValue({ datasource }, { emitEvent: true });
+    this.form.patchValue({ datasource }, { emitEvent: false });
+
+    // Réinitialiser les colonnes
+    this.columns = [];
+
+    if (datasource.type === 'LocalDataTable' && datasource.localDataTable?.cardId) {
+      // S'abonner à l'état de préparation de la table
+      this.localDataSourceService.getTableReadyState$(datasource.localDataTable.cardId)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(state => {
+          if (state.isSchemaReady) {
+            const schema = this.localDataSourceService.getTableSchema(datasource.localDataTable!.cardId);
+            if (schema) {
+              this.initializeColumns(schema);
+              this.cdr.detectChanges();
+            }
+          }
+        });
+    }
+
+    this.emitConfig({ ...this.form.value, datasource });
   }
 
   onSchemaChange(schema: string) {
@@ -123,28 +145,21 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
   private initializeColumns(schema: any) {
     if (schema.properties) {
-      // Sauvegarder l'état des colonnes existantes, y compris les colonnes virtuelles
+      // Sauvegarder l'état des colonnes existantes
       const existingColumnsMap = new Map(
-        this.columns.map(col => [col.isVirtualForeignKey ? `${col.sourceColumn}_display` : col.key, col])
+        this.columns.map(col => [col.key, col])
       );
 
       this.columns = Object.entries(schema.properties)
-        .filter(([_, prop]: [string, any]) => !prop['x-entity-metadata']?.isNavigation)
         .map(([key, prop]: [string, any]) => {
           const type = this.getColumnType(prop);
           const existingColumn = existingColumnsMap.get(key);
-          const isPrimaryOrForeignKey = prop['x-entity-metadata']?.isPrimaryKey || prop['x-entity-metadata']?.isForeignKey;
 
           // Si la colonne existe déjà, préserver sa configuration
-          if (existingColumn && !existingColumn.isVirtualForeignKey) {
+          if (existingColumn) {
             return {
               ...existingColumn,
-              type,
-              entityMetadata: prop['x-entity-metadata'],
-              isNavigation: prop['x-entity-metadata']?.isNavigation || false,
-              navigationType: prop['x-entity-metadata']?.navigationType,
-              isCollection: prop['x-entity-metadata']?.isCollection || false,
-              elementType: prop['x-entity-metadata']?.elementType
+              type
             };
           }
 
@@ -154,33 +169,33 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
             type,
             label: { en: key, fr: key },
             alignment: this.getDefaultAlignment(type),
-            visible: !isPrimaryOrForeignKey,
+            visible: true,
             decimals: type === 'number' ? 2 : undefined,
             dateFormat: type === 'date' ? 'datetime' : undefined,
             isFixed: false,
-            isFixedRight: false,
-            isNavigation: prop['x-entity-metadata']?.isNavigation || false,
-            navigationType: prop['x-entity-metadata']?.navigationType,
-            isCollection: prop['x-entity-metadata']?.isCollection || false,
-            elementType: prop['x-entity-metadata']?.elementType,
-            entityMetadata: prop['x-entity-metadata']
+            isFixedRight: false
           };
         });
 
-      // Mettre à jour le formulaire avant d'ajouter les colonnes virtuelles
-      this.form.patchValue({ columns: this.columns }, { emitEvent: false });
-
-      // Restaurer les colonnes virtuelles avec leur état précédent
-      this.updateVirtualColumns(existingColumnsMap);
+      // Mettre à jour le formulaire
+      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
     }
   }
 
   private getColumnType(prop: any): string {
-    return this.dataTableService.getColumnType(prop);
+    return prop.type || 'string';
   }
 
   private getDefaultAlignment(type: string): 'left' | 'center' | 'right' {
-    return this.dataTableService.getDefaultAlignment(type);
+    switch (type) {
+      case 'number':
+      case 'integer':
+        return 'right';
+      case 'boolean':
+        return 'center';
+      default:
+        return 'left';
+    }
   }
 
   toggleColumnExpand(index: number) {

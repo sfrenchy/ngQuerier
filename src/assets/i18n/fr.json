@@ -411,7 +411,19 @@
     "TYPES": {
       "API": "Appel API",
       "EntityFramework": "Entity Framework",
-      "SQLQuery": "Requête SQL"
+      "SQLQuery": "Requête SQL",
+      "LocalDataTable": "Table locale"
+    },
+    "LOCAL_TABLE": {
+      "SELECT_TABLE": "Sélectionner une table",
+      "USE_FILTERED_DATA": "Utiliser les données filtrées",
+      "SELECT_COLUMNS": "Sélectionner les colonnes",
+      "ERROR": "Erreur",
+      "LOADING_SCHEMA": "Chargement du schéma...",
+      "LOADING_DATA": "Chargement des données...",
+      "SCHEMA_LOADING_INFO": "Le schéma de la table est en cours de chargement",
+      "DATA_LOADING_INFO": "Les données de la table sont en cours de chargement",
+      "SOURCE": "Table source"
     }
   },
   "COLUMNS": {

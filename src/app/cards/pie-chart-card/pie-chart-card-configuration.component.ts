@@ -8,6 +8,9 @@ import { PieChartCardConfig } from './pie-chart-card.models';
 import { CardDto } from '@models/api.models';
 import { DatasourceConfig } from '@models/datasource.models';
 import { ValidationError } from '@cards/validation/validation.models';
+import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
+import { takeUntil, take } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-pie-chart-card-configuration',
@@ -36,12 +39,22 @@ export class PieChartCardConfigurationComponent implements OnInit {
   errorMessages: { [key: string]: string } = {};
   form: FormGroup;
   availableColumns: string[] = [];
+  private destroy$ = new Subject<void>();
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private localDataSourceService: LocalDataSourceService
+  ) {
     this.form = this.fb.group({
       labelColumn: [''],
       valueColumn: [''],
-      radius: ['75%']
+      radius: ['75%'],
+      datasource: this.fb.group({
+        type: [''],
+        localDataTable: this.fb.group({
+          cardId: ['']
+        })
+      })
     });
 
     this.form.valueChanges.subscribe(value => {
@@ -53,30 +66,66 @@ export class PieChartCardConfigurationComponent implements OnInit {
 
   ngOnInit() {
     if (this.card.configuration) {
+      if (this.card.configuration.datasource) {
+        this.form.get('datasource')?.patchValue(this.card.configuration.datasource, { emitEvent: false });
+      }
+
       this.form.patchValue({
         labelColumn: this.card.configuration.labelColumn,
         valueColumn: this.card.configuration.valueColumn,
         radius: this.card.configuration.radius
       }, { emitEvent: false });
+
+      if (this.card.configuration.datasource?.type === 'LocalDataTable') {
+        const cardId = this.card.configuration.datasource.localDataTable?.cardId;
+        if (cardId) {
+          const schema = this.localDataSourceService.getTableSchema(cardId);
+          if (schema) {
+            this.availableColumns = Object.keys(schema.properties || {});
+          }
+        }
+      }
     }
+
+    this.form.get('datasource.type')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(type => {
+        if (type === 'LocalDataTable') {
+          this.setupLocalTableSubscription();
+        }
+      });
   }
 
   onDatasourceChange(config: DatasourceConfig) {
+    this.form.get('datasource')?.patchValue(config);
+
     this.emitConfig({ ...this.form.value, datasource: config });
+
+    if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
+      const schema = this.localDataSourceService.getTableSchema(config.localDataTable.cardId);
+      if (schema) {
+        this.availableColumns = Object.keys(schema.properties || {});
+      }
+    }
   }
 
-  onSchemaChange(schema: string) {
-    if (schema) {
-      try {
-        const schemaObj = JSON.parse(schema);
-        this.availableColumns = Object.keys(schemaObj.properties || {});
-      } catch (e) {
-        console.error('Error parsing JSON schema:', e);
-        this.availableColumns = [];
-      }
-    } else {
-      this.availableColumns = [];
-    }
+  private setupLocalTableSubscription() {
+    const cardIdControl = this.form.get('datasource.localDataTable.cardId');
+
+    cardIdControl?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(cardId => {
+        this.localDataSourceService.getTableReadyState$(cardId)
+          .pipe(take(1))
+          .subscribe(state => {
+            if (state.isSchemaReady) {
+              const schema = this.localDataSourceService.getTableSchema(cardId);
+              if (schema) {
+                this.availableColumns = Object.keys(schema.properties || {});
+              }
+            }
+          });
+      });
   }
 
   private emitConfig(formValue: any) {
@@ -106,5 +155,19 @@ export class PieChartCardConfigurationComponent implements OnInit {
         this.errorMessages[error.controlPath] = error.message;
       }
     });
+  }
+
+  onSchemaChange(schema: string) {
+    if (schema) {
+      try {
+        const schemaObj = JSON.parse(schema);
+        this.availableColumns = Object.keys(schemaObj.properties || {});
+      } catch (e) {
+        console.error('Error parsing JSON schema:', e);
+        this.availableColumns = [];
+      }
+    } else {
+      this.availableColumns = [];
+    }
   }
 }

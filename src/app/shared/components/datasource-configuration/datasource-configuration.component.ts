@@ -1,12 +1,16 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CardDatabaseService } from '@cards/card-database.service';
-import { DBConnectionDto, DBConnectionControllerInfoDto, SQLQueryDto, DataStructureDefinitionDto } from '@models/api.models';
-import { TranslateModule } from '@ngx-translate/core';
+import { DBConnectionDto, DBConnectionControllerInfoDto, SQLQueryDto, DataStructureDefinitionDto, TranslatableString } from '@models/api.models';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DatasourceConfig, ParameterValue } from '@models/datasource.models';
 import { DatasourceService } from './datasource.service';
 import { StoredProcedureParameter, ChartParameters } from '@models/parameters.models';
+import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
+import { Observable } from 'rxjs';
+import { RegisteredDataTable } from '@cards/models/registered-data-table.model';
+import { take } from 'rxjs/operators';
 
 interface ParameterInfo {
   name: string;
@@ -31,12 +35,14 @@ interface ParameterInfo {
     TranslateModule
   ]
 })
-export class DatasourceConfigurationComponent implements OnInit {
+export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
   @Input() config: DatasourceConfig = { type: 'API' };
+  @Input() excludeCardId?: number;
   @Output() configChange = new EventEmitter<DatasourceConfig>();
   @Output() schemaChange = new EventEmitter<string>();
+  @Input() isChartCard = false;
 
-  datasourceTypes = ['API', 'EntityFramework', 'SQLQuery'];
+  datasourceTypes = ['API', 'EntityFramework', 'SQLQuery', 'LocalDataTable'];
   connections: DBConnectionDto[] = [];
   controllers: DBConnectionControllerInfoDto[] = [];
   contexts: string[] = [];
@@ -60,10 +66,27 @@ export class DatasourceConfigurationComponent implements OnInit {
   parameterErrors: Record<string, string> = {};
   hasValidationErrors = false;
 
+  private translateService: TranslateService;
+  private localDataSourceService: LocalDataSourceService;
+
+  currentLang: string;
+  availableTables$: Observable<RegisteredDataTable[]>;
+  sourceTableSchema: any = null;
+
+  isLoadingTables = false;
+  tableError?: string;
+
   constructor(
     private cardDatabaseService: CardDatabaseService,
-    private datasourceService: DatasourceService
-  ) {}
+    private datasourceService: DatasourceService,
+    localDataSourceService: LocalDataSourceService,
+    translateService: TranslateService
+  ) {
+    this.translateService = translateService;
+    this.localDataSourceService = localDataSourceService;
+    this.currentLang = this.translateService.currentLang;
+    this.availableTables$ = this.localDataSourceService.getAvailableTables(this.excludeCardId);
+  }
 
   ngOnInit() {
     if (!this.config) {
@@ -592,6 +615,7 @@ export class DatasourceConfigurationComponent implements OnInit {
   }
 
   private emitSchema() {
+    console.log('[DatasourceConfig] emitSchema called');
     let schema: string | undefined;
 
     switch (this.config.type) {
@@ -604,10 +628,191 @@ export class DatasourceConfigurationComponent implements OnInit {
       case 'SQLQuery':
         schema = this.config.query?.outputDescription;
         break;
+      case 'LocalDataTable':
+        if (this.sourceTableSchema) {
+          schema = JSON.stringify(this.sourceTableSchema);
+          console.log('[DatasourceConfig] Local table schema:', this.sourceTableSchema);
+        }
+        break;
     }
 
+    console.log('[DatasourceConfig] Emitting schema:', schema);
     if (schema) {
       this.schemaChange.emit(schema);
     }
+  }
+
+  onSourceTableChange(cardId: number) {
+    console.log('[DatasourceConfig] onSourceTableChange called with cardId:', cardId);
+    console.log('[DatasourceConfig] Current config:', this.config);
+
+    if (cardId) {
+      this.sourceTableSchema = this.localDataSourceService.getTableSchema(cardId);
+      console.log('[DatasourceConfig] Retrieved schema:', this.sourceTableSchema);
+
+      if (!this.sourceTableSchema) {
+        console.error('[DatasourceConfig] No schema found for table:', cardId);
+        return;
+      }
+
+      if (!this.config.localDataTable) {
+        this.config.localDataTable = {
+          cardId,
+          useFilteredData: false,
+          columns: []
+        };
+      } else {
+        this.config.localDataTable.cardId = cardId;
+      }
+
+      console.log('[DatasourceConfig] Updated config:', this.config);
+      this.emitSchema();
+    } else {
+      this.sourceTableSchema = null;
+    }
+    this.onConfigChange();
+  }
+
+  getSchemaColumns(): Array<{key: string, title: string}> {
+    if (!this.sourceTableSchema?.properties) return [];
+    return Object.entries(this.sourceTableSchema.properties).map(([key, prop]: [string, any]) => ({
+      key,
+      title: prop.title || key
+    }));
+  }
+
+  isColumnSelected(columnKey: string): boolean {
+    return this.config.localDataTable?.columns?.includes(columnKey) ?? false;
+  }
+
+  toggleColumn(columnKey: string) {
+    if (!this.config.localDataTable) return;
+
+    const columns = this.config.localDataTable.columns || [];
+    const index = columns.indexOf(columnKey);
+
+    if (index === -1) {
+      columns.push(columnKey);
+    } else {
+      columns.splice(index, 1);
+    }
+
+    this.config.localDataTable.columns = columns;
+    this.onConfigChange();
+  }
+
+  onConfigChange() {
+    this.configChange.emit(this.config);
+    this.emitSchema();
+  }
+
+  initLocalDataTable(): DatasourceConfig['localDataTable'] {
+    if (!this.config.localDataTable) {
+      this.config.localDataTable = {
+        cardId: 0,
+        useFilteredData: false,
+        columns: []
+      };
+    }
+    return this.config.localDataTable;
+  }
+
+  getTableTitle(table: RegisteredDataTable): string {
+    console.log('[DatasourceConfig] getTableTitle called for table:', table);
+
+    // Si title est un tableau, prendre le premier élément
+    if (Array.isArray(table.title)) {
+      return table.title[0].value || 'Unknown';
+    }
+
+    // Sinon c'est un objet TranslatableString, prendre la valeur pour la langue courante
+    const title = table.title[this.currentLang as keyof typeof table.title];
+    console.log('[DatasourceConfig] Resolved title:', title);
+    return (typeof title === 'string' ? title : 'Unknown');
+  }
+
+  getTableStatus(cardId: number): string {
+    let status = 'COMMON.LOADING';
+    this.localDataSourceService.getTableReadyState$(cardId)
+      .pipe(take(1))
+      .subscribe(state => {
+        if (state.error) {
+          status = 'DATASOURCE.LOCAL_TABLE.ERROR';
+        } else if (!state.isSchemaReady) {
+          status = 'DATASOURCE.LOCAL_TABLE.LOADING_SCHEMA';
+        } else if (!state.isDataReady) {
+          status = 'DATASOURCE.LOCAL_TABLE.LOADING_DATA';
+        }
+      });
+    return status;
+  }
+
+  getTableTooltip(cardId: number): string {
+    let tooltip = '';
+    this.localDataSourceService.getTableReadyState$(cardId)
+      .pipe(take(1))
+      .subscribe(state => {
+        if (state.error) {
+          tooltip = state.error;
+        } else if (!state.isSchemaReady) {
+          tooltip = this.translateService.instant('DATASOURCE.LOCAL_TABLE.SCHEMA_LOADING_INFO');
+        } else if (!state.isDataReady) {
+          tooltip = this.translateService.instant('DATASOURCE.LOCAL_TABLE.DATA_LOADING_INFO');
+        }
+      });
+    return tooltip;
+  }
+
+  onTableSelect(cardId: number | null): void {
+    console.log('[DatasourceConfig] Table sélectionnée:', cardId);
+
+    if (!this.config) return;
+
+    if (cardId === null) {
+      // Nettoyage complet lors de la désélection
+      this.cleanupTableSelection();
+    } else {
+      this.config.localDataTable = {
+        cardId,
+        useFilteredData: false,
+        columns: []
+      };
+      // Observer l'état de la table sélectionnée
+      this.localDataSourceService.getTableReadyState$(cardId)
+        .pipe(take(1))
+        .subscribe(state => {
+          if (state.error) {
+            this.tableError = state.error;
+          } else {
+            this.tableError = undefined;
+          }
+        });
+    }
+
+    this.configChange.emit(this.config);
+  }
+
+  private cleanupTableSelection(): void {
+    if (this.config) {
+      this.config.localDataTable = undefined;
+      this.sourceTableSchema = null;
+      this.tableError = undefined;
+    }
+  }
+
+  // Réajouter la méthode isTableReady
+  isTableReady(cardId: number): boolean {
+    let isReady = false;
+    this.localDataSourceService.getTableReadyState$(cardId)
+      .pipe(take(1))
+      .subscribe(state => {
+        isReady = state.isSchemaReady && state.isDataReady && !state.error;
+      });
+    return isReady;
+  }
+
+  // Ajouter la méthode ngOnDestroy requise par l'interface
+  ngOnDestroy(): void {
+    // Nettoyer les souscriptions si nécessaire
   }
 }

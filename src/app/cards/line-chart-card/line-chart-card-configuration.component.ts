@@ -6,10 +6,11 @@ import { CardDto } from '@models/api.models';
 import { TileComponent } from '@shared/components/tile/tile.component';
 import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, take } from 'rxjs/operators';
 import { LineChartCardConfig, SeriesConfig } from './line-chart-card.models';
 import { DatasourceConfig } from '@models/datasource.models';
 import { ValidationError } from '@cards/validation/validation.models';
+import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
 
 @Component({
   selector: 'app-line-chart-card-configuration',
@@ -50,7 +51,7 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
   xAxisColumnControl = new FormControl('');
   xAxisDateFormatControl = new FormControl('');
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private localDataSourceService: LocalDataSourceService) {
     this.form = this.fb.group({
       datasource: [{ type: 'API' } as DatasourceConfig],
       xAxisColumn: this.xAxisColumnControl,
@@ -96,11 +97,101 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
         series: this.card.configuration.series,
         visualConfig: this.card.configuration.visualConfig
       }, { emitEvent: false });
+
+      // Initialiser les colonnes si c'est une source locale
+      if (this.card.configuration.datasource?.type === 'LocalDataTable') {
+        const cardId = this.card.configuration.datasource.localDataTable?.cardId;
+        if (cardId) {
+          const schema = this.localDataSourceService.getTableSchema(cardId);
+          if (schema) {
+            this.availableColumns = Object.entries(schema.properties)
+              .filter(([_, prop]: [string, any]) =>
+                prop.type === 'number' ||
+                prop.type === 'integer' ||
+                prop.type === 'date' ||
+                prop.type === 'datetime')
+              .map(([key]) => key);
+          }
+        }
+      }
     }
+
+    // Observer les changements de type de source
+    this.form.get('datasource.type')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(type => {
+        if (type === 'LocalDataTable') {
+          this.setupLocalTableSubscription();
+        }
+      });
+  }
+
+  private setupLocalTableSubscription() {
+    // Observer les changements de table sélectionnée
+    const cardIdControl = this.form.get('datasource.localDataTable.cardId');
+    console.log('Form value:', this.form.value);
+    console.log('CardId control:', cardIdControl?.value);
+
+    cardIdControl?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(cardId => {
+        console.log('Table sélectionnée:', cardId);
+
+        // Attendre que le schéma soit disponible
+        this.localDataSourceService.getTableReadyState$(cardId)
+          .pipe(take(1))
+          .subscribe(state => {
+            console.log('État de la table:', state);
+            if (state.isSchemaReady) {
+              const schema = this.localDataSourceService.getTableSchema(cardId);
+              console.log('Schéma récupéré:', schema);
+
+              if (schema) {
+                // Filtrer pour ne garder que les colonnes numériques et dates
+                this.availableColumns = Object.entries(schema.properties)
+                  .filter(([key, prop]: [string, any]) => {
+                    const isValid = prop.type === 'number' ||
+                      prop.type === 'integer' ||
+                      prop.type === 'date' ||
+                      prop.type === 'datetime';
+                    console.log(`Colonne ${key}: type=${prop.type}, valide=${isValid}`);
+                    return isValid;
+                  })
+                  .map(([key]) => key);
+                console.log('Colonnes disponibles:', this.availableColumns);
+              } else {
+                console.log('Pas de schéma disponible');
+              }
+            } else {
+              console.log('Schéma pas encore prêt');
+            }
+          });
+      });
   }
 
   onDatasourceChange(config: DatasourceConfig) {
+    console.log('[LineChartConfig] Nouvelle config datasource:', config);
     this.form.patchValue({ datasource: config });
+
+    // Si c'est une table locale, initialiser les colonnes
+    if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
+      const schema = this.localDataSourceService.getTableSchema(config.localDataTable.cardId);
+      console.log('Schema from onDatasourceChange:', schema);
+
+      if (schema) {
+        this.availableColumns = Object.entries(schema.properties)
+          .filter(([_, prop]: [string, any]) => {
+            const isValid = prop.type === 'number' ||
+              prop.type === 'integer' ||
+              prop.type === 'date' ||
+              prop.type === 'datetime';
+            console.log(`Column ${_}: type=${prop.type}, valid=${isValid}`);
+            return isValid;
+          })
+          .map(([key]) => key);
+        console.log('Available columns:', this.availableColumns);
+      }
+    }
   }
 
   onSchemaChange(schema: string) {

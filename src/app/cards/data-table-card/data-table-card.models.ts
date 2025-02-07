@@ -1,5 +1,6 @@
-import { BaseCardConfig, ColumnSearchDto, OrderByParameterDto } from '@models/api.models';
+import { BaseCardConfig, ColumnSearchDto, OrderByParameterDto, TranslatableString } from '@models/api.models';
 import { DatasourceConfig } from '@models/datasource.models';
+import { Observable } from 'rxjs';
 
 export interface ForeignKeyDisplayConfig {
   table: string;
@@ -190,4 +191,20 @@ export interface DynamicFormSchema {
       };
     };
   };
+}
+
+// Interfaces spécifiques pour la fonctionnalité de source de données locale
+export interface TableDataEvent {
+  data: any[];
+  total: number;
+  schema: any;
+  filters?: any;
+  sorting?: OrderByParameterDto[];
+}
+
+export interface RegisteredDataTable {
+  cardId: number;
+  title: TranslatableString[];
+  schema: any;
+  currentData$: Observable<TableDataEvent>;
 }

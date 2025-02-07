@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { map, filter } from 'rxjs/operators';
 import { ApiService } from '@services/api.service';
 import { DatasourceConfig, ParameterValue } from '@models/datasource.models';
 import { DataRequestParametersDto, PaginatedResultDto, DBConnectionEndpointRequestInfoDto, DBConnectionEndpointInfoDto } from '@models/api.models';
 import { StoredProcedureParameter } from '@models/parameters.models';
+import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
+import { CardDatabaseService } from '@cards/card-database.service';
 
 interface ForeignKeyDataValue {
   id: string;
@@ -36,7 +38,11 @@ export class DatasourceService {
   private cacheMap = new Map<string, CacheEntry<any>>();
   private autoRefreshIntervals = new Map<string, number>();
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private localDataSourceService: LocalDataSourceService,
+    private cardDatabaseService: CardDatabaseService
+  ) {}
 
   setConfig(config: DatasourceConfig): void {
     this.configSubject.next(config);
@@ -132,8 +138,30 @@ export class DatasourceService {
           })
         );
 
+      case 'LocalDataTable':
+        if (!config.localDataTable?.cardId) {
+          return throwError(() => new Error('No source table specified'));
+        }
+        const tableData = this.localDataSourceService.getTableData(config.localDataTable.cardId);
+        if (!tableData) {
+          return throwError(() => new Error('Source table not registered'));
+        }
+        return tableData.pipe(
+          // Attendre que les données soient disponibles
+          filter(event => !!event),
+          map(data => ({
+            items: data?.data || [],
+            total: data?.data?.length || 0,
+            totalItems: data?.data?.length || 0,
+            pageNumber: 1,
+            pageSize: data?.data?.length || 0,
+            totalPages: 1,
+            requestParameters: parameters
+          }))
+        );
+
       default:
-        throw new Error(`Unsupported datasource type: ${config.type}`);
+        return throwError(() => new Error(`Unsupported datasource type: ${config.type}`));
     }
   }
 

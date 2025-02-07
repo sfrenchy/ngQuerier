@@ -7,6 +7,7 @@ import { DataRequestParametersDto, DBConnectionEndpointRequestInfoDto, DBConnect
 import { ColumnSearchDto, ForeignKeyIncludeConfig, PaginatedResultDto } from '@models/api.models';
 import { OrderByParameterDto } from '@models/api.models';
 import { ColumnConfig, DataState } from './data-table-card.models';
+import { LocalDataSourceService } from './local-datasource.service';
 
 interface ForeignKeyDataValue {
   id: string;
@@ -56,48 +57,58 @@ export class DataTableCardService {
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes en millisecondes
   private currentDatasource?: DatasourceConfig;
 
-  constructor(private datasourceService: DatasourceService) {}
+  constructor(
+    private datasourceService: DatasourceService,
+    private localDataSourceService: LocalDataSourceService
+  ) {}
 
   private getStateKey(config: DatasourceConfig): string {
     if (!config) {
-        console.warn('[DataTableCardService] Configuration manquante pour getStateKey');
-        return '';
+      console.warn('[DataTableCardService] Configuration manquante pour getStateKey');
+      return '';
     }
 
     switch (config.type) {
-        case 'API':
-            if (!config.connection?.id || !config.controller?.route) {
-                console.warn('[DataTableCardService] Configuration API invalide pour getStateKey', {
-                    connectionId: config.connection?.id,
-                    controllerRoute: config.controller?.route
-                });
-                return '';
-            }
-            const controllerName = config.controller.route.split('/').pop() || '';
-            return `api_${config.connection.id}_${controllerName}`;
+      case 'LocalDataTable':
+        if (!config.localDataTable?.cardId) {
+          console.warn('[DataTableCardService] Configuration LocalDataTable invalide pour getStateKey');
+          return '';
+        }
+        return `local_${config.localDataTable.cardId}`;
 
-        case 'SQLQuery':
-            if (!config.query?.id) {
-                console.warn('[DataTableCardService] Configuration SQLQuery invalide pour getStateKey', {
-                    queryId: config.query?.id
-                });
-                return '';
-            }
-            return `sqlquery_${config.query.id}`;
+      case 'API':
+        if (!config.connection?.id || !config.controller?.route) {
+          console.warn('[DataTableCardService] Configuration API invalide pour getStateKey', {
+            connectionId: config.connection?.id,
+            controllerRoute: config.controller?.route
+          });
+          return '';
+        }
+        const controllerName = config.controller.route.split('/').pop() || '';
+        return `api_${config.connection.id}_${controllerName}`;
 
-        case 'EntityFramework':
-            if (!config.context || !config.entity) {
-                console.warn('[DataTableCardService] Configuration EntityFramework invalide pour getStateKey', {
-                    context: config.context,
-                    entity: config.entity
-                });
-                return '';
-            }
-            return `ef_${config.context}_${config.entity}`;
+      case 'SQLQuery':
+        if (!config.query?.id) {
+          console.warn('[DataTableCardService] Configuration SQLQuery invalide pour getStateKey', {
+            queryId: config.query?.id
+          });
+          return '';
+        }
+        return `sqlquery_${config.query.id}`;
 
-        default:
-            console.warn('[DataTableCardService] Type de datasource non supporté', config.type);
-            return '';
+      case 'EntityFramework':
+        if (!config.context || !config.entity) {
+          console.warn('[DataTableCardService] Configuration EntityFramework invalide pour getStateKey', {
+            context: config.context,
+            entity: config.entity
+          });
+          return '';
+        }
+        return `ef_${config.context}_${config.entity}`;
+
+      default:
+        console.warn('[DataTableCardService] Type de datasource non supporté', config.type);
+        return '';
     }
   }
 
@@ -122,6 +133,37 @@ export class DataTableCardService {
     this.currentDatasource = config;
     const key = this.getStateKey(config);
     const state = this.getOrCreateState(config);
+
+    // Gérer les sources de données locales
+    if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
+      state.next({ ...state.getValue(), loading: true });
+
+      const tableData$ = this.localDataSourceService.getTableData(config.localDataTable.cardId);
+      if (tableData$) {
+        tableData$.subscribe({
+          next: (data) => {
+            if (data) {
+              state.next({
+                items: data.data,
+                total: data.total,
+                loading: false,
+                foreignKeyData: []
+              });
+            }
+          },
+          error: (error) => {
+            console.error('Error loading local table data:', error);
+            state.next({
+              ...state.getValue(),
+              loading: false,
+              error: 'Error loading data'
+            });
+          }
+        });
+      }
+      return;
+    }
+
     const currentCache = this.cacheMap.get(key);
 
     // Ajouter les includes pour les clés étrangères

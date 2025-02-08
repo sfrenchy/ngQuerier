@@ -1,10 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, AbstractControl, ValidatorFn } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApiService } from '@services/api.service';
 import { DBConnectionCreateDto, DBConnectionDto, DBConnectionType, ConnectionStringParameterDto } from '@models/api.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import { SignalRService } from '@services/signalr.service';
+import { ProgressIndicatorComponent } from '@shared/components/progress-indicator/progress-indicator.component';
+import { v4 as uuidv4 } from 'uuid';
+import { AddDBConnectionProgressStatus } from '@shared/enums/add-db-connection-progress-status.enum';
 
 interface DBProviderConfig {
   value: number;
@@ -15,16 +19,18 @@ interface DBProviderConfig {
 @Component({
   selector: 'app-databases',
   standalone: true,
-  imports: [CommonModule, TranslateModule, ReactiveFormsModule, ConfirmationDialogComponent],
+  imports: [CommonModule, TranslateModule, ReactiveFormsModule, ConfirmationDialogComponent, ProgressIndicatorComponent],
   templateUrl: './databases.component.html'
 })
-export class DatabasesComponent implements OnInit {
+export class DatabasesComponent implements OnInit, OnDestroy {
   connections: DBConnectionDto[] = [];
   showDeleteConfirmation = false;
   connectionToDelete: DBConnectionDto | null = null;
   showAddForm = false;
   dbForm!: FormGroup;
   showAdvancedOptions = false;
+  operationId?: string;
+  progressState?: { progress: number; status: string; error?: string };
 
   providers: DBProviderConfig[] = [
     {
@@ -64,7 +70,8 @@ export class DatabasesComponent implements OnInit {
 
   constructor(
     private apiService: ApiService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private signalRService: SignalRService
   ) {
     this.initForm();
   }
@@ -196,23 +203,41 @@ export class DatabasesComponent implements OnInit {
   onSubmit(): void {
     if (this.dbForm.valid) {
       const formValue = this.dbForm.value;
+      this.operationId = uuidv4();
+
       const connection: DBConnectionCreateDto = {
         name: formValue.name,
         connectionType: formValue.connectionType,
         parameters: formValue.parameters,
         contextName: formValue.contextApiRoute,
         apiRoute: formValue.contextApiRoute,
-        generateProcedureControllersAndServices: formValue.generateProcedureControllersAndServices
+        generateProcedureControllersAndServices: formValue.generateProcedureControllersAndServices,
+        operationId: this.operationId
       };
 
-      this.apiService.addDBConnection(connection).subscribe({
-        next: () => {
-          this.loadConnections();
-          this.resetForm();
-        },
-        error: (error: any) => {
-          console.error('Error creating connection:', error);
-        }
+      // S'abonner aux mises à jour de progression
+      this.signalRService.subscribeToOperation(this.operationId).then(() => {
+        this.signalRService.onOperationProgress(this.operationId!).subscribe({
+          next: (event) => {
+            this.progressState = {
+              progress: event.progress,
+              status: `ADD_DB_CONNECTION.PROGRESS.${event.status}`,
+              error: event.error
+            };
+          },
+          error: (err) => console.error('Progress subscription error:', err)
+        });
+
+        // Créer la connexion
+        this.apiService.addDBConnection(connection).subscribe({
+          next: () => {
+            this.loadConnections();
+            this.resetForm();
+          },
+          error: (error: any) => {
+            console.error('Error creating connection:', error);
+          }
+        });
       });
     }
   }
@@ -260,5 +285,12 @@ export class DatabasesComponent implements OnInit {
       }
     }
     return null;
+  }
+
+  ngOnDestroy(): void {
+    if (this.operationId) {
+      this.signalRService.unsubscribeFromOperation(this.operationId)
+        .catch(err => console.error('Error unsubscribing:', err));
+    }
   }
 }

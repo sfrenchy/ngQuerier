@@ -159,19 +159,26 @@
                 </label>
               </div>
 
+              <div *ngIf="progressState" class="mb-4">
+                <app-progress-indicator
+                  [progress]="progressState.progress"
+                  [status]="progressState.status"
+                  [error]="progressState.error">
+                </app-progress-indicator>
+              </div>
+
               <div class="flex justify-end gap-4">
                 <button
                   type="button"
                   (click)="onCancelClick()"
                   class="px-4 py-2 text-gray-300 hover:text-white transition-colors"
-                >
+                  [disabled]="progressState">
                   {{ 'COMMON.CANCEL' | translate }}
                 </button>
                 <button
                   type="submit"
-                  [disabled]="!dbForm.valid"
-                  class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+                  [disabled]="!dbForm.valid || progressState"
+                  class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                   {{ 'COMMON.SAVE' | translate }}
                 </button>
               </div>

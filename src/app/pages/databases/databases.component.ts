@@ -6,9 +6,7 @@ import { ApiService } from '@services/api.service';
 import { DBConnectionCreateDto, DBConnectionDto, DBConnectionType, ConnectionStringParameterDto } from '@models/api.models';
 import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 import { SignalRService } from '@services/signalr.service';
-import { ProgressIndicatorComponent } from '@shared/components/progress-indicator/progress-indicator.component';
 import { v4 as uuidv4 } from 'uuid';
-import { AddDBConnectionProgressStatus } from '@shared/enums/add-db-connection-progress-status.enum';
 import { OperationStatusComponent } from '@shared/components/operation-status/operation-status.component';
 
 interface DBProviderConfig {
@@ -25,7 +23,6 @@ interface DBProviderConfig {
     TranslateModule,
     ReactiveFormsModule,
     ConfirmationDialogComponent,
-    ProgressIndicatorComponent,
     OperationStatusComponent
   ],
   templateUrl: './databases.component.html'

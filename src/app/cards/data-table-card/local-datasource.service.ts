@@ -26,13 +26,6 @@ export class LocalDataSourceService {
 
   // Enregistrer une nouvelle table comme source de données
   registerDataTable(table: RegisteredDataTable): void {
-    console.log('[LocalDataSourceService] Registering table:', {
-      cardId: table.cardId,
-      title: table.title,
-      schema: table.schema,
-      hasData: !!table.currentData$
-    });
-
     try {
       const readyState = this.tableReadyStates.get(table.cardId) ||
         new BehaviorSubject<TableReadyState>({
@@ -92,12 +85,6 @@ export class LocalDataSourceService {
         )
         .subscribe({
           next: (data) => {
-            console.log('[LocalDataSourceService] New data received for table:', {
-              cardId: table.cardId,
-              dataLength: data?.data?.length,
-              hasFilters: !!data?.filters,
-              hasSorting: !!data?.sorting
-            });
             dataSubject.next(data);
             // Mettre à jour l'état des données
             readyState.next({
@@ -120,13 +107,6 @@ export class LocalDataSourceService {
       this.registeredTables.set(table.cardId, table);
       this.tableDataSubjects.set(table.cardId, dataSubject);
       this.destroySubjects.set(table.cardId, destroySubject);
-
-      console.log('[LocalDataSourceService] Current registered tables:',
-        Array.from(this.registeredTables.entries()).map(([id, t]) => ({
-          cardId: id,
-          title: t.title
-        }))
-      );
 
       this.updateAvailableTables();
 
@@ -153,7 +133,6 @@ export class LocalDataSourceService {
 
   // Désenregistrer une table
   unregisterDataTable(cardId: number): void {
-    console.log('[LocalDataSourceService] Unregistering table:', cardId);
     // Nettoyer les souscriptions
     const destroySubject = this.destroySubjects.get(cardId);
     if (destroySubject) {

@@ -615,7 +615,6 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
   }
 
   private emitSchema() {
-    console.log('[DatasourceConfig] emitSchema called');
     let schema: string | undefined;
 
     switch (this.config.type) {
@@ -631,27 +630,20 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
       case 'LocalDataTable':
         if (this.sourceTableSchema) {
           schema = JSON.stringify(this.sourceTableSchema);
-          console.log('[DatasourceConfig] Local table schema:', this.sourceTableSchema);
         }
         break;
     }
 
-    console.log('[DatasourceConfig] Emitting schema:', schema);
     if (schema) {
       this.schemaChange.emit(schema);
     }
   }
 
   onSourceTableChange(cardId: number) {
-    console.log('[DatasourceConfig] onSourceTableChange called with cardId:', cardId);
-    console.log('[DatasourceConfig] Current config:', this.config);
-
     if (cardId) {
       this.sourceTableSchema = this.localDataSourceService.getTableSchema(cardId);
-      console.log('[DatasourceConfig] Retrieved schema:', this.sourceTableSchema);
 
       if (!this.sourceTableSchema) {
-        console.error('[DatasourceConfig] No schema found for table:', cardId);
         return;
       }
 
@@ -664,8 +656,6 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
       } else {
         this.config.localDataTable.cardId = cardId;
       }
-
-      console.log('[DatasourceConfig] Updated config:', this.config);
       this.emitSchema();
     } else {
       this.sourceTableSchema = null;
@@ -718,8 +708,6 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
   }
 
   getTableTitle(table: RegisteredDataTable): string {
-    console.log('[DatasourceConfig] getTableTitle called for table:', table);
-
     // Si title est un tableau, prendre le premier élément
     if (Array.isArray(table.title)) {
       return table.title[0].value || 'Unknown';
@@ -727,7 +715,6 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
 
     // Sinon c'est un objet TranslatableString, prendre la valeur pour la langue courante
     const title = table.title[this.currentLang as keyof typeof table.title];
-    console.log('[DatasourceConfig] Resolved title:', title);
     return (typeof title === 'string' ? title : 'Unknown');
   }
 
@@ -764,8 +751,6 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
   }
 
   onTableSelect(cardId: number | null): void {
-    console.log('[DatasourceConfig] Table sélectionnée:', cardId);
-
     if (!this.config) return;
 
     if (cardId === null) {

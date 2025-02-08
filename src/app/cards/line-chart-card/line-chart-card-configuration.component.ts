@@ -129,22 +129,16 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
   private setupLocalTableSubscription() {
     // Observer les changements de table sélectionnée
     const cardIdControl = this.form.get('datasource.localDataTable.cardId');
-    console.log('Form value:', this.form.value);
-    console.log('CardId control:', cardIdControl?.value);
-
     cardIdControl?.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(cardId => {
-        console.log('Table sélectionnée:', cardId);
 
         // Attendre que le schéma soit disponible
         this.localDataSourceService.getTableReadyState$(cardId)
           .pipe(take(1))
           .subscribe(state => {
-            console.log('État de la table:', state);
             if (state.isSchemaReady) {
               const schema = this.localDataSourceService.getTableSchema(cardId);
-              console.log('Schéma récupéré:', schema);
 
               if (schema) {
                 // Filtrer pour ne garder que les colonnes numériques et dates
@@ -154,29 +148,21 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
                       prop.type === 'integer' ||
                       prop.type === 'date' ||
                       prop.type === 'datetime';
-                    console.log(`Colonne ${key}: type=${prop.type}, valide=${isValid}`);
                     return isValid;
                   })
                   .map(([key]) => key);
-                console.log('Colonnes disponibles:', this.availableColumns);
-              } else {
-                console.log('Pas de schéma disponible');
               }
-            } else {
-              console.log('Schéma pas encore prêt');
             }
           });
       });
   }
 
   onDatasourceChange(config: DatasourceConfig) {
-    console.log('[LineChartConfig] Nouvelle config datasource:', config);
     this.form.patchValue({ datasource: config });
 
     // Si c'est une table locale, initialiser les colonnes
     if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
       const schema = this.localDataSourceService.getTableSchema(config.localDataTable.cardId);
-      console.log('Schema from onDatasourceChange:', schema);
 
       if (schema) {
         this.availableColumns = Object.entries(schema.properties)
@@ -185,11 +171,9 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
               prop.type === 'integer' ||
               prop.type === 'date' ||
               prop.type === 'datetime';
-            console.log(`Column ${_}: type=${prop.type}, valid=${isValid}`);
             return isValid;
           })
           .map(([key]) => key);
-        console.log('Available columns:', this.availableColumns);
       }
     }
   }

@@ -112,17 +112,4 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
         console.warn(`No translations found for card type ${cardType}:`, error);
       });
   }
-
-  exportConfig() {
-    const config = this.cardConfigAdapter.toCardDto(this.card.configuration);
-    const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${this.card.type}-config.json`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  }
 }

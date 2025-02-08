@@ -1322,8 +1322,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       }, {} as Record<string, any>) || {}
     };
 
-    console.log('[DataTableCard] Registering with schema:', schema);
-
     const tableInfo = {
       cardId: this.card.id,
       title: this.card.title,

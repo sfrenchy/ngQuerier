@@ -4,7 +4,8 @@ import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
 import { AuthStateService } from '@services/auth-state.service';
 import { AddDBConnectionProgressStatus } from '@shared/enums/add-db-connection-progress-status.enum';
-
+import { Subject } from 'rxjs';
+import { OperationProgress } from '@shared/models/operation-progress.model';
 export interface ProgressEvent {
   operationId: string;
   progress: number;
@@ -18,6 +19,7 @@ export interface ProgressEvent {
 })
 export class SignalRService {
   private hubConnection!: HubConnection;
+  private operationProgressSubject = new Subject<OperationProgress>();
 
   constructor(private authStateService: AuthStateService) {
     this.initializeConnection();
@@ -26,11 +28,14 @@ export class SignalRService {
   private initializeConnection(): void {
     this.hubConnection = new HubConnectionBuilder()
       .withUrl(`${environment.apiUrl}/hubs/querier`, {
-        accessTokenFactory: () => this.authStateService.getAccessToken() ?? '',
+        accessTokenFactory: () => {
+          const token = this.authStateService.getAccessToken();
+          return token ?? '';
+        },
         skipNegotiation: false,
-        transport: HttpTransportType.WebSockets | HttpTransportType.LongPolling
+        transport: HttpTransportType.WebSockets,
       })
-      .configureLogging(environment.production ? LogLevel.Error : LogLevel.Debug)
+      .configureLogging(LogLevel.Debug)
       .withAutomaticReconnect({
         nextRetryDelayInMilliseconds: retryContext => {
           const delayMs = Math.min(5000 * Math.pow(2, retryContext.previousRetryCount), 30000);
@@ -39,6 +44,11 @@ export class SignalRService {
         }
       })
       .build();
+
+    this.hubConnection.on('operationProgress', (progress: OperationProgress) => {
+      console.debug('SignalR received progress:', progress);
+      this.operationProgressSubject.next(progress);
+    });
 
     this.startConnection();
   }
@@ -96,5 +106,9 @@ export class SignalRService {
       console.error(`SignalR error unsubscribing from operation ${operationId}:`, err);
       throw err;
     }
+  }
+
+  public get operationProgress(): Observable<OperationProgress> {
+    return this.operationProgressSubject.asObservable();
   }
 }

@@ -160,11 +160,10 @@
               </div>
 
               <div *ngIf="progressState" class="mb-4">
-                <app-progress-indicator
-                  [progress]="progressState.progress"
+                <app-operation-status
                   [status]="progressState.status"
                   [error]="progressState.error">
-                </app-progress-indicator>
+                </app-operation-status>
               </div>
 
               <div class="flex justify-end gap-4">

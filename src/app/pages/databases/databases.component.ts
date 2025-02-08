@@ -9,6 +9,7 @@ import { SignalRService } from '@services/signalr.service';
 import { ProgressIndicatorComponent } from '@shared/components/progress-indicator/progress-indicator.component';
 import { v4 as uuidv4 } from 'uuid';
 import { AddDBConnectionProgressStatus } from '@shared/enums/add-db-connection-progress-status.enum';
+import { OperationStatusComponent } from '@shared/components/operation-status/operation-status.component';
 
 interface DBProviderConfig {
   value: number;
@@ -19,7 +20,14 @@ interface DBProviderConfig {
 @Component({
   selector: 'app-databases',
   standalone: true,
-  imports: [CommonModule, TranslateModule, ReactiveFormsModule, ConfirmationDialogComponent, ProgressIndicatorComponent],
+  imports: [
+    CommonModule,
+    TranslateModule,
+    ReactiveFormsModule,
+    ConfirmationDialogComponent,
+    ProgressIndicatorComponent,
+    OperationStatusComponent
+  ],
   templateUrl: './databases.component.html'
 })
 export class DatabasesComponent implements OnInit, OnDestroy {
@@ -74,6 +82,13 @@ export class DatabasesComponent implements OnInit, OnDestroy {
     private signalRService: SignalRService
   ) {
     this.initForm();
+    this.signalRService.operationProgress.subscribe(progress => {
+      this.progressState = {
+        progress: progress.progress,
+        status: `ADD_DB_CONNECTION.PROGRESS.${progress.status}`,
+        error: progress.error
+      };
+    });
   }
 
   private initForm(): void {

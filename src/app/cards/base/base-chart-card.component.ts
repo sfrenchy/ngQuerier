@@ -16,7 +16,7 @@ import { ChartParametersFooterComponent } from '@shared/components/chart-paramet
 import { RequestParametersService } from '@shared/services/request-parameters.service';
 import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
 import { TableDataEvent } from '@cards/data-table-card/data-table-card.models';
-
+import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
 interface ChartState {
   data: any[];
   loading: boolean;
@@ -60,11 +60,12 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
 
   constructor(
     protected override translateService: TranslateService,
+    protected override cardConfigAdapter: CardConfigAdapterService,
     protected datasourceService: DatasourceService,
     protected requestParametersService: RequestParametersService,
     protected localDataSourceService: LocalDataSourceService
   ) {
-    super(translateService);
+    super(translateService, cardConfigAdapter);
     this.isChartCard = true;
   }
 

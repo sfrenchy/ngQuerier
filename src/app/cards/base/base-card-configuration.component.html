@@ -1,19 +1,34 @@
-<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div [class]="isFullscreen ? 'w-full h-full' : 'w-[600px] max-h-[90vh]'"
-       class="bg-gray-800 rounded-lg shadow-xl flex flex-col">
+<div class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+  <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
     <!-- Header -->
-    <div class="px-6 py-4 border-b border-gray-700 flex items-center justify-between">
-      <h2 class="text-xl font-semibold text-white">{{ 'card.CONFIG_TITLE' | translate }}</h2>
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-700">
+      <h2 class="text-lg font-medium text-white">{{ 'CONFIGURATION.TITLE' | translate }}</h2>
       <div class="flex items-center gap-2">
-        <button (click)="toggleFullscreen.emit()" class="text-gray-400 hover:text-gray-200">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path *ngIf="!isFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-            <path *ngIf="isFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l5 5m11-5l-5 5m5 6l-5-5m-11 5l5-5" />
+        <!-- Import button -->
+        <button (click)="fileInput.click()"
+                class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
           </svg>
         </button>
-        <button (click)="onCancel()" class="text-gray-400 hover:text-gray-200">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        <input #fileInput type="file"
+               (change)="importConfig($event)"
+               accept=".json"
+               class="hidden">
+
+        <!-- Export button -->
+        <button (click)="exportConfig()"
+                class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+        </button>
+
+        <!-- Fullscreen button -->
+        <button (click)="toggleFullscreen.emit()"
+                class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
           </svg>
         </button>
       </div>
@@ -67,7 +82,7 @@
                 <span class="text-sm font-medium text-gray-300">{{form.get('gridWidth')?.value}} / {{maxAvailableWidth}}</span>
               </div>
               <div class="flex items-center gap-4">
-                <input type="range" id="gridWidth" formControlName="gridWidth" 
+                <input type="range" id="gridWidth" formControlName="gridWidth"
                        [min]="1" [max]="maxAvailableWidth" step="1"
                        class="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
               </div>
@@ -158,4 +173,4 @@
       </button>
     </div>
   </div>
-</div> 
+</div>

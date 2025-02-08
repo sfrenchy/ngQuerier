@@ -10,6 +10,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import { AngularEditorModule, AngularEditorConfig } from '@kolkov/angular-editor';
 import { CardDto } from '@models/api.models';
+import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
 
 @Card({
   name: 'HTML Content',
@@ -44,8 +45,11 @@ export class HTMLContentCardComponent extends BaseCardComponent<HTMLContentCardC
     outline: false,
   };
 
-  constructor(protected override translateService: TranslateService) {
-    super(translateService);
+  constructor(
+    protected override translateService: TranslateService,
+    protected override cardConfigAdapter: CardConfigAdapterService
+  ) {
+    super(translateService, cardConfigAdapter);
     this.currentLanguage = this.translateService.currentLang;
 
     this.translateService.onLangChange

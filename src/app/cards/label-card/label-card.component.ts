@@ -8,6 +8,7 @@ import { LabelCardConfigFactory } from './label-card.factory';
 import { LabelCardConfig } from './label-card.config';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
+import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
 @Card({
   name: 'Label',
   icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -25,8 +26,12 @@ import { Subject, takeUntil } from 'rxjs';
   imports: [CommonModule, BaseCardComponent, TranslateModule]
 })
 export class LabelCardComponent extends BaseCardComponent<LabelCardConfig> implements OnInit, OnDestroy{
-  constructor(protected override translateService: TranslateService, private cdr: ChangeDetectorRef) {
-    super(translateService);
+  constructor(
+    protected override translateService: TranslateService,
+    protected override cardConfigAdapter: CardConfigAdapterService,
+    private cdr: ChangeDetectorRef
+  ) {
+    super(translateService, cardConfigAdapter);
     this.currentLanguage = this.translateService.currentLang;
 
     this.translateService.onLangChange

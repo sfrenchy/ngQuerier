@@ -13,6 +13,7 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { StackedBarAndLinesChartConfigFactory } from './stacked-bar-and-lines-chart.factory';
 import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
 import { takeUntil } from 'rxjs/operators';
+import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
 
 @Card({
   name: 'StackedBarAndLinesChart',
@@ -39,11 +40,12 @@ import { takeUntil } from 'rxjs/operators';
 export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAndLinesChartCardConfig> {
   constructor(
     protected override translateService: TranslateService,
+    protected override cardConfigAdapter: CardConfigAdapterService,
     protected override datasourceService: DatasourceService,
     protected override requestParametersService: RequestParametersService,
     protected override localDataSourceService: LocalDataSourceService
   ) {
-    super(translateService, datasourceService, requestParametersService, localDataSourceService);
+    super(translateService, cardConfigAdapter, datasourceService, requestParametersService, localDataSourceService);
   }
 
   protected override transformData(data: any[]): any[] {

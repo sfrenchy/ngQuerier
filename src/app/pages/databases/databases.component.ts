@@ -84,7 +84,6 @@ export class DatabasesComponent implements OnInit {
 
     // Réagir aux changements du type de connexion
     this.dbForm.get('connectionType')?.valueChanges.subscribe((type: DBConnectionType) => {
-      console.log('Connection type changed:', type); // Debug
       if (type) {
         this.updateParametersForType(type);
       }
@@ -92,7 +91,6 @@ export class DatabasesComponent implements OnInit {
   }
 
   private updateParametersForType(type: DBConnectionType): void {
-    console.log('Updating parameters for type:', type); // Debug
     const parameters = this.dbForm.get('parameters') as FormArray;
 
     // Vider les paramètres existants
@@ -101,11 +99,9 @@ export class DatabasesComponent implements OnInit {
     }
 
     const providerConfig = this.providers.find(p => p.value === Number(type));
-    console.log('Provider config:', providerConfig); // Debug
 
     if (providerConfig) {
       providerConfig.defaultParams.forEach(param => {
-        console.log('Adding parameter:', param); // Debug
         this.addParameter(param.key, '', param.isEncrypted);
       });
     }

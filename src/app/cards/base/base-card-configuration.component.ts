@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, Type, ViewChild, ViewContainerRef, AfterViewInit, OnDestroy, Injector } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, Type, ViewChild, ViewContainerRef, AfterViewInit, OnDestroy, Injector, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { CardDto, RowDto } from '@models/api.models';
@@ -10,9 +10,10 @@ import { IconSelectorComponent } from '@shared/components/icon-selector/icon-sel
 import { CardDatabaseService } from '../card-database.service';
 import { ChartVisualConfig } from '@models/chart.models';
 import { ChartVisualConfigurationComponent } from '@shared/components/chart-visual-configuration/chart-visual-configuration.component';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CardConfigFactory } from '../card-config.factory';
 import { ValidationError } from '../validation/validation.models';
+import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
 
 @Component({
   selector: 'app-base-card-configuration',
@@ -70,6 +71,7 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
   @Output() toggleFullscreen = new EventEmitter<void>();
   @Output() visualConfigChange = new EventEmitter<ChartVisualConfig>();
   @ViewChild('configContainer', { read: ViewContainerRef }) configContainer!: ViewContainerRef;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   form!: FormGroup;
   cardConfigComponent?: Type<any>;
@@ -81,7 +83,9 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
   constructor(
     private fb: FormBuilder,
     protected cardDatabaseService: CardDatabaseService,
-    private injector: Injector
+    private injector: Injector,
+    protected translateService: TranslateService,
+    protected cardConfigAdapter: CardConfigAdapterService
   ) {}
 
   ngOnInit() {
@@ -283,5 +287,85 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
 
   ngOnDestroy() {
     // Clean up any subscriptions or resources if needed
+  }
+
+  exportConfig() {
+    // Créer une copie de la carte avec les valeurs actuelles du formulaire
+    const cardToExport = {
+      id: 0,  // On met 0 car c'est une nouvelle carte
+      type: this.card.type,
+      title: this.form.value.title,
+      order: 0,
+      gridWidth: this.form.value.gridWidth,
+      backgroundColor: this.convertHexToUint(this.form.value.backgroundColor),
+      textColor: this.convertHexToUint(this.form.value.textColor),
+      headerTextColor: this.convertHexToUint(this.form.value.headerTextColor),
+      headerBackgroundColor: this.convertHexToUint(this.form.value.headerBackgroundColor),
+      rowId: 0,  // On met 0 car c'est une nouvelle carte
+      displayHeader: this.form.value.displayHeader,
+      displayFooter: this.form.value.displayFooter,
+      icon: this.form.value.icon,
+      configuration: this.card.configuration
+    };
+
+    const blob = new Blob([JSON.stringify(cardToExport, null, 2)], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${this.card.type}-config.json`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
+
+  importConfig(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedCard = JSON.parse(e.target?.result as string);
+        
+        // Ignorer les propriétés structurantes
+        const { id, order, gridWidth, rowId, ...cardToImport } = importedCard;
+        
+        // Mettre à jour la configuration spécifique
+        this.card.configuration = cardToImport.configuration;
+        
+        // Mettre à jour les propriétés de base de la carte
+        this.card.title = [...cardToImport.title];
+        this.card.backgroundColor = cardToImport.backgroundColor;
+        this.card.textColor = cardToImport.textColor;
+        this.card.headerTextColor = cardToImport.headerTextColor;
+        this.card.headerBackgroundColor = cardToImport.headerBackgroundColor;
+        this.card.displayHeader = cardToImport.displayHeader;
+        this.card.displayFooter = cardToImport.displayFooter;
+        this.card.icon = cardToImport.icon;
+
+        // Forcer une réinitialisation complète du formulaire
+        const formValues = {
+          title: cardToImport.title,
+          backgroundColor: this.convertUintToHex(cardToImport.backgroundColor),
+          textColor: this.convertUintToHex(cardToImport.textColor),
+          headerTextColor: this.convertUintToHex(cardToImport.headerTextColor),
+          headerBackgroundColor: this.convertUintToHex(cardToImport.headerBackgroundColor),
+          displayHeader: cardToImport.displayHeader,
+          displayFooter: cardToImport.displayFooter,
+          icon: cardToImport.icon,
+          gridWidth: this.form.get('gridWidth')?.value // Garder la valeur actuelle
+        };
+
+        this.form.reset(formValues);
+        this.form.setValue(formValues, { emitEvent: true });
+
+      } catch (error) {
+        console.error('Error importing configuration:', error);
+      }
+      input.value = '';
+    };
+    reader.readAsText(file);
   }
 }

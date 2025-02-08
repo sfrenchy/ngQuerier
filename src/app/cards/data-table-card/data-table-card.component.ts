@@ -23,6 +23,8 @@ import { DataTableCardConfigFactory } from './data-table-card.factory';
 import { ValidationError } from '@cards/validation/validation.models';
 import { LocalDataSourceService } from './local-datasource.service';
 import { TableDataEvent } from './data-table-card.models';
+import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
+import { RequestParametersService } from '@services/request-parameters.service';
 
 // Modifier l'interface ModalConfig
 interface ModalConfig {
@@ -163,6 +165,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
   constructor(
     protected override translateService: TranslateService,
+    protected override cardConfigAdapter: CardConfigAdapterService,
     private cdr: ChangeDetectorRef,
     private dataService: DataTableCardService,
     private foreignKeyService: ForeignKeyService,
@@ -170,9 +173,10 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     private renderer: Renderer2,
     private datasourceService: DatasourceService,
     private configFactory: DataTableCardConfigFactory,
-    private localDataSourceService: LocalDataSourceService
+    private localDataSourceService: LocalDataSourceService,
+    private requestParametersService: RequestParametersService
   ) {
-    super(translateService);
+    super(translateService, cardConfigAdapter);
     this.currentLanguage = this.translateService.currentLang;
 
     // S'abonner aux changements de langue
@@ -1317,8 +1321,6 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
         return acc;
       }, {} as Record<string, any>) || {}
     };
-
-    console.log('[DataTableCard] Registering with schema:', schema);
 
     const tableInfo = {
       cardId: this.card.id,

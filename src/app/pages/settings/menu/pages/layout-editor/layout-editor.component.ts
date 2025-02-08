@@ -234,8 +234,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   }
 
   onCardConfigSave(updatedCard: CardDto) {
-    console.log('[LayoutEditor] Sauvegarde de la carte:', updatedCard);
-    console.log('[LayoutEditor] Configuration complète:', updatedCard.configuration);
 
     const data = this.configCardData;
     if (!data) return;

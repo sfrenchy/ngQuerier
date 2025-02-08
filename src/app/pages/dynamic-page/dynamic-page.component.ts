@@ -153,9 +153,11 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
 
         // Obtenir la factory pour ce type de carte
         const factory = this.cardService.getConfigFactory(card.type);
-        if (!factory) return of(null);
+        // Vérifier si la factory et loadData existent
+        if (!factory || typeof (factory as any).loadData !== 'function') {
+          return of(null);
+        }
 
-        // Utiliser la factory pour charger les données
         return factory.loadData(card.configuration).pipe(
           tap(data => DynamicPageComponent.dataCache.set(cacheKey, data))
         );

@@ -11,13 +11,16 @@ import '@cards/htmlcontent-card/htmlcontent-card.component';
   providedIn: 'root'
 })
 export class CardInitializerService {
+  private initialized = false;
+
   constructor(
     private appRef: ApplicationRef,
     private injector: EnvironmentInjector
-  ) {
-  }
+  ) {}
 
   initialize() {
+    if (this.initialized) return;
+
     // Récupérer tous les composants décorés avec @Card
     const registeredCards = getRegisteredCards();
 
@@ -32,5 +35,11 @@ export class CardInitializerService {
       // Détruire immédiatement le composant
       componentRef.destroy();
     });
+
+    this.initialized = true;
+  }
+
+  isInitialized(): boolean {
+    return this.initialized;
   }
 }

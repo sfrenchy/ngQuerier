@@ -57,20 +57,32 @@ export class LoginComponent implements OnInit {
       this.isCheckingConfiguration = true;
       this.isConfigured = false;
 
-      this.apiService.checkConfiguration().subscribe({
-        next: (isConfigured: boolean) => {
-          console.log('[Login] Configuration check response:', isConfigured);
-          this.isConfigured = isConfigured;
-          this.isCheckingConfiguration = false;
-          this.apiError = false;
-        },
-        error: (error) => {
-          console.log('[Login] Configuration check error:', error);
-          this.apiError = true;
-          this.isCheckingConfiguration = false;
-          this.isConfigured = false;
-        }
-      });
+      // Ajout d'une tentative de reconnexion après un délai si l'erreur est de type connexion
+      const checkConfig = () => {
+        this.apiService.checkConfiguration().subscribe({
+          next: (isConfigured: boolean) => {
+            console.log('[Login] Configuration check response:', isConfigured);
+            this.isConfigured = isConfigured;
+            this.isCheckingConfiguration = false;
+            this.apiError = false;
+          },
+          error: (error) => {
+            console.log('[Login] Configuration check error:', error);
+            
+            // Si l'erreur est de type connexion (status 0), on réessaie après un délai
+            if (error?.status === 0) {
+              console.log('[Login] Server connection failed, retrying in 2s...');
+              setTimeout(checkConfig, 2000); // Réessayer après 2 secondes
+            } else {
+              this.apiError = true;
+              this.isCheckingConfiguration = false;
+              this.isConfigured = false;
+            }
+          }
+        });
+      };
+
+      checkConfig();
     }
   }
 
@@ -79,7 +91,7 @@ export class LoginComponent implements OnInit {
     if (index > -1) {
       this.apiUrls.splice(index, 1);
       localStorage.setItem('apiUrls', JSON.stringify(this.apiUrls));
-      
+
       // If there are remaining URLs, select the first one
       if (this.apiUrls.length > 0) {
         this.selectedUrl = this.apiUrls[0];
@@ -118,4 +130,4 @@ export class LoginComponent implements OnInit {
       });
     }
   }
-} 
+}

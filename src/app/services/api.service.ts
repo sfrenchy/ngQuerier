@@ -193,12 +193,22 @@ export class ApiService {
     return this.get<boolean>(ApiEndpoints.isConfigured).pipe(
       tap({
         next: (result) => console.log('[API] Configuration check success:', result),
-        error: (error) => console.log('[API] Configuration check failed:', {
-          status: error?.status,
-          statusText: error?.statusText,
-          message: error?.message,
-          url: `${this.baseUrl}${ApiEndpoints.isConfigured}`
-        })
+        error: (error) => {
+          // Log détaillé de l'erreur pour le débogage
+          console.log('[API] Configuration check failed:', {
+            status: error?.status,
+            statusText: error?.statusText,
+            message: error?.message,
+            type: error?.type,
+            url: `${this.baseUrl}${ApiEndpoints.isConfigured}`,
+            error: error // Log de l'erreur complète
+          });
+
+          // Si status est 0, cela indique généralement que le serveur est inaccessible
+          if (error?.status === 0) {
+            console.log('[API] Server appears to be unreachable, possible restart or CORS issue');
+          }
+        }
       })
     );
   }

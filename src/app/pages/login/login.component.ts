@@ -51,6 +51,7 @@ export class LoginComponent implements OnInit {
 
   onUrlChange(): void {
     if (this.selectedUrl) {
+      console.log('[Login] Changing API URL to:', this.selectedUrl);
       this.apiService.setBaseUrl(this.selectedUrl);
       this.apiError = false;
       this.isCheckingConfiguration = true;
@@ -58,11 +59,13 @@ export class LoginComponent implements OnInit {
 
       this.apiService.checkConfiguration().subscribe({
         next: (isConfigured: boolean) => {
+          console.log('[Login] Configuration check response:', isConfigured);
           this.isConfigured = isConfigured;
           this.isCheckingConfiguration = false;
           this.apiError = false;
         },
-        error: () => {
+        error: (error) => {
+          console.log('[Login] Configuration check error:', error);
           this.apiError = true;
           this.isCheckingConfiguration = false;
           this.isConfigured = false;

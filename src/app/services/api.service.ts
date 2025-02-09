@@ -167,10 +167,10 @@ export class ApiService {
     );
   }
 
-  signOut(refreshToken: string): Observable<AuthResultDto> {
+  signOut(tokenDto: RefreshTokenDto): Observable<AuthResultDto> {
     return this.http.post<AuthResultDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.signOut),
-      { refreshToken }
+      tokenDto
     );
   }
 
@@ -189,7 +189,18 @@ export class ApiService {
   }
 
   checkConfiguration(): Observable<boolean> {
-    return this.get<boolean>(ApiEndpoints.isConfigured);
+    console.log('[API] Checking configuration for URL:', this.baseUrl);
+    return this.get<boolean>(ApiEndpoints.isConfigured).pipe(
+      tap({
+        next: (result) => console.log('[API] Configuration check success:', result),
+        error: (error) => console.log('[API] Configuration check failed:', {
+          status: error?.status,
+          statusText: error?.statusText,
+          message: error?.message,
+          url: `${this.baseUrl}${ApiEndpoints.isConfigured}`
+        })
+      })
+    );
   }
 
   // User Management Methods

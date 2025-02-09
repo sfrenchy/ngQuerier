@@ -4,7 +4,7 @@ import { map, tap, switchMap, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { UserService } from './user.service';
 import { AuthStateService } from './auth-state.service';
-import { SignInDto, UserDto } from '@models/api.models';
+import { RefreshTokenDto, SignInDto, UserDto } from '@models/api.models';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +19,7 @@ export class AuthService {
   }
 
   login(email: string, password: string): Observable<boolean> {
-    const dto: SignInDto = { 
+    const dto: SignInDto = {
       email: email,
       password: password
     };
@@ -51,8 +51,13 @@ export class AuthService {
 
   logout(): Observable<boolean> {
     const refreshToken = this.authStateService.getRefreshToken();
+    const token = this.authStateService.getAccessToken();
+    const refreshTokenDto: RefreshTokenDto = {
+      token: token || '',
+      refreshToken: refreshToken || ''
+    };
     if (refreshToken) {
-      return this.apiService.signOut(refreshToken).pipe(
+      return this.apiService.signOut(refreshTokenDto).pipe(
         map(response => {
           if (response.success) {
             this.authStateService.clearTokens();
@@ -70,7 +75,7 @@ export class AuthService {
         })
       );
     }
-    
+
     // If no refresh token, just clear local state
     this.authStateService.clearTokens();
     this.userService.setCurrentUser(null);
@@ -100,4 +105,4 @@ export class AuthService {
   isAuthenticated(): boolean {
     return !!this.authStateService.getAccessToken();
   }
-} 
+}

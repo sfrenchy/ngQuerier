@@ -633,5 +633,22 @@
     "HEADER_TEXT_COLOR": "Couleur du texte de l'en-tête",
     "HEADER_BACKGROUND_COLOR": "Couleur de fond de l'en-tête",
     "SPECIFIC_CONFIG": "Configuration spécifique"
+  },
+  "ADD_DB_CONNECTION": {
+    "PROGRESS": {
+      "Starting": "Démarrage...",
+      "ValidatingConnection": "Validation de la connexion...",
+      "ConnectionValidated": "Connexion validée",
+      "RetrievingSchema": "Récupération du schéma...",
+      "SchemaRetrieved": "Schéma récupéré",
+      "GeneratingControllers": "Génération des contrôleurs...",
+      "GeneratingEntities": "Génération des entités...",
+      "ControllersGenerated": "Contrôleurs générés",
+      "Compiling": "Compilation...",
+      "CompilationSucceeded": "Compilation réussie",
+      "LoadingAssembly": "Chargement de l'assembly...",
+      "Completed": "Terminé",
+      "Failed": "Échec"
+    }
   }
 }

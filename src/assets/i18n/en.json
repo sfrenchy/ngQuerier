@@ -607,5 +607,22 @@
     "HEADER_TEXT_COLOR": "Header text color",
     "HEADER_BACKGROUND_COLOR": "Header background color",
     "SPECIFIC_CONFIG": "Specific configuration"
+  },
+  "ADD_DB_CONNECTION": {
+    "PROGRESS": {
+      "Starting": "Starting...",
+      "ValidatingConnection": "Validating connection...",
+      "ConnectionValidated": "Connection validated",
+      "RetrievingSchema": "Retrieving schema...",
+      "SchemaRetrieved": "Schema retrieved",
+      "GeneratingControllers": "Generating controllers...",
+      "GeneratingEntities": "Generating entities...",
+      "ControllersGenerated": "Controllers generated",
+      "Compiling": "Compiling...",
+      "CompilationSucceeded": "Compilation succeeded",
+      "LoadingAssembly": "Loading assembly...",
+      "Completed": "Completed",
+      "Failed": "Failed"
+    }
   }
 }

@@ -167,10 +167,10 @@ export class ApiService {
     );
   }
 
-  signOut(refreshToken: string): Observable<AuthResultDto> {
+  signOut(tokenDto: RefreshTokenDto): Observable<AuthResultDto> {
     return this.http.post<AuthResultDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.signOut),
-      { refreshToken }
+      tokenDto
     );
   }
 
@@ -189,7 +189,28 @@ export class ApiService {
   }
 
   checkConfiguration(): Observable<boolean> {
-    return this.get<boolean>(ApiEndpoints.isConfigured);
+    console.log('[API] Checking configuration for URL:', this.baseUrl);
+    return this.get<boolean>(ApiEndpoints.isConfigured).pipe(
+      tap({
+        next: (result) => console.log('[API] Configuration check success:', result),
+        error: (error) => {
+          // Log détaillé de l'erreur pour le débogage
+          console.log('[API] Configuration check failed:', {
+            status: error?.status,
+            statusText: error?.statusText,
+            message: error?.message,
+            type: error?.type,
+            url: `${this.baseUrl}${ApiEndpoints.isConfigured}`,
+            error: error // Log de l'erreur complète
+          });
+
+          // Si status est 0, cela indique généralement que le serveur est inaccessible
+          if (error?.status === 0) {
+            console.log('[API] Server appears to be unreachable, possible restart or CORS issue');
+          }
+        }
+      })
+    );
   }
 
   // User Management Methods

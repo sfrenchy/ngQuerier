@@ -79,6 +79,7 @@ export interface DBConnectionCreateDto {
   contextName: string;
   apiRoute: string;
   generateProcedureControllersAndServices: boolean;
+  operationId: string;
 }
 
 export interface DBConnectionDto {

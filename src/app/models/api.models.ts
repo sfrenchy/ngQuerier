@@ -94,7 +94,8 @@ export interface DBConnectionDto {
 export enum DBConnectionType {
   SqlServer = 0,
   MySQL = 1,
-  PgSQL = 2
+  PgSQL = 2,
+  SQLite = 3
 }
 
 export interface DBConnectionDatabaseSchemaDto {
@@ -468,4 +469,27 @@ export interface ConnectionStringParameterDto {
   key: string;
   value: string;
   isEncrypted: boolean;
+}
+
+export interface SetupAdminDto {
+  firstName: string;
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface SetupSmtpDto {
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  useSSL: boolean;
+  senderEmail: string;
+  senderName: string;
+}
+
+export interface SetupConfigDto {
+  admin: SetupAdminDto;
+  smtp: SetupSmtpDto;
+  createSample: boolean;
 }

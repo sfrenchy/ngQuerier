@@ -70,6 +70,14 @@ export class DatabasesComponent implements OnInit, OnDestroy {
         { key: 'Password', isEncrypted: true },
         { key: 'Port', isEncrypted: false }
       ]
+    },
+    {
+      value: 3,
+      label: 'SQLite',
+      defaultParams: [
+        { key: 'Data Source', isEncrypted: false },
+        { key: 'Version', isEncrypted: false }
+      ]
     }
   ];
 
@@ -111,10 +119,16 @@ export class DatabasesComponent implements OnInit, OnDestroy {
 
   private updateParametersForType(type: DBConnectionType): void {
     const parameters = this.dbForm.get('parameters') as FormArray;
+    const generateProceduresControl = this.dbForm.get('generateProcedureControllersAndServices');
 
     // Vider les paramètres existants
     while (parameters.length !== 0) {
       parameters.removeAt(0);
+    }
+
+    // Mettre à jour generateProcedureControllersAndServices en fonction du type
+    if (type !== DBConnectionType.SqlServer) {
+      generateProceduresControl?.setValue(false);
     }
 
     const providerConfig = this.providers.find(p => p.value === Number(type));
@@ -159,6 +173,8 @@ export class DatabasesComponent implements OnInit, OnDestroy {
           return 'MySQL';
         case 'PgSQL':
           return 'PostgreSQL';
+        case 'SQLite':
+          return 'SQLite';
         default:
           return 'Unknown';
       }
@@ -171,6 +187,8 @@ export class DatabasesComponent implements OnInit, OnDestroy {
         return 'MySQL';
       case DBConnectionType.PgSQL:
         return 'PostgreSQL';
+      case DBConnectionType.SQLite:
+        return 'SQLite';
       default:
         return 'Unknown';
     }

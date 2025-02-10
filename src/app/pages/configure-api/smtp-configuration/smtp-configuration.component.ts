@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { ApiService } from '@services/api.service';
 import { LanguageSelectorComponent } from '@components/language-selector/language-selector.component';
+import { SetupAdminDto, SetupSmtpDto } from '@models/api.models';
 
 @Component({
   selector: 'app-smtp-configuration',
@@ -43,7 +44,7 @@ export class SmtpConfigurationComponent {
     this.smtpForm.get('requireAuth')?.valueChanges.subscribe(requireAuth => {
       const usernameControl = this.smtpForm.get('username');
       const passwordControl = this.smtpForm.get('password');
-      
+
       if (requireAuth) {
         usernameControl?.setValidators(Validators.required);
         passwordControl?.setValidators(Validators.required);
@@ -51,7 +52,7 @@ export class SmtpConfigurationComponent {
         usernameControl?.clearValidators();
         passwordControl?.clearValidators();
       }
-      
+
       usernameControl?.updateValueAndValidity();
       passwordControl?.updateValueAndValidity();
     });
@@ -83,22 +84,24 @@ export class SmtpConfigurationComponent {
         next: (success: boolean) => {
           if (success) {
             // If test is successful, proceed with setup
-            const setupConfig = {
+            const adminSetup: SetupAdminDto = {
               firstName: adminConfig.firstName,
-              lastName: adminConfig.lastName,
+              name: adminConfig.lastName,
               email: adminConfig.email,
-              password: adminConfig.password,
+              password: adminConfig.password
+            };
+
+            const smtpSetup: SetupSmtpDto = {
               host: smtpConfig.host,
               port: smtpConfig.port,
-              useSSL: smtpConfig.useSSL,
-              requireAuth: smtpConfig.requireAuth,
               username: smtpConfig.username,
-              smtpPassword: smtpConfig.password,
+              password: smtpConfig.password,
+              useSSL: smtpConfig.useSSL,
               senderEmail: smtpConfig.senderEmail,
               senderName: smtpConfig.senderName
             };
 
-            this.apiService.setup(setupConfig).subscribe({
+            this.apiService.setup(adminSetup, smtpSetup, true ).subscribe({
               next: (setupSuccess: boolean) => {
                 this.isLoading = false;
                 if (setupSuccess) {
@@ -129,4 +132,4 @@ export class SmtpConfigurationComponent {
       });
     }
   }
-} 
+}

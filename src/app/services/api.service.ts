@@ -35,7 +35,9 @@ import {
   DBConnectionEndpointRequestInfoDto,
   DataRequestParametersDto,
   DataRequestDataRequestParametersWithSQLParametersDto,
-  DBConnectionEndpointInfoDto
+  DBConnectionEndpointInfoDto,
+  SetupAdminDto,
+  SetupSmtpDto
 } from '@models/api.models';
 
 interface ForeignKeyDataValue {
@@ -640,36 +642,15 @@ export class ApiService {
     return this.post<boolean>(ApiEndpoints.smtpTest, config);
   }
 
-  setup(config: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    host: string;
-    port: number;
-    useSSL: boolean;
-    requireAuth: boolean;
-    username?: string;
-    smtpPassword?: string;
-    senderEmail: string;
-    senderName: string;
-  }): Observable<boolean> {
+  setup(
+    adminSetup: SetupAdminDto,
+    smtpSetup: SetupSmtpDto,
+    createSample: boolean,
+  ): Observable<boolean> {
     return this.post<boolean>(ApiEndpoints.setup, {
-      admin: {
-        name: config.lastName,
-        firstName: config.firstName,
-        email: config.email,
-        password: config.password,
-      },
-      smtp: {
-        host: config.host,
-        port: config.port,
-        username: config.username,
-        password: config.smtpPassword,
-        useSSL: config.useSSL,
-        senderEmail: config.senderEmail,
-        senderName: config.senderName,
-      },
+      admin: adminSetup ,
+      smtp: smtpSetup,
+      createSample: createSample
     });
   }
 

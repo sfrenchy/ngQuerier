@@ -318,6 +318,10 @@ export interface CardDto<TConfig = any> {
   icon: string;
 }
 
+export interface CardDtoWithMaxHeight extends CardDto {
+  maxHeight?: number;
+}
+
 // Type utilitaire pour la factory de configuration
 export type CardConfigFactory<T extends BaseCardConfig> = (json: any) => T;
 

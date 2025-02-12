@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, OnInit, HostBinding } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CardDto, BaseCardConfig } from '@models/api.models';
+import { CardDto, BaseCardConfig, CardDtoWithMaxHeight } from '@models/api.models';
 import { uintToHex } from '../../shared/utils/color.utils';
 import { TranslateService, TranslateModule } from '@ngx-translate/core';
 import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
@@ -13,7 +13,7 @@ import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
   imports: [CommonModule, TranslateModule]
 })
 export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDestroy {
-  @Input() card!: CardDto;
+  @Input() card!: CardDtoWithMaxHeight;
   @Input() isEditing: boolean = false;
   @Input() showFullscreenButton: boolean = false;
   @Input() height: number = 0;
@@ -60,6 +60,10 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
 
   get headerBackgroundColor(): string {
     return uintToHex(this.card.headerBackgroundColor);
+  }
+
+  get maxHeight(): string {
+    return this.card.maxHeight ? `${this.card.maxHeight}px` : 'none';
   }
 
   onConfigure() {

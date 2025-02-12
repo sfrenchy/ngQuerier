@@ -25,9 +25,9 @@
         <ng-container *ngFor="let card of row.cards">
           <div [style.grid-column]="'span ' + (card.gridWidth || 12)"
                class="h-full">
-            <ng-container *ngComponentOutlet="getCardComponent(card).component;
+            <ng-container *ngComponentOutlet="getCardComponent(card, row.height).component;
                                           injector: moduleRef.injector;
-                                          inputs: getCardComponent(card).inputs">
+                                          inputs: getCardComponent(card, row.height).inputs">
             </ng-container>
           </div>
         </ng-container>

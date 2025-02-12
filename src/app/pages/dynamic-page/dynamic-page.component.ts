@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgComponentOutlet } from '@angular/common';
 import { CardService } from '@cards/card.service';
-import { LayoutDto, RowDto, CardDto } from '@models/api.models';
+import { LayoutDto, RowDto, CardDto, CardDtoWithMaxHeight } from '@models/api.models';
 import { ApiService } from '@services/api.service';
 import { Subject, takeUntil, tap, switchMap, forkJoin, of, Observable } from 'rxjs';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -58,7 +58,7 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
       clearInterval(intervalId);
     });
     this.refreshIntervals.clear();
-    
+
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -113,27 +113,33 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
 
     this.layout.rows.forEach(row => {
       row.cards.forEach(card => {
-        this.getCardComponent(card);
+        this.getCardComponent(card, 0);
         this.setupCardRefresh(card);
       });
     });
   }
 
-  getCardComponent(card: CardDto) {
+  getCardComponent(card: CardDto, maxHeight: number) {
     const type = card.type;
+    // Étendre le CardDto avec maxHeight
+    const cardWithHeight: CardDtoWithMaxHeight = {
+      ...card,
+      maxHeight: maxHeight
+    };
+
     if (!this.cardComponents.has(type)) {
       const component = this.cardService.getCardByType(type);
       this.cardComponents.set(type, {
         component,
         inputs: {
-          card: card,
+          card: cardWithHeight,
           isEditing: false
         }
       });
     } else {
       const cardComponent = this.cardComponents.get(type);
       cardComponent.inputs = {
-        card: card,
+        card: cardWithHeight,
         isEditing: false
       };
     }
@@ -189,7 +195,7 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
     if (!refreshInterval) return;
 
     const cardKey = `${card.type}_${card.id}`;
-    
+
     // Éviter les doublons d'intervalles
     if (this.refreshIntervals.has(cardKey)) {
       clearInterval(this.refreshIntervals.get(cardKey));

@@ -3,11 +3,15 @@
   (dragleave)="onDragLeave($event)"
   (dragover)="onDragOver($event)"
   (drop)="onDrop($event)"
-  [class.bg-gray-100]="!isDraggingRow && !isDraggingCard"
-  [class.bg-gray-200]="isDraggingRow || isDraggingCard"
-  class="flex-1 p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[500px] w-full overflow-y-auto transition-colors">
+  [class.bg-gray-100]="!isDraggingRow && !isDraggingCard && options.mode === 'edit'"
+  [class.bg-gray-200]="(isDraggingRow || isDraggingCard) && options.mode === 'edit'"
+  [ngClass]="{
+    'border-2 border-dashed border-gray-300 rounded-lg p-4': options.mode === 'edit',
+    'h-full': options.mode === 'view'
+  }"
+  class="w-full overflow-y-auto transition-colors">
 
-  <div class="space-y-4 w-full">
+  <div [ngClass]="{'space-y-4': options.mode === 'edit'}" class="w-full h-full">
     <app-droppable-row
       *ngFor="let row of layout.rows"
       [row]="row"
@@ -22,7 +26,7 @@
   </div>
 
   <!-- Empty state -->
-  <div *ngIf="layout.rows.length === 0 && options.showEmptyState && options.emptyMessage"
+  <div *ngIf="layout.rows.length === 0 && options.showEmptyState && options.mode === 'edit'"
        class="flex items-center justify-center h-full">
     <span class="text-gray-500">{{ options.emptyMessage | translate }}</span>
   </div>

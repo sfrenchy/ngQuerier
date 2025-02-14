@@ -5,12 +5,12 @@
        (dragover)="onDragOver($event)"
        (drop)="onDrop($event)"
        [class.dragging-over]="isDraggingCard"
-       class="h-full w-full grid gap-4"
+       class="h-full w-full grid"
        style="grid-template-columns: repeat(12, 1fr);">
     <ng-container *ngFor="let card of row.cards">
       <div [style.grid-column]="'span ' + (card.gridWidth || 12)" class="h-full">
         <app-card-wrapper (configure)="onCardConfigure(card.id)" (delete)="onCardDelete(card.id)" [card]="card" [height]="height"
-                          [isEditing]="true">
+                          [isEditing]="isEditing">
           <ng-container *ngComponentOutlet="getCardComponent(card).component;
                                         injector: moduleRef.injector;
                                         inputs: getCardComponent(card).inputs">

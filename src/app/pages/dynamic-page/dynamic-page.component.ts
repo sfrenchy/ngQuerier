@@ -1,21 +1,29 @@
 import {Component, NgModuleRef, OnDestroy, OnInit} from '@angular/core';
-import {CommonModule, NgComponentOutlet} from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {ActivatedRoute, Router} from '@angular/router';
 import {CardService} from '@cards/card.service';
 import {CardDto, CardDtoWithMaxHeight, LayoutDto} from '@models/api.models';
 import {ApiService} from '@services/api.service';
 import {forkJoin, Observable, of, Subject, switchMap, takeUntil, tap} from 'rxjs';
 import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import { LayoutRendererComponent } from '@shared/components/layout/layout-renderer/layout-renderer.component';
 
 @Component({
   selector: 'app-dynamic-page',
   templateUrl: './dynamic-page.component.html',
   styleUrls: ['./dynamic-page.component.css'],
   standalone: true,
-  imports: [CommonModule, NgComponentOutlet, TranslateModule]
+  imports: [
+    CommonModule,
+    TranslateModule,
+    LayoutRendererComponent
+  ]
 })
 export class DynamicPageComponent implements OnInit, OnDestroy {
-  layout: LayoutDto | null = null;
+  layout: LayoutDto = {
+    pageId: 0,
+    rows: []
+  };
   isLoading = true;
   error: string | null = null;
   private cardComponents = new Map<string, any>();

@@ -1,0 +1,36 @@
+// Layout Grid
+.layout-grid {
+  @apply grid;
+  grid-template-columns: repeat(12, 1fr);
+}
+
+// Row styles
+.layout-row {
+  @apply h-full w-full relative transition-all duration-200;
+
+  &.editing {
+    @apply bg-gray-100 rounded-lg border border-gray-200;
+  }
+}
+
+// Card styles
+.layout-card {
+  @apply h-full;
+}
+
+// Drag and drop states
+.dragging-over {
+  @apply ring-2 ring-blue-500 ring-inset;
+}
+
+// Edit mode specific styles
+.layout-edit-controls {
+  @apply absolute left-0 top-1/2 -translate-y-1/2 z-10;
+  &:hover {
+    @apply cursor-pointer;
+  }
+}
+
+.layout-resize-handle {
+  @apply absolute bottom-0 left-0 right-0 h-2 cursor-row-resize bg-transparent hover:bg-blue-500/20 transition-colors;
+}

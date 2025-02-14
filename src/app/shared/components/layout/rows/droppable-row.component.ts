@@ -9,7 +9,8 @@ import {RowWrapperComponent} from './row-wrapper.component';
   selector: 'app-droppable-row',
   templateUrl: './droppable-row.component.html',
   standalone: true,
-  imports: [CommonModule, NgComponentOutlet, CardWrapperComponent, RowWrapperComponent]
+  imports: [CommonModule, NgComponentOutlet, CardWrapperComponent, RowWrapperComponent],
+  styleUrls: ['../layout.styles.scss']
 })
 export class DroppableRowComponent implements OnInit {
   @Input() row!: RowDto;

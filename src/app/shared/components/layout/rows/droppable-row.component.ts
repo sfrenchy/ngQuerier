@@ -13,6 +13,7 @@ import {RowWrapperComponent} from './row-wrapper.component';
 })
 export class DroppableRowComponent implements OnInit {
   @Input() row!: RowDto;
+  @Input() isEditing = false;
 
   @Input() set height(value: number) {
     this._height = value;

@@ -193,7 +193,10 @@
           "LAYOUT": "Layout",
           "APPEARANCE": "Appearance"
         },
-        "CONFIRM_DELETE_CARD": "Are you sure you want to delete this card?"
+        "CONFIRM_DELETE_CARD": "Are you sure you want to delete this card?",
+        "EMPTY_STATE": {
+          "DROP_ROWS": "Drag and drop rows from the toolbox"
+        }
       },
       "NO_PAGES": "No pages found",
       "LAYOUT_EDITOR": "Layout Editor",

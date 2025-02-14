@@ -650,5 +650,10 @@
       "Completed": "Terminé",
       "Failed": "Échec"
     }
+  },
+  "LAYOUT": {
+    "EMPTY_STATE": {
+      "DROP_ROWS": "Glissez-déposez des lignes depuis la toolbox"
+    }
   }
 }

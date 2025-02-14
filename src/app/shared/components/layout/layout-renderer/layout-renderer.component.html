@@ -5,25 +5,25 @@
   (drop)="onDrop($event)"
   [class.bg-gray-100]="!isDraggingRow && !isDraggingCard"
   [class.bg-gray-200]="isDraggingRow || isDraggingCard"
-  class="flex-1 p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[500px] overflow-y-auto transition-colors">
+  class="flex-1 p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[500px] w-full overflow-y-auto transition-colors">
 
   <div class="space-y-4 w-full">
     <app-droppable-row
       *ngFor="let row of layout.rows"
       [row]="row"
-      [mode]="options.mode"
+      [isEditing]="options.mode === 'edit'"
       (cardDrop)="cardDrop.emit($event)"
       (configureCard)="configureCard.emit($event)"
       (deleteCard)="deleteCard.emit($event)"
-      (deleteRow)="deleteRow.emit($event.id)"
+      (deleteRow)="deleteRow.emit(row.id)"
       (endResize)="endResize.emit($event)"
       (startResize)="startResize.emit($event)">
     </app-droppable-row>
   </div>
 
   <!-- Empty state -->
-  <div *ngIf="layout.rows.length === 0 && options.showEmptyState"
+  <div *ngIf="layout.rows.length === 0 && options.showEmptyState && options.emptyMessage"
        class="flex items-center justify-center h-full">
-    <span class="text-gray-500">{{ options.emptyMessage }}</span>
+    <span class="text-gray-500">{{ options.emptyMessage | translate }}</span>
   </div>
 </div>

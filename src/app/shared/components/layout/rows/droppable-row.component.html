@@ -1,5 +1,5 @@
 <app-row-wrapper (configure)="onConfigureRow()" (delete)="onDeleteRow()" (endResize)="onResizeEnd($event)" (startResize)="onResizeStart($event)"
-                 [height]="height" [isEditing]="true" [row]="row">
+                 [height]="height" [isEditing]="isEditing" [row]="row">
   <div (dragenter)="onDragEnter($event)"
        (dragleave)="onDragLeave($event)"
        (dragover)="onDragOver($event)"

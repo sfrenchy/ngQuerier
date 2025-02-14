@@ -1,22 +1,24 @@
-import { Component, ElementRef, ViewChild, OnInit, OnDestroy, AfterViewInit, Injectable } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {AfterViewInit, Component, ElementRef, Injectable, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {Subject} from 'rxjs';
+import {filter, takeUntil} from 'rxjs/operators';
 import * as echarts from 'echarts';
-import { EChartsOption } from 'echarts';
-import { filter } from 'rxjs/operators';
+import {EChartsOption} from 'echarts';
 
-import { BaseCardComponent } from './base-card.component';
-import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
-import { BaseChartConfig, ChartVisualConfig } from '@models/chart.models';
-import { DataRequestParametersDto, PaginatedResultDto } from '@models/api.models';
-import { StoredProcedureParameter } from '@models/parameters.models';
-import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
-import { RequestParametersService } from '@shared/services/request-parameters.service';
-import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
-import { TableDataEvent } from '@cards/data-table-card/data-table-card.models';
-import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
+import {BaseCardComponent} from './base-card.component';
+import {DatasourceService} from '@shared/components/datasource-configuration/datasource.service';
+import {BaseChartConfig, ChartVisualConfig} from '@models/chart.models';
+import {DataRequestParametersDto, PaginatedResultDto} from '@models/api.models';
+import {StoredProcedureParameter} from '@models/parameters.models';
+import {
+  ChartParametersFooterComponent
+} from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import {RequestParametersService} from '@shared/services/request-parameters.service';
+import {LocalDataSourceService} from '@cards/data-table-card/local-datasource.service';
+import {TableDataEvent} from '@cards/data-table-card/data-table-card.models';
+import {CardConfigAdapterService} from '@cards/card-config-adapter.service';
+
 interface ChartState {
   data: any[];
   loading: boolean;
@@ -126,7 +128,7 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
         // S'assurer que les procedureParameters sont synchronisés
         parameters.forEach(param => {
           if (this.card.configuration?.datasource?.procedureParameters) {
-            this.card.configuration.datasource.procedureParameters[param.name] = { ...param };
+            this.card.configuration.datasource.procedureParameters[param.name] = {...param};
           }
         });
       }
@@ -423,6 +425,7 @@ export abstract class BaseChartCard<TConfig extends BaseChartConfig> extends Bas
   }
 
   protected abstract updateChartOptions(): void;
+
   protected abstract transformData(data: any[]): any;
 
   protected onVisualConfigChange(config: ChartVisualConfig) {

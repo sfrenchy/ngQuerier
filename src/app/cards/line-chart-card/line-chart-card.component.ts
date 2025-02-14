@@ -1,18 +1,20 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
-import { Card } from '@cards/card.decorator';
-import { LineChartCardConfigurationComponent } from './line-chart-card-configuration.component';
-import { BaseChartCard } from '@cards/base/base-chart-card.component';
-import { LineChartCardConfig, SeriesConfig } from './line-chart-card.models';
-import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
-import { RequestParametersService } from '@shared/services/request-parameters.service';
-import { LineChartCardConfigFactory } from './line-chart-card.factory';
-import { BaseCardComponent } from '@cards/base/base-card.component';
-import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
-import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
-import { takeUntil } from 'rxjs/operators';
-import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
+import {Component} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {Card} from '@cards/card.decorator';
+import {LineChartCardConfigurationComponent} from './line-chart-card-configuration.component';
+import {BaseChartCard} from '@cards/base/base-chart-card.component';
+import {LineChartCardConfig, SeriesConfig} from './line-chart-card.models';
+import {DatasourceService} from '@shared/components/datasource-configuration/datasource.service';
+import {RequestParametersService} from '@shared/services/request-parameters.service';
+import {LineChartCardConfigFactory} from './line-chart-card.factory';
+import {BaseCardComponent} from '@cards/base/base-card.component';
+import {
+  ChartParametersFooterComponent
+} from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import {LocalDataSourceService} from '@cards/data-table-card/local-datasource.service';
+import {takeUntil} from 'rxjs/operators';
+import {CardConfigAdapterService} from '@cards/card-config-adapter.service';
 
 @Card({
   name: 'LineChart',
@@ -50,7 +52,7 @@ export class LineChartCardComponent extends BaseChartCard<LineChartCardConfig> {
   protected override transformData(data: any[]): any[] {
     if (!this.card.configuration) return [];
 
-    const { xAxisColumn, xAxisDateFormat } = this.card.configuration;
+    const {xAxisColumn, xAxisDateFormat} = this.card.configuration;
     if (!xAxisColumn) return [];
 
     // Fonction utilitaire pour accéder aux propriétés sans tenir compte de la casse
@@ -97,7 +99,7 @@ export class LineChartCardComponent extends BaseChartCard<LineChartCardConfig> {
       data: this.chartState.data.map(item => item[seriesConfig.name]),
       showSymbol: seriesConfig.showSymbol,
       symbolSize: seriesConfig.symbolSize,
-      itemStyle: seriesConfig.color ? { color: seriesConfig.color } : undefined,
+      itemStyle: seriesConfig.color ? {color: seriesConfig.color} : undefined,
       areaStyle: seriesConfig.areaStyle,
       smooth: seriesConfig.type === 'smooth'
     }));

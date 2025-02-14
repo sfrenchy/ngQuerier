@@ -1,15 +1,14 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { LayoutDto, RowDto, CardDto } from '@models/api.models';
-import { DroppableRowComponent } from './rows/droppable-row.component';
-import { BaseCardConfigurationComponent } from '@cards/base/base-card-configuration.component';
-import { CardService } from '@cards/card.service';
-import { CardMetadata } from '@cards/card.decorator';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import {CardDto, LayoutDto, RowDto} from '@models/api.models';
+import {DroppableRowComponent} from './rows/droppable-row.component';
+import {BaseCardConfigurationComponent} from '@cards/base/base-card-configuration.component';
+import {CardService} from '@cards/card.service';
+import {CardMetadata} from '@cards/card.decorator';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import '@cards/available-cards';
-import { CardRegistry } from '@cards/card.registry';
-import { hexToUint } from '@shared/utils/color.utils';
+import {CardRegistry} from '@cards/card.registry';
 
 interface CardMetadataWithSafeIcon extends CardMetadata {
   safeIcon: SafeHtml;
@@ -31,7 +30,8 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   constructor(
     private cardService: CardService,
     private sanitizer: DomSanitizer
-  ) {}
+  ) {
+  }
 
   @Input() set pageId(value: number | null) {
     if (value) {
@@ -91,7 +91,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   isFullscreen = false;
 
   availableCards: CardMetadataWithSafeIcon[] = [];
-
 
 
   ngOnInit() {
@@ -229,7 +228,7 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     const card = row.cards.find(c => c.id === cardId);
     if (!card) return;
 
-    this.configCardData = { rowId, cardId };
+    this.configCardData = {rowId, cardId};
     this.showCardConfig = true;
   }
 

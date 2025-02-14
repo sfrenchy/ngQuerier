@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { map, tap, switchMap, catchError } from 'rxjs/operators';
-import { ApiService } from './api.service';
-import { UserService } from './user.service';
-import { AuthStateService } from './auth-state.service';
-import { RefreshTokenDto, SignInDto, UserDto } from '@models/api.models';
+import {Injectable} from '@angular/core';
+import {Observable, of} from 'rxjs';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
+import {ApiService} from './api.service';
+import {UserService} from './user.service';
+import {AuthStateService} from './auth-state.service';
+import {RefreshTokenDto, SignInDto} from '@models/api.models';
 
 @Injectable({
   providedIn: 'root'

@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { DataRequestParametersDto } from '@models/api.models';
+import {Injectable} from '@angular/core';
+import {DataRequestParametersDto} from '@models/api.models';
 
 @Injectable({
   providedIn: 'root'
@@ -34,4 +34,4 @@ export class RequestParametersService {
     // Inclure l'ID utilisateur quand il sera disponible
     return `${this.STORAGE_PREFIX}${cardId}`;
   }
-} 
+}

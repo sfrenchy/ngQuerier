@@ -1,4 +1,4 @@
-import { BaseCardConfig, TranslatableString } from '@models/api.models';
+import {BaseCardConfig, TranslatableString} from '@models/api.models';
 
 export class LabelCardConfig extends BaseCardConfig {
   content: {
@@ -11,7 +11,7 @@ export class LabelCardConfig extends BaseCardConfig {
   constructor() {
     super();
     this.content = {
-      text: [{ languageCode: 'fr', value: 'Nouveau libellé' }, { languageCode: 'en', value: 'New label' }],
+      text: [{languageCode: 'fr', value: 'Nouveau libellé'}, {languageCode: 'en', value: 'New label'}],
       fontSize: 16,
       fontWeight: 'normal',
       textAlign: 'left'

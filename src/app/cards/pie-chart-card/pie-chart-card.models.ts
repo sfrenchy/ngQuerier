@@ -1,5 +1,4 @@
-import { BaseChartConfig } from '@models/chart.models';
-import { DatasourceConfig } from '@models/datasource.models';
+import {BaseChartConfig} from '@models/chart.models';
 
 export class PieChartCardConfig extends BaseChartConfig {
   labelColumn?: string;
@@ -44,4 +43,4 @@ export class PieChartCardConfig extends BaseChartConfig {
     }
     return config;
   }
-} 
+}

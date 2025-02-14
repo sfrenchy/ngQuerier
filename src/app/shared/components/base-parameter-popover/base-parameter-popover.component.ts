@@ -1,8 +1,8 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { StoredProcedureParameter } from '@models/parameters.models';
+import {Component, EventEmitter, Input, OnChanges, Output, SimpleChanges} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {StoredProcedureParameter} from '@models/parameters.models';
 
 @Component({
   template: '',
@@ -18,7 +18,7 @@ export abstract class BaseParameterPopover implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['parameter']) {
-      this.localParameter = { ...this.parameter };
+      this.localParameter = {...this.parameter};
       this.onParameterChange();
     }
   }
@@ -43,4 +43,4 @@ export abstract class BaseParameterPopover implements OnChanges {
   }
 
   protected abstract getParameterType(): string;
-} 
+}

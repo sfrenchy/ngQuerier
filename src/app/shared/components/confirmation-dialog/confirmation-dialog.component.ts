@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule} from '@ngx-translate/core';
 
 export interface ConfirmationDialogData {
   titleKey?: string;
@@ -18,7 +18,7 @@ export class ConfirmationDialogComponent {
   @Input() titleKey?: string;
   @Input() messageKey!: string;
   @Input() messageParams?: { [key: string]: string | number | undefined };
-  
+
   @Output() confirm = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -29,4 +29,4 @@ export class ConfirmationDialogComponent {
   onCancel(): void {
     this.cancel.emit();
   }
-} 
+}

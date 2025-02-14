@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { UserDto, RoleDto } from '@models/api.models';
-import { ApiService } from '@services/api.service';
-import { TranslateService } from '@ngx-translate/core';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject} from 'rxjs';
+import {RoleDto, UserDto} from '@models/api.models';
+import {ApiService} from '@services/api.service';
+import {TranslateService} from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
@@ -14,12 +14,13 @@ export class UserService {
   constructor(
     private apiService: ApiService,
     private translateService: TranslateService
-  ) { }
+  ) {
+  }
 
   setCurrentUser(user: UserDto | null): void {
     this.currentUserSubject.next(user);
     this.translateService.use("fr");
-    
+
   }
 
   getCurrentUser(): UserDto | null {
@@ -36,7 +37,7 @@ export class UserService {
     if (!user?.roles) {
       return false;
     }
-    
+
     return user.roles.some((r: RoleDto) => {
       if (typeof r === 'string') {
         return r === roleName;
@@ -64,4 +65,4 @@ export class UserService {
   getRoles() {
     return this.apiService.getAllRoles();
   }
-} 
+}

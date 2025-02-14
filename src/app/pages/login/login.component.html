@@ -7,30 +7,30 @@
 
     <!-- Logo -->
     <div class="flex justify-center">
-      <img class="h-32 w-auto" src="assets/images/querier_logo_no_bg_big.png" alt="Querier Logo">
+      <img alt="Querier Logo" class="h-32 w-auto" src="assets/images/querier_logo_no_bg_big.png">
     </div>
 
     <!-- API URL Selection -->
     <div class="space-y-4">
-      <label for="apiUrl" class="label">{{ 'LOGIN.SELECT_API' | translate }}</label>
+      <label class="label" for="apiUrl">{{ 'LOGIN.SELECT_API' | translate }}</label>
       <div class="relative">
-        <select id="apiUrl"
+        <select (ngModelChange)="onUrlChange()"
                 [(ngModel)]="selectedUrl"
-                (ngModelChange)="onUrlChange()"
-                class="input w-full cursor-pointer appearance-none pr-10">
-          <option value="" disabled selected>{{ 'LOGIN.SELECT_API' | translate }}</option>
+                class="input w-full cursor-pointer appearance-none pr-10"
+                id="apiUrl">
+          <option disabled selected value="">{{ 'LOGIN.SELECT_API' | translate }}</option>
           <option *ngFor="let url of apiUrls" [value]="url">{{ url }}</option>
         </select>
         <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-text">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            <path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
           </svg>
         </div>
-        <button (click)="onAddApi()" 
-                class="absolute inset-y-0 right-8 px-3 flex items-center text-text hover:text-primary transition-colors"
-                [title]="'LOGIN.ADD_API' | translate">
+        <button (click)="onAddApi()"
+                [title]="'LOGIN.ADD_API' | translate"
+                class="absolute inset-y-0 right-8 px-3 flex items-center text-text hover:text-primary transition-colors">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            <path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
           </svg>
         </button>
       </div>
@@ -39,14 +39,15 @@
       <div *ngIf="isCheckingConfiguration" class="flex justify-center">
         <svg class="animate-spin h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                fill="currentColor"></path>
         </svg>
       </div>
 
       <!-- API Error Message -->
       <div *ngIf="apiError" class="text-error space-y-2">
         <p>{{ 'LOGIN.API_UNREACHABLE' | translate }}</p>
-        <button (click)="onDeleteUrl(selectedUrl!)" 
+        <button (click)="onDeleteUrl(selectedUrl!)"
                 class="text-sm text-error hover:text-error-hover">
           {{ 'LOGIN.DELETE_URL' | translate }}
         </button>
@@ -58,8 +59,9 @@
         <button (click)="onConfigureApi()"
                 class="btn-primary w-full flex items-center justify-center space-x-2">
           <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" stroke-linecap="round" stroke-linejoin="round"
+                  stroke-width="2"/>
+            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
           </svg>
           <span>{{ 'LOGIN.CONFIGURE_API' | translate }}</span>
         </button>
@@ -67,54 +69,55 @@
     </div>
 
     <!-- Login Form -->
-    <form *ngIf="selectedUrl && !isCheckingConfiguration && isConfigured && !apiError"
-          [formGroup]="loginForm" 
-          (ngSubmit)="onSubmit()" 
+    <form (ngSubmit)="onSubmit()"
+          *ngIf="selectedUrl && !isCheckingConfiguration && isConfigured && !apiError"
+          [formGroup]="loginForm"
           class="space-y-6">
       <!-- Email -->
       <div>
-        <label for="email" class="label">{{ 'LOGIN.EMAIL' | translate }}</label>
-        <input id="email"
-               type="email"
-               formControlName="email"
+        <label class="label" for="email">{{ 'LOGIN.EMAIL' | translate }}</label>
+        <input [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
                class="input w-full"
-               [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate">
+               formControlName="email"
+               id="email"
+               type="email">
       </div>
 
       <!-- Password -->
       <div>
-        <label for="password" class="label">{{ 'LOGIN.PASSWORD' | translate }}</label>
+        <label class="label" for="password">{{ 'LOGIN.PASSWORD' | translate }}</label>
         <div class="relative">
-          <input id="password"
+          <input [placeholder]="'LOGIN.PASSWORD_PLACEHOLDER' | translate"
                  [type]="showPassword ? 'text' : 'password'"
-                 formControlName="password"
                  class="input w-full pr-10"
-                 [placeholder]="'LOGIN.PASSWORD_PLACEHOLDER' | translate">
-          <button type="button"
-                  (click)="showPassword = !showPassword"
-                  class="absolute inset-y-0 right-0 pr-3 flex items-center">
-            <svg class="h-5 w-5 text-text" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path *ngIf="!showPassword" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path *ngIf="!showPassword" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-              <path *ngIf="showPassword" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                 formControlName="password"
+                 id="password">
+          <button (click)="showPassword = !showPassword"
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  type="button">
+            <svg class="h-5 w-5 text-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path *ngIf="!showPassword" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
+              <path *ngIf="!showPassword" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
+              <path *ngIf="showPassword" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
             </svg>
           </button>
         </div>
       </div>
 
       <!-- Submit Button -->
-      <button type="submit"
-              [disabled]="!loginForm.valid || !selectedUrl || isLoading"
-              class="btn-primary w-full flex items-center justify-center">
+      <button [disabled]="!loginForm.valid || !selectedUrl || isLoading"
+              class="btn-primary w-full flex items-center justify-center"
+              type="submit">
         <svg *ngIf="isLoading" class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          <path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                fill="currentColor"></path>
         </svg>
         <span>{{ isLoading ? ('LOGIN.LOADING' | translate) : ('LOGIN.SUBMIT' | translate) }}</span>
       </button>
     </form>
   </div>
-</div> 
+</div>

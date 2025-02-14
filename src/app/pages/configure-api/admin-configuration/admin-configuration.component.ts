@@ -1,13 +1,13 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
-import { LanguageSelectorComponent } from '@components/language-selector/language-selector.component';
-import { EmailValidators } from '@validators/email.validator';
-import { EMAIL_ERROR_MESSAGES } from '@validators/email-error-messages';
-import { PasswordValidators } from '@validators/password.validator';
-import { PASSWORD_ERROR_MESSAGES } from '@validators/password-error-messages';
+import {Component} from '@angular/core';
+import {AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {Router} from '@angular/router';
+import {LanguageSelectorComponent} from '@components/language-selector/language-selector.component';
+import {EmailValidators} from '@validators/email.validator';
+import {EMAIL_ERROR_MESSAGES} from '@validators/email-error-messages';
+import {PasswordValidators} from '@validators/password.validator';
+import {PASSWORD_ERROR_MESSAGES} from '@validators/password-error-messages';
 
 @Component({
   selector: 'app-admin-configuration',
@@ -80,10 +80,10 @@ export class AdminConfigurationComponent {
     return Object.keys(control.errors).map(key => {
       const error = control.errors![key];
       if (key === 'minlength') {
-        return this.translate.instant(this.passwordErrorMessages[key], { length: error.requiredLength });
+        return this.translate.instant(this.passwordErrorMessages[key], {length: error.requiredLength});
       }
       if (key === 'requireUniqueChars') {
-        return this.translate.instant(this.passwordErrorMessages[key], { count: error.required });
+        return this.translate.instant(this.passwordErrorMessages[key], {count: error.required});
       }
       return this.translate.instant(this.passwordErrorMessages[key]);
     });
@@ -103,4 +103,4 @@ export class AdminConfigurationComponent {
     localStorage.removeItem('smtpConfig');
     this.router.navigate(['/login']);
   }
-} 
+}

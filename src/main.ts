@@ -1,15 +1,14 @@
-import { bootstrapApplication } from '@angular/platform-browser';
-import { AppComponent } from './app/app.component';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { importProvidersFrom } from '@angular/core';
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
-import { HttpClient } from '@angular/common/http';
-import { TranslateHttpLoader } from '@ngx-translate/http-loader';
-import { CardInitializerService } from './app/cards/available-cards';
-import { AuthInterceptor } from './app/interceptors/auth.interceptor';
-import { authGuard } from './app/guards/auth.guard';
+import {bootstrapApplication} from '@angular/platform-browser';
+import {AppComponent} from './app/app.component';
+import {provideRouter, withComponentInputBinding} from '@angular/router';
+import {HttpClient, provideHttpClient, withInterceptors} from '@angular/common/http';
+import {provideAnimations} from '@angular/platform-browser/animations';
+import {importProvidersFrom} from '@angular/core';
+import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
+import {TranslateHttpLoader} from '@ngx-translate/http-loader';
+import {CardInitializerService} from './app/cards/available-cards';
+import {AuthInterceptor} from './app/interceptors/auth.interceptor';
+import {authGuard} from './app/guards/auth.guard';
 
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {

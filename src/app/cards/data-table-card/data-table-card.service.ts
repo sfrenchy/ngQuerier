@@ -1,13 +1,18 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
-import { DatasourceConfig } from '@models/datasource.models';
-import { DataRequestParametersDto, DBConnectionEndpointRequestInfoDto, DBConnectionEndpointInfoDto } from '@models/api.models';
-import { ColumnSearchDto, ForeignKeyIncludeConfig, PaginatedResultDto } from '@models/api.models';
-import { OrderByParameterDto } from '@models/api.models';
-import { ColumnConfig, DataState } from './data-table-card.models';
-import { LocalDataSourceService } from './local-datasource.service';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject, Observable, of} from 'rxjs';
+import {map, tap} from 'rxjs/operators';
+import {DatasourceService} from '@shared/components/datasource-configuration/datasource.service';
+import {DatasourceConfig} from '@models/datasource.models';
+import {
+  DataRequestParametersDto,
+  DBConnectionEndpointInfoDto,
+  DBConnectionEndpointRequestInfoDto,
+  ForeignKeyIncludeConfig,
+  OrderByParameterDto,
+  PaginatedResultDto
+} from '@models/api.models';
+import {ColumnConfig} from './data-table-card.models';
+import {LocalDataSourceService} from './local-datasource.service';
 
 interface ForeignKeyDataValue {
   id: string;
@@ -60,7 +65,8 @@ export class DataTableCardService {
   constructor(
     private datasourceService: DatasourceService,
     private localDataSourceService: LocalDataSourceService
-  ) {}
+  ) {
+  }
 
   private getStateKey(config: DatasourceConfig): string {
     if (!config) {
@@ -136,7 +142,7 @@ export class DataTableCardService {
 
     // Gérer les sources de données locales
     if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
-      state.next({ ...state.getValue(), loading: true });
+      state.next({...state.getValue(), loading: true});
 
       const tableData$ = this.localDataSourceService.getTableData(config.localDataTable.cardId);
       if (tableData$) {
@@ -169,50 +175,50 @@ export class DataTableCardService {
     // Ajouter les includes pour les clés étrangères
     const foreignKeyIncludes = this.getForeignKeyIncludes(columns);
     const paramsWithIncludes: DataRequestParametersDto = {
-        ...parameters,
-        includes: foreignKeyIncludes
+      ...parameters,
+      includes: foreignKeyIncludes
     };
 
     // Vérifier si nous avons un cache valide avec les mêmes paramètres
     if (currentCache &&
-        Date.now() - currentCache.timestamp < this.CACHE_DURATION &&
-        JSON.stringify(currentCache.parameters) === JSON.stringify(paramsWithIncludes)) {
-        state.next({
-            items: currentCache.data.items,
-            total: currentCache.data.total,
-            loading: false,
-            foreignKeyData: currentCache.data.foreignKeyData
-        });
-        return;
+      Date.now() - currentCache.timestamp < this.CACHE_DURATION &&
+      JSON.stringify(currentCache.parameters) === JSON.stringify(paramsWithIncludes)) {
+      state.next({
+        items: currentCache.data.items,
+        total: currentCache.data.total,
+        loading: false,
+        foreignKeyData: currentCache.data.foreignKeyData
+      });
+      return;
     }
 
-    state.next({ ...state.getValue(), loading: true });
+    state.next({...state.getValue(), loading: true});
 
     this.datasourceService.fetchData(config, paramsWithIncludes).subscribe({
-        next: (response) => {
-            // Mettre à jour le cache
-            this.cacheMap.set(key, {
-                data: response,
-                timestamp: Date.now(),
-                parameters: paramsWithIncludes
-            });
+      next: (response) => {
+        // Mettre à jour le cache
+        this.cacheMap.set(key, {
+          data: response,
+          timestamp: Date.now(),
+          parameters: paramsWithIncludes
+        });
 
-            state.next({
-                items: response.items,
-                total: response.total,
-                loading: false,
-                foreignKeyData: response.foreignKeyData
-            });
-        },
-        error: (error) => {
-            console.error('[DataTableCardService] Erreur lors du chargement des données', error);
-            state.next({
-                items: [],
-                total: 0,
-                loading: false,
-                error
-            });
-        }
+        state.next({
+          items: response.items,
+          total: response.total,
+          loading: false,
+          foreignKeyData: response.foreignKeyData
+        });
+      },
+      error: (error) => {
+        console.error('[DataTableCardService] Erreur lors du chargement des données', error);
+        state.next({
+          items: [],
+          total: 0,
+          loading: false,
+          error
+        });
+      }
     });
   }
 
@@ -304,7 +310,7 @@ export class DataTableCardService {
   }
 
   createData(datasource: DatasourceConfig, formData: FormDataSubmit): Observable<any[]> {
-    let createDto: { [key: string]: any } = {};
+    const createDto: { [key: string]: any } = {};
     Object.keys(formData.schema.properties).forEach(key => {
       createDto[key] = formData.formData[key] !== undefined ? formData.formData[key] : null;
     });
@@ -317,7 +323,7 @@ export class DataTableCardService {
 
   updateData(datasource: DatasourceConfig, formData: FormDataSubmitWithId): Observable<any> {
     const id = formData.id;
-    let updateDto: { [key: string]: any } = {};
+    const updateDto: { [key: string]: any } = {};
     Object.keys(formData.schema.properties).forEach(key => {
       updateDto[key] = formData.formData[key] !== undefined ? formData.formData[key] : null;
     });
@@ -332,11 +338,11 @@ export class DataTableCardService {
   isNumberColumn(column: ColumnConfig): boolean {
     const type = column.entityMetadata?.columnType?.toLowerCase() || '';
     return type.includes('int') ||
-           type.includes('decimal') ||
-           type.includes('float') ||
-           type.includes('double') ||
-           type.includes('money') ||
-           type.includes('number');
+      type.includes('decimal') ||
+      type.includes('float') ||
+      type.includes('double') ||
+      type.includes('money') ||
+      type.includes('number');
   }
 
   formatColumnValue(value: any, column: ColumnConfig, locale: string): any {

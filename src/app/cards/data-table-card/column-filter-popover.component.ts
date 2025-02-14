@@ -1,7 +1,17 @@
-import { Component, Input, Output, EventEmitter, ElementRef, AfterViewInit, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ColumnConfig } from './data-table-card.models';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {ColumnConfig} from './data-table-card.models';
 
 @Component({
   selector: 'app-column-filter-popover',
@@ -21,13 +31,14 @@ export class ColumnFilterPopoverComponent implements AfterViewInit, OnInit, OnCh
 
   searchTerm: string = '';
   filteredValues: string[] = [];
-  position: { top: string, left: string, transform: string } = { 
-    top: '0', 
+  position: { top: string, left: string, transform: string } = {
+    top: '0',
     left: '0',
     transform: 'translate(-50%, 0)'
   };
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) {
+  }
 
   ngAfterViewInit() {
     this.updatePosition();
@@ -100,7 +111,7 @@ export class ColumnFilterPopoverComponent implements AfterViewInit, OnInit, OnCh
 
   onSearch(term: string) {
     this.searchTerm = term;
-    this.filteredValues = this.values.filter(value => 
+    this.filteredValues = this.values.filter(value =>
       value.toLowerCase().includes(term.toLowerCase())
     );
   }
@@ -126,4 +137,4 @@ export class ColumnFilterPopoverComponent implements AfterViewInit, OnInit, OnCh
     this.selectedValues.clear();
     this.filterChange.emit(new Set());
   }
-} 
+}

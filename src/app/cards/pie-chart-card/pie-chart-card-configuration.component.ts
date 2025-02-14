@@ -1,16 +1,18 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { TileComponent } from '@shared/components/tile/tile.component';
-import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
-import { PieChartCardConfig } from './pie-chart-card.models';
-import { CardDto } from '@models/api.models';
-import { DatasourceConfig } from '@models/datasource.models';
-import { ValidationError } from '@cards/validation/validation.models';
-import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
-import { takeUntil, take } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {TileComponent} from '@shared/components/tile/tile.component';
+import {
+  DatasourceConfigurationComponent
+} from '@shared/components/datasource-configuration/datasource-configuration.component';
+import {PieChartCardConfig} from './pie-chart-card.models';
+import {CardDto} from '@models/api.models';
+import {DatasourceConfig} from '@models/datasource.models';
+import {ValidationError} from '@cards/validation/validation.models';
+import {LocalDataSourceService} from '@cards/data-table-card/local-datasource.service';
+import {take, takeUntil} from 'rxjs/operators';
+import {Subject} from 'rxjs';
 
 @Component({
   selector: 'app-pie-chart-card-configuration',
@@ -27,10 +29,12 @@ import { Subject } from 'rxjs';
 export class PieChartCardConfigurationComponent implements OnInit {
   @Input() card!: CardDto<PieChartCardConfig>;
   @Output() configChange = new EventEmitter<PieChartCardConfig>();
+
   @Input() set validationErrors(errors: ValidationError[]) {
     this._validationErrors = errors;
     this.updateErrorMessages();
   }
+
   get validationErrors(): ValidationError[] {
     return this._validationErrors;
   }
@@ -67,14 +71,14 @@ export class PieChartCardConfigurationComponent implements OnInit {
   ngOnInit() {
     if (this.card.configuration) {
       if (this.card.configuration.datasource) {
-        this.form.get('datasource')?.patchValue(this.card.configuration.datasource, { emitEvent: false });
+        this.form.get('datasource')?.patchValue(this.card.configuration.datasource, {emitEvent: false});
       }
 
       this.form.patchValue({
         labelColumn: this.card.configuration.labelColumn,
         valueColumn: this.card.configuration.valueColumn,
         radius: this.card.configuration.radius
-      }, { emitEvent: false });
+      }, {emitEvent: false});
 
       if (this.card.configuration.datasource?.type === 'LocalDataTable') {
         const cardId = this.card.configuration.datasource.localDataTable?.cardId;
@@ -99,7 +103,7 @@ export class PieChartCardConfigurationComponent implements OnInit {
   onDatasourceChange(config: DatasourceConfig) {
     this.form.get('datasource')?.patchValue(config);
 
-    this.emitConfig({ ...this.form.value, datasource: config });
+    this.emitConfig({...this.form.value, datasource: config});
 
     if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
       const schema = this.localDataSourceService.getTableSchema(config.localDataTable.cardId);

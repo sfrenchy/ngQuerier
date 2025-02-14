@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Observable, map, of, firstValueFrom } from 'rxjs';
-import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
-import { DatasourceConfig } from '@models/datasource.models';
-import { DataTableCardConfig } from './data-table-card.models';
+import {Injectable} from '@angular/core';
+import {firstValueFrom} from 'rxjs';
+import {DatasourceService} from '@shared/components/datasource-configuration/datasource.service';
+import {DatasourceConfig} from '@models/datasource.models';
+import {DataTableCardConfig} from './data-table-card.models';
 
 export interface ForeignKeyDisplayConfig {
   table: string;
@@ -29,7 +29,8 @@ export class ForeignKeyService {
     'code', 'reference'
   ];
 
-  constructor(private datasourceService: DatasourceService) {}
+  constructor(private datasourceService: DatasourceService) {
+  }
 
   setConfig(config: DataTableCardConfig) {
     this.config = config;
@@ -41,7 +42,7 @@ export class ForeignKeyService {
 
     // 1. Chercher les colonnes conventionnelles
     this.CONVENTIONAL_NAMES.forEach(name => {
-      const matchingColumns = Object.keys(properties).filter(key => 
+      const matchingColumns = Object.keys(properties).filter(key =>
         key.toLowerCase().includes(name.toLowerCase()) &&
         properties[key].type === 'string'
       );
@@ -51,8 +52,8 @@ export class ForeignKeyService {
     // 2. Ajouter la première colonne string non-ID si rien n'a été trouvé
     if (columns.length === 0) {
       const firstStringColumn = Object.entries(properties)
-        .find(([key, prop]: [string, any]) => 
-          prop.type === 'string' && 
+        .find(([key, prop]: [string, any]) =>
+          prop.type === 'string' &&
           !key.toLowerCase().includes('id') &&
           !prop['x-entity-metadata']?.isPrimaryKey
         );
@@ -155,4 +156,4 @@ export class ForeignKeyService {
       this.schemaCache.clear();
     }
   }
-} 
+}

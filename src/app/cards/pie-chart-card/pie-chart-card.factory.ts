@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { CardConfigFactory } from '@cards/card-config.factory';
-import { CardValidationService } from '@cards/card-validation.service';
-import { PieChartCardConfig } from './pie-chart-card.models';
-import { ValidationResult, ValidationError } from '@cards/validation/validation.models';
+import {Injectable} from '@angular/core';
+import {CardConfigFactory} from '@cards/card-config.factory';
+import {CardValidationService} from '@cards/card-validation.service';
+import {PieChartCardConfig} from './pie-chart-card.models';
+import {ValidationError, ValidationResult} from '@cards/validation/validation.models';
 
 @Injectable({
   providedIn: 'root'

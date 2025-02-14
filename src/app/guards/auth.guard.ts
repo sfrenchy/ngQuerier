@@ -1,6 +1,6 @@
-import { inject } from '@angular/core';
-import { Router, type CanActivateFn } from '@angular/router';
-import { AuthStateService } from '../services/auth-state.service';
+import {inject} from '@angular/core';
+import {type CanActivateFn, Router} from '@angular/router';
+import {AuthStateService} from '../services/auth-state.service';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
@@ -12,4 +12,4 @@ export const authGuard: CanActivateFn = (route, state) => {
 
   // Rediriger vers la page de login
   return router.createUrlTree(['/login']);
-}; 
+};

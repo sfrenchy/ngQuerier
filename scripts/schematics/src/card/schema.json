@@ -12,5 +12,7 @@
       "x-prompt": "What name would you like to use for the card?"
     }
   },
-  "required": ["name"]
+  "required": [
+    "name"
+  ]
 }

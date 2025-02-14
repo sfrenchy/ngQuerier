@@ -1,15 +1,17 @@
-<app-row-wrapper [row]="row" [height]="height" [isEditing]="true" (delete)="onDeleteRow()" (configure)="onConfigureRow()" (startResize)="onResizeStart($event)" (endResize)="onResizeEnd($event)">
-  <div class="h-full w-full grid gap-4" 
-       style="grid-template-columns: repeat(12, 1fr);"
-       (dragover)="onDragOver($event)"
-       (dragenter)="onDragEnter($event)"
+<app-row-wrapper (configure)="onConfigureRow()" (delete)="onDeleteRow()" (endResize)="onResizeEnd($event)" (startResize)="onResizeStart($event)"
+                 [height]="height" [isEditing]="true" [row]="row">
+  <div (dragenter)="onDragEnter($event)"
        (dragleave)="onDragLeave($event)"
+       (dragover)="onDragOver($event)"
        (drop)="onDrop($event)"
-       [class.dragging-over]="isDraggingCard">
+       [class.dragging-over]="isDraggingCard"
+       class="h-full w-full grid gap-4"
+       style="grid-template-columns: repeat(12, 1fr);">
     <ng-container *ngFor="let card of row.cards">
       <div [style.grid-column]="'span ' + (card.gridWidth || 12)" class="h-full">
-        <app-card-wrapper [card]="card" [height]="height" [isEditing]="true" (delete)="onCardDelete(card.id)" (configure)="onCardConfigure(card.id)">
-          <ng-container *ngComponentOutlet="getCardComponent(card).component; 
+        <app-card-wrapper (configure)="onCardConfigure(card.id)" (delete)="onCardDelete(card.id)" [card]="card" [height]="height"
+                          [isEditing]="true">
+          <ng-container *ngComponentOutlet="getCardComponent(card).component;
                                         injector: moduleRef.injector;
                                         inputs: getCardComponent(card).inputs">
           </ng-container>

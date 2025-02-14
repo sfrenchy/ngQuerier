@@ -1,21 +1,22 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { ApiService } from '../services/api.service';
+import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
+import {ApiService} from '../services/api.service';
 import {
+  DataStructureDefinitionDto,
+  DBConnectionControllerInfoDto,
   DBConnectionDatabaseSchemaDto,
   DBConnectionDto,
-  DataStructureDefinitionDto,
-  SQLQueryDto,
-  DBConnectionControllerInfoDto,
+  DBConnectionEndpointInfoDto,
   DBConnectionEndpointRequestInfoDto,
-  DBConnectionEndpointInfoDto
+  SQLQueryDto
 } from '@models/api.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CardDatabaseService {
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService) {
+  }
 
   getDatasourceContexts(): Observable<string[]> {
     return this.apiService.getDatasourceContexts();

@@ -1,10 +1,9 @@
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
-import { LayoutEditorComponent } from '../layout-editor/layout-editor.component';
-import { ApiService } from '../../../../../services/api.service';
-import { ActivatedRoute } from '@angular/router';
-import { LayoutDto, RowDto, CardDto } from '@models/api.models';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule} from '@ngx-translate/core';
+import {LayoutEditorComponent} from '../layout-editor/layout-editor.component';
+import {ApiService} from '../../../../../services/api.service';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-page-layout',
@@ -95,4 +94,4 @@ export class PageLayoutComponent implements OnInit {
       }
     });
   }
-} 
+}

@@ -116,7 +116,7 @@ export interface DBConnectionParameterDescriptionDto {
   mode: string;
 }
 
-export interface DBConnectionTableDescriptionDto{
+export interface DBConnectionTableDescriptionDto {
   name: string,
   schema: string,
   columns: DBConnectionColumnDescriptionDto[]
@@ -188,9 +188,10 @@ export interface PropertyItemDefinitionDto {
 }
 
 export interface SQLQueryCreateDto {
-   query: SQLQueryDto;
-   parameters: { [key: string]: string };
+  query: SQLQueryDto;
+  parameters: { [key: string]: string };
 }
+
 export interface SQLQueryDto {
   id: number;
   name: string;
@@ -359,7 +360,7 @@ export function mapCardsFromApi<T extends BaseCardConfig>(
 // Fonction utilitaire pour mapper une CardDto vers le format JSON pour l'API
 export function mapCardToApi<T extends BaseCardConfig>(card: CardDto<T>): any {
   // Extraire les propriétés de base
-  const { configuration, ...baseProperties } = card;
+  const {configuration, ...baseProperties} = card;
 
   // Retourner l'objet avec la configuration spécifique séparée
   return {
@@ -390,8 +391,6 @@ export interface ForeignKeyIncludeConfig {
   displayFormat?: string;
   displayColumns?: string[];
 }
-
-import { StoredProcedureParameter } from './parameters.models';
 
 export interface DataRequestParametersDto {
   pageNumber: number;

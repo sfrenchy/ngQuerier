@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ApiService } from '@services/api.service';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
-import { ApiConfiguration } from '@models/api.models';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {ApiService} from '@services/api.service';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {ApiConfiguration} from '@models/api.models';
 
 @Component({
   selector: 'app-api-settings',
@@ -27,7 +27,7 @@ export class ApiSettingsComponent implements OnInit {
   ) {
     this.translate.setDefaultLang('fr');
     this.translate.use('fr');
-    
+
     this.apiForm = this.fb.group({
       scheme: [''],
       host: [''],
@@ -120,7 +120,7 @@ export class ApiSettingsComponent implements OnInit {
     if (this.apiForm.valid) {
       this.isLoading = true;
       const formValue = this.apiForm.value;
-      
+
       // Transform form value to match API expectations
       const config: ApiConfiguration = {
         scheme: formValue.scheme?.toUpperCase(),
@@ -164,4 +164,4 @@ export class ApiSettingsComponent implements OnInit {
       });
     }
   }
-} 
+}

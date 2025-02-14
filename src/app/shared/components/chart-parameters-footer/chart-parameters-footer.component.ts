@@ -1,15 +1,25 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, ElementRef, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { DatasourceConfig } from '@models/datasource.models';
-import { StoredProcedureParameter } from '@models/parameters.models';
-import { DataRequestParametersDto, ColumnSearchDto, OrderByParameterDto } from '@models/api.models';
-import { FilterPopoverComponent, FilterPopoverData } from '../filter-popover/filter-popover.component';
-import { SortPopoverComponent, SortPopoverData } from '../sort-popover/sort-popover.component';
-import { ParameterPopoverComponent } from '../parameter-popover/parameter-popover.component';
-import { RequestParametersService } from '../../services/request-parameters.service';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {DatasourceConfig} from '@models/datasource.models';
+import {StoredProcedureParameter} from '@models/parameters.models';
+import {ColumnSearchDto, DataRequestParametersDto, OrderByParameterDto} from '@models/api.models';
+import {FilterPopoverComponent, FilterPopoverData} from '../filter-popover/filter-popover.component';
+import {SortPopoverComponent, SortPopoverData} from '../sort-popover/sort-popover.component';
+import {ParameterPopoverComponent} from '../parameter-popover/parameter-popover.component';
+import {RequestParametersService} from '../../services/request-parameters.service';
 
 interface ParameterPopoverData {
   parameter: StoredProcedureParameter;
@@ -93,10 +103,10 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy, OnI
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    
+
     // Sauvegarder le paramètre sélectionné actuel
     const currentSelectedParameter = this.selectedParameter;
-    
+
     // Charger les paramètres sauvegardés si disponibles
     if ((changes['cardId'] || changes['storedProcedureParameters']?.firstChange) && this.cardId) {
       const savedParams = this.requestParametersService.loadFromLocalStorage(this.cardId);
@@ -114,7 +124,7 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy, OnI
           }
           return param;
         });
-        
+
         if (hasChanges) {
           // Mettre à jour la propriété locale
           this.storedProcedureParameters = updatedParameters;
@@ -131,7 +141,7 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy, OnI
     // Mettre à jour les paramètres actifs si les storedProcedureParameters changent
     if (changes['storedProcedureParameters']) {
       this._activeParameters = this.storedProcedureParameters.filter(p => p.userChangeAllowed);
-      
+
       // Si nous avons un paramètre sélectionné, le mettre à jour avec la nouvelle version
       if (currentSelectedParameter) {
         const updatedParameter = this.storedProcedureParameters.find(
@@ -161,7 +171,7 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy, OnI
   private handleDocumentClick = (event: MouseEvent) => {
     const target = event.target as HTMLElement;
     const isInsidePopover = this.elementRef.nativeElement.contains(target);
-        
+
     if (!isInsidePopover) {
       this.activeFilterPopover = null;
       this.activeSortPopover = null;
@@ -180,13 +190,13 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy, OnI
   // Méthodes pour les paramètres de procédure stockée
   openPopover(parameter: StoredProcedureParameter, event: MouseEvent): void {
     event.stopPropagation(); // Empêcher la propagation de l'événement
-    
+
     // Si le paramètre est déjà sélectionné, on le désélectionne
     if (this.selectedParameter?.name === parameter.name) {
       this.selectedParameter = undefined;
       return;
     }
-    
+
     this.selectedParameter = parameter;
     this.activeFilterPopover = null;
     this.activeSortPopover = null;
@@ -197,7 +207,7 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy, OnI
   }
 
   onParameterChange(updatedParameter: StoredProcedureParameter): void {
-    const updatedParameters = this.storedProcedureParameters.map(p => 
+    const updatedParameters = this.storedProcedureParameters.map(p =>
       p.name === updatedParameter.name ? updatedParameter : p
     );
     // Mettre à jour la propriété locale
@@ -255,7 +265,7 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy, OnI
     const columnSearches = this.parameters.columnSearches.filter(
       s => searches.length === 0 || s.column !== searches[0]?.column
     );
-    
+
     // Ajouter les nouvelles recherches
     columnSearches.push(...searches);
 
@@ -384,14 +394,14 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy, OnI
   // Méthodes pour les filtres
   getGroupedFilters(): { column: string, values: string[] }[] {
     const groupedFilters = new Map<string, string[]>();
-    
+
     for (const search of this.parameters.columnSearches) {
       if (!groupedFilters.has(search.column)) {
         groupedFilters.set(search.column, []);
       }
       groupedFilters.get(search.column)!.push(search.value);
     }
-    
+
     return Array.from(groupedFilters.entries()).map(([column, values]) => ({
       column,
       values
@@ -425,4 +435,4 @@ export class ChartParametersFooterComponent implements OnChanges, OnDestroy, OnI
         this.dateFormat = 'short';
     }
   }
-} 
+}

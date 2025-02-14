@@ -1,6 +1,6 @@
-import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import {Component, Input} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-operation-status',
@@ -12,4 +12,4 @@ import { TranslateModule } from '@ngx-translate/core';
 export class OperationStatusComponent {
   @Input() status: string = '';
   @Input() error?: string;
-} 
+}

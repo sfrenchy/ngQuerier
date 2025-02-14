@@ -1,7 +1,6 @@
-import { BaseCardConfig } from './api.models';
-import { EChartsOption } from 'echarts';
-import { DatasourceConfig } from './datasource.models';
-import { ChartParameters } from './parameters.models';
+import {BaseCardConfig} from './api.models';
+import {DatasourceConfig} from './datasource.models';
+import {ChartParameters} from './parameters.models';
 
 export interface ChartVisualConfig {
   backgroundColor?: string;
@@ -76,27 +75,27 @@ export interface ChartVisualConfig {
     itemGap?: number;
     showTitle?: boolean;
     feature?: {
-      dataZoom?: { 
+      dataZoom?: {
         show?: boolean;
         title?: {
           zoom?: string;
           back?: string;
         };
       };
-      restore?: { 
+      restore?: {
         show?: boolean;
         title?: string;
       };
-      saveAsImage?: { 
+      saveAsImage?: {
         show?: boolean;
         title?: string;
       };
-      dataView?: { 
+      dataView?: {
         show?: boolean;
         title?: string;
         lang?: string[];
       };
-      magicType?: { 
+      magicType?: {
         show?: boolean;
         type?: string[];
         title?: {
@@ -155,4 +154,4 @@ export interface ChartState {
   data: any[];
   loading: boolean;
   error?: string;
-} 
+}

@@ -1,9 +1,19 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, OnInit, HostBinding } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CardDto, BaseCardConfig, CardDtoWithMaxHeight } from '@models/api.models';
-import { uintToHex } from '../../shared/utils/color.utils';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
-import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostBinding,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {BaseCardConfig, CardDtoWithMaxHeight} from '@models/api.models';
+import {uintToHex} from '../../shared/utils/color.utils';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {CardConfigAdapterService} from '@cards/card-config-adapter.service';
 
 @Component({
   selector: 'app-base-card',
@@ -32,13 +42,15 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
   constructor(
     protected translateService: TranslateService,
     protected cardConfigAdapter: CardConfigAdapterService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.onHeightChange();
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+  }
 
   protected onHeightChange() {
     if (this.isFullscreen) {
@@ -88,7 +100,7 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
     // Initialize empty translation object for the card type
     this.translateService.setTranslation(
       this.translateService.currentLang,
-      { [cardType]: {} },
+      {[cardType]: {}},
       true
     );
 

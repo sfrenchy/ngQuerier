@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { LayoutDto, CardDto, RowDto } from '@models/api.models';
-import { ApiService } from '@services/api.service';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject} from 'rxjs';
+import {CardDto, LayoutDto, RowDto} from '@models/api.models';
+import {ApiService} from '@services/api.service';
 
 interface LayoutState {
   layout: LayoutDto;
@@ -12,28 +12,29 @@ interface LayoutState {
   providedIn: 'root'
 })
 export class PageLayoutService {
-    pageLayout = new BehaviorSubject<LayoutState>({
-      layout: {
-        pageId: 0,
-        icon: '',
-        names: {},
-        isVisible: true,
-        roles: [],
-        route: '',
-        rows: []
-      },
-      isDirty: false
-    });
+  pageLayout = new BehaviorSubject<LayoutState>({
+    layout: {
+      pageId: 0,
+      icon: '',
+      names: {},
+      isVisible: true,
+      roles: [],
+      route: '',
+      rows: []
+    },
+    isDirty: false
+  });
 
   private nextRowId = 1;
   private nextCardId = 1;
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService) {
+  }
 
   loadPageLayout(id: number) {
     this.apiService.getLayout(id).subscribe({
       next: (layout) => {
-        this.pageLayout.next({ layout, isDirty: false });
+        this.pageLayout.next({layout, isDirty: false});
       },
       error: (error) => {
         console.error('Error loading layout:', error);
@@ -181,4 +182,4 @@ export class PageLayoutService {
       }
     });
   }
-} 
+}

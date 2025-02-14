@@ -1,11 +1,16 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { CardDatabaseService } from '@cards/card-database.service';
-import { DBConnectionDto, DBConnectionControllerInfoDto, SQLQueryDto, DataStructureDefinitionDto } from '@models/api.models';
-import { TranslateModule } from '@ngx-translate/core';
-import { DatasourceConfig, ParameterValue } from '@models/datasource.models';
-import { DatasourceService } from './datasource.service';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {CardDatabaseService} from '@cards/card-database.service';
+import {
+  DataStructureDefinitionDto,
+  DBConnectionControllerInfoDto,
+  DBConnectionDto,
+  SQLQueryDto
+} from '@models/api.models';
+import {TranslateModule} from '@ngx-translate/core';
+import {DatasourceConfig, ParameterValue} from '@models/datasource.models';
+import {DatasourceService} from './datasource.service';
 
 interface ParameterInfo {
   name: string;
@@ -31,7 +36,7 @@ interface ParameterInfo {
   ]
 })
 export class DatasourceConfigurationComponent implements OnInit {
-  @Input() config: DatasourceConfig = { type: 'API' };
+  @Input() config: DatasourceConfig = {type: 'API'};
   @Output() configChange = new EventEmitter<DatasourceConfig>();
   @Output() schemaChange = new EventEmitter<string>();
 
@@ -46,12 +51,12 @@ export class DatasourceConfigurationComponent implements OnInit {
   isStoredProcedure = false;
   parametersList: ParameterInfo[] = [];
   dynamicDateTypes = [
-    { key: 'specific', label: 'DATASOURCE.DATE_TYPES.SPECIFIC' },
-    { key: 'today', label: 'DATASOURCE.DATE_TYPES.TODAY' },
-    { key: 'yesterday', label: 'DATASOURCE.DATE_TYPES.YESTERDAY' },
-    { key: 'lastWeek', label: 'DATASOURCE.DATE_TYPES.LAST_WEEK' },
-    { key: 'lastMonth', label: 'DATASOURCE.DATE_TYPES.LAST_MONTH' },
-    { key: 'lastYear', label: 'DATASOURCE.DATE_TYPES.LAST_YEAR' }
+    {key: 'specific', label: 'DATASOURCE.DATE_TYPES.SPECIFIC'},
+    {key: 'today', label: 'DATASOURCE.DATE_TYPES.TODAY'},
+    {key: 'yesterday', label: 'DATASOURCE.DATE_TYPES.YESTERDAY'},
+    {key: 'lastWeek', label: 'DATASOURCE.DATE_TYPES.LAST_WEEK'},
+    {key: 'lastMonth', label: 'DATASOURCE.DATE_TYPES.LAST_MONTH'},
+    {key: 'lastYear', label: 'DATASOURCE.DATE_TYPES.LAST_YEAR'}
   ]
   parameterDateTypes: Record<string, string> = {};
 
@@ -62,11 +67,12 @@ export class DatasourceConfigurationComponent implements OnInit {
   constructor(
     private cardDatabaseService: CardDatabaseService,
     private datasourceService: DatasourceService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     if (!this.config) {
-      this.config = { type: 'API' };
+      this.config = {type: 'API'};
     }
     this.loadInitialData();
     this.datasourceService.setConfig(this.config);
@@ -191,7 +197,7 @@ export class DatasourceConfigurationComponent implements OnInit {
 
   onTypeChange() {
     // Reset configuration except type
-    this.config = { type: this.config.type };
+    this.config = {type: this.config.type};
     this.loadInitialData();
     this.emitChange();
   }

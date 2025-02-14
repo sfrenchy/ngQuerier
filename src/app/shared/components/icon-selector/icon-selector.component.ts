@@ -1,6 +1,6 @@
-import { Component, forwardRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {Component, forwardRef} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 
 @Component({
   selector: 'app-icon-selector',
@@ -8,7 +8,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
   imports: [CommonModule],
   template: `
     <div class="relative">
-      <button type="button" 
+      <button type="button"
               (click)="toggleDropdown()"
               class="w-full flex items-center justify-between px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
         <div class="flex items-center">
@@ -18,10 +18,10 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
         <i class="fas fa-chevron-down text-gray-400"></i>
       </button>
 
-      <div *ngIf="isOpen" 
+      <div *ngIf="isOpen"
            class="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-md shadow-lg max-h-60 overflow-y-auto">
         <div class="grid grid-cols-6 gap-2 p-2">
-          <button *ngFor="let icon of availableIcons" 
+          <button *ngFor="let icon of availableIcons"
                   (click)="selectIcon(icon)"
                   class="flex items-center justify-center p-2 hover:bg-gray-700 rounded-md"
                   [class.bg-blue-600]="icon === selectedIcon">
@@ -72,8 +72,10 @@ export class IconSelectorComponent implements ControlValueAccessor {
   ];
 
   // Implémentation de ControlValueAccessor
-  private onChange: (value: string) => void = () => {};
-  private onTouched: () => void = () => {};
+  private onChange: (value: string) => void = () => {
+  };
+  private onTouched: () => void = () => {
+  };
 
   writeValue(value: string): void {
     this.selectedIcon = value;
@@ -97,4 +99,4 @@ export class IconSelectorComponent implements ControlValueAccessor {
     this.onTouched();
     this.isOpen = false;
   }
-} 
+}

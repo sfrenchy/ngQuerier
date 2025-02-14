@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { LayoutEditorComponent } from './layout-editor.component';
+import {LayoutEditorComponent} from './layout-editor.component';
 
 describe('LayoutEditorComponent', () => {
   let component: LayoutEditorComponent;
@@ -10,7 +10,7 @@ describe('LayoutEditorComponent', () => {
     await TestBed.configureTestingModule({
       imports: [LayoutEditorComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(LayoutEditorComponent);
     component = fixture.componentInstance;

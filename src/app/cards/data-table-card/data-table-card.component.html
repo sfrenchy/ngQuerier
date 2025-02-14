@@ -1,31 +1,35 @@
-<app-base-card [card]="card" [isEditing]="isEditing" [showFullscreenButton]="true" (fullscreenChange)="onFullscreenChange($event)">
-  <div header class="flex justify-between items-center">
+<app-base-card (fullscreenChange)="onFullscreenChange($event)" [card]="card" [isEditing]="isEditing"
+               [showFullscreenButton]="true">
+  <div class="flex justify-between items-center" header>
     <div class="flex items-center gap-2">
       <span>&nbsp;</span>
     </div>
     <div class="flex items-center gap-4">
       <div class="flex-1">
         <div class="relative w-2/3 ml-auto">
-          <input type="text" 
+          <input (ngModelChange)="searchSubject.next($event)"
                  [(ngModel)]="globalSearch"
-                 (ngModelChange)="searchSubject.next($event)"
+                 [placeholder]="'data-table-card.SEARCH' | translate"
                  class="w-full bg-gray-700 text-white pl-3 pr-8 h-6 text-sm rounded focus:outline-none"
-                 [placeholder]="'data-table-card.SEARCH' | translate">
-          <svg xmlns="http://www.w3.org/2000/svg" 
-               fill="none" 
-               viewBox="0 0 24 24" 
-               stroke-width="1.5" 
-               stroke="currentColor" 
-               class="w-4 h-4 absolute right-2 top-1 text-gray-400">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                 type="text">
+          <svg class="w-4 h-4 absolute right-2 top-1 text-gray-400"
+               fill="none"
+               stroke="currentColor"
+               stroke-width="1.5"
+               viewBox="0 0 24 24"
+               xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" stroke-linecap="round"
+                  stroke-linejoin="round"/>
           </svg>
         </div>
       </div>
-      <button *ngIf="canAdd()"
-              (click)="onAdd()"
+      <button (click)="onAdd()"
+              *ngIf="canAdd()"
               class="p-1 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path clip-rule="evenodd"
+                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                fill-rule="evenodd"/>
         </svg>
       </button>
     </div>
@@ -33,211 +37,221 @@
   <div body class="h-full flex flex-col">
     <div class="flex-1 min-h-0 flex flex-col relative">
       <!-- Loader overlay -->
-      <div *ngIf="loading || isCalculatingRows" 
+      <div *ngIf="loading || isCalculatingRows"
            class="absolute inset-0 z-20 bg-gray-900/90 flex items-center justify-center">
         <div class="flex items-center">
           <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       </div>
 
-      <div #tableContainer tablecontainer class="data-table-container flex-1 overflow-x-scroll overflow-y-hidden relative"
-           (scroll)="onTableScroll($event)">
+      <div #tableContainer (scroll)="onTableScroll($event)"
+           class="data-table-container flex-1 overflow-x-scroll overflow-y-hidden relative"
+           tablecontainer>
         <div class="relative min-w-full h-full">
           <table class="min-w-full h-full divide-y divide-gray-700">
-            <thead class="data-table-header overflow-visible" [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor">
-              <tr class="overflow-visible">
-                <th *ngFor="let column of getVisibleColumns(); let isFirst = first; let isLast = last"
-                    scope="col"
-                    [class.sticky]="column.isFixed || column.isFixedRight"
-                    [class.fixed-left]="column.isFixed"
-                    [class.fixed-right]="column.isFixedRight"
-                    [style.left]="getFixedColumnLeft(column)"
-                    [style.right]="getFixedColumnRight(column)"
-                    [class.z-10]="column.isFixed || column.isFixedRight"
-                    [class.sticky-shadow]="column.isFixed || column.isFixedRight"
-                    [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor"
-                    [ngClass]="{
+            <thead [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor"
+                   class="data-table-header overflow-visible">
+            <tr class="overflow-visible">
+              <th (mouseenter)="onHeaderMouseEnter(column)"
+                  (mouseleave)="onHeaderMouseLeave(column)"
+                  *ngFor="let column of getVisibleColumns(); let isFirst = first; let isLast = last"
+                  [class.fixed-left]="column.isFixed"
+                  [class.fixed-right]="column.isFixedRight"
+                  [class.py-1]="card.configuration?.visualConfig.isCompactMode"
+                  [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
+                  [class.sticky-shadow]="column.isFixed || column.isFixedRight"
+                  [class.sticky]="column.isFixed || column.isFixedRight"
+                  [class.z-10]="column.isFixed || column.isFixedRight"
+                  [ngClass]="{
                       'text-left': column.alignment === 'left',
                       'text-center': column.alignment === 'center',
                       'text-right': column.alignment === 'right',
                       'px-6 text-xs font-medium uppercase tracking-wider relative overflow-visible': true
                     }"
-                    [style.color]="card.configuration?.visualConfig.headerTextColor"
-                    [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
-                    [class.py-1]="card.configuration?.visualConfig.isCompactMode"
-                    [style.width.px]="columnWidths.get(column.key)"
-                    [style.min-width.px]="columnWidths.get(column.key)"
-                    [style.max-width.px]="columnWidths.get(column.key)"
-                    class="group"
-                    (mouseenter)="onHeaderMouseEnter(column)"
-                    (mouseleave)="onHeaderMouseLeave(column)">
-                  <div #headerContent class="flex items-center gap-2 relative">
-                    <span>{{ getColumnLabel(column) }}</span>
-                    <div class="flex items-center">
-                      <button (click)="toggleSort($event, column)"
-                              class="p-1 rounded hover:bg-gray-700 focus:outline-none"
-                              [class.text-blue-400]="getSortIndex(column) !== -1"
-                              [class.text-gray-400]="getSortIndex(column) === -1">
-                        <div class="relative">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
-                          </svg>
-                          <span *ngIf="getSortIndex(column) !== -1" 
-                                class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                  [style.background-color]="card.configuration?.visualConfig.headerBackgroundColor"
+                  [style.color]="card.configuration?.visualConfig.headerTextColor"
+                  [style.left]="getFixedColumnLeft(column)"
+                  [style.max-width.px]="columnWidths.get(column.key)"
+                  [style.min-width.px]="columnWidths.get(column.key)"
+                  [style.right]="getFixedColumnRight(column)"
+                  [style.width.px]="columnWidths.get(column.key)"
+                  class="group"
+                  scope="col">
+                <div #headerContent class="flex items-center gap-2 relative">
+                  <span>{{ getColumnLabel(column) }}</span>
+                  <div class="flex items-center">
+                    <button (click)="toggleSort($event, column)"
+                            [class.text-blue-400]="getSortIndex(column) !== -1"
+                            [class.text-gray-400]="getSortIndex(column) === -1"
+                            class="p-1 rounded hover:bg-gray-700 focus:outline-none">
+                      <div class="relative">
+                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                          <path clip-rule="evenodd"
+                                d="M10 3a1 1 0 01.707.293l3 3a1 1 0 01-1.414 1.414L10 5.414 7.707 7.707a1 1 0 01-1.414-1.414l3-3A1 1 0 0110 3zm-3.707 9.293a1 1 0 011.414 0L10 14.586l2.293-2.293a1 1 0 011.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                fill-rule="evenodd"/>
+                        </svg>
+                        <span *ngIf="getSortIndex(column) !== -1"
+                              class="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
                             {{ getSortIndex(column) + 1 }}
                           </span>
-                        </div>
-                      </button>
-                    </div>
-                    <!-- Indicateur de filtre actif -->
-                    <div *ngIf="hasActiveFilter(column)" 
-                         class="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full">
-                    </div>
+                      </div>
+                    </button>
                   </div>
+                  <!-- Indicateur de filtre actif -->
+                  <div *ngIf="hasActiveFilter(column)"
+                       class="absolute top-1 right-1 w-2 h-2 bg-blue-500 rounded-full">
+                  </div>
+                </div>
 
-                  <!-- Conteneur pour le bouton de filtre en overlay -->
-                  <div class="absolute inset-x-0 top-full flex justify-center mt-1" #filterContainer>
-                    <button #filterButton
-                            (click)="toggleFilterPopover(column, filterButton, $event)"
-                            class="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg bg-gray-800/95 hover:bg-gray-700/95 focus:outline-none 
-                                   shadow-[0_0_10px_rgba(0,0,0,0.3),0_4px_6px_-1px_rgba(0,0,0,0.1)] 
+                <!-- Conteneur pour le bouton de filtre en overlay -->
+                <div #filterContainer class="absolute inset-x-0 top-full flex justify-center mt-1">
+                  <button #filterButton
+                          (click)="toggleFilterPopover(column, filterButton, $event)"
+                          [class.text-blue-400]="hasActiveFilter(column)"
+                          [class.text-gray-300]="!hasActiveFilter(column)"
+                          class="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg bg-gray-800/95 hover:bg-gray-700/95 focus:outline-none
+                                   shadow-[0_0_10px_rgba(0,0,0,0.3),0_4px_6px_-1px_rgba(0,0,0,0.1)]
                                    border border-gray-600/40 backdrop-blur-sm
                                    transition-all duration-200 ease-out
                                    hover:shadow-[0_0_15px_rgba(0,0,0,0.4),0_4px_6px_-1px_rgba(0,0,0,0.1)]
-                                   hover:scale-105"
-                            [class.text-blue-400]="hasActiveFilter(column)"
-                            [class.text-gray-300]="!hasActiveFilter(column)">
-                      <svg xmlns="http://www.w3.org/2000/svg" 
-                           fill="none" 
-                           viewBox="0 0 24 24" 
-                           stroke-width="1.5" 
-                           stroke="currentColor" 
-                           class="w-4 h-4">
-                        <path stroke-linecap="round" 
-                              stroke-linejoin="round" 
-                              d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-                      </svg>
-                    </button>
-                  </div>
+                                   hover:scale-105">
+                    <svg class="w-4 h-4"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.5"
+                         viewBox="0 0 24 24"
+                         xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
 
-                  <!-- Column resize handle -->
-                  <div *ngIf="!isLast && !column.isFixedRight"
-                       class="column-resize-handle"
-                       (mousedown)="onResizeStart($event, column)">
-                  </div>
+                <!-- Column resize handle -->
+                <div (mousedown)="onResizeStart($event, column)"
+                     *ngIf="!isLast && !column.isFixedRight"
+                     class="column-resize-handle">
+                </div>
 
-                  <!-- Popover de filtre -->
-                  <app-column-filter-popover *ngIf="activeFilterPopover?.column === column"
+                <!-- Popover de filtre -->
+                <app-column-filter-popover (filterChange)="onFilterChange(column, $event)"
+                                           *ngIf="activeFilterPopover?.column === column"
                                            [column]="column"
-                                           [values]="columnValues.get(column.key) || []"
                                            [selectedValues]="getSelectedValues(column.key)"
                                            [triggerElement]="$any(activeFilterPopover).element"
-                                           (filterChange)="onFilterChange(column, $event)">
-                  </app-column-filter-popover>
-                </th>
-                <th *ngIf="hasActions()"
-                    scope="col"
-                    class="sticky fixed-right right-0 z-10 sticky-shadow px-2 text-xs font-medium uppercase tracking-wider text-center actions-column"
-                    [style.background-color]="headerBackgroundColor"
-                    [style.color]="headerTextColor"
-                    [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
-                    [class.py-1]="card.configuration?.visualConfig.isCompactMode">
-                </th>
-              </tr>
+                                           [values]="columnValues.get(column.key) || []">
+                </app-column-filter-popover>
+              </th>
+              <th *ngIf="hasActions()"
+                  [class.py-1]="card.configuration?.visualConfig.isCompactMode"
+                  [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
+                  [style.background-color]="headerBackgroundColor"
+                  [style.color]="headerTextColor"
+                  class="sticky fixed-right right-0 z-10 sticky-shadow px-2 text-xs font-medium uppercase tracking-wider text-center actions-column"
+                  scope="col">
+              </th>
+            </tr>
             </thead>
             <tbody class="divide-y divide-gray-700">
-              <tr *ngIf="!loading && !isCalculatingRows && (!data || data.length === 0)" class="text-center">
-                <td [attr.colspan]="getVisibleColumnsCount()" class="px-6 py-4 text-gray-400">
-                  {{ 'data-table-card.NO_DATA' | translate }}
-                </td>
-              </tr>
-              <tr *ngFor="let row of data; let i = index" 
-                  [ngStyle]="getRowStyle(i)"
-                  class="border-b border-gray-700 hover-highlight">
-                <td *ngFor="let column of getVisibleColumns(); let isFirst = first"
-                    [class.sticky]="column.isFixed || column.isFixedRight"
-                    [class.fixed-left]="column.isFixed"
-                    [class.fixed-right]="column.isFixedRight"
-                    [style.left]="getFixedColumnLeft(column)"
-                    [style.right]="getFixedColumnRight(column)"
-                    [class.z-10]="column.isFixed || column.isFixedRight"
-                    [class.sticky-shadow]="column.isFixed || column.isFixedRight"
-                    [style.background-color]="(column.isFixed || column.isFixedRight) ? card.configuration?.visualConfig.headerBackgroundColor : getRowBackgroundColor(i)"
-                    [style.color]="(column.isFixed || column.isFixedRight) ? card.configuration?.visualConfig.headerTextColor : card.configuration?.visualConfig.rowTextColor"
-                    [ngClass]="{
+            <tr *ngIf="!loading && !isCalculatingRows && (!data || data.length === 0)" class="text-center">
+              <td [attr.colspan]="getVisibleColumnsCount()" class="px-6 py-4 text-gray-400">
+                {{ 'data-table-card.NO_DATA' | translate }}
+              </td>
+            </tr>
+            <tr *ngFor="let row of data; let i = index"
+                [ngStyle]="getRowStyle(i)"
+                class="border-b border-gray-700 hover-highlight">
+              <td *ngFor="let column of getVisibleColumns(); let isFirst = first"
+                  [class.fixed-left]="column.isFixed"
+                  [class.fixed-right]="column.isFixedRight"
+                  [class.py-1]="card.configuration?.visualConfig.isCompactMode"
+                  [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
+                  [class.sticky-shadow]="column.isFixed || column.isFixedRight"
+                  [class.sticky]="column.isFixed || column.isFixedRight"
+                  [class.z-10]="column.isFixed || column.isFixedRight"
+                  [ngClass]="{
                       'text-left': column.alignment === 'left',
                       'text-center': column.alignment === 'center',
                       'text-right': column.alignment === 'right'
                     }"
-                    [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
-                    [class.py-1]="card.configuration?.visualConfig.isCompactMode"
-                    [style.width.px]="columnWidths.get(column.key)"
-                    [style.min-width.px]="columnWidths.get(column.key)"
-                    [style.max-width.px]="columnWidths.get(column.key)"
-                    class="px-6 whitespace-nowrap text-sm">
-                  {{ getColumnValue(row, column) }}
-                </td>
-                <td *ngIf="hasActions()"
-                    class="sticky fixed-right right-0 z-10 sticky-shadow px-2 whitespace-nowrap text-sm actions-column"
-                    [style.background-color]="headerBackgroundColor"
-                    [style.color]="headerTextColor"
-                    [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
-                    [class.py-1]="card.configuration?.visualConfig.isCompactMode">
-                  <div class="flex items-center justify-center gap-2">
-                    <button *ngIf="canUpdate()"
-                            (click)="onUpdate(row)"
-                            class="p-1 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                      </svg>
-                    </button>
-                    <button *ngIf="canDelete()"
-                            (click)="onDeleteRow(row)"
-                            class="p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                      </svg>
-                    </button>
-                  </div>
-                </td>
-              </tr>
+                  [style.background-color]="(column.isFixed || column.isFixedRight) ? card.configuration?.visualConfig.headerBackgroundColor : getRowBackgroundColor(i)"
+                  [style.color]="(column.isFixed || column.isFixedRight) ? card.configuration?.visualConfig.headerTextColor : card.configuration?.visualConfig.rowTextColor"
+                  [style.left]="getFixedColumnLeft(column)"
+                  [style.max-width.px]="columnWidths.get(column.key)"
+                  [style.min-width.px]="columnWidths.get(column.key)"
+                  [style.right]="getFixedColumnRight(column)"
+                  [style.width.px]="columnWidths.get(column.key)"
+                  class="px-6 whitespace-nowrap text-sm">
+                {{ getColumnValue(row, column) }}
+              </td>
+              <td *ngIf="hasActions()"
+                  [class.py-1]="card.configuration?.visualConfig.isCompactMode"
+                  [class.py-3]="!card.configuration?.visualConfig.isCompactMode"
+                  [style.background-color]="headerBackgroundColor"
+                  [style.color]="headerTextColor"
+                  class="sticky fixed-right right-0 z-10 sticky-shadow px-2 whitespace-nowrap text-sm actions-column">
+                <div class="flex items-center justify-center gap-2">
+                  <button (click)="onUpdate(row)"
+                          *ngIf="canUpdate()"
+                          class="p-1 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/>
+                    </svg>
+                  </button>
+                  <button (click)="onDeleteRow(row)"
+                          *ngIf="canDelete()"
+                          class="p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                      <path clip-rule="evenodd"
+                            d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                            fill-rule="evenodd"/>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
       </div>
 
       <div *ngIf="isScrollbarNeeded" class="w-full px-2 py-0 bg-transparent custom-scrollbar">
-        <div #customScroll class="w-full h-2 bg-transparent rounded-full relative cursor-pointer" 
-             (mousedown)="onScrollbarClick($event)">
-          <div class="absolute top-0 bottom-0 bg-gray-400/50 hover:bg-gray-400/70 active:bg-gray-400/90 rounded-full transition-colors cursor-grab active:cursor-grabbing"
-               [style.width.%]="getScrollThumbWidth()"
-               [style.left.%]="getScrollThumbPosition()"
-               (mousedown)="onThumbMouseDown($event)">
+        <div #customScroll (mousedown)="onScrollbarClick($event)"
+             class="w-full h-2 bg-transparent rounded-full relative cursor-pointer">
+          <div
+            (mousedown)="onThumbMouseDown($event)"
+            [style.left.%]="getScrollThumbPosition()"
+            [style.width.%]="getScrollThumbWidth()"
+            class="absolute top-0 bottom-0 bg-gray-400/50 hover:bg-gray-400/70 active:bg-gray-400/90 rounded-full transition-colors cursor-grab active:cursor-grabbing">
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div footer class="data-table-footer">
+  <div class="data-table-footer" footer>
     <div class="flex justify-between items-center">
       <div class="text-sm text-gray-400">
         {{ totalItems }} {{ 'data-table-card.ITEMS' | translate }}
       </div>
       <div class="flex items-center gap-2">
-        <button 
-          class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed"
+        <button
+          (click)="onPageChange(currentPage - 1)"
           [disabled]="currentPage === 1"
-          (click)="onPageChange(currentPage - 1)">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+          class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd"
+                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                  fill-rule="evenodd"/>
           </svg>
         </button>
 
         <div class="flex items-center gap-1 text-sm text-gray-400">
-          <select 
-            [ngModel]="currentPage"
+          <select
             (ngModelChange)="onPageChange($event)"
+            [ngModel]="currentPage"
             class="bg-gray-800 border border-gray-700 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option *ngFor="let page of getTotalPages()" [value]="page">
               {{ page }}
@@ -246,12 +260,14 @@
           <span>/ {{ getTotalPages().length }}</span>
         </div>
 
-        <button 
-          class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed"
+        <button
+          (click)="onPageChange(currentPage + 1)"
           [disabled]="currentPage === getTotalPages().length"
-          (click)="onPageChange(currentPage + 1)">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+          class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd"
+                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                  fill-rule="evenodd"/>
           </svg>
         </button>
       </div>
@@ -266,28 +282,28 @@
       <h2 class="text-xl font-semibold text-white">
         {{ (modalConfig?.titleKey || '') | translate:modalConfig?.titleParams }}
       </h2>
-      <button *ngIf="modalConfig?.showFullscreenButton"
-              (click)="onFormFullscreenChange(!isFormFullscreen)"
+      <button (click)="onFormFullscreenChange(!isFormFullscreen)"
+              *ngIf="modalConfig?.showFullscreenButton"
               class="p-2 text-gray-400 hover:text-white focus:outline-none">
-        <svg xmlns="http://www.w3.org/2000/svg" 
-             class="h-5 w-5" 
-             fill="none" 
-             viewBox="0 0 24 24" 
-             stroke="currentColor">
-          <path *ngIf="!isFormFullscreen" 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                stroke-width="2" 
-                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
-          <path *ngIf="isFormFullscreen" 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                stroke-width="2" 
-                d="M4 4l5 5m11-5l-5 5M4 20l5-5m11 5l-5-5"/>
+        <svg class="h-5 w-5"
+             fill="none"
+             stroke="currentColor"
+             viewBox="0 0 24 24"
+             xmlns="http://www.w3.org/2000/svg">
+          <path *ngIf="!isFormFullscreen"
+                d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"/>
+          <path *ngIf="isFormFullscreen"
+                d="M4 4l5 5m11-5l-5 5M4 20l5-5m11 5l-5-5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"/>
         </svg>
       </button>
     </div>
-    
+
     <!-- Loader -->
     <div *ngIf="isFormLoading" class="flex items-center justify-center p-8">
       <div class="flex items-center">
@@ -296,30 +312,31 @@
     </div>
 
     <!-- Formulaire -->
-    <app-dynamic-form *ngIf="!isFormLoading && showAddForm"
-      [jsonSchema]="addFormSchema"
-      [initialData]="formData"
-      [foreignKeyData]="addFormForeignKeyData"
-      [foreignKeyConfigs]="addFormForeignKeyConfigs"
-      (formSubmit)="onFormSubmit($event)"
-      (formCancel)="onFormCancel()"
-      (fullscreenChange)="onFormFullscreenChange($event)">
+    <app-dynamic-form (formCancel)="onFormCancel()"
+                      (formSubmit)="onFormSubmit($event)"
+                      (fullscreenChange)="onFormFullscreenChange($event)"
+                      *ngIf="!isFormLoading && showAddForm"
+                      [foreignKeyConfigs]="addFormForeignKeyConfigs"
+                      [foreignKeyData]="addFormForeignKeyData"
+                      [initialData]="formData"
+                      [jsonSchema]="addFormSchema">
     </app-dynamic-form>
   </div>
 </div>
 
 <app-confirmation-dialog
+  (cancel)="onCancelDelete()"
+  (confirm)="onConfirmDelete()"
   *ngIf="showDeleteConfirmation"
   [messageKey]="'COMMON.CONFIRMATION.DELETE_ROW'"
   [messageParams]="{ id: rowToDelete?.id }"
-  (confirm)="onConfirmDelete()"
-  (cancel)="onCancelDelete()"
-></app-confirmation-dialog> 
+></app-confirmation-dialog>
 
 <style>
   .hover-highlight {
     position: relative;
   }
+
   .hover-highlight::after {
     content: '';
     position: absolute;
@@ -331,6 +348,7 @@
     pointer-events: none;
     transition: background-color 0.1s ease;
   }
+
   .hover-highlight:hover::after {
     background-color: rgba(255, 255, 255, 0.1);
   }
@@ -390,7 +408,7 @@
     -ms-overflow-style: none;
     -webkit-overflow-scrolling: touch;
   }
-  
+
   .data-table-container::-webkit-scrollbar {
     display: none;
   }
@@ -534,4 +552,4 @@
     z-index: 20;
     position: relative;
   }
-</style> 
+</style>

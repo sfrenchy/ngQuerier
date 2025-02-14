@@ -1,19 +1,22 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
-import { takeUntil } from 'rxjs/operators';
+import {Component} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {takeUntil} from 'rxjs/operators';
 
-import { BaseChartCard } from '../base/base-chart-card.component';
-import { DatasourceService } from '../../shared/components/datasource-configuration/datasource.service';
-import { PieChartCardConfig } from './pie-chart-card.models';
-import { Card } from '../card.decorator';
-import { PieChartCardConfigurationComponent } from './pie-chart-card-configuration.component';
-import { RequestParametersService } from '@shared/services/request-parameters.service';
-import { PieChartCardConfigFactory } from './pie-chart-card.factory';
-import { BaseCardComponent } from '@cards/base/base-card.component';
-import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
-import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
-import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
+import {BaseChartCard} from '../base/base-chart-card.component';
+import {DatasourceService} from '../../shared/components/datasource-configuration/datasource.service';
+import {PieChartCardConfig} from './pie-chart-card.models';
+import {Card} from '../card.decorator';
+import {PieChartCardConfigurationComponent} from './pie-chart-card-configuration.component';
+import {RequestParametersService} from '@shared/services/request-parameters.service';
+import {PieChartCardConfigFactory} from './pie-chart-card.factory';
+import {BaseCardComponent} from '@cards/base/base-card.component';
+import {
+  ChartParametersFooterComponent
+} from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import {LocalDataSourceService} from '@cards/data-table-card/local-datasource.service';
+import {CardConfigAdapterService} from '@cards/card-config-adapter.service';
+
 @Card({
   name: 'PieChart',
   translationPath: 'pie-chart-card',
@@ -65,7 +68,7 @@ export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
   protected override transformData(data: any[]): any[] {
     if (!this.card.configuration) return [];
 
-    const { labelColumn, valueColumn } = this.card.configuration;
+    const {labelColumn, valueColumn} = this.card.configuration;
     if (!labelColumn || !valueColumn) return [];
 
     return data.map(item => ({
@@ -77,7 +80,7 @@ export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
   protected override updateChartOptions(): void {
     if (!this.chartState.data || !this.card.configuration) return;
 
-    const { radius = '75%' } = this.card.configuration;
+    const {radius = '75%'} = this.card.configuration;
 
     this.chartOptions = {
       ...this.chartOptions,

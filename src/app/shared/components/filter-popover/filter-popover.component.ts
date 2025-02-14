@@ -1,11 +1,10 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { BaseParameterPopover } from '../base-parameter-popover/base-parameter-popover.component';
-import { ColumnSearchDto } from '@models/api.models';
-import { StoredProcedureParameter } from '@models/parameters.models';
-import { DataTableCardService } from '@cards/data-table-card/data-table-card.service';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {BaseParameterPopover} from '../base-parameter-popover/base-parameter-popover.component';
+import {ColumnSearchDto} from '@models/api.models';
+import {DataTableCardService} from '@cards/data-table-card/data-table-card.service';
 
 export interface FilterPopoverData {
   column: string;
@@ -101,7 +100,7 @@ export class FilterPopoverComponent extends BaseParameterPopover implements OnIn
 
     if (this.data.column) {
       this.loadValues();
-      
+
       // Si on a une valeur courante, on l'ajoute aux valeurs sélectionnées
       if (this.data.currentValue) {
         this.selectedValues = new Set(this.data.currentValue.split(','));
@@ -115,7 +114,7 @@ export class FilterPopoverComponent extends BaseParameterPopover implements OnIn
       this.data.column = column.name;
       this.data.type = column.type;
       this.data.displayName = column.displayName;
-      
+
       // Reset the value when changing column
       this.parameter = {
         name: column.name,
@@ -155,7 +154,7 @@ export class FilterPopoverComponent extends BaseParameterPopover implements OnIn
       return this.availableValues;
     }
     const search = this.searchTerm.toLowerCase();
-    return this.availableValues.filter(value => 
+    return this.availableValues.filter(value =>
       value.toString().toLowerCase().includes(search)
     );
   }
@@ -184,4 +183,4 @@ export class FilterPopoverComponent extends BaseParameterPopover implements OnIn
     this.onValueChange();
     this.close.emit();
   }
-} 
+}

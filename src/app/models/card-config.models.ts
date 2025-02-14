@@ -1,7 +1,6 @@
-import { BaseCardConfig, CardDto, TranslatableString } from './api.models';
-import { DatasourceConfig } from './datasource.models';
-import { ChartParameters } from './parameters.models';
-import { ChartVisualConfig, BaseChartConfig } from './chart.models';
+import {BaseCardConfig} from './api.models';
+import {DatasourceConfig} from './datasource.models';
+import {BaseChartConfig} from './chart.models';
 
 export interface IDataTableCardConfig extends BaseCardConfig {
   dataConfig: DatasourceConfig;
@@ -85,4 +84,4 @@ export interface IStackedBarAndLinesChartConfig extends BaseChartConfig {
       opacity?: number;
     };
   }[];
-} 
+}

@@ -1,5 +1,6 @@
-<app-base-card [card]="card" [isEditing]="isEditing" [showFullscreenButton]="true" (fullscreenChange)="fullscreenChange.emit($event)">
-  <div header class="flex justify-between items-center">
+<app-base-card (fullscreenChange)="fullscreenChange.emit($event)" [card]="card" [isEditing]="isEditing"
+               [showFullscreenButton]="true">
+  <div class="flex justify-between items-center" header>
     <div class="flex items-center gap-2">
       <span>&nbsp;</span>
     </div>
@@ -29,16 +30,16 @@
   <div footer>
     <!-- Parameters footer -->
     <app-chart-parameters-footer
+      (parametersChange)="onRequestParametersChange($event)"
+      (refresh)="loadData()"
+      (storedProcedureParametersChange)="onStoredProcedureParametersChange($event)"
       *ngIf="card.configuration?.datasource?.type !== 'LocalDataTable' && card.configuration?.datasource?.type !== 'SQLQuery'"
-      [datasource]="card.configuration?.datasource"
-      [parameters]="requestParameters"
-      [storedProcedureParameters]="card.configuration?.chartParameters?.parameters || []"
-      [lastUpdate]="chartState.lastUpdate"
       [autoRefreshInterval]="card.configuration?.chartParameters?.autoRefreshInterval"
       [cardId]="card.id"
-      (parametersChange)="onRequestParametersChange($event)"
-      (storedProcedureParametersChange)="onStoredProcedureParametersChange($event)"
-      (refresh)="loadData()">
+      [datasource]="card.configuration?.datasource"
+      [lastUpdate]="chartState.lastUpdate"
+      [parameters]="requestParameters"
+      [storedProcedureParameters]="card.configuration?.chartParameters?.parameters || []">
     </app-chart-parameters-footer>
   </div>
 </app-base-card>

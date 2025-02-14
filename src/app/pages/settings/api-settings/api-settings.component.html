@@ -9,26 +9,28 @@
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
       </div>
 
-      <form *ngIf="!isLoading" [formGroup]="apiForm" (ngSubmit)="onSubmit()" class="space-y-8">
+      <form (ngSubmit)="onSubmit()" *ngIf="!isLoading" [formGroup]="apiForm" class="space-y-8">
         <!-- API Access -->
         <div class="bg-gray-700 p-6 rounded-lg">
           <h3 class="text-xl font-medium mb-6">{{ 'SETTINGS.CORS_CONFIGURATION' | translate }}</h3>
-          
+
           <!-- Protocol, Host, Port -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.PROTOCOL' | translate }}</label>
-              <select formControlName="scheme" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <select class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="scheme">
                 <option *ngFor="let protocol of protocols" [value]="protocol">{{ protocol }}</option>
               </select>
             </div>
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.HOST' | translate }}</label>
-              <input type="text" formControlName="host" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="host"
+                     type="text">
             </div>
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.PORT' | translate }}</label>
-              <input type="number" formControlName="port" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="port"
+                     type="number">
             </div>
           </div>
 
@@ -36,19 +38,23 @@
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.ALLOWED_HOSTS' | translate }}</label>
-              <input type="text" formControlName="allowedHosts" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="allowedHosts"
+                     type="text">
             </div>
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.ALLOWED_ORIGINS' | translate }}</label>
-              <input type="text" formControlName="allowedOrigins" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="allowedOrigins"
+                     type="text">
             </div>
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.ALLOWED_METHODS' | translate }}</label>
-              <input type="text" formControlName="allowedMethods" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="allowedMethods"
+                     type="text">
             </div>
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.ALLOWED_HEADERS' | translate }}</label>
-              <input type="text" formControlName="allowedHeaders" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="allowedHeaders"
+                     type="text">
             </div>
           </div>
         </div>
@@ -60,12 +66,16 @@
           <!-- Token Configuration -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div>
-              <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.RESET_PASSWORD_TOKEN_VALIDITY' | translate }}</label>
-              <input type="number" formControlName="resetPasswordTokenValidity" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <label
+                class="block text-sm font-medium mb-2">{{ 'SETTINGS.RESET_PASSWORD_TOKEN_VALIDITY' | translate }}</label>
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="resetPasswordTokenValidity"
+                     type="number">
             </div>
             <div>
-              <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.EMAIL_CONFIRMATION_TOKEN_VALIDITY' | translate }}</label>
-              <input type="number" formControlName="emailConfirmationTokenValidity" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <label
+                class="block text-sm font-medium mb-2">{{ 'SETTINGS.EMAIL_CONFIRMATION_TOKEN_VALIDITY' | translate }}</label>
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="emailConfirmationTokenValidity"
+                     type="number">
             </div>
           </div>
 
@@ -74,29 +84,36 @@
             <h4 class="text-lg font-medium mb-4">{{ 'SETTINGS.PASSWORD_RULES' | translate }}</h4>
             <div class="space-y-4">
               <div class="flex items-center">
-                <input type="checkbox" formControlName="requireDigit" class="h-4 w-4 bg-gray-800 border-gray-600 rounded">
+                <input class="h-4 w-4 bg-gray-800 border-gray-600 rounded" formControlName="requireDigit"
+                       type="checkbox">
                 <label class="ml-2 text-sm">{{ 'SETTINGS.REQUIRE_DIGIT' | translate }}</label>
               </div>
               <div class="flex items-center">
-                <input type="checkbox" formControlName="requireLowercase" class="h-4 w-4 bg-gray-800 border-gray-600 rounded">
+                <input class="h-4 w-4 bg-gray-800 border-gray-600 rounded" formControlName="requireLowercase"
+                       type="checkbox">
                 <label class="ml-2 text-sm">{{ 'SETTINGS.REQUIRE_LOWERCASE' | translate }}</label>
               </div>
               <div class="flex items-center">
-                <input type="checkbox" formControlName="requireUppercase" class="h-4 w-4 bg-gray-800 border-gray-600 rounded">
+                <input class="h-4 w-4 bg-gray-800 border-gray-600 rounded" formControlName="requireUppercase"
+                       type="checkbox">
                 <label class="ml-2 text-sm">{{ 'SETTINGS.REQUIRE_UPPERCASE' | translate }}</label>
               </div>
               <div class="flex items-center">
-                <input type="checkbox" formControlName="requireNonAlphanumeric" class="h-4 w-4 bg-gray-800 border-gray-600 rounded">
+                <input class="h-4 w-4 bg-gray-800 border-gray-600 rounded" formControlName="requireNonAlphanumeric"
+                       type="checkbox">
                 <label class="ml-2 text-sm">{{ 'SETTINGS.REQUIRE_NON_ALPHANUMERIC' | translate }}</label>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.REQUIRED_LENGTH' | translate }}</label>
-                  <input type="number" formControlName="requiredLength" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+                  <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="requiredLength"
+                         type="number">
                 </div>
                 <div>
-                  <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.REQUIRED_UNIQUE_CHARS' | translate }}</label>
-                  <input type="number" formControlName="requiredUniqueChars" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+                  <label
+                    class="block text-sm font-medium mb-2">{{ 'SETTINGS.REQUIRED_UNIQUE_CHARS' | translate }}</label>
+                  <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="requiredUniqueChars"
+                         type="number">
                 </div>
               </div>
             </div>
@@ -106,47 +123,53 @@
         <!-- SMTP Configuration -->
         <div class="bg-gray-700 p-6 rounded-lg" formGroupName="smtp">
           <h3 class="text-xl font-medium mb-6">{{ 'SETTINGS.SMTP_CONFIGURATION' | translate }}</h3>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.SMTP_HOST' | translate }}</label>
-              <input type="text" formControlName="host" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="host"
+                     type="text">
             </div>
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.SMTP_PORT' | translate }}</label>
-              <input type="number" formControlName="port" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="port"
+                     type="number">
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.SMTP_USERNAME' | translate }}</label>
-              <input type="text" formControlName="username" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="username"
+                     type="text">
             </div>
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.SMTP_PASSWORD' | translate }}</label>
-              <input type="password" formControlName="password" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="password"
+                     type="password">
             </div>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.SMTP_SENDER_EMAIL' | translate }}</label>
-              <input type="email" formControlName="senderEmail" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="senderEmail"
+                     type="email">
             </div>
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.SMTP_SENDER_NAME' | translate }}</label>
-              <input type="text" formControlName="senderName" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="senderName"
+                     type="text">
             </div>
           </div>
 
           <div class="flex items-center space-x-6">
             <div class="flex items-center">
-              <input type="checkbox" formControlName="useSSL" class="h-4 w-4 bg-gray-800 border-gray-600 rounded">
+              <input class="h-4 w-4 bg-gray-800 border-gray-600 rounded" formControlName="useSSL" type="checkbox">
               <label class="ml-2 text-sm">{{ 'SETTINGS.SMTP_USE_SSL' | translate }}</label>
             </div>
             <div class="flex items-center">
-              <input type="checkbox" formControlName="requireAuth" class="h-4 w-4 bg-gray-800 border-gray-600 rounded">
+              <input class="h-4 w-4 bg-gray-800 border-gray-600 rounded" formControlName="requireAuth" type="checkbox">
               <label class="ml-2 text-sm">{{ 'SETTINGS.SMTP_REQUIRE_AUTH' | translate }}</label>
             </div>
           </div>
@@ -155,33 +178,35 @@
         <!-- Redis Configuration -->
         <div class="bg-gray-700 p-6 rounded-lg" formGroupName="redis">
           <h3 class="text-xl font-medium mb-6">{{ 'SETTINGS.REDIS_CONFIGURATION' | translate }}</h3>
-          
+
           <div class="flex items-center mb-6">
-            <input type="checkbox" formControlName="enabled" class="h-4 w-4 bg-gray-800 border-gray-600 rounded">
+            <input class="h-4 w-4 bg-gray-800 border-gray-600 rounded" formControlName="enabled" type="checkbox">
             <label class="ml-2 text-sm">{{ 'SETTINGS.REDIS_ENABLED' | translate }}</label>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.REDIS_HOST' | translate }}</label>
-              <input type="text" formControlName="host" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="host"
+                     type="text">
             </div>
             <div>
               <label class="block text-sm font-medium mb-2">{{ 'SETTINGS.REDIS_PORT' | translate }}</label>
-              <input type="number" formControlName="port" class="w-full bg-gray-800 border border-gray-600 rounded-md p-2">
+              <input class="w-full bg-gray-800 border border-gray-600 rounded-md p-2" formControlName="port"
+                     type="number">
             </div>
           </div>
         </div>
 
         <!-- Submit Button -->
         <div class="flex justify-end">
-          <button type="submit" 
+          <button [disabled]="!apiForm.valid || isLoading"
                   class="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 disabled:opacity-50"
-                  [disabled]="!apiForm.valid || isLoading">
+                  type="submit">
             {{ 'COMMON.SAVE' | translate }}
           </button>
         </div>
       </form>
     </div>
   </div>
-</div> 
+</div>

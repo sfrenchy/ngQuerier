@@ -1,19 +1,26 @@
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { DataTableCardConfig, ColumnConfig, TableVisualConfig, CrudConfig, ForeignKeyDisplayConfig } from './data-table-card.models';
-import { CardDto } from '@models/api.models';
-import { TileComponent } from '@shared/components/tile/tile.component';
-import { DatasourceConfig } from '@models/datasource.models';
-import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { DataTableCardService } from './data-table-card.service';
-import { CardDatabaseService } from '@cards/card-database.service';
-import { ChangeDetectorRef } from '@angular/core';
-import { ValidationError } from '@cards/validation/validation.models';
-import { LocalDataSourceService } from './local-datasource.service';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {
+  ColumnConfig,
+  CrudConfig,
+  DataTableCardConfig,
+  ForeignKeyDisplayConfig,
+  TableVisualConfig
+} from './data-table-card.models';
+import {CardDto} from '@models/api.models';
+import {TileComponent} from '@shared/components/tile/tile.component';
+import {DatasourceConfig} from '@models/datasource.models';
+import {
+  DatasourceConfigurationComponent
+} from '@shared/components/datasource-configuration/datasource-configuration.component';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {DataTableCardService} from './data-table-card.service';
+import {CardDatabaseService} from '@cards/card-database.service';
+import {ValidationError} from '@cards/validation/validation.models';
+import {LocalDataSourceService} from './local-datasource.service';
 
 @Component({
   selector: 'app-data-table-card-configuration',
@@ -31,13 +38,16 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   @Input() card!: CardDto<DataTableCardConfig>;
   @Output() save = new EventEmitter<DataTableCardConfig>();
   @Output() configChange = new EventEmitter<DataTableCardConfig>();
+
   @Input() set validationErrors(errors: ValidationError[]) {
     this._validationErrors = errors;
     this.updateErrorMessages();
   }
+
   get validationErrors(): ValidationError[] {
     return this._validationErrors;
   }
+
   private _validationErrors: ValidationError[] = [];
   errorMessages: { [key: string]: string } = {};
   form: FormGroup;
@@ -95,7 +105,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         columns: this.card.configuration.columns || [],
         visualConfig: this.card.configuration.visualConfig,
         crudConfig: this.card.configuration.crudConfig
-      }, { emitEvent: false });
+      }, {emitEvent: false});
       this.columns = this.card.configuration.columns || [];
     } else {
       // Initialiser avec les valeurs par défaut si pas de configuration
@@ -103,12 +113,12 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       this.form.patchValue({
         visualConfig: defaultConfig.visualConfig,
         crudConfig: defaultConfig.crudConfig
-      }, { emitEvent: false });
+      }, {emitEvent: false});
     }
   }
 
   onDatasourceChange(datasource: DatasourceConfig) {
-    this.form.patchValue({ datasource }, { emitEvent: false });
+    this.form.patchValue({datasource}, {emitEvent: false});
 
     // Réinitialiser les colonnes
     this.columns = [];
@@ -128,7 +138,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         });
     }
 
-    this.emitConfig({ ...this.form.value, datasource });
+    this.emitConfig({...this.form.value, datasource});
   }
 
   onSchemaChange(schema: string) {
@@ -167,7 +177,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
           return {
             key,
             type,
-            label: { en: key, fr: key },
+            label: {en: key, fr: key},
             alignment: this.getDefaultAlignment(type),
             visible: true,
             decimals: type === 'number' ? 2 : undefined,
@@ -178,7 +188,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         });
 
       // Mettre à jour le formulaire
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     }
   }
 
@@ -229,7 +239,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     this.columns.splice(targetIndex, 0, column);
 
     // Mettre à jour le formulaire
-    this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+    this.form.patchValue({columns: this.columns}, {emitEvent: true});
 
     this.draggedColumnIndex = null;
   }
@@ -252,7 +262,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   handleColumnLabelChange(index: number, lang: string, event: Event) {
     this.onInputChange(event, (value) => {
       this.columns[index].label[lang] = value;
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     });
   }
 
@@ -263,14 +273,14 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
     if (alignment) {
       this.columns[index].alignment = alignment;
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     }
   }
 
   handleColumnDecimalsChange(index: number, event: Event) {
     this.onInputChange(event, (value) => {
       this.columns[index].decimals = parseInt(value, 10);
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     });
   }
 
@@ -298,14 +308,14 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         }
       }
 
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     });
   }
 
   handleColumnDateFormatChange(index: number, event: Event) {
     this.onSelectChange(event, (value) => {
       this.columns[index].dateFormat = value as 'date' | 'time' | 'datetime';
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     });
   }
 
@@ -368,7 +378,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         this.columns[index].isFixedRight = false;
       }
 
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     });
   }
 
@@ -393,7 +403,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         this.columns[index].isFixed = false;
       }
 
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     });
   }
 
@@ -432,7 +442,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       [property]: value
     };
 
-    this.form.patchValue({ visualConfig: newVisualConfig });
+    this.form.patchValue({visualConfig: newVisualConfig});
   }
 
   isDateColumn(column: ColumnConfig): boolean {
@@ -452,7 +462,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       [property]: value
     };
 
-    this.form.patchValue({ crudConfig: newCrudConfig });
+    this.form.patchValue({crudConfig: newCrudConfig});
   }
 
   canEnableCrud(): boolean {
@@ -707,7 +717,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
             const virtualColumnKey = `${foreignKeyColumn.key}_display`;
             // Récupérer l'état précédent de la colonne virtuelle
             const existingVirtualColumn = virtualColumnsState.get(foreignKeyColumn.key) ||
-                                       (existingColumnsMap?.get(virtualColumnKey));
+              (existingColumnsMap?.get(virtualColumnKey));
 
             // Créer une colonne virtuelle
             const virtualColumn: ColumnConfig = {
@@ -732,7 +742,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     }
 
     // Mettre à jour le formulaire
-    this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+    this.form.patchValue({columns: this.columns}, {emitEvent: true});
   }
 
   private updateErrorMessages() {

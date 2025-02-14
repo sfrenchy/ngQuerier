@@ -19,12 +19,17 @@
   color: #666;
   font-size: 0.9rem;
   text-align: center;
+
   &.error {
     color: #dc3545;
   }
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-} 
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

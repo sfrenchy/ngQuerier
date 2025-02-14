@@ -1,5 +1,5 @@
-import { Injectable, ApplicationRef, createComponent, EnvironmentInjector, Type } from '@angular/core';
-import { getRegisteredCards } from '@cards/card.decorator';
+import {ApplicationRef, createComponent, EnvironmentInjector, Injectable, Type} from '@angular/core';
+import {getRegisteredCards} from '@cards/card.decorator';
 import '@cards/pie-chart-card/pie-chart-card.component';
 import '@cards/stacked-bar-and-lines-chart-card/stacked-bar-and-lines-chart.component';
 import '@cards/line-chart-card/line-chart-card.component';
@@ -16,7 +16,8 @@ export class CardInitializerService {
   constructor(
     private appRef: ApplicationRef,
     private injector: EnvironmentInjector
-  ) {}
+  ) {
+  }
 
   initialize() {
     if (this.initialized) return;

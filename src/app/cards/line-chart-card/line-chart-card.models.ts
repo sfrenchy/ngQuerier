@@ -1,6 +1,6 @@
-import { BaseChartConfig, ChartVisualConfig } from '@models/chart.models';
-import { DatasourceConfig } from '@models/datasource.models';
-import { StoredProcedureParameter } from '@models/parameters.models';
+import {BaseChartConfig} from '@models/chart.models';
+import {DatasourceConfig} from '@models/datasource.models';
+import {StoredProcedureParameter} from '@models/parameters.models';
 
 export interface SeriesConfig {
   name: string;
@@ -63,4 +63,4 @@ export interface ChartState {
   loading: boolean;
   error?: any;
   config?: DatasourceConfig;
-} 
+}

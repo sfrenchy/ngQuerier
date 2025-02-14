@@ -1,10 +1,9 @@
-import { Component, EventEmitter, Input, Output, NgModuleRef, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { NgComponentOutlet } from '@angular/common';
-import { CardDto, RowDto } from '@models/api.models';
-import { CardService } from '@cards/card.service';
-import { CardWrapperComponent } from '@cards/card-wrapper/card-wrapper.component';
-import { RowWrapperComponent } from './row-wrapper.component';
+import {Component, EventEmitter, Input, NgModuleRef, OnInit, Output} from '@angular/core';
+import {CommonModule, NgComponentOutlet} from '@angular/common';
+import {RowDto} from '@models/api.models';
+import {CardService} from '@cards/card.service';
+import {CardWrapperComponent} from '@cards/card-wrapper/card-wrapper.component';
+import {RowWrapperComponent} from './row-wrapper.component';
 
 @Component({
   selector: 'app-droppable-row',
@@ -14,20 +13,23 @@ import { RowWrapperComponent } from './row-wrapper.component';
 })
 export class DroppableRowComponent implements OnInit {
   @Input() row!: RowDto;
+
   @Input() set height(value: number) {
     this._height = value;
   }
+
   get height(): number {
     return this._height;
   }
+
   private _height = 0;
 
   @Output() deleteRow = new EventEmitter<void>();
-  @Output() startResize = new EventEmitter<{event: MouseEvent, rowId: number}>();
-  @Output() endResize = new EventEmitter<{rowId: number, newHeight: number}>();
-  @Output() cardDrop = new EventEmitter<{rowId: number, cardType?: string}>();
-  @Output() deleteCard = new EventEmitter<{rowId: number, cardId: number}>();
-  @Output() configureCard = new EventEmitter<{rowId: number, cardId: number}>();
+  @Output() startResize = new EventEmitter<{ event: MouseEvent, rowId: number }>();
+  @Output() endResize = new EventEmitter<{ rowId: number, newHeight: number }>();
+  @Output() cardDrop = new EventEmitter<{ rowId: number, cardType?: string }>();
+  @Output() deleteCard = new EventEmitter<{ rowId: number, cardId: number }>();
+  @Output() configureCard = new EventEmitter<{ rowId: number, cardId: number }>();
   @Output() configureRow = new EventEmitter<number>();
 
   isDraggingCard = false;
@@ -36,7 +38,8 @@ export class DroppableRowComponent implements OnInit {
   constructor(
     private cardService: CardService,
     public moduleRef: NgModuleRef<any>
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     if (this.row.height && this._height === 0) {
@@ -95,7 +98,7 @@ export class DroppableRowComponent implements OnInit {
   onDrop(event: DragEvent) {
     event.preventDefault();
     this.isDraggingCard = false;
-    
+
     if (!event.dataTransfer) return;
 
     const type = event.dataTransfer.getData('text/plain');
@@ -108,11 +111,11 @@ export class DroppableRowComponent implements OnInit {
     }
   }
 
-  onResizeStart(event: {event: MouseEvent, rowId: number}) {
+  onResizeStart(event: { event: MouseEvent, rowId: number }) {
     this.startResize.emit(event);
   }
 
-  onResizeEnd(event: {rowId: number, newHeight: number}) {
+  onResizeEnd(event: { rowId: number, newHeight: number }) {
     this._height = event.newHeight;
     this.endResize.emit(event);
   }
@@ -134,4 +137,4 @@ export class DroppableRowComponent implements OnInit {
   onConfigureRow() {
     this.configureRow.emit(this.row.id);
   }
-} 
+}

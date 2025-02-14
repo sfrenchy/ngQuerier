@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
-import { LanguageSelectorComponent } from '@components/language-selector/language-selector.component';
-import { ApiService } from '@services/api.service';
+import {Component} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {Router} from '@angular/router';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {CommonModule} from '@angular/common';
+import {LanguageSelectorComponent} from '@components/language-selector/language-selector.component';
+import {ApiService} from '@services/api.service';
 
 @Component({
   selector: 'app-add-api',
@@ -57,4 +56,4 @@ export class AddApiComponent {
       }, 1000);
     }
   }
-} 
+}

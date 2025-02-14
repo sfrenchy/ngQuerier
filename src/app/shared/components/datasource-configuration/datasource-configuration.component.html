@@ -1,10 +1,10 @@
-<div class="flex flex-col gap-4 p-4" *ngIf="config">
+<div *ngIf="config" class="flex flex-col gap-4 p-4">
   <div class="flex flex-col">
     <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.TYPE' | translate }}</label>
     <select
-      class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+      (ngModelChange)="onTypeChange()"
       [(ngModel)]="config.type"
-      (ngModelChange)="onTypeChange()">
+      class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white">
       <option *ngFor="let type of datasourceTypes" [value]="type" class="bg-gray-700 text-white">
         {{ 'DATASOURCE.TYPES.' + type | translate }}
       </option>
@@ -16,9 +16,9 @@
     <div class="flex flex-col">
       <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.CONNECTION' | translate }}</label>
       <select
-        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+        (ngModelChange)="onConnectionChange($event)"
         [(ngModel)]="config.connection"
-        (ngModelChange)="onConnectionChange($event)">
+        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white">
         <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
         <option *ngFor="let connection of connections" [ngValue]="connection" class="bg-gray-700 text-white">
           {{ connection.name }}
@@ -26,12 +26,12 @@
       </select>
     </div>
 
-    <div class="flex flex-col" *ngIf="config.connection">
+    <div *ngIf="config.connection" class="flex flex-col">
       <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.CONTROLLER' | translate }}</label>
       <select
-        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+        (ngModelChange)="onControllerChange($event)"
         [(ngModel)]="config.controller"
-        (ngModelChange)="onControllerChange($event)">
+        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white">
         <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
         <option *ngFor="let controller of controllers" [ngValue]="controller" class="bg-gray-700 text-white">
           {{ controller.name }}
@@ -40,9 +40,9 @@
     </div>
 
     <!-- Stored Procedure Parameters -->
-    <div class="flex flex-col gap-2" *ngIf="isStoredProcedure && config.controller?.parameterJsonSchema">
+    <div *ngIf="isStoredProcedure && config.controller?.parameterJsonSchema" class="flex flex-col gap-2">
       <div class="text-sm font-medium text-gray-300">{{ 'DATASOURCE.PROCEDURE_PARAMETERS' | translate }}</div>
-      <div class="flex flex-col gap-2" *ngFor="let param of getParametersList()">
+      <div *ngFor="let param of getParametersList()" class="flex flex-col gap-2">
         <div class="flex flex-col gap-2">
           <div class="flex items-center justify-between gap-2">
             <label class="text-sm font-medium text-gray-300">
@@ -51,20 +51,20 @@
             </label>
             <div class="flex items-center gap-2">
               <input
-                type="checkbox"
-                class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500"
+                (change)="onUserChangeAllowedChange(param.name, $event)"
                 [checked]="config.procedureParameters?.[param.name]?.userChangeAllowed"
-                (change)="onUserChangeAllowedChange(param.name, $event)">
+                class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500"
+                type="checkbox">
               <span class="text-sm text-gray-300">{{ 'DATASOURCE.USER_CHANGE_ALLOWED' | translate }}</span>
             </div>
           </div>
 
           <!-- Date Type Selector for Date Parameters -->
-          <div class="flex flex-col gap-2" *ngIf="param.type === 'date' || param.type === 'datetime'">
+          <div *ngIf="param.type === 'date' || param.type === 'datetime'" class="flex flex-col gap-2">
             <select
-              class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+              (ngModelChange)="onDateTypeChange(param.name, $event)"
               [ngModel]="config.procedureParameters?.[param.name]?.dateType"
-              (ngModelChange)="onDateTypeChange(param.name, $event)">
+              class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white">
               <option *ngFor="let type of dynamicDateTypes" [value]="type.key" class="bg-gray-700 text-white">
                 {{ type.label | translate }}
               </option>
@@ -74,65 +74,65 @@
           <!-- Parameter Value Input -->
           <div [ngSwitch]="param.type">
             <!-- String Input -->
-            <input *ngSwitchCase="'string'"
-              type="text"
-              class="bg-gray-700 text-sm rounded-lg border block w-full p-2.5 text-white"
-              [class.border-gray-600]="!parameterErrors[param.name]"
-              [class.border-red-500]="parameterErrors[param.name]"
-              [class.focus:ring-primary-500]="!parameterErrors[param.name]"
-              [class.focus:ring-red-500]="parameterErrors[param.name]"
-              [class.focus:border-primary-500]="!parameterErrors[param.name]"
-              [class.focus:border-red-500]="parameterErrors[param.name]"
-              [ngModel]="config.procedureParameters?.[param.name]?.value"
-              (ngModelChange)="onParameterValueChange(param.name, $event)">
+            <input (ngModelChange)="onParameterValueChange(param.name, $event)"
+                   *ngSwitchCase="'string'"
+                   [class.border-gray-600]="!parameterErrors[param.name]"
+                   [class.border-red-500]="parameterErrors[param.name]"
+                   [class.focus:border-primary-500]="!parameterErrors[param.name]"
+                   [class.focus:border-red-500]="parameterErrors[param.name]"
+                   [class.focus:ring-primary-500]="!parameterErrors[param.name]"
+                   [class.focus:ring-red-500]="parameterErrors[param.name]"
+                   [ngModel]="config.procedureParameters?.[param.name]?.value"
+                   class="bg-gray-700 text-sm rounded-lg border block w-full p-2.5 text-white"
+                   type="text">
 
             <!-- Number Input -->
-            <input *ngSwitchCase="'number'"
-              type="number"
-              class="bg-gray-700 text-sm rounded-lg border block w-full p-2.5 text-white"
-              [class.border-gray-600]="!parameterErrors[param.name]"
-              [class.border-red-500]="parameterErrors[param.name]"
-              [class.focus:ring-primary-500]="!parameterErrors[param.name]"
-              [class.focus:ring-red-500]="parameterErrors[param.name]"
-              [class.focus:border-primary-500]="!parameterErrors[param.name]"
-              [class.focus:border-red-500]="parameterErrors[param.name]"
-              [ngModel]="config.procedureParameters?.[param.name]?.value"
-              (ngModelChange)="onParameterValueChange(param.name, $event)">
+            <input (ngModelChange)="onParameterValueChange(param.name, $event)"
+                   *ngSwitchCase="'number'"
+                   [class.border-gray-600]="!parameterErrors[param.name]"
+                   [class.border-red-500]="parameterErrors[param.name]"
+                   [class.focus:border-primary-500]="!parameterErrors[param.name]"
+                   [class.focus:border-red-500]="parameterErrors[param.name]"
+                   [class.focus:ring-primary-500]="!parameterErrors[param.name]"
+                   [class.focus:ring-red-500]="parameterErrors[param.name]"
+                   [ngModel]="config.procedureParameters?.[param.name]?.value"
+                   class="bg-gray-700 text-sm rounded-lg border block w-full p-2.5 text-white"
+                   type="number">
 
             <!-- Boolean Input -->
-            <input *ngSwitchCase="'boolean'"
-              type="checkbox"
-              class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500"
-              [ngModel]="config.procedureParameters?.[param.name]?.value"
-              (ngModelChange)="onParameterValueChange(param.name, $event)">
+            <input (ngModelChange)="onParameterValueChange(param.name, $event)"
+                   *ngSwitchCase="'boolean'"
+                   [ngModel]="config.procedureParameters?.[param.name]?.value"
+                   class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500"
+                   type="checkbox">
 
             <!-- Date Input -->
-            <input *ngSwitchCase="'date'"
-              type="date"
-              class="bg-gray-700 text-sm rounded-lg border block w-full p-2.5 text-white"
-              [class.border-gray-600]="!parameterErrors[param.name]"
-              [class.border-red-500]="parameterErrors[param.name]"
-              [class.focus:ring-primary-500]="!parameterErrors[param.name]"
-              [class.focus:ring-red-500]="parameterErrors[param.name]"
-              [class.focus:border-primary-500]="!parameterErrors[param.name]"
-              [class.focus:border-red-500]="parameterErrors[param.name]"
-              [ngModel]="config.procedureParameters?.[param.name]?.value"
-              (ngModelChange)="onParameterValueChange(param.name, $event)"
-              [disabled]="config.procedureParameters?.[param.name]?.dateType !== 'specific'">
+            <input (ngModelChange)="onParameterValueChange(param.name, $event)"
+                   *ngSwitchCase="'date'"
+                   [class.border-gray-600]="!parameterErrors[param.name]"
+                   [class.border-red-500]="parameterErrors[param.name]"
+                   [class.focus:border-primary-500]="!parameterErrors[param.name]"
+                   [class.focus:border-red-500]="parameterErrors[param.name]"
+                   [class.focus:ring-primary-500]="!parameterErrors[param.name]"
+                   [class.focus:ring-red-500]="parameterErrors[param.name]"
+                   [disabled]="config.procedureParameters?.[param.name]?.dateType !== 'specific'"
+                   [ngModel]="config.procedureParameters?.[param.name]?.value"
+                   class="bg-gray-700 text-sm rounded-lg border block w-full p-2.5 text-white"
+                   type="date">
 
             <!-- DateTime Input -->
-            <input *ngSwitchCase="'datetime'"
-              type="datetime-local"
-              class="bg-gray-700 text-sm rounded-lg border block w-full p-2.5 text-white"
-              [class.border-gray-600]="!parameterErrors[param.name]"
-              [class.border-red-500]="parameterErrors[param.name]"
-              [class.focus:ring-primary-500]="!parameterErrors[param.name]"
-              [class.focus:ring-red-500]="parameterErrors[param.name]"
-              [class.focus:border-primary-500]="!parameterErrors[param.name]"
-              [class.focus:border-red-500]="parameterErrors[param.name]"
-              [ngModel]="config.procedureParameters?.[param.name]?.value"
-              (ngModelChange)="onParameterValueChange(param.name, $event)"
-              [disabled]="config.procedureParameters?.[param.name]?.dateType !== 'specific'">
+            <input (ngModelChange)="onParameterValueChange(param.name, $event)"
+                   *ngSwitchCase="'datetime'"
+                   [class.border-gray-600]="!parameterErrors[param.name]"
+                   [class.border-red-500]="parameterErrors[param.name]"
+                   [class.focus:border-primary-500]="!parameterErrors[param.name]"
+                   [class.focus:border-red-500]="parameterErrors[param.name]"
+                   [class.focus:ring-primary-500]="!parameterErrors[param.name]"
+                   [class.focus:ring-red-500]="parameterErrors[param.name]"
+                   [disabled]="config.procedureParameters?.[param.name]?.dateType !== 'specific'"
+                   [ngModel]="config.procedureParameters?.[param.name]?.value"
+                   class="bg-gray-700 text-sm rounded-lg border block w-full p-2.5 text-white"
+                   type="datetime-local">
           </div>
 
           <!-- Error Message -->
@@ -154,9 +154,9 @@
     <div class="flex flex-col">
       <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.CONTEXT' | translate }}</label>
       <select
-        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+        (ngModelChange)="onContextChange($event)"
         [(ngModel)]="config.context"
-        (ngModelChange)="onContextChange($event)">
+        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white">
         <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
         <option *ngFor="let context of contexts" [ngValue]="context" class="bg-gray-700 text-white">
           {{ context }}
@@ -164,12 +164,12 @@
       </select>
     </div>
 
-    <div class="flex flex-col" *ngIf="config.context">
+    <div *ngIf="config.context" class="flex flex-col">
       <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.ENTITY' | translate }}</label>
       <select
-        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+        (ngModelChange)="onEntityChange($event)"
         [(ngModel)]="config.entity"
-        (ngModelChange)="onEntityChange($event)">
+        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white">
         <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
         <option *ngFor="let entity of entities" [ngValue]="entity" class="bg-gray-700 text-white">
           {{ entity.name }}
@@ -183,9 +183,9 @@
     <div class="flex flex-col">
       <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.QUERY' | translate }}</label>
       <select
-        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
+        (ngModelChange)="onQueryChange($event)"
         [(ngModel)]="config.query"
-        (ngModelChange)="onQueryChange($event)">
+        class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white">
         <option [ngValue]="null" class="bg-gray-700 text-gray-400">{{ 'COMMON.SELECT_OPTION' | translate }}</option>
         <option *ngFor="let query of queries" [ngValue]="query" class="bg-gray-700 text-white">
           {{ query.name }}
@@ -197,17 +197,18 @@
   <!-- LocalDataTable Configuration -->
   <ng-container *ngIf="config.type === 'LocalDataTable'">
     <div class="flex flex-col">
-      <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.LOCAL_TABLE.SELECT_TABLE' | translate }}</label>
+      <label
+        class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.LOCAL_TABLE.SELECT_TABLE' | translate }}</label>
       <div class="relative">
         <select
-          class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white"
-          [ngModel]="config.localDataTable?.cardId || null"
           (ngModelChange)="onTableSelect($event)"
-          [disabled]="isLoadingTables">
+          [disabled]="isLoadingTables"
+          [ngModel]="config.localDataTable?.cardId || null"
+          class="bg-gray-700 text-sm rounded-lg border border-gray-600 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 cursor-pointer text-white">
           <option [ngValue]="null">{{ 'DATASOURCE.SELECT_TABLE' | translate }}</option>
           <option *ngFor="let table of availableTables$ | async"
-                  [ngValue]="table.cardId"
                   [disabled]="!isTableReady(table.cardId)"
+                  [ngValue]="table.cardId"
                   [title]="getTableTooltip(table.cardId)">
             {{ getTableTitle(table) }}
             <span *ngIf="!isTableReady(table.cardId)" class="text-gray-400">
@@ -228,12 +229,12 @@
     </div>
 
     <!-- Options de filtrage -->
-    <div class="flex items-center gap-2" *ngIf="config.localDataTable">
+    <div *ngIf="config.localDataTable" class="flex items-center gap-2">
       <input
-        type="checkbox"
-        class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2"
+        (ngModelChange)="onConfigChange()"
         [(ngModel)]="config.localDataTable.useFilteredData"
-        (ngModelChange)="onConfigChange()">
+        class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2"
+        type="checkbox">
       <label class="text-sm font-medium text-gray-300">
         {{ 'DATASOURCE.LOCAL_TABLE.USE_FILTERED_DATA' | translate }}
       </label>
@@ -242,14 +243,15 @@
     <!-- Ne pas afficher la sélection de colonnes pour les graphiques -->
     <ng-container *ngIf="!isChartCard">
       <div *ngIf="sourceTableSchema" class="flex flex-col gap-2">
-        <label class="text-sm font-medium text-gray-300">{{ 'DATASOURCE.LOCAL_TABLE.SELECT_COLUMNS' | translate }}</label>
+        <label
+          class="text-sm font-medium text-gray-300">{{ 'DATASOURCE.LOCAL_TABLE.SELECT_COLUMNS' | translate }}</label>
         <div class="flex flex-wrap gap-2">
           <div *ngFor="let column of getSchemaColumns()" class="flex items-center gap-2">
             <input
-              type="checkbox"
-              class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2"
+              (change)="toggleColumn(column.key)"
               [checked]="isColumnSelected(column.key)"
-              (change)="toggleColumn(column.key)">
+              class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-600 focus:ring-2"
+              type="checkbox">
             <label class="text-sm text-gray-300">{{ column.title }}</label>
           </div>
         </div>

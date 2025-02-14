@@ -1,14 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Router, ActivatedRoute, RouterModule } from '@angular/router';
-import { MenuDto, PageDto } from '@models/api.models';
-import { ApiService } from '@services/api.service';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { fas } from '@fortawesome/free-solid-svg-icons';
-import { CdkDragDrop, moveItemInArray, DragDropModule } from '@angular/cdk/drag-drop';
-import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {MenuDto, PageDto} from '@models/api.models';
+import {ApiService} from '@services/api.service';
+import {FaIconLibrary, FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import {fas} from '@fortawesome/free-solid-svg-icons';
+import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
+import {ConfirmationDialogComponent} from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-page-list',
@@ -71,16 +70,16 @@ export class PageListComponent implements OnInit {
   onAddClick(): void {
     const menuId = this.route.snapshot.paramMap.get('id');
     if (menuId) {
-      this.router.navigate(['new'], { relativeTo: this.route });
+      this.router.navigate(['new'], {relativeTo: this.route});
     }
   }
 
   onEditClick(page: PageDto): void {
-    this.router.navigate([page.id], { relativeTo: this.route });
+    this.router.navigate([page.id], {relativeTo: this.route});
   }
 
   onLayoutClick(page: PageDto): void {
-    this.router.navigate([page.id, 'layout'], { relativeTo: this.route });
+    this.router.navigate([page.id, 'layout'], {relativeTo: this.route});
   }
 
   onDeleteClick(page: PageDto): void {
@@ -125,10 +124,10 @@ export class PageListComponent implements OnInit {
 
     // Garder une copie de l'ordre original au cas où
     const originalPages = [...this.pages];
-    
+
     // Mettre à jour l'ordre localement
     moveItemInArray(this.pages, event.previousIndex, event.currentIndex);
-    
+
     // Mettre à jour l'ordre de toutes les pages
     this.pages.forEach((page, index) => {
       page.order = index + 1;
@@ -142,7 +141,7 @@ export class PageListComponent implements OnInit {
           ...page,
           order: page.order
         };
-        
+
         // Convertir l'Observable en Promise
         return new Promise((resolve, reject) => {
           this.apiService.updatePage(page.id, updatedPage).subscribe({
@@ -165,4 +164,4 @@ export class PageListComponent implements OnInit {
       );
     }
   }
-} 
+}

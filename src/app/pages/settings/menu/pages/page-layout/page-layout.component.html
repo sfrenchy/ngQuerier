@@ -1,26 +1,32 @@
-<div class="h-full" [class.!p-0]="isFullscreen" #container>
-  <div class="bg-gray-50 h-full" [class.rounded-lg]="!isFullscreen" [class.shadow-lg]="!isFullscreen">
-    <div class="bg-gray-800 text-white border-b border-gray-700" [class.px-6]="!isFullscreen" [class.px-2]="isFullscreen" [class.py-2]="isFullscreen" [class.py-4]="!isFullscreen">
+<div #container [class.!p-0]="isFullscreen" class="h-full">
+  <div [class.rounded-lg]="!isFullscreen" [class.shadow-lg]="!isFullscreen" class="bg-gray-50 h-full">
+    <div [class.px-2]="isFullscreen" [class.px-6]="!isFullscreen"
+         [class.py-2]="isFullscreen" [class.py-4]="!isFullscreen" class="bg-gray-800 text-white border-b border-gray-700">
       <div class="flex justify-between items-center">
-        <h2 class="font-medium" [class.text-lg]="!isFullscreen" [class.text-base]="isFullscreen">
+        <h2 [class.text-base]="isFullscreen" [class.text-lg]="!isFullscreen" class="font-medium">
           {{ 'MENU.PAGES.LAYOUT_EDITOR' | translate }}
         </h2>
         <div class="flex gap-2">
-          <button 
-            class="p-1.5 hover:bg-gray-700 rounded transition-colors"
+          <button
             (click)="saveLayout()"
-            [title]="'COMMON.SAVE' | translate">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+            [title]="'COMMON.SAVE' | translate"
+            class="p-1.5 hover:bg-gray-700 rounded transition-colors">
+            <svg class="h-5 w-5 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                 xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
             </svg>
           </button>
-          <button 
-            class="p-1.5 hover:bg-gray-700 rounded transition-colors"
+          <button
             (click)="toggleFullscreen()"
-            [title]="(isFullscreen ? 'COMMON.EXIT_FULLSCREEN' : 'COMMON.FULLSCREEN') | translate">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path *ngIf="!isFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-              <path *ngIf="isFullscreen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4l5 5m11-5l-5 5m5 11l-5-5m-11 5l5-5" />
+            [title]="(isFullscreen ? 'COMMON.EXIT_FULLSCREEN' : 'COMMON.FULLSCREEN') | translate"
+            class="p-1.5 hover:bg-gray-700 rounded transition-colors">
+            <svg class="h-5 w-5 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                 xmlns="http://www.w3.org/2000/svg">
+              <path *ngIf="!isFullscreen" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
+              <path *ngIf="isFullscreen" d="M4 4l5 5m11-5l-5 5m5 11l-5-5m-11 5l5-5" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
             </svg>
           </button>
         </div>
@@ -31,4 +37,4 @@
       <app-layout-editor [pageId]="pageId"></app-layout-editor>
     </div>
   </div>
-</div> 
+</div>

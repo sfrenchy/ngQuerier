@@ -1,7 +1,7 @@
-import { Type } from '@angular/core';
-import { CardRegistry } from '@cards/card.registry';
-import { BaseCardConfig } from '@models/api.models';
-import { CardConfigFactory } from '@cards/card-config.factory';
+import {Type} from '@angular/core';
+import {CardRegistry} from '@cards/card.registry';
+import {BaseCardConfig} from '@models/api.models';
+import {CardConfigFactory} from '@cards/card-config.factory';
 
 export interface CardMetadata {
   name: string;

@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, Subject, ReplaySubject } from 'rxjs';
-import { map, takeUntil, distinctUntilChanged } from 'rxjs/operators';
-import { RegisteredDataTable, TableDataEvent } from './data-table-card.models';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject, Observable, ReplaySubject, Subject} from 'rxjs';
+import {distinctUntilChanged, map, takeUntil} from 'rxjs/operators';
+import {RegisteredDataTable, TableDataEvent} from './data-table-card.models';
 
 // Ajouter cette interface en haut du fichier
 interface TableReadyState {
@@ -22,7 +22,8 @@ export class LocalDataSourceService {
   private tableReadyStates = new Map<number, BehaviorSubject<TableReadyState>>();
   private schemaCache = new Map<number, any>();
 
-  constructor() {}
+  constructor() {
+  }
 
   // Enregistrer une nouvelle table comme source de données
   registerDataTable(table: RegisteredDataTable): void {
@@ -56,7 +57,7 @@ export class LocalDataSourceService {
         .find(t => t.title === table.title);
 
       if (existingTable) {
-        table = { ...table, cardId: existingTable.cardId };
+        table = {...table, cardId: existingTable.cardId};
       }
 
       // Mettre en cache

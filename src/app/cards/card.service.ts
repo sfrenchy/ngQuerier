@@ -1,14 +1,15 @@
-import { Injectable, Injector, Type } from '@angular/core';
-import { CardMetadata } from '@cards/card.decorator';
-import { CardRegistry } from '@cards/card.registry';
-import { BaseCardConfig, CardDto } from '@models/api.models';
-import { hexToUint, uintToHex } from '@shared/utils/color.utils';
+import {Injectable, Injector, Type} from '@angular/core';
+import {CardMetadata} from '@cards/card.decorator';
+import {CardRegistry} from '@cards/card.registry';
+import {CardDto} from '@models/api.models';
+import {hexToUint} from '@shared/utils/color.utils';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CardService {
-  constructor(private injector: Injector) {}
+  constructor(private injector: Injector) {
+  }
 
   getAvailableCards(): CardMetadata[] {
     return CardRegistry.getAllCards();
@@ -36,7 +37,7 @@ export class CardService {
     const newCard: CardDto = {
       id: 0,
       type: type,
-      title: [{ languageCode: 'fr', value: 'Nouvelle carte' }],
+      title: [{languageCode: 'fr', value: 'Nouvelle carte'}],
       order: 0,
       gridWidth: 0,
       backgroundColor: hexToUint('#ffffff'),  // blanc

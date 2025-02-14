@@ -1,16 +1,21 @@
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { CardDatabaseService } from '@cards/card-database.service';
-import { DBConnectionDto, DBConnectionControllerInfoDto, SQLQueryDto, DataStructureDefinitionDto, TranslatableString } from '@models/api.models';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DatasourceConfig, ParameterValue } from '@models/datasource.models';
-import { DatasourceService } from './datasource.service';
-import { StoredProcedureParameter, ChartParameters } from '@models/parameters.models';
-import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
-import { Observable } from 'rxjs';
-import { RegisteredDataTable } from '@cards/models/registered-data-table.model';
-import { take } from 'rxjs/operators';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {CardDatabaseService} from '@cards/card-database.service';
+import {
+  DataStructureDefinitionDto,
+  DBConnectionControllerInfoDto,
+  DBConnectionDto,
+  SQLQueryDto
+} from '@models/api.models';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {DatasourceConfig, ParameterValue} from '@models/datasource.models';
+import {DatasourceService} from './datasource.service';
+import {StoredProcedureParameter} from '@models/parameters.models';
+import {LocalDataSourceService} from '@cards/data-table-card/local-datasource.service';
+import {Observable} from 'rxjs';
+import {RegisteredDataTable} from '@cards/models/registered-data-table.model';
+import {take} from 'rxjs/operators';
 
 interface ParameterInfo {
   name: string;
@@ -36,7 +41,7 @@ interface ParameterInfo {
   ]
 })
 export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
-  @Input() config: DatasourceConfig = { type: 'API' };
+  @Input() config: DatasourceConfig = {type: 'API'};
   @Input() excludeCardId?: number;
   @Output() configChange = new EventEmitter<DatasourceConfig>();
   @Output() schemaChange = new EventEmitter<string>();
@@ -53,12 +58,12 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
   isStoredProcedure = false;
   parametersList: ParameterInfo[] = [];
   dynamicDateTypes = [
-    { key: 'specific', label: 'DATASOURCE.DATE_TYPES.SPECIFIC' },
-    { key: 'today', label: 'DATASOURCE.DATE_TYPES.TODAY' },
-    { key: 'yesterday', label: 'DATASOURCE.DATE_TYPES.YESTERDAY' },
-    { key: 'lastWeek', label: 'DATASOURCE.DATE_TYPES.LAST_WEEK' },
-    { key: 'lastMonth', label: 'DATASOURCE.DATE_TYPES.LAST_MONTH' },
-    { key: 'lastYear', label: 'DATASOURCE.DATE_TYPES.LAST_YEAR' }
+    {key: 'specific', label: 'DATASOURCE.DATE_TYPES.SPECIFIC'},
+    {key: 'today', label: 'DATASOURCE.DATE_TYPES.TODAY'},
+    {key: 'yesterday', label: 'DATASOURCE.DATE_TYPES.YESTERDAY'},
+    {key: 'lastWeek', label: 'DATASOURCE.DATE_TYPES.LAST_WEEK'},
+    {key: 'lastMonth', label: 'DATASOURCE.DATE_TYPES.LAST_MONTH'},
+    {key: 'lastYear', label: 'DATASOURCE.DATE_TYPES.LAST_YEAR'}
   ]
   parameterDateTypes: Record<string, string> = {};
 
@@ -663,7 +668,7 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
     this.onConfigChange();
   }
 
-  getSchemaColumns(): Array<{key: string, title: string}> {
+  getSchemaColumns(): Array<{ key: string, title: string }> {
     if (!this.sourceTableSchema?.properties) return [];
     return Object.entries(this.sourceTableSchema.properties).map(([key, prop]: [string, any]) => ({
       key,

@@ -17,12 +17,12 @@
       {{ 'LABEL-CARD.FONT-SIZE' | translate }}
     </label>
     <input
-      id="fontSize"
-      type="number"
-      formControlName="fontSize"
       class="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      min="8"
+      formControlName="fontSize"
+      id="fontSize"
       max="72"
+      min="8"
+      type="number"
     >
   </div>
 
@@ -32,9 +32,9 @@
       {{ 'LABEL-CARD.FONT-WEIGHT' | translate }}
     </label>
     <select
-      id="fontWeight"
-      formControlName="fontWeight"
       class="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      formControlName="fontWeight"
+      id="fontWeight"
     >
       <option value="normal">Normal</option>
       <option value="bold">Bold</option>
@@ -48,9 +48,9 @@
       {{ 'LABEL-CARD.TEXT-ALIGN' | translate }}
     </label>
     <select
-      id="textAlign"
-      formControlName="textAlign"
       class="block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      formControlName="textAlign"
+      id="textAlign"
     >
       <option value="left">{{ 'LABEL-CARD.ALIGN.LEFT' | translate }}</option>
       <option value="center">{{ 'LABEL-CARD.ALIGN.CENTER' | translate }}</option>

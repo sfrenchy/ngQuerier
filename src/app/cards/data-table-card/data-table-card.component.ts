@@ -1,30 +1,38 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, ViewChild, Output, EventEmitter, Renderer2, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { Subject, Subscription, Observable, from, of, forkJoin, mergeMap, tap, catchError, EMPTY, BehaviorSubject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil, map, mergeAll, toArray } from 'rxjs/operators';
-import { Card } from '@cards/card.decorator';
-import { BaseCardComponent } from '@cards/base/base-card.component';
-import { DataTableCardService } from './data-table-card.service';
-import { ColumnFilterPopoverComponent } from './column-filter-popover.component';
-import { DataTableCardConfigurationComponent } from './data-table-card-configuration.component';
-import { DataTableCardConfig, ColumnConfig } from './data-table-card.models';
-import { OrderByParameterDto, DataRequestParametersDto, DBConnectionEndpointRequestInfoDto } from '@models/api.models';
-import { DynamicFormComponent, FormDataSubmit } from './dynamic-form.component';
-import { DatasourceConfig } from '@models/datasource.models';
-import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
-import { FormDataSubmitWithId } from './data-table-card.service';
-import { ForeignKeyService } from './foreign-key.service';
-import { TableStateService } from './table-state.service';
-import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
-import { DataTableCardConfigFactory } from './data-table-card.factory';
-import { ValidationError } from '@cards/validation/validation.models';
-import { LocalDataSourceService } from './local-datasource.service';
-import { TableDataEvent } from './data-table-card.models';
-import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
-import { RequestParametersService } from '@services/request-parameters.service';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  OnDestroy,
+  OnInit,
+  Output,
+  Renderer2,
+  ViewChild
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {BehaviorSubject, catchError, EMPTY, forkJoin, from, Observable, of, Subject, Subscription, tap} from 'rxjs';
+import {debounceTime, distinctUntilChanged, map, takeUntil} from 'rxjs/operators';
+import {Card} from '@cards/card.decorator';
+import {BaseCardComponent} from '@cards/base/base-card.component';
+import {DataTableCardService, FormDataSubmitWithId} from './data-table-card.service';
+import {ColumnFilterPopoverComponent} from './column-filter-popover.component';
+import {DataTableCardConfigurationComponent} from './data-table-card-configuration.component';
+import {ColumnConfig, DataTableCardConfig, TableDataEvent} from './data-table-card.models';
+import {DataRequestParametersDto, DBConnectionEndpointRequestInfoDto, OrderByParameterDto} from '@models/api.models';
+import {DynamicFormComponent, FormDataSubmit} from './dynamic-form.component';
+import {DatasourceConfig} from '@models/datasource.models';
+import {ConfirmationDialogComponent} from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import {ForeignKeyService} from './foreign-key.service';
+import {TableStateService} from './table-state.service';
+import {DatasourceService} from '@shared/components/datasource-configuration/datasource.service';
+import {DataTableCardConfigFactory} from './data-table-card.factory';
+import {LocalDataSourceService} from './local-datasource.service';
+import {CardConfigAdapterService} from '@cards/card-config-adapter.service';
+import {RequestParametersService} from '@services/request-parameters.service';
 
 // Modifier l'interface ModalConfig
 interface ModalConfig {
@@ -108,8 +116,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   globalSearch: string = '';
   public searchSubject = new Subject<string>();
   private searchSubscription: Subscription;
-  public showDeleteConfirmation:boolean = false;
-  public rowToDelete:any = null;
+  public showDeleteConfirmation: boolean = false;
+  public rowToDelete: any = null;
   // Nouvelles propriétés pour la gestion des filtres
   activeFilters = new Map<string, Set<string>>();
   columnValues = new Map<string, string[]>();
@@ -475,7 +483,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
 
     const headerCells = this.tableContainerRef.nativeElement.querySelectorAll('thead th');
 
-    let totalWidth = 0;
+    const totalWidth = 0;
     let fixedLeftWidth = 0;
     let fixedRightWidth = 0;
 
@@ -501,7 +509,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     const scrollableWidth = containerWidth - fixedLeftWidth - fixedRightWidth;
 
     // Ajuster la largeur totale de la table si nécessaire
-    let contentWidth = Array.from(this.columnWidths.values()).reduce((sum, width) => sum + width, 0);
+    const contentWidth = Array.from(this.columnWidths.values()).reduce((sum, width) => sum + width, 0);
     this.tableWidth = Math.max(contentWidth, containerWidth);
 
     this.updateScrollbarVisibility();
@@ -533,8 +541,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     const baseColor = this.card.configuration?.visualConfig.rowBackgroundColor || '#111827';
 
     if (this.card.configuration?.visualConfig.alternateRowColors &&
-        this.card.configuration?.visualConfig.alternateRowsBrightness > 0 &&
-        index % 2 === 0) {
+      this.card.configuration?.visualConfig.alternateRowsBrightness > 0 &&
+      index % 2 === 0) {
       return this.adjustColor(baseColor, this.card.configuration.visualConfig.alternateRowsBrightness);
     }
 
@@ -580,7 +588,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     const safeTotal = Math.min(Math.max(1, totalPages), 10000);
 
     try {
-      return Array.from({ length: safeTotal }, (_, i) => i + 1);
+      return Array.from({length: safeTotal}, (_, i) => i + 1);
     } catch (error) {
       console.warn('[DataTable] Erreur lors de la création du tableau de pages:', {
         totalItems: this.totalItems,
@@ -746,7 +754,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     }
 
     this.closeFilterPopover();
-    this.activeFilterPopover = { column, element: button };
+    this.activeFilterPopover = {column, element: button};
 
     // Charger les valeurs uniques si pas déjà fait
     if (!this.columnValues.has(column.key)) {
@@ -932,7 +940,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       }
     })
       .pipe(
-        tap(params => {}),
+        tap(params => {
+        }),
         catchError(error => {
           this.isFormLoading = false;
           this.showAddForm = false;
@@ -1179,7 +1188,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       });
   }
 
-  onCancelDelete() : void {
+  onCancelDelete(): void {
     this.showDeleteConfirmation = false;
   }
 
@@ -1312,7 +1321,12 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     // Construire le schéma à partir des colonnes configurées
     const schema = {
       type: 'object',
-      properties: this.card.configuration?.columns?.reduce((acc: Record<string, any>, column: { key: string; type?: string; title?: string; description?: string }) => {
+      properties: this.card.configuration?.columns?.reduce((acc: Record<string, any>, column: {
+        key: string;
+        type?: string;
+        title?: string;
+        description?: string
+      }) => {
         acc[column.key] = {
           type: column.type || 'string',
           title: column.title || column.key,
@@ -1359,12 +1373,12 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   onDatasourceConfigChange(config: DatasourceConfig) {
     if (!this.validateDatasourceConfig(config)) {
       if (this.previousConfig) {
-        this.card.configuration.datasource = { ...this.previousConfig };
+        this.card.configuration.datasource = {...this.previousConfig};
       }
       return;
     }
 
-    this.previousConfig = { ...this.card.configuration.datasource };
+    this.previousConfig = {...this.card.configuration.datasource};
     this.card.configuration.datasource = config;
     this.configurationChanged.emit(this.card.configuration);
     this.loadData();

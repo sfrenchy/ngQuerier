@@ -1,12 +1,11 @@
-import { Component, OnInit, OnDestroy, NgModuleRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgComponentOutlet } from '@angular/common';
-import { CardService } from '@cards/card.service';
-import { LayoutDto, RowDto, CardDto, CardDtoWithMaxHeight } from '@models/api.models';
-import { ApiService } from '@services/api.service';
-import { Subject, takeUntil, tap, switchMap, forkJoin, of, Observable } from 'rxjs';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {Component, NgModuleRef, OnDestroy, OnInit} from '@angular/core';
+import {CommonModule, NgComponentOutlet} from '@angular/common';
+import {ActivatedRoute, Router} from '@angular/router';
+import {CardService} from '@cards/card.service';
+import {CardDto, CardDtoWithMaxHeight, LayoutDto} from '@models/api.models';
+import {ApiService} from '@services/api.service';
+import {forkJoin, Observable, of, Subject, switchMap, takeUntil, tap} from 'rxjs';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dynamic-page',
@@ -33,7 +32,8 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
     private cardService: CardService,
     private translate: TranslateService,
     public moduleRef: NgModuleRef<any>
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.route.params

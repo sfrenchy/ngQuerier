@@ -1,12 +1,12 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { HTMLContentCardConfig } from './htmlcontent-card.config';
-import { CardDto } from '@models/api.models';
-import { TranslateModule } from '@ngx-translate/core';
-import { ValidationError } from '@cards/validation/validation.models';
-import { AngularEditorModule, AngularEditorConfig } from '@kolkov/angular-editor';
-import { HttpClientModule } from '@angular/common/http';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {HTMLContentCardConfig} from './htmlcontent-card.config';
+import {CardDto} from '@models/api.models';
+import {TranslateModule} from '@ngx-translate/core';
+import {ValidationError} from '@cards/validation/validation.models';
+import {AngularEditorConfig, AngularEditorModule} from '@kolkov/angular-editor';
+import {HttpClientModule} from '@angular/common/http';
 
 @Component({
   selector: 'app-htmlcontent-card-configuration',
@@ -24,12 +24,15 @@ import { HttpClientModule } from '@angular/common/http';
 })
 export class HTMLContentCardConfigurationComponent implements OnInit {
   @Input() card!: CardDto<HTMLContentCardConfig>;
+
   @Input() set validationErrors(errors: ValidationError[]) {
     this._validationErrors = errors;
   }
+
   get validationErrors(): ValidationError[] {
     return this._validationErrors;
   }
+
   private _validationErrors: ValidationError[] = [];
   @Output() save = new EventEmitter<HTMLContentCardConfig>();
   @Output() configChange = new EventEmitter<HTMLContentCardConfig>();
@@ -37,8 +40,8 @@ export class HTMLContentCardConfigurationComponent implements OnInit {
   form: FormGroup;
   currentLanguage = 'fr';
   availableLanguages = [
-    { code: 'fr', label: 'Français' },
-    { code: 'en', label: 'English' }
+    {code: 'fr', label: 'Français'},
+    {code: 'en', label: 'English'}
   ];
 
   isFullscreen = false;
@@ -60,7 +63,7 @@ export class HTMLContentCardConfigurationComponent implements OnInit {
       const content = this.card.configuration.content.html?.find(t => t.languageCode === this.currentLanguage);
       this.form.patchValue({
         htmlContent: content?.value || ''
-      }, { emitEvent: false });
+      }, {emitEvent: false});
     }
 
     // Définir la couleur de fond
@@ -79,7 +82,7 @@ export class HTMLContentCardConfigurationComponent implements OnInit {
     const content = this.card.configuration?.content.html?.find(t => t.languageCode === langCode);
     this.form.patchValue({
       htmlContent: content?.value || ''
-    }, { emitEvent: false });
+    }, {emitEvent: false});
   }
 
   private saveCurrentContent() {
@@ -98,7 +101,7 @@ export class HTMLContentCardConfigurationComponent implements OnInit {
     if (existingIndex >= 0) {
       existingContent[existingIndex].value = htmlContent;
     } else {
-      existingContent.push({ languageCode: this.currentLanguage, value: htmlContent });
+      existingContent.push({languageCode: this.currentLanguage, value: htmlContent});
     }
 
     config.content.html = existingContent;

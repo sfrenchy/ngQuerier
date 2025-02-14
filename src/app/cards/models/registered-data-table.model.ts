@@ -1,4 +1,4 @@
-import { TranslatableString } from '@models/api.models';
+import {TranslatableString} from '@models/api.models';
 
 export interface RegisteredDataTable {
   cardId: number;

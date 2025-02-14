@@ -12,12 +12,12 @@
       <div>
         <label class="label">{{ 'ADD_API.PROTOCOL' | translate }}</label>
         <div class="flex gap-2">
-          <button *ngFor="let protocol of protocols"
-                  type="button"
-                  (click)="apiForm.get('protocol')?.setValue(protocol)"
+          <button (click)="apiForm.get('protocol')?.setValue(protocol)"
+                  *ngFor="let protocol of protocols"
                   [class.btn-primary]="apiForm.get('protocol')?.value === protocol"
                   [class.btn-secondary]="apiForm.get('protocol')?.value !== protocol"
-                  class="flex-1">
+                  class="flex-1"
+                  type="button">
             {{ protocol }}
           </button>
         </div>
@@ -27,14 +27,15 @@
       <div>
         <label class="label" for="host">{{ 'ADD_API.HOST' | translate }}</label>
         <div class="relative">
-          <input formControlName="host"
-                 id="host"
-                 type="text"
+          <input [placeholder]="'ADD_API.HOST_PLACEHOLDER' | translate"
                  class="input w-full pl-10"
-                 [placeholder]="'ADD_API.HOST_PLACEHOLDER' | translate">
+                 formControlName="host"
+                 id="host"
+                 type="text">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center text-text">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>
+              <path d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
             </svg>
           </div>
         </div>
@@ -44,16 +45,17 @@
       <div>
         <label class="label" for="port">{{ 'ADD_API.PORT' | translate }}</label>
         <div class="relative">
-          <input formControlName="port"
-                 id="port"
-                 type="number"
+          <input [placeholder]="'ADD_API.PORT_PLACEHOLDER' | translate"
                  class="input w-full pl-10"
-                 min="1"
+                 formControlName="port"
+                 id="port"
                  max="65535"
-                 [placeholder]="'ADD_API.PORT_PLACEHOLDER' | translate">
+                 min="1"
+                 type="number">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center text-text">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"/>
+              <path d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
             </svg>
           </div>
         </div>
@@ -63,14 +65,15 @@
       <div>
         <label class="label" for="path">{{ 'ADD_API.PATH' | translate }}</label>
         <div class="relative">
-          <input formControlName="path"
-                 id="path"
-                 type="text"
+          <input [placeholder]="'ADD_API.PATH_PLACEHOLDER' | translate"
                  class="input w-full pl-10"
-                 [placeholder]="'ADD_API.PATH_PLACEHOLDER' | translate">
+                 formControlName="path"
+                 id="path"
+                 type="text">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center text-text">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+              <path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" stroke-linecap="round" stroke-linejoin="round"
+                    stroke-width="2"/>
             </svg>
           </div>
         </div>
@@ -84,22 +87,23 @@
 
       <!-- Actions -->
       <div class="flex gap-4">
-        <button type="button" 
-                (click)="router.navigate(['/login'])" 
-                class="btn-secondary flex-1">
+        <button (click)="router.navigate(['/login'])"
+                class="btn-secondary flex-1"
+                type="button">
           {{ 'ADD_API.CANCEL' | translate }}
         </button>
-        <button type="submit" 
-                (click)="onSubmit()" 
+        <button (click)="onSubmit()"
                 [disabled]="!apiForm.valid"
-                class="btn-primary flex-1 flex justify-center items-center">
+                class="btn-primary flex-1 flex justify-center items-center"
+                type="submit">
           <svg *ngIf="isLoading" class="animate-spin -ml-1 mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  fill="currentColor"></path>
           </svg>
           {{ (isLoading ? 'ADD_API.SAVING' : 'ADD_API.SAVE') | translate }}
         </button>
       </div>
     </form>
   </div>
-</div> 
+</div>

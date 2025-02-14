@@ -1,11 +1,11 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
-import { Router } from '@angular/router';
-import { ApiService } from '@services/api.service';
-import { LanguageSelectorComponent } from '@components/language-selector/language-selector.component';
-import { SetupAdminDto, SetupSmtpDto } from '@models/api.models';
+import {Component} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {TranslateModule} from '@ngx-translate/core';
+import {Router} from '@angular/router';
+import {ApiService} from '@services/api.service';
+import {LanguageSelectorComponent} from '@components/language-selector/language-selector.component';
+import {SetupAdminDto, SetupSmtpDto} from '@models/api.models';
 
 @Component({
   selector: 'app-smtp-configuration',
@@ -101,7 +101,7 @@ export class SmtpConfigurationComponent {
               senderName: smtpConfig.senderName
             };
 
-            this.apiService.setup(adminSetup, smtpSetup, true ).subscribe({
+            this.apiService.setup(adminSetup, smtpSetup, true).subscribe({
               next: (setupSuccess: boolean) => {
                 this.isLoading = false;
                 if (setupSuccess) {

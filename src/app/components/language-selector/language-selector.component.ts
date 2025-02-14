@@ -1,7 +1,6 @@
-import { Component, Input } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import {Component} from '@angular/core';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {CommonModule} from '@angular/common';
 
 interface Language {
   code: string;
@@ -13,7 +12,7 @@ interface Language {
   selector: 'app-language-selector',
   template: `
     <div class="relative">
-      <button 
+      <button
         (click)="isOpen = !isOpen"
         class="flex items-center p-1.5 rounded-full hover:bg-background-hover transition-colors bg-background border border-border"
         [title]="getCurrentLanguage().name">
@@ -38,8 +37,8 @@ interface Language {
 })
 export class LanguageSelectorComponent {
   languages: Language[] = [
-    { code: 'fr', name: 'Français', flag: '🇫🇷' },
-    { code: 'en', name: 'English', flag: '🇬🇧' }
+    {code: 'fr', name: 'Français', flag: '🇫🇷'},
+    {code: 'en', name: 'English', flag: '🇬🇧'}
   ];
   currentLang: string;
   isOpen = false;
@@ -58,4 +57,4 @@ export class LanguageSelectorComponent {
     localStorage.setItem('language', code);
     this.isOpen = false;
   }
-} 
+}

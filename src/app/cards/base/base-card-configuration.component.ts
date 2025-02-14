@@ -1,19 +1,36 @@
-import { Component, EventEmitter, Input, OnInit, Output, Type, ViewChild, ViewContainerRef, AfterViewInit, OnDestroy, Injector, ElementRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
-import { CardDto, RowDto } from '@models/api.models';
-import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
-import { TileComponent } from '@shared/components/tile/tile.component';
-import { CardRegistry } from '../card.registry';
-import { hexToUint, uintToHex } from '../../shared/utils/color.utils';
-import { IconSelectorComponent } from '@shared/components/icon-selector/icon-selector.component';
-import { CardDatabaseService } from '../card-database.service';
-import { ChartVisualConfig } from '@models/chart.models';
-import { ChartVisualConfigurationComponent } from '@shared/components/chart-visual-configuration/chart-visual-configuration.component';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { CardConfigFactory } from '../card-config.factory';
-import { ValidationError } from '../validation/validation.models';
-import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Injector,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  Type,
+  ViewChild,
+  ViewContainerRef
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
+import {CardDto, RowDto} from '@models/api.models';
+import {
+  TranslatableStringFormComponent
+} from '@shared/components/translatable-string-form/translatable-string-form.component';
+import {TileComponent} from '@shared/components/tile/tile.component';
+import {CardRegistry} from '../card.registry';
+import {hexToUint, uintToHex} from '../../shared/utils/color.utils';
+import {IconSelectorComponent} from '@shared/components/icon-selector/icon-selector.component';
+import {CardDatabaseService} from '../card-database.service';
+import {ChartVisualConfig} from '@models/chart.models';
+import {
+  ChartVisualConfigurationComponent
+} from '@shared/components/chart-visual-configuration/chart-visual-configuration.component';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {CardConfigFactory} from '../card-config.factory';
+import {ValidationError} from '../validation/validation.models';
+import {CardConfigAdapterService} from '@cards/card-config-adapter.service';
 
 @Component({
   selector: 'app-base-card-configuration',
@@ -36,6 +53,7 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
   @Input() isFullscreen = false;
   @Input() maxAvailableWidth = 12;
   @Input() isChartCard = false;
+
   @Input() set visualConfig(value: ChartVisualConfig | undefined) {
     if (value) {
       this._visualConfig = value;
@@ -62,15 +80,17 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
       };
     }
   }
+
   get visualConfig(): ChartVisualConfig {
     return this._visualConfig;
   }
+
   private _visualConfig!: ChartVisualConfig;
   @Output() save = new EventEmitter<CardDto>();
   @Output() cancel = new EventEmitter<void>();
   @Output() toggleFullscreen = new EventEmitter<void>();
   @Output() visualConfigChange = new EventEmitter<ChartVisualConfig>();
-  @ViewChild('configContainer', { read: ViewContainerRef }) configContainer!: ViewContainerRef;
+  @ViewChild('configContainer', {read: ViewContainerRef}) configContainer!: ViewContainerRef;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   form!: FormGroup;
@@ -86,7 +106,8 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
     private injector: Injector,
     protected translateService: TranslateService,
     protected cardConfigAdapter: CardConfigAdapterService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.form = this.fb.group({
@@ -167,7 +188,7 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
 
     // Validate hex format
     if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-      this.form.patchValue({ [controlName]: value }, { emitEvent: false });
+      this.form.patchValue({[controlName]: value}, {emitEvent: false});
     }
   }
 
@@ -308,7 +329,7 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
       configuration: this.card.configuration
     };
 
-    const blob = new Blob([JSON.stringify(cardToExport, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify(cardToExport, null, 2)], {type: 'application/json'});
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -328,13 +349,13 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
     reader.onload = (e) => {
       try {
         const importedCard = JSON.parse(e.target?.result as string);
-        
+
         // Ignorer les propriétés structurantes
-        const { id, order, gridWidth, rowId, ...cardToImport } = importedCard;
-        
+        const {id, order, gridWidth, rowId, ...cardToImport} = importedCard;
+
         // Mettre à jour la configuration spécifique
         this.card.configuration = cardToImport.configuration;
-        
+
         // Mettre à jour les propriétés de base de la carte
         this.card.title = [...cardToImport.title];
         this.card.backgroundColor = cardToImport.backgroundColor;
@@ -359,7 +380,7 @@ export class BaseCardConfigurationComponent implements OnInit, AfterViewInit, On
         };
 
         this.form.reset(formValues);
-        this.form.setValue(formValues, { emitEvent: true });
+        this.form.setValue(formValues, {emitEvent: true});
 
       } catch (error) {
         console.error('Error importing configuration:', error);

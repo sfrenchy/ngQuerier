@@ -39,17 +39,20 @@ This repository contains the Angular frontend part of the Querier project, a dyn
 ## Getting Started
 
 1. Clone the repository
+
 ```bash
 git clone https://github.com/yourusername/ngQuerier.git
 ```
 
 2. Install dependencies
+
 ```bash
 cd ngQuerier
 npm install
 ```
 
 3. Start the development server
+
 ```bash
 ng serve
 ```
@@ -84,6 +87,7 @@ ng generate card <card-name>
 ```
 
 This will automatically:
+
 1. Create a new component in the `cards` directory with the proper structure
 2. Implement the base card interface
 3. Set up the configuration options

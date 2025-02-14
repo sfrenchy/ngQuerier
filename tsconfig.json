@@ -19,15 +19,33 @@
     "module": "ES2022",
     "baseUrl": "src",
     "paths": {
-      "@models/*": ["app/models/*"],
-      "@services/*": ["app/services/*"],
-      "@components/*": ["app/components/*"],
-      "@pages/*": ["app/pages/*"],
-      "@shared/*": ["app/shared/*"],
-      "@environments/*": ["environments/*"],
-      "@validators/*": ["app/validators/*"],
-      "@guards/*": ["app/guards/*"],
-      "@cards/*": ["app/cards/*"]
+      "@models/*": [
+        "app/models/*"
+      ],
+      "@services/*": [
+        "app/services/*"
+      ],
+      "@components/*": [
+        "app/components/*"
+      ],
+      "@pages/*": [
+        "app/pages/*"
+      ],
+      "@shared/*": [
+        "app/shared/*"
+      ],
+      "@environments/*": [
+        "environments/*"
+      ],
+      "@validators/*": [
+        "app/validators/*"
+      ],
+      "@guards/*": [
+        "app/guards/*"
+      ],
+      "@cards/*": [
+        "app/cards/*"
+      ]
     }
   },
   "angularCompilerOptions": {

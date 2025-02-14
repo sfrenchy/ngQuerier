@@ -1,13 +1,12 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { routes } from './app.routes';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { Observable, forkJoin, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
-import { NgxEchartsModule } from 'ngx-echarts';
-import { AuthInterceptor } from './interceptors/auth.interceptor';
+import {ApplicationConfig, importProvidersFrom} from '@angular/core';
+import {provideRouter} from '@angular/router';
+import {routes} from './app.routes';
+import {HttpClient, provideHttpClient, withInterceptors} from '@angular/common/http';
+import {TranslateLoader, TranslateModule} from '@ngx-translate/core';
+import {forkJoin, Observable, of} from 'rxjs';
+import {catchError, map} from 'rxjs/operators';
+import {NgxEchartsModule} from 'ngx-echarts';
+import {AuthInterceptor} from './interceptors/auth.interceptor';
 
 // Loader personnalisé qui cherche les traductions dans plusieurs emplacements
 export class MultiTranslateHttpLoader implements TranslateLoader {
@@ -17,7 +16,8 @@ export class MultiTranslateHttpLoader implements TranslateLoader {
       prefix: './assets/i18n/',
       suffix: '.json'
     }]
-  ) {}
+  ) {
+  }
 
   public getTranslation(lang: string): Observable<any> {
     const requests = this.resources.map(config => {
@@ -41,8 +41,8 @@ export class MultiTranslateHttpLoader implements TranslateLoader {
 // Factory pour créer le loader avec les emplacements de traduction
 export function HttpLoaderFactory(http: HttpClient) {
   return new MultiTranslateHttpLoader(http, [
-    { prefix: './assets/i18n/', suffix: '.json' },
-    { prefix: './assets/app/cards/', suffix: '/i18n/fr.json' }
+    {prefix: './assets/i18n/', suffix: '.json'},
+    {prefix: './assets/app/cards/', suffix: '/i18n/fr.json'}
   ]);
 }
 

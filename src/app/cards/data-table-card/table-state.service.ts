@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { OrderByParameterDto } from '../../models/api.models';
-import { DatasourceConfig } from '../../models/datasource.models';
+import {Injectable} from '@angular/core';
+import {OrderByParameterDto} from '../../models/api.models';
+import {DatasourceConfig} from '../../models/datasource.models';
 
 export interface TableState {
   columnWidths: { [columnKey: string]: number };
@@ -16,7 +16,7 @@ export class TableStateService {
     // Extraire les valeurs nécessaires de l'objet datasource
     const connectionId = datasource.connection?.id || 'unknown';
     const controllerName = datasource.controller?.name || 'unknown';
-    
+
     // Construire une clé propre
     return `querier_table_state_${cardId}_${connectionId}_${controllerName}`.toLowerCase();
   }
@@ -49,7 +49,7 @@ export class TableStateService {
         filters: {},
         sorting: []
       };
-      
+
       const newState = {
         ...currentState,
         ...state
@@ -69,4 +69,4 @@ export class TableStateService {
       console.error('Error clearing table state:', error);
     }
   }
-} 
+}

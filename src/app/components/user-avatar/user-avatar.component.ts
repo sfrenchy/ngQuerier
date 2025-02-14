@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { UserService } from '@services/user.service';
+import {Component} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {UserService} from '@services/user.service';
 
 @Component({
   selector: 'app-user-avatar',
@@ -9,12 +9,13 @@ import { UserService } from '@services/user.service';
   templateUrl: './user-avatar.component.html'
 })
 export class UserAvatarComponent {
-  constructor(public userService: UserService) {}
+  constructor(public userService: UserService) {
+  }
 
   get userInitials(): string {
     const user = this.userService.getCurrentUser();
     if (!user?.firstName || !user?.lastName) return '';
-    
+
     return (user.firstName[0] + user.lastName[0]).toUpperCase();
   }
 
@@ -23,4 +24,4 @@ export class UserAvatarComponent {
     if (!user) return '';
     return `${user.firstName} ${user.lastName}`;
   }
-} 
+}

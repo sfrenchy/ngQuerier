@@ -1,16 +1,22 @@
-import { Component, EventEmitter, Input, OnInit, OnDestroy, Output, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { CardDto } from '@models/api.models';
-import { TileComponent } from '@shared/components/tile/tile.component';
-import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
-import { Subject } from 'rxjs';
-import { takeUntil, take } from 'rxjs/operators';
-import { StackedBarAndLinesChartCardConfig, BarSeriesConfig, LineSeriesConfig } from './stacked-bar-and-lines-chart.models';
-import { DatasourceConfig } from '@models/datasource.models';
-import { ValidationError } from '@cards/validation/validation.models';
-import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
+import {Component, CUSTOM_ELEMENTS_SCHEMA, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {CardDto} from '@models/api.models';
+import {TileComponent} from '@shared/components/tile/tile.component';
+import {
+  DatasourceConfigurationComponent
+} from '@shared/components/datasource-configuration/datasource-configuration.component';
+import {Subject} from 'rxjs';
+import {take, takeUntil} from 'rxjs/operators';
+import {
+  BarSeriesConfig,
+  LineSeriesConfig,
+  StackedBarAndLinesChartCardConfig
+} from './stacked-bar-and-lines-chart.models';
+import {DatasourceConfig} from '@models/datasource.models';
+import {ValidationError} from '@cards/validation/validation.models';
+import {LocalDataSourceService} from '@cards/data-table-card/local-datasource.service';
 
 @Component({
   selector: 'app-stacked-bar-and-lines-chart-configuration',
@@ -30,10 +36,12 @@ import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.
 export class StackedBarAndLinesChartConfigurationComponent implements OnInit, OnDestroy {
   @Input() card!: CardDto<StackedBarAndLinesChartCardConfig>;
   @Output() configChange = new EventEmitter<StackedBarAndLinesChartCardConfig>();
+
   @Input() set validationErrors(errors: ValidationError[]) {
     this._validationErrors = errors;
     this.updateErrorMessages();
   }
+
   get validationErrors(): ValidationError[] {
     return this._validationErrors;
   }
@@ -110,14 +118,14 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
     if (this.card.configuration) {
       // D'abord mettre à jour la source de données
       if (this.card.configuration.datasource) {
-        this.form.get('datasource')?.patchValue(this.card.configuration.datasource, { emitEvent: false });
+        this.form.get('datasource')?.patchValue(this.card.configuration.datasource, {emitEvent: false});
       }
 
       // Puis le reste de la configuration
       this.form.patchValue({
         xAxisColumn: this.card.configuration.xAxisColumn,
         xAxisDateFormat: this.card.configuration.xAxisDateFormat
-      }, { emitEvent: false });
+      }, {emitEvent: false});
 
       // Initialiser les séries de barres
       if (this.card.configuration.barSeries) {
@@ -196,7 +204,7 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
     this.form.get('datasource')?.patchValue(config);
 
     // Émettre la configuration
-    this.emitConfig({ ...this.form.value, datasource: config });
+    this.emitConfig({...this.form.value, datasource: config});
 
     // Si c'est une table locale, initialiser les colonnes
     if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
@@ -287,7 +295,7 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
     if (!isNaN(opacity)) {
       const lineSeries = this.lineSeriesArray.at(index);
       lineSeries.patchValue({
-        areaStyle: { opacity }
+        areaStyle: {opacity}
       });
     }
   }

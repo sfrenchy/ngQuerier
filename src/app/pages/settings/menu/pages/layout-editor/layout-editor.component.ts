@@ -2,7 +2,7 @@ import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import {CardDto, LayoutDto, RowDto} from '@models/api.models';
-import {DroppableRowComponent} from './rows/droppable-row.component';
+import {DroppableRowComponent} from '../../../../../shared/components/layout/rows/droppable-row.component';
 import {BaseCardConfigurationComponent} from '@cards/base/base-card-configuration.component';
 import {CardService} from '@cards/card.service';
 import {CardMetadata} from '@cards/card.decorator';

@@ -6,24 +6,21 @@
   [class.bg-gray-100]="!isDraggingRow && !isDraggingCard && options.mode === 'edit'"
   [class.bg-gray-200]="(isDraggingRow || isDraggingCard) && options.mode === 'edit'"
   [ngClass]="{
-    'border-2 border-dashed border-gray-300 rounded-lg p-4': options.mode === 'edit',
-    'h-full': options.mode === 'view'
+    'border-2 border-dashed border-gray-300 rounded-lg p-4': options.mode === 'edit'
   }"
-  class="w-full overflow-y-auto transition-colors">
+  class="w-full overflow-y-auto transition-colors h-full">
 
-  <div [ngClass]="{'space-y-4': options.mode === 'edit'}" class="w-full h-full">
-    <app-droppable-row
-      *ngFor="let row of layout.rows"
-      [row]="row"
-      [isEditing]="options.mode === 'edit'"
-      (cardDrop)="cardDrop.emit($event)"
-      (configureCard)="configureCard.emit($event)"
-      (deleteCard)="deleteCard.emit($event)"
-      (deleteRow)="deleteRow.emit(row.id)"
-      (endResize)="endResize.emit($event)"
-      (startResize)="startResize.emit($event)">
-    </app-droppable-row>
-  </div>
+  <app-droppable-row
+    *ngFor="let row of layout.rows"
+    [row]="row"
+    [isEditing]="options.mode === 'edit'"
+    (cardDrop)="cardDrop.emit($event)"
+    (configureCard)="configureCard.emit($event)"
+    (deleteCard)="deleteCard.emit($event)"
+    (deleteRow)="deleteRow.emit(row.id)"
+    (endResize)="endResize.emit($event)"
+    (startResize)="startResize.emit($event)">
+  </app-droppable-row>
 
   <!-- Empty state -->
   <div *ngIf="layout.rows.length === 0 && options.showEmptyState && options.mode === 'edit'"

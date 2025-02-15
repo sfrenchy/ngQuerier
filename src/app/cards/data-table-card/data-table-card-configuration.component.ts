@@ -210,7 +210,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
       // Mettre à jour le formulaire
       this.form.patchValue({columns: this.columns}, {emitEvent: true});
-      this.updateVirtualColumns();
+      this.updateVirtualColumns(existingColumnsMap);
     }
   }
 
@@ -751,18 +751,8 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   }
 
   private updateVirtualColumns(existingColumnsMap?: Map<string, ColumnConfig>) {
-    // Sauvegarder l'état des colonnes virtuelles existantes
-    const virtualColumnsState = new Map<string, ColumnConfig>();
-    this.columns
-      .filter(col => col.entityMetadata?.isForeignKey)
-      .forEach(col => {
-        if (col.key) {
-          virtualColumnsState.set(col.key, col);
-        }
-      });
-
     // Filtrer les colonnes virtuelles existantes
-    //this.columns = this.columns.filter(col => !col.entityMetadata?.isForeignKey);
+    this.columns = this.columns.filter(col => !col.isVirtualForeignKey);
 
     // Ajouter les nouvelles colonnes virtuelles pour les clés étrangères
     const foreignKeyConfigs = this.form.value.crudConfig?.foreignKeyConfigs;
@@ -778,27 +768,32 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
           if (foreignKeyColumn) {
             const virtualColumnKey = `${foreignKeyColumn.key}_display`;
-            // Récupérer l'état précédent de la colonne virtuelle
-            const existingVirtualColumn = virtualColumnsState.get(foreignKeyColumn.key) ||
-              (existingColumnsMap?.get(virtualColumnKey));
 
-            // Créer une colonne virtuelle
-            const virtualColumn: ColumnConfig = {
-              key: virtualColumnKey,
-              type: 'string',
-              label: {
-                en: `${table}`,
-                fr: `${table}`
-              },
-              alignment: 'left',
-              visible: existingVirtualColumn ? existingVirtualColumn.visible : true, // Par défaut visible
-              isFixed: existingVirtualColumn ? existingVirtualColumn.isFixed : false,
-              isFixedRight: existingVirtualColumn ? existingVirtualColumn.isFixedRight : false,
-              isVirtualForeignKey: true,
-              sourceColumn: foreignKeyColumn.key,
-              foreignKeyConfig: config
-            };
-            this.columns.push(virtualColumn);
+            // Vérifier si la colonne virtuelle existe déjà dans les colonnes existantes
+            const existingVirtualColumn = existingColumnsMap?.get(virtualColumnKey);
+
+            if (!existingVirtualColumn) {
+              // Créer une colonne virtuelle seulement si elle n'existe pas déjà
+              const virtualColumn: ColumnConfig = {
+                key: virtualColumnKey,
+                type: 'string',
+                label: {
+                  en: `${table}`,
+                  fr: `${table}`
+                },
+                alignment: 'left',
+                visible: true,
+                isFixed: false,
+                isFixedRight: false,
+                isVirtualForeignKey: true,
+                sourceColumn: foreignKeyColumn.key,
+                foreignKeyConfig: config
+              };
+              this.columns.push(virtualColumn);
+            } else {
+              // Si la colonne virtuelle existe déjà, la réutiliser
+              this.columns.push(existingVirtualColumn);
+            }
           }
         }
       });

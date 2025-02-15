@@ -291,18 +291,13 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
   }
 
   onConnectionChange(connection: DBConnectionDto) {
-    this.config.connection = connection;
-    const savedController = this.config.controller;
+    // Mise à jour directe sans copie
+    this.config.type = 'API';
+    this.config.connection = connection;  // Assignation directe
     this.config.controller = undefined;
 
     this.cardDatabaseService.getControllers(connection.id).subscribe(controllers => {
       this.controllers = controllers;
-      if (savedController) {
-        const matchingController = controllers.find(c => c.name === savedController.name);
-        if (matchingController) {
-          this.config.controller = matchingController;
-        }
-      }
       this.emitChange();
     });
   }
@@ -608,16 +603,12 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
   }
 
   emitChange(recreateConfig: boolean = true) {
-    if (this.isStoredProcedure && recreateConfig) {
-      // Ne pas reformater les paramètres, garder les valeurs telles quelles
-      this.configChange.emit(this.config);
-      this.emitSchema();
-    } else {
-      this.configChange.emit(this.config);
-      this.emitSchema();
+    // Émettre directement la config sans créer de copie
+    this.configChange.emit(this.config);
+
+    if (this.config.controller?.parameterJsonSchema) {
+      this.schemaChange.emit(this.config.controller.parameterJsonSchema);
     }
-    // Mettre à jour la configuration dans le service
-    this.datasourceService.setConfig(this.config);
   }
 
   private emitSchema() {

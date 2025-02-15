@@ -26,7 +26,7 @@
       </select>
     </div>
 
-    <div *ngIf="config.connection" class="flex flex-col">
+    <div *ngIf="controllers.length > 0" class="flex flex-col">
       <label class="text-sm font-medium text-gray-300 mb-1">{{ 'DATASOURCE.CONTROLLER' | translate }}</label>
       <select
         (ngModelChange)="onControllerChange($event)"

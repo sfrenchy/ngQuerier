@@ -57,7 +57,8 @@ export class PieChartCardConfigurationComponent implements OnInit {
         type: [''],
         localDataTable: this.fb.group({
           cardId: ['']
-        })
+        }),
+        query: [null]
       })
     });
 
@@ -101,16 +102,18 @@ export class PieChartCardConfigurationComponent implements OnInit {
   }
 
   onDatasourceChange(config: DatasourceConfig) {
-    this.form.get('datasource')?.patchValue(config);
+    console.log('Nouvelle config reçue (détaillée):', JSON.stringify(config, null, 2));
 
-    this.emitConfig({...this.form.value, datasource: config});
+    this.form.get('datasource')?.patchValue(config, { emitEvent: false });
 
-    if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
-      const schema = this.localDataSourceService.getTableSchema(config.localDataTable.cardId);
-      if (schema) {
-        this.availableColumns = Object.keys(schema.properties || {});
-      }
+    if (config.type === 'SQLQuery' && config.query) {
+      this.form.get('datasource.query')?.patchValue(config.query);
     }
+
+    const formValue = this.form.value;
+    console.log('FormValue avant emitConfig (détaillé):', JSON.stringify(formValue, null, 2));
+
+    this.emitConfig(formValue);
   }
 
   private setupLocalTableSubscription() {
@@ -132,10 +135,19 @@ export class PieChartCardConfigurationComponent implements OnInit {
       });
   }
 
-  private emitConfig(formValue: any) {
+  private emitConfig(formValue: {
+    datasource?: DatasourceConfig;
+    labelColumn?: string;
+    valueColumn?: string;
+    radius?: string;
+  }) {
+    console.log('EmitConfig - formValue reçu (détaillé):', JSON.stringify(formValue, null, 2));
+
     const config = new PieChartCardConfig();
-    if (this.card.configuration?.datasource) {
-      config.datasource = this.card.configuration.datasource;
+    if (formValue.datasource) {
+      const datasource = JSON.parse(JSON.stringify(formValue.datasource));
+      console.log('Datasource après copie profonde:', JSON.stringify(datasource, null, 2));
+      config.datasource = datasource;
     }
     if (formValue.labelColumn) {
       config.labelColumn = formValue.labelColumn;
@@ -149,6 +161,8 @@ export class PieChartCardConfigurationComponent implements OnInit {
     if (this.card.configuration?.visualConfig) {
       config.visualConfig = this.card.configuration.visualConfig;
     }
+
+    console.log('EmitConfig - config finale (détaillée):', JSON.stringify(config, null, 2));
     this.configChange.emit(config);
   }
 

@@ -7,12 +7,6 @@ export class PieChartCardConfig extends BaseChartConfig {
 
   constructor() {
     super();
-    this.datasource = {
-      type: 'API',
-      controller: {
-        route: 'api/v1/data/pie-chart'  // Route par défaut
-      }
-    };
   }
 
   override toJson(): any {

@@ -51,7 +51,6 @@ export class LoginComponent implements OnInit {
 
   onUrlChange(): void {
     if (this.selectedUrl) {
-      console.log('[Login] Changing API URL to:', this.selectedUrl);
       this.apiService.setBaseUrl(this.selectedUrl);
       this.apiError = false;
       this.isCheckingConfiguration = true;
@@ -61,17 +60,14 @@ export class LoginComponent implements OnInit {
       const checkConfig = () => {
         this.apiService.checkConfiguration().subscribe({
           next: (isConfigured: boolean) => {
-            console.log('[Login] Configuration check response:', isConfigured);
             this.isConfigured = isConfigured;
             this.isCheckingConfiguration = false;
             this.apiError = false;
           },
           error: (error) => {
-            console.log('[Login] Configuration check error:', error);
 
             // Si l'erreur est de type connexion (status 0), on réessaie après un délai
             if (error?.status === 0) {
-              console.log('[Login] Server connection failed, retrying in 2s...');
               setTimeout(checkConfig, 2000); // Réessayer après 2 secondes
             } else {
               this.apiError = true;

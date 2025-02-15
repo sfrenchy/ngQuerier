@@ -189,7 +189,6 @@ export class ApiService {
   }
 
   checkConfiguration(): Observable<boolean> {
-    console.log('[API] Checking configuration for URL:', this.baseUrl);
     return this.get<boolean>(ApiEndpoints.isConfigured).pipe(
       tap({
         next: (result) => console.log('[API] Configuration check success:', result),

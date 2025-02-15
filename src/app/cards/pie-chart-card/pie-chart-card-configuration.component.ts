@@ -102,7 +102,6 @@ export class PieChartCardConfigurationComponent implements OnInit {
   }
 
   onDatasourceChange(config: DatasourceConfig) {
-    console.log('Nouvelle config reçue (détaillée):', JSON.stringify(config, null, 2));
 
     this.form.get('datasource')?.patchValue(config, { emitEvent: false });
 
@@ -111,7 +110,6 @@ export class PieChartCardConfigurationComponent implements OnInit {
     }
 
     const formValue = this.form.value;
-    console.log('FormValue avant emitConfig (détaillé):', JSON.stringify(formValue, null, 2));
 
     this.emitConfig(formValue);
   }
@@ -141,12 +139,10 @@ export class PieChartCardConfigurationComponent implements OnInit {
     valueColumn?: string;
     radius?: string;
   }) {
-    console.log('EmitConfig - formValue reçu (détaillé):', JSON.stringify(formValue, null, 2));
 
     const config = new PieChartCardConfig();
     if (formValue.datasource) {
       const datasource = JSON.parse(JSON.stringify(formValue.datasource));
-      console.log('Datasource après copie profonde:', JSON.stringify(datasource, null, 2));
       config.datasource = datasource;
     }
     if (formValue.labelColumn) {
@@ -162,7 +158,6 @@ export class PieChartCardConfigurationComponent implements OnInit {
       config.visualConfig = this.card.configuration.visualConfig;
     }
 
-    console.log('EmitConfig - config finale (détaillée):', JSON.stringify(config, null, 2));
     this.configChange.emit(config);
   }
 

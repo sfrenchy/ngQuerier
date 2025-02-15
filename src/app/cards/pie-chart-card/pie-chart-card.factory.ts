@@ -17,7 +17,6 @@ export class PieChartCardConfigFactory extends CardConfigFactory<PieChartCardCon
   }
 
   override validateConfig(config: PieChartCardConfig): ValidationResult {
-    console.log('Validation - config reçue:', config); // Debug
 
     const errors: ValidationError[] = [];
 
@@ -29,8 +28,6 @@ export class PieChartCardConfigFactory extends CardConfigFactory<PieChartCardCon
         controlPath: 'datasource'
       });
     } else {
-      console.log('Validation - type de datasource:', config.datasource.type); // Debug
-      console.log('Validation - query:', config.datasource.query); // Debug
 
       // Vérifier d'abord si les colonnes sont sélectionnées
       const hasRequiredColumns = config.labelColumn && config.valueColumn;

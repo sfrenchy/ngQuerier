@@ -162,12 +162,13 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
         }
         break;
 
-      case 'SQLQuery':
-        const savedQuery = this.config.query;
+      case 'SQLQuery': {
+        // Charger d'abord toutes les requêtes
         this.cardDatabaseService.getSQLQueries().subscribe(queries => {
           this.queries = queries;
-          if (savedQuery) {
-            const matchingQuery = queries.find(q => q.id === savedQuery.id);
+          // Si une requête était déjà sélectionnée
+          if (this.config.query) {
+            const matchingQuery = queries.find(q => q.id === this.config.query?.id);
             if (matchingQuery) {
               this.config.query = matchingQuery;
               this.emitChange();
@@ -175,6 +176,7 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
           }
         });
         break;
+      }
     }
   }
 
@@ -249,11 +251,10 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
     }
   }
 
-  onTypeChange() {
-    // Reset configuration except type
+  onTypeChange(newType: string) {
     this.config = {
-      type: this.config.type,
-      isStoredProcedure: false  // Initialiser à false par défaut
+      type: newType as 'API' | 'EntityFramework' | 'SQLQuery' | 'LocalDataTable',
+      isStoredProcedure: false
     };
     this.loadInitialData();
     this.emitChange();

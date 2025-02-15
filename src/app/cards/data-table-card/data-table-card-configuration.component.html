@@ -374,8 +374,7 @@
   </app-tile>
 
   <!-- Configuration des Foreign Keys -->
-  <app-tile *ngIf="canEnableCrud() && (form.value.crudConfig?.canAdd || form.value.crudConfig?.canUpdate)"
-            [title]="'FOREIGN_KEYS.TITLE' | translate">
+  <app-tile [title]="'FOREIGN_KEYS.TITLE' | translate">
     <!-- Liste des tables avec foreign keys -->
     <div *ngFor="let table of getForeignKeyTables()" class="space-y-4 bg-gray-800 rounded-lg p-4 mb-4">
       <div class="flex items-center justify-between">

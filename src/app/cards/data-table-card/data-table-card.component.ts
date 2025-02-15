@@ -323,7 +323,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
             orderBy: this.sortConfig
           };
 
-          this.dataService.loadData(this.card.configuration!.datasource, parameters);
+          this.dataService.loadData(this.card.configuration!.datasource, parameters, this.card.configuration?.columns);
         }
 
         this.isCalculatingRows = false;
@@ -434,7 +434,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       orderBy: this.sortConfig
     };
 
-    this.dataService.loadData(this.card.configuration!.datasource, parameters);
+    this.dataService.loadData(this.card.configuration!.datasource, parameters, this.card.configuration?.columns);
     this.cdr.detectChanges();
   }
 

@@ -120,22 +120,22 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   onDatasourceChange(datasource: DatasourceConfig) {
     this.form.patchValue({datasource}, {emitEvent: false});
 
-    // Réinitialiser les colonnes
-    this.columns = [];
-
-    if (datasource.type === 'LocalDataTable' && datasource.localDataTable?.cardId) {
-      // S'abonner à l'état de préparation de la table
-      this.localDataSourceService.getTableReadyState$(datasource.localDataTable.cardId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(state => {
-          if (state.isSchemaReady) {
-            const schema = this.localDataSourceService.getTableSchema(datasource.localDataTable!.cardId);
-            if (schema) {
-              this.initializeColumns(schema);
-              this.cdr.detectChanges();
+    // Ne pas réinitialiser les colonnes si on a déjà une configuration
+    if (this.columns.length === 0) {
+      if (datasource.type === 'LocalDataTable' && datasource.localDataTable?.cardId) {
+        // S'abonner à l'état de préparation de la table
+        this.localDataSourceService.getTableReadyState$(datasource.localDataTable.cardId)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(state => {
+            if (state.isSchemaReady) {
+              const schema = this.localDataSourceService.getTableSchema(datasource.localDataTable!.cardId);
+              if (schema) {
+                this.initializeColumns(schema);
+                this.cdr.detectChanges();
+              }
             }
-          }
-        });
+          });
+      }
     }
 
     this.emitConfig({...this.form.value, datasource});
@@ -160,39 +160,96 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         this.columns.map(col => [col.key, col])
       );
 
-      this.columns = Object.entries(schema.properties)
-        .map(([key, prop]: [string, any]) => {
-          const type = this.getColumnType(prop);
-          const existingColumn = existingColumnsMap.get(key);
-
-          // Si la colonne existe déjà, préserver sa configuration
-          if (existingColumn) {
+      if (this.columns.length > 0) {
+        // Si nous avons des colonnes existantes, mettre à jour leurs métadonnées tout en préservant l'ordre
+        this.columns = this.columns.map(column => {
+          const prop = schema.properties[column.key];
+          if (prop) {
             return {
-              ...existingColumn,
-              type
+              ...column,
+              type: this.getColumnType(prop),
+              entityMetadata: prop['x-entity-metadata']
             };
           }
-
-          // Sinon, créer une nouvelle configuration
-          return {
-            key,
-            type,
-            label: {en: key, fr: key},
-            alignment: this.getDefaultAlignment(type),
-            visible: true,
-            decimals: type === 'number' ? 2 : undefined,
-            dateFormat: type === 'date' ? 'datetime' : undefined,
-            isFixed: false,
-            isFixedRight: false
-          };
+          return column;
         });
+
+        // Ajouter les nouvelles colonnes à la fin
+        Object.entries(schema.properties)
+          .filter(([key]) => !existingColumnsMap.has(key))
+          .forEach(([key, prop]: [string, any]) => {
+            this.columns.push({
+              key,
+              type: this.getColumnType(prop),
+              label: {en: key, fr: key},
+              alignment: this.getDefaultAlignment(this.getColumnType(prop)),
+              visible: true,
+              decimals: this.getColumnType(prop) === 'number' ? 2 : undefined,
+              dateFormat: this.getColumnType(prop) === 'date' ? 'datetime' : undefined,
+              isFixed: false,
+              isFixedRight: false,
+              entityMetadata: prop['x-entity-metadata']
+            });
+          });
+      } else {
+        // Si pas de colonnes existantes, créer la liste initiale
+        this.columns = Object.entries(schema.properties)
+          .map(([key, prop]: [string, any]) => ({
+            key,
+            type: this.getColumnType(prop),
+            label: {en: key, fr: key},
+            alignment: this.getDefaultAlignment(this.getColumnType(prop)),
+            visible: true,
+            decimals: this.getColumnType(prop) === 'number' ? 2 : undefined,
+            dateFormat: this.getColumnType(prop) === 'date' ? 'datetime' : undefined,
+            isFixed: false,
+            isFixedRight: false,
+            entityMetadata: prop['x-entity-metadata']
+          }));
+      }
 
       // Mettre à jour le formulaire
       this.form.patchValue({columns: this.columns}, {emitEvent: true});
+      this.updateVirtualColumns();
     }
   }
 
   private getColumnType(prop: any): string {
+    // Vérifier d'abord les métadonnées d'entité
+    if (prop['x-entity-metadata']) {
+      const metadata = prop['x-entity-metadata'];
+
+      // Si c'est une navigation, retourner le type de navigation
+      if (metadata.navigationType) {
+        return metadata.navigationType;
+      }
+
+      // Si c'est une clé étrangère, retourner 'foreignKey'
+      if (metadata.isForeignKey) {
+        return 'foreignKey';
+      }
+
+      // Utiliser le type de colonne s'il est disponible
+      if (metadata.columnType) {
+        const columnType = metadata.columnType.toLowerCase();
+
+        // Gérer les types de date
+        if (columnType.includes('date')) {
+          return 'date';
+        }
+
+        // Gérer les types numériques
+        if (columnType.includes('int') ||
+            columnType.includes('decimal') ||
+            columnType.includes('float') ||
+            columnType.includes('double') ||
+            columnType.includes('money')) {
+          return 'number';
+        }
+      }
+    }
+
+    // Si pas de métadonnées ou type non reconnu, utiliser le type de base ou 'string' par défaut
     return prop.type || 'string';
   }
 
@@ -200,9 +257,15 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     switch (type) {
       case 'number':
       case 'integer':
+      case 'decimal':
+      case 'float':
+      case 'double':
+      case 'money':
         return 'right';
       case 'boolean':
         return 'center';
+      case 'foreignKey':
+        return 'left';
       default:
         return 'left';
     }
@@ -691,15 +754,15 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     // Sauvegarder l'état des colonnes virtuelles existantes
     const virtualColumnsState = new Map<string, ColumnConfig>();
     this.columns
-      .filter(col => col.isVirtualForeignKey)
+      .filter(col => col.entityMetadata?.isForeignKey)
       .forEach(col => {
-        if (col.sourceColumn) {
-          virtualColumnsState.set(col.sourceColumn, col);
+        if (col.key) {
+          virtualColumnsState.set(col.key, col);
         }
       });
 
     // Filtrer les colonnes virtuelles existantes
-    this.columns = this.columns.filter(col => !col.isVirtualForeignKey);
+    //this.columns = this.columns.filter(col => !col.entityMetadata?.isForeignKey);
 
     // Ajouter les nouvelles colonnes virtuelles pour les clés étrangères
     const foreignKeyConfigs = this.form.value.crudConfig?.foreignKeyConfigs;

@@ -40,10 +40,10 @@ export class CardService {
       title: [{languageCode: 'fr', value: 'Nouvelle carte'}],
       order: 0,
       gridWidth: 0,
-      backgroundColor: hexToUint('#ffffff'),  // blanc
-      textColor: hexToUint('#000000'),       // noir
-      headerTextColor: hexToUint('#000000'), // noir
-      headerBackgroundColor: hexToUint('#f3f4f6'), // gris clair
+      backgroundColor: hexToUint('#1f2937'),  // Gris foncé
+      textColor: hexToUint('#ffffff'),       // Blanc
+      headerTextColor: hexToUint('#ffffff'), // Blanc
+      headerBackgroundColor: hexToUint('#111827'), // Gris très foncé
       rowId: 0,
       configuration: specificConfiguration,
       displayHeader: true,

@@ -552,4 +552,57 @@
     z-index: 20;
     position: relative;
   }
+
+  th.fixed-right,
+  td.fixed-right {
+    position: sticky !important;
+    right: 0;
+    z-index: 2;
+  }
+
+  th.fixed-right {
+    z-index: 3; /* Plus haut que les cellules pour rester au-dessus */
+  }
+
+  .sticky-shadow {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  }
+
+  th.fixed-right.sticky-shadow {
+    box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Assurer que le header reste au-dessus du contenu lors du défilement */
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  /* Assurer que les colonnes fixes restent au-dessus */
+  th.fixed-right,
+  td.fixed-right {
+    background-color: inherit;
+  }
+
+  /* Styles pour les colonnes fixes (gauche et droite) */
+  th.fixed-left,
+  td.fixed-left {
+    position: sticky !important;
+    left: 0;
+    z-index: 2;
+  }
+
+  th.fixed-left {
+    z-index: 3;
+  }
+
+  /* Gérer la superposition des colonnes fixes */
+  th.fixed-left:last-child {
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  th.fixed-right:first-child {
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+  }
 </style>

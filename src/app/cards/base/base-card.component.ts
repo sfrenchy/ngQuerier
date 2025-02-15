@@ -128,4 +128,14 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
         console.warn(`No translations found for card type ${cardType}:`, error);
       });
   }
+
+  getCurrentTitle(): string {
+    if (!this.card?.title?.length) return '';
+
+    const currentLang = this.translateService.currentLang;
+    const titleInCurrentLang = this.card.title.find(t => t.languageCode === currentLang);
+
+    // Si pas de titre dans la langue courante, on prend le premier disponible
+    return titleInCurrentLang?.value || this.card.title[0]?.value || '';
+  }
 }

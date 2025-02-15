@@ -751,8 +751,19 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   }
 
   private updateVirtualColumns(existingColumnsMap?: Map<string, ColumnConfig>) {
+    // Créer une map des colonnes virtuelles existantes avec leur position
+    const virtualColumnPositions = new Map<string, number>();
+    this.columns.forEach((col, index) => {
+      if (col.isVirtualForeignKey) {
+        virtualColumnPositions.set(col.key, index);
+      }
+    });
+
     // Filtrer les colonnes virtuelles existantes
     this.columns = this.columns.filter(col => !col.isVirtualForeignKey);
+
+    // Préparer les colonnes virtuelles à ajouter
+    const virtualColumnsToAdd: { column: ColumnConfig, position: number }[] = [];
 
     // Ajouter les nouvelles colonnes virtuelles pour les clés étrangères
     const foreignKeyConfigs = this.form.value.crudConfig?.foreignKeyConfigs;
@@ -760,7 +771,6 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       Object.entries(foreignKeyConfigs).forEach(([table, rawConfig]) => {
         const config = rawConfig as ForeignKeyDisplayConfig;
         if (config.showInTable) {
-          // Trouver la colonne de clé étrangère correspondante
           const foreignKeyColumn = this.columns.find(col =>
             col.entityMetadata?.isForeignKey &&
             col.entityMetadata?.foreignKeyTable === table
@@ -768,36 +778,38 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
           if (foreignKeyColumn) {
             const virtualColumnKey = `${foreignKeyColumn.key}_display`;
-
-            // Vérifier si la colonne virtuelle existe déjà dans les colonnes existantes
             const existingVirtualColumn = existingColumnsMap?.get(virtualColumnKey);
+            const position = virtualColumnPositions.get(virtualColumnKey) ?? this.columns.length;
 
-            if (!existingVirtualColumn) {
-              // Créer une colonne virtuelle seulement si elle n'existe pas déjà
-              const virtualColumn: ColumnConfig = {
-                key: virtualColumnKey,
-                type: 'string',
-                label: {
-                  en: `${table}`,
-                  fr: `${table}`
-                },
-                alignment: 'left',
-                visible: true,
-                isFixed: false,
-                isFixedRight: false,
-                isVirtualForeignKey: true,
-                sourceColumn: foreignKeyColumn.key,
-                foreignKeyConfig: config
-              };
-              this.columns.push(virtualColumn);
-            } else {
-              // Si la colonne virtuelle existe déjà, la réutiliser
-              this.columns.push(existingVirtualColumn);
-            }
+            const virtualColumn = existingVirtualColumn || {
+              key: virtualColumnKey,
+              type: 'string',
+              label: {
+                en: `${table}`,
+                fr: `${table}`
+              },
+              alignment: 'left',
+              visible: true,
+              isFixed: false,
+              isFixedRight: false,
+              isVirtualForeignKey: true,
+              sourceColumn: foreignKeyColumn.key,
+              foreignKeyConfig: config
+            };
+
+            virtualColumnsToAdd.push({ column: virtualColumn, position });
           }
         }
       });
     }
+
+    // Trier les colonnes virtuelles par leur position d'origine
+    virtualColumnsToAdd.sort((a, b) => a.position - b.position);
+
+    // Insérer les colonnes virtuelles à leurs positions d'origine
+    virtualColumnsToAdd.forEach(({ column, position }) => {
+      this.columns.splice(position, 0, column);
+    });
 
     // Mettre à jour le formulaire
     this.form.patchValue({columns: this.columns}, {emitEvent: true});

@@ -606,9 +606,7 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
     // Émettre directement la config sans créer de copie
     this.configChange.emit(this.config);
 
-    if (this.config.controller?.parameterJsonSchema) {
-      this.schemaChange.emit(this.config.controller.parameterJsonSchema);
-    }
+    this.emitSchema();
   }
 
   private emitSchema() {

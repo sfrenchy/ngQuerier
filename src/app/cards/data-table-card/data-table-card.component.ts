@@ -235,7 +235,9 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     super.ngOnInit();
     this.loadCardTranslations();
     this.loadSavedState();
-    this.registerAsDataSource();
+    if (this.card.configuration?.datasource?.type !== 'LocalDataTable') {
+      this.registerAsDataSource();
+    }
     try {
       if (this.card.configuration?.datasource) {
         // Précharger le schéma du formulaire uniquement si on peut ajouter ou modifier

@@ -342,6 +342,7 @@ export class DataTableCardService {
       type.includes('float') ||
       type.includes('double') ||
       type.includes('money') ||
+      type.includes('real') ||
       type.includes('number');
   }
 

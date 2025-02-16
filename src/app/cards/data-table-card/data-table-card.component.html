@@ -4,7 +4,7 @@
     <div class="flex items-center gap-2">
       <span>&nbsp;</span>
     </div>
-    <div class="flex items-center gap-4">
+    <div *ngIf="card.configuration.datasource?.type !== 'LocalDataTable'" class="flex items-center gap-4">
       <div class="flex-1">
         <div class="relative w-2/3 ml-auto">
           <input (ngModelChange)="searchSubject.next($event)"
@@ -231,7 +231,7 @@
     </div>
   </div>
 
-  <div class="data-table-footer" footer>
+  <div *ngIf="card.configuration.datasource?.type !== 'LocalDataTable'" class="data-table-footer" footer>
     <div class="flex justify-between items-center">
       <div class="text-sm text-gray-400">
         {{ totalItems }} {{ 'data-table-card.ITEMS' | translate }}

@@ -207,7 +207,7 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
               prop.type === 'integer' ||
               prop.type === 'date' ||
               prop.type === 'datetime';
-            return isValid;
+              return true; // TODO: Check if the column is valid
           })
           .map(([key]) => key);
       }

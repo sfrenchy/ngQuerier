@@ -176,7 +176,7 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
               prop.type === 'integer' ||
               prop.type === 'date' ||
               prop.type === 'datetime';
-            return isValid;
+              return true; // TODO: Check if the column is valid
           })
           .map(([key]) => key);
       }

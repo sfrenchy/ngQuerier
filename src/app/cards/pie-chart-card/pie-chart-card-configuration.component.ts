@@ -109,6 +109,23 @@ export class PieChartCardConfigurationComponent implements OnInit {
       this.form.get('datasource.query')?.patchValue(config.query);
     }
 
+    // Si c'est une table locale, initialiser les colonnes
+    if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
+      const schema = this.localDataSourceService.getTableSchema(config.localDataTable.cardId);
+
+      if (schema) {
+        this.availableColumns = Object.entries(schema.properties)
+          .filter(([_, prop]: [string, any]) => {
+            const isValid = prop.type === 'number' ||
+              prop.type === 'integer' ||
+              prop.type === 'date' ||
+              prop.type === 'datetime';
+            return true; // TODO: Check if the column is valid
+          })
+          .map(([key]) => key);
+      }
+    }
+
     const formValue = this.form.value;
 
     this.emitConfig(formValue);

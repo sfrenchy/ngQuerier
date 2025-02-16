@@ -71,9 +71,24 @@ export class PieChartCardComponent extends BaseChartCard<PieChartCardConfig> {
     const {labelColumn, valueColumn} = this.card.configuration;
     if (!labelColumn || !valueColumn) return [];
 
-    return data.map(item => ({
-      name: this.getPropertyValue(item, labelColumn),
-      value: this.getPropertyValue(item, valueColumn)
+    // Créer un Map pour agréger les valeurs par label
+    const aggregatedData = new Map<string, number>();
+
+    data.forEach(item => {
+      const label = this.getPropertyValue(item, labelColumn);
+      const value = Number(this.getPropertyValue(item, valueColumn));
+
+      if (label && !isNaN(value)) {
+        // Si le label existe déjà, ajouter la valeur à la somme existante
+        // Sinon, initialiser avec la valeur
+        aggregatedData.set(label, (aggregatedData.get(label) || 0) + value);
+      }
+    });
+
+    // Convertir le Map en tableau de données pour le graphique
+    return Array.from(aggregatedData.entries()).map(([label, value]) => ({
+      name: label,
+      value: value
     }));
   }
 

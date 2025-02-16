@@ -63,21 +63,15 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
       xAxisDateFormat: [''],
       barSeries: this.fb.array([]),
       lineSeries: this.fb.array([]),
-      datasource: this.fb.group({
-        type: [''],
-        localDataTable: this.fb.group({
-          cardId: ['']
-        })
-      })
+      datasource: [{type: 'API'} as DatasourceConfig]
     });
 
-    this.form.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(value => {
-        if (this.form.valid) {
-          this.emitConfig(value);
-        }
-      });
+    this.form.valueChanges.subscribe((value: any) => {
+      if (this.form.valid) {
+        const {visualConfig, ...rest} = value;
+        this.emitConfig({...rest, visualConfig: this.card.configuration?.visualConfig});
+      }
+    });
   }
 
   get barSeriesArray() {
@@ -200,22 +194,21 @@ export class StackedBarAndLinesChartConfigurationComponent implements OnInit, On
   }
 
   onDatasourceChange(config: DatasourceConfig) {
-    // Mettre à jour le formulaire avec la nouvelle configuration
-    this.form.get('datasource')?.patchValue(config);
-
-    // Émettre la configuration
-    this.emitConfig({...this.form.value, datasource: config});
+    this.form.patchValue({datasource: config});
 
     // Si c'est une table locale, initialiser les colonnes
     if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
       const schema = this.localDataSourceService.getTableSchema(config.localDataTable.cardId);
+
       if (schema) {
         this.availableColumns = Object.entries(schema.properties)
-          .filter(([_, prop]: [string, any]) =>
-            prop.type === 'number' ||
-            prop.type === 'integer' ||
-            prop.type === 'date' ||
-            prop.type === 'datetime')
+          .filter(([_, prop]: [string, any]) => {
+            const isValid = prop.type === 'number' ||
+              prop.type === 'integer' ||
+              prop.type === 'date' ||
+              prop.type === 'datetime';
+            return isValid;
+          })
           .map(([key]) => key);
       }
     }

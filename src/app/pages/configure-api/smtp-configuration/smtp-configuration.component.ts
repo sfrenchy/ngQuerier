@@ -37,7 +37,8 @@ export class SmtpConfigurationComponent {
       username: [''],
       password: [''],
       senderEmail: ['', [Validators.required, Validators.email]],
-      senderName: ['', Validators.required]
+      senderName: ['', Validators.required],
+      createNorthwind: [true]
     });
 
     // Update validators based on requireAuth value
@@ -101,7 +102,7 @@ export class SmtpConfigurationComponent {
               senderName: smtpConfig.senderName
             };
 
-            this.apiService.setup(adminSetup, smtpSetup, true).subscribe({
+            this.apiService.setup(adminSetup, smtpSetup, this.smtpForm.get('createNorthwind')?.value).subscribe({
               next: (setupSuccess: boolean) => {
                 this.isLoading = false;
                 if (setupSuccess) {

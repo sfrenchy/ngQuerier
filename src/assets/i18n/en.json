@@ -70,7 +70,8 @@
       "ERROR": {
         "TEST_FAILED": "Failed to test SMTP configuration. Please verify your settings.",
         "SETUP_FAILED": "Failed to save configuration. Please try again."
-      }
+      },
+      "CREATE_NORTHWIND": "Create SQLite Northwind database"
     }
   },
   "COMMON": {
@@ -626,6 +627,11 @@
       "LoadingAssembly": "Loading assembly...",
       "Completed": "Completed",
       "Failed": "Failed"
+    }
+  },
+  "LAYOUT": {
+    "EMPTY_STATE": {
+      "DROP_ROWS": "Drag and drop rows from the toolbox"
     }
   }
 }

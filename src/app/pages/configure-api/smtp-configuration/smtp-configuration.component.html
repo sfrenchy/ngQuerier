@@ -156,6 +156,17 @@
         </div>
       </div>
 
+      <!-- Northwind Database Checkbox -->
+      <div class="flex items-center space-x-3">
+        <input class="checkbox"
+               formControlName="createNorthwind"
+               id="createNorthwind"
+               type="checkbox">
+        <label class="label cursor-pointer" for="createNorthwind">
+          {{ 'CONFIGURE.SMTP.CREATE_NORTHWIND' | translate }}
+        </label>
+      </div>
+
       <!-- Error Message -->
       <div *ngIf="errorMessage" class="text-error text-sm mt-1 ml-1">
         {{ errorMessage | translate }}

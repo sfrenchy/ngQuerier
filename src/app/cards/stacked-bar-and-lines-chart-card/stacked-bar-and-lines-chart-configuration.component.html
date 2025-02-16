@@ -3,9 +3,9 @@
     <!-- Data Source Configuration -->
     <app-tile [title]="'stacked-bar-and-lines-chart-card.DATASOURCE.TITLE' | translate">
       <app-datasource-configuration
-        [config]="form.getRawValue().datasource"
         (configChange)="onDatasourceChange($event)"
-        (schemaChange)="onSchemaChange($event)">
+        (schemaChange)="onSchemaChange($event)"
+        [config]="form.getRawValue().datasource">
       </app-datasource-configuration>
       <!-- Message d'erreur pour la datasource -->
       <div *ngIf="errorMessages['datasource']" class="mt-2 text-sm text-red-500">
@@ -14,14 +14,15 @@
     </app-tile>
 
     <!-- Configuration de l'axe X -->
-    <app-tile [title]="'stacked-bar-and-lines-chart-card.CONFIGURATION.X_AXIS.TITLE' | translate" *ngIf="availableColumns.length > 0">
+    <app-tile *ngIf="availableColumns.length > 0"
+              [title]="'stacked-bar-and-lines-chart-card.CONFIGURATION.X_AXIS.TITLE' | translate">
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1">
             {{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.X_AXIS.COLUMN' | translate }}
           </label>
-          <select formControlName="xAxisColumn"
-                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <select class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  formControlName="xAxisColumn">
             <option value="">{{ 'stacked-bar-and-lines-chart-card.COMMON.SELECT_COLUMN' | translate }}</option>
             <option *ngFor="let column of availableColumns" [value]="column">{{ column }}</option>
           </select>
@@ -35,8 +36,8 @@
           <label class="block text-sm font-medium text-gray-300 mb-1">
             {{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.X_AXIS.DATE_FORMAT' | translate }}
           </label>
-          <select formControlName="xAxisDateFormat"
-                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+          <select class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  formControlName="xAxisDateFormat">
             <option value="">{{ 'stacked-bar-and-lines-chart-card.COMMON.NONE' | translate }}</option>
             <option value="DD/MM/YYYY">DD/MM/YYYY</option>
             <option value="MM/YYYY">MM/YYYY</option>
@@ -47,7 +48,8 @@
     </app-tile>
 
     <!-- Configuration des séries de barres -->
-    <app-tile [title]="'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.TITLE' | translate" *ngIf="availableColumns.length > 0">
+    <app-tile *ngIf="availableColumns.length > 0"
+              [title]="'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.TITLE' | translate">
       <div class="space-y-4">
         <!-- Liste des séries -->
         <div class="flex flex-col gap-4" formArrayName="barSeries">
@@ -59,27 +61,34 @@
           <div *ngFor="let series of barSeriesArray.controls; let i = index"
                class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
             <!-- En-tête de la série -->
-            <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700" (click)="toggleBarSeriesExpand(i)">
+            <div (click)="toggleBarSeriesExpand(i)"
+                 class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700">
               <div class="flex items-center gap-4">
                 <span class="font-medium text-white">{{ series.get('name')?.value }}</span>
-                <span class="text-sm text-gray-400">({{ series.get('dataColumn')?.value || ('stacked-bar-and-lines-chart-card.COMMON.NO_COLUMN_SELECTED' | translate) }})</span>
+                <span
+                  class="text-sm text-gray-400">({{ series.get('dataColumn')?.value || ('stacked-bar-and-lines-chart-card.COMMON.NO_COLUMN_SELECTED' | translate) }}
+                  )</span>
               </div>
               <div class="flex items-center gap-2">
-                <button type="button"
-                        (click)="removeBarSeries(i); $event.stopPropagation()"
-                        class="p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                <button (click)="removeBarSeries(i); $event.stopPropagation()"
+                        class="p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                        type="button">
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                          fill-rule="evenodd"/>
                   </svg>
                 </button>
-                <button type="button"
-                        class="p-1 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <svg xmlns="http://www.w3.org/2000/svg"
+                <button class="p-1 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        type="button">
+                  <svg [class.rotate-180]="expandedBarSeriesIndex === i"
                        class="h-5 w-5 transform transition-transform"
-                       [class.rotate-180]="expandedBarSeriesIndex === i"
+                       fill="currentColor"
                        viewBox="0 0 20 20"
-                       fill="currentColor">
-                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                       xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          fill-rule="evenodd"/>
                   </svg>
                 </button>
               </div>
@@ -87,13 +96,14 @@
 
             <!-- Contenu de la série -->
             <div *ngIf="expandedBarSeriesIndex === i" class="p-4 border-t border-gray-700">
-              <div class="space-y-4" [formGroupName]="i">
+              <div [formGroupName]="i" class="space-y-4">
                 <!-- Nom de la série -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.NAME' | translate }}</label>
-                  <input type="text"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.NAME' | translate }}</label>
+                  <input class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                          formControlName="name"
-                         class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                         type="text">
                   <!-- Messages d'erreur pour chaque série -->
                   <div *ngIf="errorMessages['barSeries.' + i + '.name']" class="mt-2 text-sm text-red-500">
                     {{ errorMessages['barSeries.' + i + '.name'] | translate }}
@@ -102,9 +112,10 @@
 
                 <!-- Colonne de données -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.DATA_COLUMN' | translate }}</label>
-                  <select formControlName="dataColumn"
-                          class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.DATA_COLUMN' | translate }}</label>
+                  <select class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          formControlName="dataColumn">
                     <option value="">{{ 'stacked-bar-and-lines-chart-card.COMMON.SELECT_COLUMN' | translate }}</option>
                     <option *ngFor="let column of availableColumns" [value]="column">{{ column }}</option>
                   </select>
@@ -115,42 +126,47 @@
 
                 <!-- Groupe d'empilement -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.STACK' | translate }}</label>
-                  <input type="text"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.STACK' | translate }}</label>
+                  <input class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                          formControlName="stack"
-                         class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                         type="text">
                 </div>
 
                 <!-- Couleur -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.COLOR' | translate }}</label>
-                  <input type="color"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.COLOR' | translate }}</label>
+                  <input class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                          formControlName="color"
-                         class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                         type="color">
                 </div>
 
                 <!-- Paramètres de la barre -->
                 <div class="grid grid-cols-3 gap-4">
                   <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.WIDTH' | translate }}</label>
-                    <input type="number"
+                    <label
+                      class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.WIDTH' | translate }}</label>
+                    <input class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                            formControlName="barWidth"
-                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                           type="number">
                     <div *ngIf="errorMessages['barSeries.' + i + '.barWidth']" class="mt-2 text-sm text-red-500">
                       {{ errorMessages['barSeries.' + i + '.barWidth'] | translate }}
                     </div>
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.GAP' | translate }}</label>
-                    <input type="text"
+                    <label
+                      class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.GAP' | translate }}</label>
+                    <input class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                            formControlName="barGap"
-                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                           type="text">
                   </div>
                   <div>
-                    <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.CATEGORY_GAP' | translate }}</label>
-                    <input type="text"
+                    <label
+                      class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.BAR_SERIES.CATEGORY_GAP' | translate }}</label>
+                    <input class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                            formControlName="barCategoryGap"
-                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                           type="text">
                   </div>
                 </div>
               </div>
@@ -159,11 +175,13 @@
         </div>
 
         <!-- Bouton d'ajout de série -->
-        <button type="button"
-                (click)="addBarSeries()"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        <button (click)="addBarSeries()"
+                class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                type="button">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd"
+                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                  fill-rule="evenodd"/>
           </svg>
           <span>{{ 'stacked-bar-and-lines-chart-card.COMMON.ADD' | translate }}</span>
         </button>
@@ -171,7 +189,8 @@
     </app-tile>
 
     <!-- Configuration des séries de lignes -->
-    <app-tile [title]="'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.TITLE' | translate" *ngIf="availableColumns.length > 0">
+    <app-tile *ngIf="availableColumns.length > 0"
+              [title]="'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.TITLE' | translate">
       <div class="space-y-4">
         <!-- Liste des séries -->
         <div class="flex flex-col gap-4" formArrayName="lineSeries">
@@ -183,27 +202,34 @@
           <div *ngFor="let series of lineSeriesArray.controls; let i = index"
                class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
             <!-- En-tête de la série -->
-            <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700" (click)="toggleLineSeriesExpand(i)">
+            <div (click)="toggleLineSeriesExpand(i)"
+                 class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700">
               <div class="flex items-center gap-4">
                 <span class="font-medium text-white">{{ series.get('name')?.value }}</span>
-                <span class="text-sm text-gray-400">({{ series.get('dataColumn')?.value || ('stacked-bar-and-lines-chart-card.COMMON.NO_COLUMN_SELECTED' | translate) }})</span>
+                <span
+                  class="text-sm text-gray-400">({{ series.get('dataColumn')?.value || ('stacked-bar-and-lines-chart-card.COMMON.NO_COLUMN_SELECTED' | translate) }}
+                  )</span>
               </div>
               <div class="flex items-center gap-2">
-                <button type="button"
-                        (click)="removeLineSeries(i); $event.stopPropagation()"
-                        class="p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                <button (click)="removeLineSeries(i); $event.stopPropagation()"
+                        class="p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                        type="button">
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                          fill-rule="evenodd"/>
                   </svg>
                 </button>
-                <button type="button"
-                        class="p-1 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <svg xmlns="http://www.w3.org/2000/svg"
+                <button class="p-1 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        type="button">
+                  <svg [class.rotate-180]="expandedLineSeriesIndex === i"
                        class="h-5 w-5 transform transition-transform"
-                       [class.rotate-180]="expandedLineSeriesIndex === i"
+                       fill="currentColor"
                        viewBox="0 0 20 20"
-                       fill="currentColor">
-                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                       xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          fill-rule="evenodd"/>
                   </svg>
                 </button>
               </div>
@@ -211,13 +237,14 @@
 
             <!-- Contenu de la série -->
             <div *ngIf="expandedLineSeriesIndex === i" class="p-4 border-t border-gray-700">
-              <div class="space-y-4" [formGroupName]="i">
+              <div [formGroupName]="i" class="space-y-4">
                 <!-- Nom de la série -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.NAME' | translate }}</label>
-                  <input type="text"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.NAME' | translate }}</label>
+                  <input class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                          formControlName="name"
-                         class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                         type="text">
                   <!-- Messages d'erreur pour chaque série -->
                   <div *ngIf="errorMessages['lineSeries.' + i + '.name']" class="mt-2 text-sm text-red-500">
                     {{ errorMessages['lineSeries.' + i + '.name'] | translate }}
@@ -226,9 +253,10 @@
 
                 <!-- Colonne de données -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.DATA_COLUMN' | translate }}</label>
-                  <select formControlName="dataColumn"
-                          class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.DATA_COLUMN' | translate }}</label>
+                  <select class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          formControlName="dataColumn">
                     <option value="">{{ 'stacked-bar-and-lines-chart-card.COMMON.SELECT_COLUMN' | translate }}</option>
                     <option *ngFor="let column of availableColumns" [value]="column">{{ column }}</option>
                   </select>
@@ -239,38 +267,46 @@
 
                 <!-- Type de ligne -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.TYPE' | translate }}</label>
-                  <select formControlName="type"
-                          class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="line">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.TYPE_NORMAL' | translate }}</option>
-                    <option value="smooth">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.TYPE_SMOOTH' | translate }}</option>
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.TYPE' | translate }}</label>
+                  <select class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          formControlName="type">
+                    <option
+                      value="line">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.TYPE_NORMAL' | translate }}
+                    </option>
+                    <option
+                      value="smooth">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.TYPE_SMOOTH' | translate }}
+                    </option>
                   </select>
                 </div>
 
                 <!-- Couleur -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.COLOR' | translate }}</label>
-                  <input type="color"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.COMMON.COLOR' | translate }}</label>
+                  <input class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                          formControlName="color"
-                         class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                         type="color">
                 </div>
 
                 <!-- Afficher les points -->
                 <div class="flex items-center">
-                  <input type="checkbox"
+                  <input class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-offset-gray-800"
                          formControlName="showSymbol"
-                         class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-offset-gray-800">
-                  <label class="ml-2 text-sm font-medium text-gray-300">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.SHOW_SYMBOL' | translate }}</label>
+                         type="checkbox">
+                  <label
+                    class="ml-2 text-sm font-medium text-gray-300">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.SHOW_SYMBOL' | translate }}</label>
                 </div>
 
                 <!-- Taille des points -->
                 <div *ngIf="series.get('showSymbol')?.value">
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.SYMBOL_SIZE' | translate }}</label>
-                  <input type="number"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.SYMBOL_SIZE' | translate }}</label>
+                  <input class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                          formControlName="symbolSize"
-                         min="1"
                          max="20"
-                         class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                         min="1"
+                         type="number">
                   <div *ngIf="errorMessages['lineSeries.' + i + '.symbolSize']" class="mt-2 text-sm text-red-500">
                     {{ errorMessages['lineSeries.' + i + '.symbolSize'] | translate }}
                   </div>
@@ -278,14 +314,16 @@
 
                 <!-- Opacité de la zone -->
                 <div formGroupName="areaStyle">
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.AREA_STYLE_OPACITY' | translate }}</label>
-                  <input type="range"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'stacked-bar-and-lines-chart-card.CONFIGURATION.LINE_SERIES.AREA_STYLE_OPACITY' | translate }}</label>
+                  <input class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
                          formControlName="opacity"
-                         min="0"
                          max="1"
+                         min="0"
                          step="0.1"
-                         class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
-                  <div *ngIf="errorMessages['lineSeries.' + i + '.areaStyle.opacity']" class="mt-2 text-sm text-red-500">
+                         type="range">
+                  <div *ngIf="errorMessages['lineSeries.' + i + '.areaStyle.opacity']"
+                       class="mt-2 text-sm text-red-500">
                     {{ errorMessages['lineSeries.' + i + '.areaStyle.opacity'] | translate }}
                   </div>
                 </div>
@@ -295,11 +333,13 @@
         </div>
 
         <!-- Bouton d'ajout de série -->
-        <button type="button"
-                (click)="addLineSeries()"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        <button (click)="addLineSeries()"
+                class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                type="button">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd"
+                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                  fill-rule="evenodd"/>
           </svg>
           <span>{{ 'stacked-bar-and-lines-chart-card.COMMON.ADD' | translate }}</span>
         </button>

@@ -1,12 +1,12 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { ApiService } from '@services/api.service';
-import { MenuDto } from '@models/api.models';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { DragDropModule, CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import {Component} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {ActivatedRoute, Router} from '@angular/router';
+import {ApiService} from '@services/api.service';
+import {MenuDto} from '@models/api.models';
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import {CdkDragDrop, DragDropModule, moveItemInArray} from '@angular/cdk/drag-drop';
+import {ConfirmationDialogComponent} from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-menu-list',
@@ -26,7 +26,8 @@ export class MenuListComponent {
     private router: Router,
     private route: ActivatedRoute,
     private translate: TranslateService
-  ) { }
+  ) {
+  }
 
   ngOnInit(): void {
     this.loadMenuCategories();
@@ -53,15 +54,15 @@ export class MenuListComponent {
   }
 
   onAddClick(): void {
-    this.router.navigate(['new'], { relativeTo: this.route });
+    this.router.navigate(['new'], {relativeTo: this.route});
   }
 
   onEditClick(menu: MenuDto): void {
-    this.router.navigate(['edit', menu.id], { relativeTo: this.route });
+    this.router.navigate(['edit', menu.id], {relativeTo: this.route});
   }
 
   onPagesClick(menu: MenuDto): void {
-    this.router.navigate([menu.id, 'pages'], { relativeTo: this.route });
+    this.router.navigate([menu.id, 'pages'], {relativeTo: this.route});
   }
 
   onDeleteClick(menu: MenuDto): void {
@@ -124,10 +125,10 @@ export class MenuListComponent {
 
   drop(event: CdkDragDrop<MenuDto[]>) {
     moveItemInArray(this.menus, event.previousIndex, event.currentIndex);
-    
+
     // Mettre à jour l'ordre de tous les menus
     this.menus.forEach((menu, index) => {
-      const updatedMenu = { ...menu, order: index + 1 };
+      const updatedMenu = {...menu, order: index + 1};
       this.apiService.updateMenu(menu.id, updatedMenu).subscribe({
         error: (error) => {
           console.error('Error updating menu order:', error);

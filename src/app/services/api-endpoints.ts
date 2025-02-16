@@ -72,7 +72,7 @@ export class ApiEndpoints {
   static readonly datasourceContextEntities = 'datasources/contexts/{contextName}/entities';
   static readonly datasourceContextEntity = 'datasources/contexts/{contextName}/entities/{entityName}';
   static readonly datasourceContextEntityRecords = 'datasources/contexts/{contextName}/entities/{entityName}/records';
-  
+
   // SQL Query endpoints
   static readonly sqlQueries = 'SqlQuery';
   static readonly sqlQuery = 'SqlQuery/{id}';
@@ -95,4 +95,4 @@ export class ApiEndpoints {
     });
     return result;
   }
-} 
+}

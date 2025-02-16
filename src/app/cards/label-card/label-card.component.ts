@@ -1,14 +1,15 @@
-import { TranslatableString } from './../../models/api.models';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { Card } from '@cards/card.decorator';
-import { LabelCardConfigurationComponent } from './label-card-configuration.component';
-import { BaseCardComponent } from '@cards/base/base-card.component';
-import { CommonModule } from '@angular/common';
-import { LabelCardConfigFactory } from './label-card.factory';
-import { LabelCardConfig } from './label-card.config';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
-import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
+import {TranslatableString} from './../../models/api.models';
+import {ChangeDetectorRef, Component, OnDestroy, OnInit} from '@angular/core';
+import {Card} from '@cards/card.decorator';
+import {LabelCardConfigurationComponent} from './label-card-configuration.component';
+import {BaseCardComponent} from '@cards/base/base-card.component';
+import {CommonModule} from '@angular/common';
+import {LabelCardConfigFactory} from './label-card.factory';
+import {LabelCardConfig} from './label-card.config';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {Subject, takeUntil} from 'rxjs';
+import {CardConfigAdapterService} from '@cards/card-config-adapter.service';
+
 @Card({
   name: 'Label',
   icon: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -25,7 +26,7 @@ import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
   standalone: true,
   imports: [CommonModule, BaseCardComponent, TranslateModule]
 })
-export class LabelCardComponent extends BaseCardComponent<LabelCardConfig> implements OnInit, OnDestroy{
+export class LabelCardComponent extends BaseCardComponent<LabelCardConfig> implements OnInit, OnDestroy {
   constructor(
     protected override translateService: TranslateService,
     protected override cardConfigAdapter: CardConfigAdapterService,

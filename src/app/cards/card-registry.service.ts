@@ -1,7 +1,7 @@
-import { Injectable, Injector, Type } from '@angular/core';
-import { ICard } from '@models/card.interface';
-import { CardConfigFactory } from './card-config.factory';
-import { BaseCardConfig } from '@models/api.models';
+import {Injectable, Injector} from '@angular/core';
+import {ICard} from '@models/card.interface';
+import {CardConfigFactory} from './card-config.factory';
+import {BaseCardConfig} from '@models/api.models';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +9,8 @@ import { BaseCardConfig } from '@models/api.models';
 export class CardRegistryService {
   private cards = new Map<string, ICard>();
 
-  constructor(private injector: Injector) {}
+  constructor(private injector: Injector) {
+  }
 
   registerCard(card: ICard) {
     this.cards.set(card.type, card);
@@ -22,11 +23,11 @@ export class CardRegistryService {
   getConfigFactory(type: string): CardConfigFactory<BaseCardConfig> | undefined {
     const card = this.getCard(type);
     if (!card) return undefined;
-    
+
     return this.injector.get(card.configFactory);
   }
 
   getAvailableCardTypes(): string[] {
     return Array.from(this.cards.keys());
   }
-} 
+}

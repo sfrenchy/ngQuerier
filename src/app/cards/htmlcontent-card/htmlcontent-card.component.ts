@@ -1,16 +1,15 @@
-import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { BaseCardComponent } from '@cards/base/base-card.component';
-import { Card } from '@cards/card.decorator';
-import { HTMLContentCardConfigurationComponent } from './htmlcontent-card-configuration.component';
-import { HTMLContentCardFactory } from './htmlcontent-card.factory';
-import { HTMLContentCardConfig } from './htmlcontent-card.config';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subject, takeUntil } from 'rxjs';
-import { AngularEditorModule, AngularEditorConfig } from '@kolkov/angular-editor';
-import { CardDto } from '@models/api.models';
-import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
+import {Component, OnChanges, OnDestroy, OnInit, SimpleChanges} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {BaseCardComponent} from '@cards/base/base-card.component';
+import {Card} from '@cards/card.decorator';
+import {HTMLContentCardConfigurationComponent} from './htmlcontent-card-configuration.component';
+import {HTMLContentCardFactory} from './htmlcontent-card.factory';
+import {HTMLContentCardConfig} from './htmlcontent-card.config';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {Subject, takeUntil} from 'rxjs';
+import {AngularEditorConfig, AngularEditorModule} from '@kolkov/angular-editor';
+import {CardConfigAdapterService} from '@cards/card-config-adapter.service';
 
 @Card({
   name: 'HTML Content',

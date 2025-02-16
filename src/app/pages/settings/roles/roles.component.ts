@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ApiService } from '@services/api.service';
-import { RoleDto } from '@models/api.models';
-import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule} from '@ngx-translate/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ApiService} from '@services/api.service';
+import {RoleDto} from '@models/api.models';
+import {ConfirmationDialogComponent} from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-roles',
@@ -76,7 +76,7 @@ export class RolesComponent implements OnInit {
   onDeleteSelectedClick(): void {
     this.roleToDelete = null;
     this.deleteConfirmationMessage = 'COMMON.CONFIRMATION.DELETE_MULTIPLE_ROLES';
-    this.deleteConfirmationParams = { count: this.selectedRoles.length };
+    this.deleteConfirmationParams = {count: this.selectedRoles.length};
     this.showDeleteConfirmation = true;
   }
 
@@ -146,7 +146,7 @@ export class RolesComponent implements OnInit {
 
       if (this.editingRole) {
         // Update existing role
-        this.apiService.updateRole({ id: this.editingRole.id, name: roleName }).subscribe({
+        this.apiService.updateRole({id: this.editingRole.id, name: roleName}).subscribe({
           next: () => {
             this.loadRoles();
             this.resetForm();
@@ -179,4 +179,4 @@ export class RolesComponent implements OnInit {
     this.editingRole = null;
     this.roleForm.reset();
   }
-} 
+}

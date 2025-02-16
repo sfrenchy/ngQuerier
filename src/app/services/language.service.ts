@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { TranslateService } from '@ngx-translate/core';
-import { BehaviorSubject } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {TranslateService} from '@ngx-translate/core';
+import {BehaviorSubject} from 'rxjs';
 
 export interface Language {
   code: string;
@@ -16,8 +16,8 @@ export class LanguageService {
   currentLanguage$ = this.currentLanguageSubject.asObservable();
 
   readonly languages: Language[] = [
-    { code: 'en', name: 'English', flag: '🇬🇧' },
-    { code: 'fr', name: 'Français', flag: '🇫🇷' }
+    {code: 'en', name: 'English', flag: '🇬🇧'},
+    {code: 'fr', name: 'Français', flag: '🇫🇷'}
   ];
 
   constructor(private translate: TranslateService) {
@@ -47,4 +47,4 @@ export class LanguageService {
   getCurrentLanguage(): string {
     return this.currentLanguageSubject.value;
   }
-} 
+}

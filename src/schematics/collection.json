@@ -5,7 +5,9 @@
       "description": "Generate a new card",
       "factory": "./card/index#card",
       "schema": "./card/schema.json",
-      "aliases": ["cd"]
+      "aliases": [
+        "cd"
+      ]
     }
   }
 }

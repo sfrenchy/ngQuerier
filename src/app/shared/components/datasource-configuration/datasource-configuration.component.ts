@@ -1,16 +1,21 @@
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { CardDatabaseService } from '@cards/card-database.service';
-import { DBConnectionDto, DBConnectionControllerInfoDto, SQLQueryDto, DataStructureDefinitionDto, TranslatableString } from '@models/api.models';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DatasourceConfig, ParameterValue } from '@models/datasource.models';
-import { DatasourceService } from './datasource.service';
-import { StoredProcedureParameter, ChartParameters } from '@models/parameters.models';
-import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
-import { Observable } from 'rxjs';
-import { RegisteredDataTable } from '@cards/models/registered-data-table.model';
-import { take } from 'rxjs/operators';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {CardDatabaseService} from '@cards/card-database.service';
+import {
+  DataStructureDefinitionDto,
+  DBConnectionControllerInfoDto,
+  DBConnectionDto,
+  SQLQueryDto
+} from '@models/api.models';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {DatasourceConfig, ParameterValue} from '@models/datasource.models';
+import {DatasourceService} from './datasource.service';
+import {StoredProcedureParameter} from '@models/parameters.models';
+import {LocalDataSourceService} from '@cards/data-table-card/local-datasource.service';
+import {Observable} from 'rxjs';
+import {RegisteredDataTable} from '@cards/models/registered-data-table.model';
+import {take} from 'rxjs/operators';
 
 interface ParameterInfo {
   name: string;
@@ -36,7 +41,7 @@ interface ParameterInfo {
   ]
 })
 export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
-  @Input() config: DatasourceConfig = { type: 'API' };
+  @Input() config: DatasourceConfig = {type: 'API'};
   @Input() excludeCardId?: number;
   @Output() configChange = new EventEmitter<DatasourceConfig>();
   @Output() schemaChange = new EventEmitter<string>();
@@ -53,12 +58,12 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
   isStoredProcedure = false;
   parametersList: ParameterInfo[] = [];
   dynamicDateTypes = [
-    { key: 'specific', label: 'DATASOURCE.DATE_TYPES.SPECIFIC' },
-    { key: 'today', label: 'DATASOURCE.DATE_TYPES.TODAY' },
-    { key: 'yesterday', label: 'DATASOURCE.DATE_TYPES.YESTERDAY' },
-    { key: 'lastWeek', label: 'DATASOURCE.DATE_TYPES.LAST_WEEK' },
-    { key: 'lastMonth', label: 'DATASOURCE.DATE_TYPES.LAST_MONTH' },
-    { key: 'lastYear', label: 'DATASOURCE.DATE_TYPES.LAST_YEAR' }
+    {key: 'specific', label: 'DATASOURCE.DATE_TYPES.SPECIFIC'},
+    {key: 'today', label: 'DATASOURCE.DATE_TYPES.TODAY'},
+    {key: 'yesterday', label: 'DATASOURCE.DATE_TYPES.YESTERDAY'},
+    {key: 'lastWeek', label: 'DATASOURCE.DATE_TYPES.LAST_WEEK'},
+    {key: 'lastMonth', label: 'DATASOURCE.DATE_TYPES.LAST_MONTH'},
+    {key: 'lastYear', label: 'DATASOURCE.DATE_TYPES.LAST_YEAR'}
   ]
   parameterDateTypes: Record<string, string> = {};
 
@@ -157,12 +162,13 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
         }
         break;
 
-      case 'SQLQuery':
-        const savedQuery = this.config.query;
+      case 'SQLQuery': {
+        // Charger d'abord toutes les requêtes
         this.cardDatabaseService.getSQLQueries().subscribe(queries => {
           this.queries = queries;
-          if (savedQuery) {
-            const matchingQuery = queries.find(q => q.id === savedQuery.id);
+          // Si une requête était déjà sélectionnée
+          if (this.config.query) {
+            const matchingQuery = queries.find(q => q.id === this.config.query?.id);
             if (matchingQuery) {
               this.config.query = matchingQuery;
               this.emitChange();
@@ -170,6 +176,7 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
           }
         });
         break;
+      }
     }
   }
 
@@ -244,11 +251,10 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
     }
   }
 
-  onTypeChange() {
-    // Reset configuration except type
+  onTypeChange(newType: string) {
     this.config = {
-      type: this.config.type,
-      isStoredProcedure: false  // Initialiser à false par défaut
+      type: newType as 'API' | 'EntityFramework' | 'SQLQuery' | 'LocalDataTable',
+      isStoredProcedure: false
     };
     this.loadInitialData();
     this.emitChange();
@@ -285,18 +291,13 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
   }
 
   onConnectionChange(connection: DBConnectionDto) {
-    this.config.connection = connection;
-    const savedController = this.config.controller;
+    // Mise à jour directe sans copie
+    this.config.type = 'API';
+    this.config.connection = connection;  // Assignation directe
     this.config.controller = undefined;
 
     this.cardDatabaseService.getControllers(connection.id).subscribe(controllers => {
       this.controllers = controllers;
-      if (savedController) {
-        const matchingController = controllers.find(c => c.name === savedController.name);
-        if (matchingController) {
-          this.config.controller = matchingController;
-        }
-      }
       this.emitChange();
     });
   }
@@ -602,16 +603,10 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
   }
 
   emitChange(recreateConfig: boolean = true) {
-    if (this.isStoredProcedure && recreateConfig) {
-      // Ne pas reformater les paramètres, garder les valeurs telles quelles
-      this.configChange.emit(this.config);
-      this.emitSchema();
-    } else {
-      this.configChange.emit(this.config);
-      this.emitSchema();
-    }
-    // Mettre à jour la configuration dans le service
-    this.datasourceService.setConfig(this.config);
+    // Émettre directement la config sans créer de copie
+    this.configChange.emit(this.config);
+
+    this.emitSchema();
   }
 
   private emitSchema() {
@@ -663,7 +658,7 @@ export class DatasourceConfigurationComponent implements OnInit, OnDestroy {
     this.onConfigChange();
   }
 
-  getSchemaColumns(): Array<{key: string, title: string}> {
+  getSchemaColumns(): Array<{ key: string, title: string }> {
     if (!this.sourceTableSchema?.properties) return [];
     return Object.entries(this.sourceTableSchema.properties).map(([key, prop]: [string, any]) => ({
       key,

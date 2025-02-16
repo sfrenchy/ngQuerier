@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { UserService } from '@services/user.service';
-import { ApiService } from '@services/api.service';
-import { RoleDto, TranslatableString } from '@models/api.models';
-import { IconPickerComponent } from '@shared/components/icon-picker/icon-picker.component';
-import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {UserService} from '@services/user.service';
+import {ApiService} from '@services/api.service';
+import {RoleDto, TranslatableString} from '@models/api.models';
+import {IconPickerComponent} from '@shared/components/icon-picker/icon-picker.component';
+import {
+  TranslatableStringFormComponent
+} from '@shared/components/translatable-string-form/translatable-string-form.component';
 
 @Component({
   selector: 'app-page-form',
@@ -53,8 +55,8 @@ export class PageFormComponent implements OnInit {
     } else {
       // Initialiser avec les langues par défaut
       this.pageTitles = [
-        { languageCode: 'fr', value: '' },
-        { languageCode: 'en', value: '' }
+        {languageCode: 'fr', value: ''},
+        {languageCode: 'en', value: ''}
       ];
     }
   }
@@ -81,10 +83,10 @@ export class PageFormComponent implements OnInit {
           roles: page.roles.map(r => r.id),
           route: page.route
         });
-        
+
         // Forcer la détection de changement en créant un nouveau tableau
         this.pageTitles = [...page.title];
-        
+
         this.isLoading = false;
       },
       error: (error) => {
@@ -113,7 +115,7 @@ export class PageFormComponent implements OnInit {
 
       request.subscribe({
         next: () => {
-          this.router.navigate(['..'], { relativeTo: this.route });
+          this.router.navigate(['..'], {relativeTo: this.route});
         },
         error: (error) => {
           console.error('Error saving page:', error);
@@ -125,7 +127,7 @@ export class PageFormComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['..'], { relativeTo: this.route });
+    this.router.navigate(['..'], {relativeTo: this.route});
   }
 
   onRoleChange(role: RoleDto, event: Event): void {
@@ -147,4 +149,4 @@ export class PageFormComponent implements OnInit {
     const currentRoles = this.pageForm.get('roles')?.value as number[] || [];
     return currentRoles.includes(role.id);
   }
-} 
+}

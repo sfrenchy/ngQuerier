@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { BaseCardConfig } from '@models/api.models';
-import { DatasourceConfig } from '@models/datasource.models';
+import {Injectable} from '@angular/core';
+import {BaseCardConfig} from '@models/api.models';
+import {DatasourceConfig} from '@models/datasource.models';
 
 @Injectable({
   providedIn: 'root'

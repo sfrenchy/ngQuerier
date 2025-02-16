@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
-import { Router } from '@angular/router';
-import { ApiService } from '@services/api.service';
-import { LanguageSelectorComponent } from '@components/language-selector/language-selector.component';
+import {Component} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {TranslateModule} from '@ngx-translate/core';
+import {Router} from '@angular/router';
+import {ApiService} from '@services/api.service';
+import {LanguageSelectorComponent} from '@components/language-selector/language-selector.component';
+import {SetupAdminDto, SetupSmtpDto} from '@models/api.models';
 
 @Component({
   selector: 'app-smtp-configuration',
@@ -36,14 +37,15 @@ export class SmtpConfigurationComponent {
       username: [''],
       password: [''],
       senderEmail: ['', [Validators.required, Validators.email]],
-      senderName: ['', Validators.required]
+      senderName: ['', Validators.required],
+      createNorthwind: [true]
     });
 
     // Update validators based on requireAuth value
     this.smtpForm.get('requireAuth')?.valueChanges.subscribe(requireAuth => {
       const usernameControl = this.smtpForm.get('username');
       const passwordControl = this.smtpForm.get('password');
-      
+
       if (requireAuth) {
         usernameControl?.setValidators(Validators.required);
         passwordControl?.setValidators(Validators.required);
@@ -51,7 +53,7 @@ export class SmtpConfigurationComponent {
         usernameControl?.clearValidators();
         passwordControl?.clearValidators();
       }
-      
+
       usernameControl?.updateValueAndValidity();
       passwordControl?.updateValueAndValidity();
     });
@@ -83,22 +85,24 @@ export class SmtpConfigurationComponent {
         next: (success: boolean) => {
           if (success) {
             // If test is successful, proceed with setup
-            const setupConfig = {
+            const adminSetup: SetupAdminDto = {
               firstName: adminConfig.firstName,
-              lastName: adminConfig.lastName,
+              name: adminConfig.lastName,
               email: adminConfig.email,
-              password: adminConfig.password,
+              password: adminConfig.password
+            };
+
+            const smtpSetup: SetupSmtpDto = {
               host: smtpConfig.host,
               port: smtpConfig.port,
-              useSSL: smtpConfig.useSSL,
-              requireAuth: smtpConfig.requireAuth,
               username: smtpConfig.username,
-              smtpPassword: smtpConfig.password,
+              password: smtpConfig.password,
+              useSSL: smtpConfig.useSSL,
               senderEmail: smtpConfig.senderEmail,
               senderName: smtpConfig.senderName
             };
 
-            this.apiService.setup(setupConfig).subscribe({
+            this.apiService.setup(adminSetup, smtpSetup, this.smtpForm.get('createNorthwind')?.value).subscribe({
               next: (setupSuccess: boolean) => {
                 this.isLoading = false;
                 if (setupSuccess) {
@@ -129,4 +133,4 @@ export class SmtpConfigurationComponent {
       });
     }
   }
-} 
+}

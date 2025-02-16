@@ -2,9 +2,9 @@
   <!-- Configuration de la source de données -->
   <app-tile [title]="'DATASOURCE.TITLE' | translate">
     <app-datasource-configuration
-      [config]="form.getRawValue().datasource"
       (configChange)="onDatasourceChange($event)"
-      (schemaChange)="onSchemaChange($event)">
+      (schemaChange)="onSchemaChange($event)"
+      [config]="form.getRawValue().datasource">
     </app-datasource-configuration>
     <!-- Message d'erreur pour la datasource -->
     <div *ngIf="errorMessages['datasource']" class="mt-2 text-sm text-red-500">
@@ -19,12 +19,12 @@
         <label class="block text-sm font-medium text-gray-300 mb-1">
           {{ 'chart.LABEL_COLUMN' | translate }}
         </label>
-        <select formControlName="labelColumn"
-                [class.border-red-500]="errorMessages['labelColumn']"
-                class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        <select [class.border-red-500]="errorMessages['labelColumn']"
+                class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md"
+                formControlName="labelColumn">
           <option value="">{{ 'FORM.SELECT_VALUE' | translate }}</option>
           <option *ngFor="let column of availableColumns" [value]="column">
-            {{column}}
+            {{ column }}
           </option>
         </select>
         <!-- Message d'erreur pour labelColumn -->
@@ -38,12 +38,12 @@
         <label class="block text-sm font-medium text-gray-300 mb-1">
           {{ 'chart.VALUE_COLUMN' | translate }}
         </label>
-        <select formControlName="valueColumn"
-                [class.border-red-500]="errorMessages['valueColumn']"
-                class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md">
+        <select [class.border-red-500]="errorMessages['valueColumn']"
+                class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md"
+                formControlName="valueColumn">
           <option value="">{{ 'FORM.SELECT_VALUE' | translate }}</option>
           <option *ngFor="let column of availableColumns" [value]="column">
-            {{column}}
+            {{ column }}
           </option>
         </select>
         <!-- Message d'erreur pour valueColumn -->
@@ -57,10 +57,10 @@
         <label class="block text-sm font-medium text-gray-300 mb-1">
           {{ 'chart.RADIUS' | translate }}
         </label>
-        <input type="text" formControlName="radius"
-               [class.border-red-500]="errorMessages['radius']"
-               class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md"
-               placeholder="75%">
+        <input [class.border-red-500]="errorMessages['radius']" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md"
+               formControlName="radius"
+               placeholder="75%"
+               type="text">
         <!-- Message d'erreur pour radius -->
         <div *ngIf="errorMessages['radius']" class="mt-2 text-sm text-red-500">
           {{ errorMessages['radius'] | translate }}

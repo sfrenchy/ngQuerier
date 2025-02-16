@@ -1,10 +1,9 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { BaseParameterPopover } from '../base-parameter-popover/base-parameter-popover.component';
-import { OrderByParameterDto } from '@models/api.models';
-import { StoredProcedureParameter } from '@models/parameters.models';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {BaseParameterPopover} from '../base-parameter-popover/base-parameter-popover.component';
+import {OrderByParameterDto} from '@models/api.models';
 
 export interface SortPopoverData {
   column: string;
@@ -87,6 +86,6 @@ export class SortPopoverComponent extends BaseParameterPopover implements OnInit
       description: this.data.description || ''
     };
     this.selectedColumn = this.data.column;
-    this.localParameter = { ...this.parameter };
+    this.localParameter = {...this.parameter};
   }
-} 
+}

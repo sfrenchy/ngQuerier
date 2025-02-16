@@ -19,3 +19,7 @@
     }
   }
 }
+
+:host ::ng-deep .angular-editor-wrapper .angular-editor-textarea:after {
+  visibility: hidden;
+}

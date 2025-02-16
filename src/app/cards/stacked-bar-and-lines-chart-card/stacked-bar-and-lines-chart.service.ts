@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { BaseChartService } from '@services/base-chart.service';
-import { ApiService } from '@services/api.service';
-import { DatasourceConfig } from '@models/datasource.models';
+import {Injectable} from '@angular/core';
+import {Observable} from 'rxjs';
+import {BaseChartService} from '@services/base-chart.service';
+import {ApiService} from '@services/api.service';
+import {DatasourceConfig} from '@models/datasource.models';
 
 @Injectable()
 export class StackedBarAndLinesChartService extends BaseChartService {
@@ -39,4 +39,4 @@ export class StackedBarAndLinesChartService extends BaseChartService {
     console.warn('StackedBarAndLinesChartService.transformResponse - Unexpected response format:', response);
     return [];
   }
-} 
+}

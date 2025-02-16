@@ -1,18 +1,18 @@
-<div class="rounded-lg border p-4" [ngClass]="getContainerClass()">
+<div [ngClass]="getContainerClass()" class="rounded-lg border p-4">
   <div class="flex items-center gap-2 mb-2">
     <fa-icon [icon]="getIcon()" [ngClass]="getIconClass()"></fa-icon>
     <span class="font-medium">{{ status | translate }}</span>
   </div>
 
   <div class="relative h-2 bg-gray-200 rounded">
-    <div class="absolute top-0 left-0 h-full rounded"
+    <div [ngClass]="getProgressBarClass()"
          [style.width.%]="progress"
-         [ngClass]="getProgressBarClass()">
+         class="absolute top-0 left-0 h-full rounded">
     </div>
   </div>
 
   <div class="flex justify-between mt-1">
-    <span class="text-sm" *ngIf="showPercentage">{{ progress }}%</span>
+    <span *ngIf="showPercentage" class="text-sm">{{ progress }}%</span>
   </div>
 
   <div *ngIf="error" class="mt-2 text-sm text-red-600">

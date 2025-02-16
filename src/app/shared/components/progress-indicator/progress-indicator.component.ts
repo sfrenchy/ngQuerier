@@ -1,8 +1,8 @@
-import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPlay, faCheck, faWarning } from '@fortawesome/free-solid-svg-icons';
+import {Component, Input} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule} from '@ngx-translate/core';
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import {faCheck, faPlay, faWarning} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-progress-indicator',

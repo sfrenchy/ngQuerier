@@ -1,41 +1,41 @@
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, throwError, of, Subject } from 'rxjs';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
-import { ApiEndpoints } from './api-endpoints';
+import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {Observable, of, Subject} from 'rxjs';
+import {tap} from 'rxjs/operators';
+import {ApiEndpoints} from './api-endpoints';
 import {
-  UserDto,
-  RoleDto,
-  DBConnectionDto,
-  PageDto,
-  SQLQueryRequest,
   ApiConfiguration,
-  SignUpDto,
-  RefreshTokenDto,
-  AuthResultDto,
-  SignUpResultDto,
-  SignInDto,
-  SettingDto,
-  DBConnectionDatabaseSchemaDto,
-  DBConnectionQueryAnalysisDto,
   ApiUserCreateDto,
   ApiUserUpdateDto,
-  DBConnectionCreateDto,
-  DBConnectionAnalyzeQueryDto,
-  MenuDto,
-  MenuCreateDto,
-  PageCreateDto,
-  LayoutDto,
-  DataStructureDefinitionDto,
-  PaginatedResultDto,
-  SQLQueryDto,
-  SQLQueryCreateDto,
-  DBConnectionControllerInfoDto,
-  DBConnectionEndpointRequestInfoDto,
+  AuthResultDto,
   DataRequestParametersDto,
-  DataRequestDataRequestParametersWithSQLParametersDto,
-  DBConnectionEndpointInfoDto
+  DataStructureDefinitionDto,
+  DBConnectionAnalyzeQueryDto,
+  DBConnectionControllerInfoDto,
+  DBConnectionCreateDto,
+  DBConnectionDatabaseSchemaDto,
+  DBConnectionDto,
+  DBConnectionEndpointInfoDto,
+  DBConnectionEndpointRequestInfoDto,
+  DBConnectionQueryAnalysisDto,
+  LayoutDto,
+  MenuCreateDto,
+  MenuDto,
+  PageCreateDto,
+  PageDto,
+  PaginatedResultDto,
+  RefreshTokenDto,
+  RoleDto,
+  SettingDto,
+  SetupAdminDto,
+  SetupSmtpDto,
+  SignInDto,
+  SignUpDto,
+  SignUpResultDto,
+  SQLQueryCreateDto,
+  SQLQueryDto,
+  SQLQueryRequest,
+  UserDto
 } from '@models/api.models';
 
 interface ForeignKeyDataValue {
@@ -88,7 +88,7 @@ export class ApiService {
         this.tokenExpirationTimer = setTimeout(() => {
           const refreshToken = localStorage.getItem('refresh_token');
           if (refreshToken) {
-            this.refreshToken({ token, refreshToken }).subscribe({
+            this.refreshToken({token, refreshToken}).subscribe({
               next: (result) => {
                 localStorage.setItem('access_token', result.token);
                 localStorage.setItem('refresh_token', result.refreshToken);
@@ -118,7 +118,7 @@ export class ApiService {
   // Generic HTTP methods
   get<T>(endpoint: string, params?: any): Observable<T> {
     const url = ApiEndpoints.buildUrl(this.baseUrl, endpoint);
-    return this.http.get<T>(url, { params });
+    return this.http.get<T>(url, {params});
   }
 
   post<T>(endpoint: string, body: any): Observable<T> {
@@ -189,7 +189,6 @@ export class ApiService {
   }
 
   checkConfiguration(): Observable<boolean> {
-    console.log('[API] Checking configuration for URL:', this.baseUrl);
     return this.get<boolean>(ApiEndpoints.isConfigured).pipe(
       tap({
         next: (result) => console.log('[API] Configuration check success:', result),
@@ -230,7 +229,7 @@ export class ApiService {
     return this.http.get<UserDto>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.userById, { id })
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.userById, {id})
       )
     );
   }
@@ -244,7 +243,7 @@ export class ApiService {
 
   updateUser(id: string, user: ApiUserUpdateDto): Observable<UserDto> {
     return this.http.put<UserDto>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.updateUser, { id })),
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.updateUser, {id})),
       user
     );
   }
@@ -253,14 +252,14 @@ export class ApiService {
     return this.http.delete<void>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteUser, { id })
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteUser, {id})
       )
     );
   }
 
   resendConfirmationEmail(userEmail: string): Observable<any> {
     return this.http.post(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.resendConfirmationEmail, { email: userEmail })),
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.resendConfirmationEmail, {email: userEmail})),
       {}
     );
   }
@@ -275,13 +274,13 @@ export class ApiService {
   addRole(name: string): Observable<RoleDto> {
     return this.http.post<RoleDto>(
       ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.addRole),
-      { id: '', name }
+      {id: '', name}
     );
   }
 
   updateRole(dto: RoleDto): Observable<RoleDto> {
     return this.http.put<RoleDto>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.updateRole, { id: dto.id.toString() })),
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.updateRole, {id: dto.id.toString()})),
       dto
     );
   }
@@ -290,7 +289,7 @@ export class ApiService {
     return this.http.delete<void>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteRole, { id: id.toString() })
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteRole, {id: id.toString()})
       )
     );
   }
@@ -312,7 +311,7 @@ export class ApiService {
   deleteDBConnection(id: number): Observable<void> {
     const url = ApiEndpoints.buildUrl(
       this.baseUrl,
-      ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteDbConnection, { id: id.toString() })
+      ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteDbConnection, {id: id.toString()})
     );
     return this.http.delete<void>(url);
   }
@@ -328,13 +327,18 @@ export class ApiService {
     );
   }
 
-  getDatabaseEndpoints(id:number, controller: string | null = null, targetTable: string | null = null, action: string | null = null): Observable<DBConnectionEndpointInfoDto[]> {
+  getDatabaseEndpoints(id: number, controller: string | null = null, targetTable: string | null = null, action: string | null = null): Observable<DBConnectionEndpointInfoDto[]> {
     return this.http.get<DBConnectionEndpointInfoDto[]>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
         ApiEndpoints.replaceUrlParams(
           ApiEndpoints.dbConnectionEndPoints,
-          { connectionId: id.toString(), controller: controller || '', targetTable: targetTable || '',  action: action || '' }
+          {
+            connectionId: id.toString(),
+            controller: controller || '',
+            targetTable: targetTable || '',
+            action: action || ''
+          }
         )
       )
     );
@@ -342,13 +346,13 @@ export class ApiService {
 
   getControllers(id: number): Observable<DBConnectionControllerInfoDto[]> {
     return this.http.get<DBConnectionControllerInfoDto[]>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.dbConnectionControllers, { id: id.toString() }))
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.dbConnectionControllers, {id: id.toString()}))
     );
   }
 
   getEndpoints(id: number): Observable<DBConnectionEndpointRequestInfoDto[]> {
     return this.http.get<DBConnectionEndpointRequestInfoDto[]>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.dbConnectionControllers, { id: id.toString() }))
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.dbConnectionControllers, {id: id.toString()}))
     );
   }
 
@@ -360,7 +364,7 @@ export class ApiService {
           connectionId: id.toString()
         })
       ),
-      { dto }
+      {dto}
     );
   }
 
@@ -373,7 +377,7 @@ export class ApiService {
 
   getMenu(id: number): Observable<MenuDto> {
     return this.http.get<MenuDto>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.menuById, { id: id.toString() }))
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.menuById, {id: id.toString()}))
     );
   }
 
@@ -388,7 +392,7 @@ export class ApiService {
 
   updateMenu(id: number, menu: MenuDto): Observable<MenuDto> {
     return this.http.put<MenuDto>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.updateMenu, { id: id.toString() })),
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.updateMenu, {id: id.toString()})),
       menu
     ).pipe(
       tap(() => this.menuUpdated.next())
@@ -399,7 +403,7 @@ export class ApiService {
     return this.http.delete<void>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteMenu, { id: id.toString() })
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteMenu, {id: id.toString()})
       )
     ).pipe(
       tap(() => this.menuUpdated.next())
@@ -418,13 +422,13 @@ export class ApiService {
 
   getMenuPages(menuId: number): Observable<PageDto[]> {
     return this.http.get<PageDto[]>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.pagesByMenuId, { menuId: menuId.toString() }))
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.pagesByMenuId, {menuId: menuId.toString()}))
     );
   }
 
   getPage(id: number): Observable<PageDto> {
     return this.http.get<PageDto>(
-      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.pageById, { id: id.toString() }))
+      ApiEndpoints.buildUrl(this.baseUrl, ApiEndpoints.replaceUrlParams(ApiEndpoints.pageById, {id: id.toString()}))
     );
   }
 
@@ -492,7 +496,7 @@ export class ApiService {
     return this.http.delete<void>(
       ApiEndpoints.buildUrl(
         this.baseUrl,
-        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteLayout, { pageId: pageId.toString() })
+        ApiEndpoints.replaceUrlParams(ApiEndpoints.deleteLayout, {pageId: pageId.toString()})
       )
     );
   }
@@ -640,36 +644,15 @@ export class ApiService {
     return this.post<boolean>(ApiEndpoints.smtpTest, config);
   }
 
-  setup(config: {
-    firstName: string;
-    lastName: string;
-    email: string;
-    password: string;
-    host: string;
-    port: number;
-    useSSL: boolean;
-    requireAuth: boolean;
-    username?: string;
-    smtpPassword?: string;
-    senderEmail: string;
-    senderName: string;
-  }): Observable<boolean> {
+  setup(
+    adminSetup: SetupAdminDto,
+    smtpSetup: SetupSmtpDto,
+    createSample: boolean,
+  ): Observable<boolean> {
     return this.post<boolean>(ApiEndpoints.setup, {
-      admin: {
-        name: config.lastName,
-        firstName: config.firstName,
-        email: config.email,
-        password: config.password,
-      },
-      smtp: {
-        host: config.host,
-        port: config.port,
-        username: config.username,
-        password: config.smtpPassword,
-        useSSL: config.useSSL,
-        senderEmail: config.senderEmail,
-        senderName: config.senderName,
-      },
+      admin: adminSetup,
+      smtp: smtpSetup,
+      createSample: createSample
     });
   }
 

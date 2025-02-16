@@ -1,17 +1,16 @@
 <div #cardContainer
-     class="flex flex-col rounded-lg overflow-hidden transition-all duration-200"
      [class.fixed]="isFullscreen"
+     [class.h-full]="!isFullscreen"
      [class.inset-4]="isFullscreen"
      [class.z-50]="isFullscreen"
-     [class.h-full]="!isFullscreen"
-     [style.background-color]="backgroundColor">
+     [style.background-color]="backgroundColor"
+     [style.max-height]="maxHeight"
+     class="flex flex-col rounded-lg overflow-hidden transition-all duration-200">
   <!-- Header -->
-  <div class="flex items-center justify-between px-4 py-3" [style.background-color]="headerBackgroundColor">
+  <div [style.background-color]="headerBackgroundColor" class="flex items-center justify-between px-4 py-3">
     <div class="flex items-center flex-1">
-      <h3 class="text-sm font-medium" [style.color]="headerTextColor">
-        <ng-container *ngFor="let title of card.title">
-          <span *ngIf="title.languageCode === 'fr'">{{ title.value }}</span>
-        </ng-container>
+      <h3 [style.color]="headerTextColor" class="text-sm font-medium">
+        {{ getCurrentTitle() }}
       </h3>
     </div>
     <div class="flex-1">
@@ -19,26 +18,28 @@
     </div>
     <div class="flex items-center gap-2">
       <!-- Fullscreen button -->
-      <button *ngIf="showFullscreenButton"
-        (click)="toggleFullscreen()"
-        class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
-        <svg *ngIf="!isFullscreen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+      <button (click)="toggleFullscreen()"
+              *ngIf="showFullscreenButton"
+              class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
+        <svg *ngIf="!isFullscreen" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
         </svg>
-        <svg *ngIf="isFullscreen" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+        <svg *ngIf="isFullscreen" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2"
+             viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
         </svg>
       </button>
     </div>
   </div>
 
   <!-- Body -->
-  <div class="flex-1 overflow-auto" [style.color]="textColor">
+  <div [style.color]="textColor" class="flex-1 overflow-auto">
     <ng-content select="[body]"></ng-content>
   </div>
 
   <!-- Footer -->
-  <div class="border-t border-gray-200" [style.color]="textColor">
+  <div [style.color]="textColor" class="border-t border-gray-200">
     <ng-content select="[footer]"></ng-content>
   </div>
 </div>

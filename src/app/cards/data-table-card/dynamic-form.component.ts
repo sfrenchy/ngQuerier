@@ -1,12 +1,12 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicFormField, DynamicFormSchema } from './data-table-card.models';
-import { ForeignKeyService } from './foreign-key.service';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {DynamicFormField, DynamicFormSchema} from './data-table-card.models';
+import {ForeignKeyService} from './foreign-key.service';
 
 export interface FormDataSubmit {
-    schema: DynamicFormSchema;
-    formData: any;
+  schema: DynamicFormSchema;
+  formData: any;
 }
 
 @Component({
@@ -69,7 +69,7 @@ export interface FormDataSubmit {
               >
 
               <!-- Message d'erreur -->
-              <div *ngIf="form.get(field.key)?.invalid && form.get(field.key)?.touched" 
+              <div *ngIf="form.get(field.key)?.invalid && form.get(field.key)?.touched"
                    class="text-sm text-red-500 mt-1">
                 <span *ngIf="form.get(field.key)?.errors?.['required']">Ce champ est requis</span>
                 <span *ngIf="form.get(field.key)?.errors?.['maxlength']">
@@ -94,7 +94,7 @@ export interface FormDataSubmit {
         <!-- Pied de page fixe -->
         <div class="flex-none p-4 border-t border-gray-700 bg-gray-800">
           <div class="flex justify-end space-x-3">
-            <button type="button" 
+            <button type="button"
                     (click)="onCancel()"
                     class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
               Annuler
@@ -129,7 +129,8 @@ export class DynamicFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private foreignKeyService: ForeignKeyService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.initializeForm();
@@ -154,14 +155,14 @@ export class DynamicFormComponent implements OnInit {
     this.fields = Object.keys(properties)
       .filter(key => {
         const metadata = properties[key]['x-entity-metadata'];
-        return !metadata?.isNavigation && 
-               !metadata?.isCollection && 
-               !(metadata?.isPrimaryKey && metadata?.isIdentity);
+        return !metadata?.isNavigation &&
+          !metadata?.isCollection &&
+          !(metadata?.isPrimaryKey && metadata?.isIdentity);
       })
       .map(key => {
         const prop = properties[key];
         const metadata = prop['x-entity-metadata'];
-        
+
         // Créer le contrôle de formulaire avec les validateurs
         const validators = [];
         if (metadata?.isRequired) {
@@ -180,11 +181,11 @@ export class DynamicFormComponent implements OnInit {
         }
 
         // Utiliser la valeur initiale si disponible, sinon la valeur par défaut
-        const defaultValue = this.initialData ? 
-          Object.entries(this.initialData).find(([k, v]) => k.toLowerCase() === key.toLowerCase())?.[1] ?? 
-          metadata?.defaultValue ?? 
-          null : 
-          metadata?.defaultValue ?? 
+        const defaultValue = this.initialData ?
+          Object.entries(this.initialData).find(([k, v]) => k.toLowerCase() === key.toLowerCase())?.[1] ??
+          metadata?.defaultValue ??
+          null :
+          metadata?.defaultValue ??
           null;
         formGroup[key] = [defaultValue, validators];
 
@@ -292,9 +293,9 @@ export class DynamicFormComponent implements OnInit {
         }
       });
 
-      this.formSubmit.emit({ 
+      this.formSubmit.emit({
         schema: this.jsonSchema,
-        formData: formValue 
+        formData: formValue
       });
     }
   }
@@ -320,14 +321,14 @@ export class DynamicFormComponent implements OnInit {
       // Chercher la propriété qui correspond à la colonne de clé étrangère de manière insensible à la casse
       const idKey = Object.keys(item).find(key => key.toLowerCase() === foreignKeyColumn.toLowerCase());
       const id = idKey ? item[idKey] : undefined;
-      
+
       const display = config ? this.foreignKeyService.formatDisplay(
         item,
         config.displayColumns || [],
         config.displayFormat
       ) : String(id || '');
-      
-      return { id, display };
+
+      return {id, display};
     });
   }
 
@@ -348,8 +349,8 @@ export class DynamicFormComponent implements OnInit {
   getForeignKeyDisplay(option: any, config?: any): string {
     if (!config?.displayFormat) {
       // Fallback : afficher la première propriété non technique
-      const firstDisplayableProperty = Object.keys(option).find(key => 
-        !key.toLowerCase().includes('id') && 
+      const firstDisplayableProperty = Object.keys(option).find(key =>
+        !key.toLowerCase().includes('id') &&
         typeof option[key] === 'string'
       );
       if (!firstDisplayableProperty) return option.toString();
@@ -372,4 +373,4 @@ export class DynamicFormComponent implements OnInit {
     this.isFullscreen = !this.isFullscreen;
     this.fullscreenChange.emit(this.isFullscreen);
   }
-} 
+}

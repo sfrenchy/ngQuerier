@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
-import { HubConnection, HubConnectionBuilder, LogLevel, HttpTransportType } from '@microsoft/signalr';
-import { Observable } from 'rxjs';
-import { environment } from '@environments/environment';
-import { AuthStateService } from '@services/auth-state.service';
-import { AddDBConnectionProgressStatus } from '@shared/enums/add-db-connection-progress-status.enum';
-import { Subject } from 'rxjs';
-import { OperationProgress } from '@shared/models/operation-progress.model';
+import {Injectable} from '@angular/core';
+import {HttpTransportType, HubConnection, HubConnectionBuilder, LogLevel} from '@microsoft/signalr';
+import {Observable, Subject} from 'rxjs';
+import {environment} from '@environments/environment';
+import {AuthStateService} from '@services/auth-state.service';
+import {AddDBConnectionProgressStatus} from '@shared/enums/add-db-connection-progress-status.enum';
+import {OperationProgress} from '@shared/models/operation-progress.model';
+
 export interface ProgressEvent {
   operationId: string;
   progress: number;

@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CardDto } from '@models/api.models';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {CardDto} from '@models/api.models';
 
 @Component({
   selector: 'app-card-wrapper',
@@ -19,6 +19,7 @@ export class CardWrapperComponent {
   set height(value: number) {
     this._height = value;
   }
+
   get height(): number {
     return this._height;
   }
@@ -30,4 +31,4 @@ export class CardWrapperComponent {
   onConfigure() {
     this.configure.emit();
   }
-} 
+}

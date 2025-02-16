@@ -1,15 +1,9 @@
-import { inject } from '@angular/core';
-import {
-  HttpRequest,
-  HttpHandlerFn,
-  HttpEvent,
-  HttpInterceptorFn,
-  HttpErrorResponse
-} from '@angular/common/http';
-import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, filter, take, switchMap } from 'rxjs/operators';
-import { AuthStateService } from '../services/auth-state.service';
-import { ApiService } from '../services/api.service';
+import {inject} from '@angular/core';
+import {HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest} from '@angular/common/http';
+import {BehaviorSubject, Observable, throwError} from 'rxjs';
+import {catchError, filter, switchMap, take} from 'rxjs/operators';
+import {AuthStateService} from '../services/auth-state.service';
+import {ApiService} from '../services/api.service';
 
 let isRefreshing = false;
 const refreshTokenSubject = new BehaviorSubject<string | null>(null);
@@ -61,9 +55,9 @@ function handle401Error(
 
     const token = authStateService.getAccessToken();
     const refreshToken = authStateService.getRefreshToken();
-    
+
     if (token && refreshToken) {
-      return apiService.refreshToken({ token, refreshToken }).pipe(
+      return apiService.refreshToken({token, refreshToken}).pipe(
         switchMap(response => {
           isRefreshing = false;
           authStateService.setTokens(response.token, response.refreshToken);
@@ -84,4 +78,4 @@ function handle401Error(
     take(1),
     switchMap(token => next(addToken(request, token)))
   );
-} 
+}

@@ -1,25 +1,25 @@
-  <option [ngValue]="null" *ngIf="field.nullable">{{ 'FORM.SELECT_VALUE' | translate }}</option>
-  <div *ngIf="form.get(field.key)?.invalid && form.get(field.key)?.touched"
-       class="text-sm text-red-500 mt-1">
-    <span *ngIf="form.get(field.key)?.errors?.['required']">{{ 'FORM.VALIDATION.REQUIRED' | translate }}</span>
-    <span *ngIf="form.get(field.key)?.errors?.['maxlength']">
-      {{ 'FORM.VALIDATION.MAX_LENGTH' | translate: { max: field.maxLength } }}
+<option *ngIf="field.nullable" [ngValue]="null">{{ 'FORM.SELECT_VALUE' | translate }}</option>
+<div *ngIf="form.get(field.key)?.invalid && form.get(field.key)?.touched"
+     class="text-sm text-red-500 mt-1">
+  <span *ngIf="form.get(field.key)?.errors?.['required']">{{ 'FORM.VALIDATION.REQUIRED' | translate }}</span>
+  <span *ngIf="form.get(field.key)?.errors?.['maxlength']">
+      {{ 'FORM.VALIDATION.MAX_LENGTH' | translate: {max: field.maxLength} }}
     </span>
-    <span *ngIf="form.get(field.key)?.errors?.['min']">
-      {{ 'FORM.VALIDATION.MIN_VALUE' | translate: { min: field.minimum } }}
+  <span *ngIf="form.get(field.key)?.errors?.['min']">
+      {{ 'FORM.VALIDATION.MIN_VALUE' | translate: {min: field.minimum} }}
     </span>
-    <span *ngIf="form.get(field.key)?.errors?.['max']">
-      {{ 'FORM.VALIDATION.MAX_VALUE' | translate: { max: field.maximum } }}
+  <span *ngIf="form.get(field.key)?.errors?.['max']">
+      {{ 'FORM.VALIDATION.MAX_VALUE' | translate: {max: field.maximum} }}
     </span>
-  </div>
-  <button type="button"
-          (click)="onCancel()"
-          class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2">
-    {{ 'COMMON.CANCEL' | translate }}
-  </button>
-  <button type="submit"
-          (click)="onSubmit()"
-          [disabled]="!form.valid"
-          class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
-    {{ 'COMMON.SAVE' | translate }}
-  </button> 
+</div>
+<button (click)="onCancel()"
+        class="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+        type="button">
+  {{ 'COMMON.CANCEL' | translate }}
+</button>
+<button (click)="onSubmit()"
+        [disabled]="!form.valid"
+        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        type="submit">
+  {{ 'COMMON.SAVE' | translate }}
+</button>

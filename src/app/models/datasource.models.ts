@@ -1,5 +1,5 @@
-import { DBConnectionDto, DBConnectionControllerInfoDto, DataStructureDefinitionDto, SQLQueryDto } from './api.models';
-import { StoredProcedureParameter } from './parameters.models';
+import {DataStructureDefinitionDto, DBConnectionControllerInfoDto, DBConnectionDto, SQLQueryDto} from './api.models';
+import {StoredProcedureParameter} from './parameters.models';
 
 // Nouvelle interface pour la configuration de la source de données locale
 export interface LocalDataTableConfig {

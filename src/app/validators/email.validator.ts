@@ -1,4 +1,4 @@
-import { AbstractControl, ValidationErrors } from '@angular/forms';
+import {AbstractControl, ValidationErrors} from '@angular/forms';
 
 export class EmailValidators {
   private static readonly EMAIL_PATTERN = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -14,20 +14,20 @@ export class EmailValidators {
 
     // Vérification de la longueur totale de l'email
     if (email.length > EmailValidators.MAX_EMAIL_LENGTH) {
-      return { emailLength: true };
+      return {emailLength: true};
     }
 
     // Vérification de la longueur de la partie locale
     const localPart = email.split('@')[0];
     if (localPart && localPart.length > EmailValidators.MAX_LOCAL_PART_LENGTH) {
-      return { localPartLength: true };
+      return {localPartLength: true};
     }
 
     // Vérification du format de l'email
     if (!EmailValidators.EMAIL_PATTERN.test(email)) {
-      return { emailPattern: true };
+      return {emailPattern: true};
     }
 
     return null;
   }
-} 
+}

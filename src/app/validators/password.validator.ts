@@ -1,4 +1,4 @@
-import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import {AbstractControl, ValidationErrors, ValidatorFn} from '@angular/forms';
 
 export class PasswordValidators {
   private static readonly DIGIT_PATTERN = /\d/;
@@ -34,7 +34,7 @@ export class PasswordValidators {
 
       // Vérification de la longueur minimale
       if (password.length < requiredLength) {
-        errors['minlength'] = { requiredLength, actualLength: password.length };
+        errors['minlength'] = {requiredLength, actualLength: password.length};
       }
 
       // Vérification de la présence d'un chiffre
@@ -61,11 +61,11 @@ export class PasswordValidators {
       if (requiredUniqueChars > 0) {
         const uniqueChars = new Set(password.split('')).size;
         if (uniqueChars < requiredUniqueChars) {
-          errors['requireUniqueChars'] = { required: requiredUniqueChars, actual: uniqueChars };
+          errors['requireUniqueChars'] = {required: requiredUniqueChars, actual: uniqueChars};
         }
       }
 
       return Object.keys(errors).length === 0 ? null : errors;
     };
   }
-} 
+}

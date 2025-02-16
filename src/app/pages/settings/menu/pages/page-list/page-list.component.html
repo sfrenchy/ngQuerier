@@ -4,8 +4,8 @@
       <div class="flex justify-between items-center">
         <div>
           <h2 class="text-2xl font-semibold">{{ 'MENU.PAGES.TITLE' | translate }}</h2>
-          <p class="text-gray-400 mt-1" *ngIf="menu">
-            {{ 'MENU.PAGES.SUBTITLE' | translate: { menu: getLocalizedName(menu) } }}
+          <p *ngIf="menu" class="text-gray-400 mt-1">
+            {{ 'MENU.PAGES.SUBTITLE' | translate: {menu: getLocalizedName(menu)} }}
           </p>
         </div>
         <button
@@ -30,84 +30,86 @@
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-700">
           <thead>
-            <tr>
-              <th class="w-8"></th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                {{ 'COMMON.NAME' | translate }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                {{ 'COMMON.ICON' | translate }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                {{ 'COMMON.VISIBILITY' | translate }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                {{ 'COMMON.ROLES' | translate }}
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                {{ 'COMMON.ACTIONS' | translate }}
-              </th>
-            </tr>
+          <tr>
+            <th class="w-8"></th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+              {{ 'COMMON.NAME' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+              {{ 'COMMON.ICON' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+              {{ 'COMMON.VISIBILITY' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+              {{ 'COMMON.ROLES' | translate }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
+              {{ 'COMMON.ACTIONS' | translate }}
+            </th>
+          </tr>
           </thead>
-          <tbody cdkDropList (cdkDropListDropped)="drop($event)" class="divide-y divide-gray-700">
-            <tr *ngFor="let page of pages" class="hover:bg-gray-700" cdkDrag>
-              <td class="px-2 cursor-move" cdkDragHandle>
-                <i class="fas fa-grip-vertical text-gray-500"></i>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  {{ getLocalizedName(page) }}
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <i [class]="page.icon"><fa-icon [icon]="['fas', page.icon]"></fa-icon></i>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
+          <tbody (cdkDropListDropped)="drop($event)" cdkDropList class="divide-y divide-gray-700">
+          <tr *ngFor="let page of pages" cdkDrag class="hover:bg-gray-700">
+            <td cdkDragHandle class="px-2 cursor-move">
+              <i class="fas fa-grip-vertical text-gray-500"></i>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                {{ getLocalizedName(page) }}
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <i [class]="page.icon">
+                <fa-icon [icon]="['fas', page.icon]"></fa-icon>
+              </i>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
                 <span
-                  class="px-2 py-1 text-xs rounded"
                   [ngClass]="page.isVisible ? 'bg-green-600' : 'bg-red-600'"
+                  class="px-2 py-1 text-xs rounded"
                 >
                   {{ (page.isVisible ? 'COMMON.VISIBLE' : 'COMMON.HIDDEN') | translate }}
                 </span>
-              </td>
-              <td class="px-6 py-4">
-                <div class="flex flex-wrap gap-2">
+            </td>
+            <td class="px-6 py-4">
+              <div class="flex flex-wrap gap-2">
                   <span *ngFor="let role of page.roles" class="px-2 py-1 text-xs rounded bg-blue-600">
                     {{ role.name }}
                   </span>
-                </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex gap-3">
-                  <button
-                    (click)="onEditClick(page)"
-                    class="text-blue-400 hover:text-blue-300 transition-colors"
-                    [title]="'COMMON.EDIT' | translate"
-                  >
-                    <i class="fas fa-edit"></i>
-                  </button>
-                  <button
-                    (click)="onLayoutClick(page)"
-                    class="text-purple-400 hover:text-purple-300 transition-colors"
-                    [title]="'MENU.PAGES.LAYOUT' | translate"
-                  >
-                    <i class="fas fa-th-large"></i>
-                  </button>
-                  <button
-                    (click)="onDeleteClick(page)"
-                    class="text-red-400 hover:text-red-300 transition-colors"
-                    [title]="'COMMON.DELETE' | translate"
-                  >
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-              </td>
-            </tr>
-            <tr *ngIf="pages.length === 0 && !isLoading">
-              <td colspan="6" class="px-6 py-4 text-center text-gray-400">
-                {{ 'MENU.PAGES.NO_PAGES' | translate }}
-              </td>
-            </tr>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex gap-3">
+                <button
+                  (click)="onEditClick(page)"
+                  [title]="'COMMON.EDIT' | translate"
+                  class="text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  (click)="onLayoutClick(page)"
+                  [title]="'MENU.PAGES.LAYOUT' | translate"
+                  class="text-purple-400 hover:text-purple-300 transition-colors"
+                >
+                  <i class="fas fa-th-large"></i>
+                </button>
+                <button
+                  (click)="onDeleteClick(page)"
+                  [title]="'COMMON.DELETE' | translate"
+                  class="text-red-400 hover:text-red-300 transition-colors"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="pages.length === 0 && !isLoading">
+            <td class="px-6 py-4 text-center text-gray-400" colspan="6">
+              {{ 'MENU.PAGES.NO_PAGES' | translate }}
+            </td>
+          </tr>
           </tbody>
         </table>
       </div>
@@ -116,12 +118,12 @@
 </div>
 
 <app-confirmation-dialog
+  (cancel)="onCancelDelete()"
+  (confirm)="onConfirmDelete()"
   *ngIf="showConfirmDialog"
-  [titleKey]="'MENU.PAGES.DELETE'"
   [messageKey]="'COMMON.CONFIRMATION.DELETE_GENERIC'"
   [messageParams]="{ name: pageToDelete ? getLocalizedName(pageToDelete) : '' }"
-  (confirm)="onConfirmDelete()"
-  (cancel)="onCancelDelete()">
+  [titleKey]="'MENU.PAGES.DELETE'">
 </app-confirmation-dialog>
 
-<router-outlet></router-outlet> 
+<router-outlet></router-outlet>

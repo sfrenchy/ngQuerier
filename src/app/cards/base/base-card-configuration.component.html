@@ -7,19 +7,21 @@
         <!-- Import button -->
         <button (click)="fileInput.click()"
                 class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+               xmlns="http://www.w3.org/2000/svg">
             <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
           </svg>
         </button>
-        <input #fileInput type="file"
-               (change)="importConfig($event)"
+        <input #fileInput (change)="importConfig($event)"
                accept=".json"
-               class="hidden">
+               class="hidden"
+               type="file">
 
         <!-- Export button -->
         <button (click)="exportConfig()"
                 class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+               xmlns="http://www.w3.org/2000/svg">
             <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
           </svg>
         </button>
@@ -27,8 +29,9 @@
         <!-- Fullscreen button -->
         <button (click)="toggleFullscreen.emit()"
                 class="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+               xmlns="http://www.w3.org/2000/svg">
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
           </svg>
         </button>
       </div>
@@ -53,18 +56,18 @@
             <div class="flex gap-4">
               <!-- Header toggle -->
               <div class="flex items-center">
-                <input type="checkbox" id="displayHeader" formControlName="displayHeader"
-                       class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500">
-                <label for="displayHeader" class="ml-2 text-sm font-medium text-gray-300">
+                <input class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500" formControlName="displayHeader" id="displayHeader"
+                       type="checkbox">
+                <label class="ml-2 text-sm font-medium text-gray-300" for="displayHeader">
                   {{ 'card.SHOW_HEADER' | translate }}
                 </label>
               </div>
 
               <!-- Footer toggle -->
               <div class="flex items-center">
-                <input type="checkbox" id="displayFooter" formControlName="displayFooter"
-                       class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500">
-                <label for="displayFooter" class="ml-2 text-sm font-medium text-gray-300">
+                <input class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500" formControlName="displayFooter" id="displayFooter"
+                       type="checkbox">
+                <label class="ml-2 text-sm font-medium text-gray-300" for="displayFooter">
                   {{ 'card.SHOW_FOOTER' | translate }}
                 </label>
               </div>
@@ -78,13 +81,14 @@
             <!-- Grid Width -->
             <div>
               <div class="flex items-center justify-between mb-2">
-                <label for="gridWidth" class="text-sm font-medium text-gray-300">{{ 'card.WIDTH' | translate }}</label>
-                <span class="text-sm font-medium text-gray-300">{{form.get('gridWidth')?.value}} / {{maxAvailableWidth}}</span>
+                <label class="text-sm font-medium text-gray-300" for="gridWidth">{{ 'card.WIDTH' | translate }}</label>
+                <span class="text-sm font-medium text-gray-300">{{ form.get('gridWidth')?.value }}
+                  / {{ maxAvailableWidth }}</span>
               </div>
               <div class="flex items-center gap-4">
-                <input type="range" id="gridWidth" formControlName="gridWidth"
-                       [min]="1" [max]="maxAvailableWidth" step="1"
-                       class="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+                <input [max]="maxAvailableWidth" [min]="1" class="flex-1 h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                       formControlName="gridWidth" id="gridWidth" step="1"
+                       type="range">
               </div>
             </div>
 
@@ -92,53 +96,57 @@
             <div class="grid grid-cols-2 gap-4">
               <!-- Background Color -->
               <div>
-                <label for="backgroundColor" class="block text-sm font-medium text-gray-300 mb-2">{{ 'card.BACKGROUND_COLOR' | translate }}</label>
+                <label class="block text-sm font-medium text-gray-300 mb-2"
+                       for="backgroundColor">{{ 'card.BACKGROUND_COLOR' | translate }}</label>
                 <div class="flex items-center gap-2">
-                  <input type="color" id="backgroundColor" [formControlName]="'backgroundColor'"
-                         class="h-10 w-10 rounded border border-gray-600"
-                         data-testid="backgroundColor">
-                  <input type="text" [formControlName]="'backgroundColor'"
+                  <input [formControlName]="'backgroundColor'" class="h-10 w-10 rounded border border-gray-600" data-testid="backgroundColor"
+                         id="backgroundColor"
+                         type="color">
+                  <input (input)="onColorTextInput($event, 'backgroundColor')" [formControlName]="'backgroundColor'"
                          class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                         (input)="onColorTextInput($event, 'backgroundColor')">
+                         type="text">
                 </div>
               </div>
 
               <!-- Text Color -->
               <div>
-                <label for="textColor" class="block text-sm font-medium text-gray-300 mb-2">{{ 'card.TEXT_COLOR' | translate }}</label>
+                <label class="block text-sm font-medium text-gray-300 mb-2"
+                       for="textColor">{{ 'card.TEXT_COLOR' | translate }}</label>
                 <div class="flex items-center gap-2">
-                  <input type="color" id="textColor" [formControlName]="'textColor'"
-                         class="h-10 w-10 rounded border border-gray-600"
-                         data-testid="textColor">
-                  <input type="text" [formControlName]="'textColor'"
+                  <input [formControlName]="'textColor'" class="h-10 w-10 rounded border border-gray-600" data-testid="textColor"
+                         id="textColor"
+                         type="color">
+                  <input (input)="onColorTextInput($event, 'textColor')" [formControlName]="'textColor'"
                          class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                         (input)="onColorTextInput($event, 'textColor')">
+                         type="text">
                 </div>
               </div>
 
               <!-- Header Text Color -->
               <div>
-                <label for="headerTextColor" class="block text-sm font-medium text-gray-300 mb-2">{{ 'card.HEADER_TEXT_COLOR' | translate }}</label>
+                <label class="block text-sm font-medium text-gray-300 mb-2"
+                       for="headerTextColor">{{ 'card.HEADER_TEXT_COLOR' | translate }}</label>
                 <div class="flex items-center gap-2">
-                  <input type="color" id="headerTextColor" [formControlName]="'headerTextColor'"
-                         class="h-10 w-10 rounded border border-gray-600"
-                         data-testid="headerTextColor">
-                  <input type="text" [formControlName]="'headerTextColor'"
+                  <input [formControlName]="'headerTextColor'" class="h-10 w-10 rounded border border-gray-600" data-testid="headerTextColor"
+                         id="headerTextColor"
+                         type="color">
+                  <input (input)="onColorTextInput($event, 'headerTextColor')" [formControlName]="'headerTextColor'"
                          class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                         (input)="onColorTextInput($event, 'headerTextColor')">
+                         type="text">
                 </div>
               </div>
 
               <!-- Header Background Color -->
               <div>
-                <label for="headerBackgroundColor" class="block text-sm font-medium text-gray-300 mb-2">{{ 'card.HEADER_BACKGROUND_COLOR' | translate }}</label>
+                <label class="block text-sm font-medium text-gray-300 mb-2"
+                       for="headerBackgroundColor">{{ 'card.HEADER_BACKGROUND_COLOR' | translate }}</label>
                 <div class="flex items-center gap-2">
-                  <input type="color" id="headerBackgroundColor" [formControlName]="'headerBackgroundColor'"
-                         class="h-10 w-10 rounded border border-gray-600"
-                         data-testid="headerBackgroundColor">
-                  <input type="text" [formControlName]="'headerBackgroundColor'"
+                  <input [formControlName]="'headerBackgroundColor'" class="h-10 w-10 rounded border border-gray-600" data-testid="headerBackgroundColor"
+                         id="headerBackgroundColor"
+                         type="color">
+                  <input (input)="onColorTextInput($event, 'headerBackgroundColor')" [formControlName]="'headerBackgroundColor'"
                          class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                         (input)="onColorTextInput($event, 'headerBackgroundColor')">
+                         type="text">
                 </div>
               </div>
             </div>
@@ -146,9 +154,9 @@
         </app-tile>
 
         <!-- Chart Visual Configuration -->
-        <app-chart-visual-configuration *ngIf="isChartCard"
-          [config]="visualConfig"
-          (configChange)="onVisualConfigChange($event)">
+        <app-chart-visual-configuration (configChange)="onVisualConfigChange($event)"
+                                        *ngIf="isChartCard"
+                                        [config]="visualConfig">
         </app-chart-visual-configuration>
 
         <!-- Specific Card Configuration -->

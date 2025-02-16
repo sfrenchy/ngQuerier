@@ -1,10 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ApiService } from '@services/api.service';
-import { UserDto, RoleDto, ApiUserCreateDto, ApiUserUpdateDto } from '@models/api.models';
-import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule} from '@ngx-translate/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ApiService} from '@services/api.service';
+import {ApiUserCreateDto, ApiUserUpdateDto, RoleDto, UserDto} from '@models/api.models';
+import {ConfirmationDialogComponent} from '@shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-users',
@@ -92,7 +92,7 @@ export class UsersComponent implements OnInit {
   onDeleteSelectedClick(): void {
     this.userToDelete = null;
     this.deleteConfirmationMessage = 'COMMON.CONFIRMATION.DELETE_MULTIPLE_USERS';
-    this.deleteConfirmationParams = { count: this.selectedUsers.length };
+    this.deleteConfirmationParams = {count: this.selectedUsers.length};
     this.showDeleteConfirmation = true;
   }
 
@@ -116,7 +116,7 @@ export class UsersComponent implements OnInit {
   onDeleteClick(user: UserDto): void {
     this.userToDelete = user;
     this.deleteConfirmationMessage = 'COMMON.CONFIRMATION.DELETE_USER';
-    this.deleteConfirmationParams = { name: user.firstName + ' ' + user.lastName };
+    this.deleteConfirmationParams = {name: user.firstName + ' ' + user.lastName};
     this.showDeleteConfirmation = true;
   }
 
@@ -170,7 +170,9 @@ export class UsersComponent implements OnInit {
     if (this.userForm.valid) {
       const email = this.userForm.get('email')?.value;
       const roleIds = this.userForm.get('roleIds')?.value as number[];
-      const roles: RoleDto[] = roleIds.map((id) => {return {id:id, name: this.getRoleNameById(id)}});
+      const roles: RoleDto[] = roleIds.map((id) => {
+        return {id: id, name: this.getRoleNameById(id)}
+      });
 
       const userUpdateData: ApiUserUpdateDto = {
         id: this.editingUser?.id || '',
@@ -227,7 +229,7 @@ export class UsersComponent implements OnInit {
   onRoleChange(event: Event, roleId: number): void {
     const checkbox = event.target as HTMLInputElement;
     const currentRoles = this.userForm.get('roleIds')?.value as number[] || [];
-    
+
     if (checkbox.checked) {
       // Ajouter le rôle s'il n'existe pas déjà
       if (!currentRoles.includes(roleId)) {
@@ -257,4 +259,4 @@ export class UsersComponent implements OnInit {
       }
     });
   }
-} 
+}

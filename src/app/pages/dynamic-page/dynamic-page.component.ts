@@ -1,22 +1,29 @@
-import { Component, OnInit, OnDestroy, NgModuleRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { NgComponentOutlet } from '@angular/common';
-import { CardService } from '@cards/card.service';
-import { LayoutDto, RowDto, CardDto } from '@models/api.models';
-import { ApiService } from '@services/api.service';
-import { Subject, takeUntil, tap, switchMap, forkJoin, of, Observable } from 'rxjs';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {Component, NgModuleRef, OnDestroy, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute, Router} from '@angular/router';
+import {CardService} from '@cards/card.service';
+import {CardDto, CardDtoWithMaxHeight, LayoutDto} from '@models/api.models';
+import {ApiService} from '@services/api.service';
+import {forkJoin, Observable, of, Subject, switchMap, takeUntil, tap} from 'rxjs';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import { LayoutRendererComponent } from '@shared/components/layout/layout-renderer/layout-renderer.component';
 
 @Component({
   selector: 'app-dynamic-page',
   templateUrl: './dynamic-page.component.html',
   styleUrls: ['./dynamic-page.component.css'],
   standalone: true,
-  imports: [CommonModule, NgComponentOutlet, TranslateModule]
+  imports: [
+    CommonModule,
+    TranslateModule,
+    LayoutRendererComponent
+  ]
 })
 export class DynamicPageComponent implements OnInit, OnDestroy {
-  layout: LayoutDto | null = null;
+  layout: LayoutDto = {
+    pageId: 0,
+    rows: []
+  };
   isLoading = true;
   error: string | null = null;
   private cardComponents = new Map<string, any>();
@@ -33,7 +40,8 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
     private cardService: CardService,
     private translate: TranslateService,
     public moduleRef: NgModuleRef<any>
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.route.params
@@ -58,7 +66,7 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
       clearInterval(intervalId);
     });
     this.refreshIntervals.clear();
-    
+
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -113,27 +121,33 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
 
     this.layout.rows.forEach(row => {
       row.cards.forEach(card => {
-        this.getCardComponent(card);
+        this.getCardComponent(card, 0);
         this.setupCardRefresh(card);
       });
     });
   }
 
-  getCardComponent(card: CardDto) {
+  getCardComponent(card: CardDto, maxHeight: number) {
     const type = card.type;
+    // Étendre le CardDto avec maxHeight
+    const cardWithHeight: CardDtoWithMaxHeight = {
+      ...card,
+      maxHeight: maxHeight
+    };
+
     if (!this.cardComponents.has(type)) {
       const component = this.cardService.getCardByType(type);
       this.cardComponents.set(type, {
         component,
         inputs: {
-          card: card,
+          card: cardWithHeight,
           isEditing: false
         }
       });
     } else {
       const cardComponent = this.cardComponents.get(type);
       cardComponent.inputs = {
-        card: card,
+        card: cardWithHeight,
         isEditing: false
       };
     }
@@ -189,7 +203,7 @@ export class DynamicPageComponent implements OnInit, OnDestroy {
     if (!refreshInterval) return;
 
     const cardKey = `${card.type}_${card.id}`;
-    
+
     // Éviter les doublons d'intervalles
     if (this.refreshIntervals.has(cardKey)) {
       clearInterval(this.refreshIntervals.get(cardKey));

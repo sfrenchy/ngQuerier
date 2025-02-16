@@ -94,7 +94,8 @@ export interface DBConnectionDto {
 export enum DBConnectionType {
   SqlServer = 0,
   MySQL = 1,
-  PgSQL = 2
+  PgSQL = 2,
+  SQLite = 3
 }
 
 export interface DBConnectionDatabaseSchemaDto {
@@ -115,7 +116,7 @@ export interface DBConnectionParameterDescriptionDto {
   mode: string;
 }
 
-export interface DBConnectionTableDescriptionDto{
+export interface DBConnectionTableDescriptionDto {
   name: string,
   schema: string,
   columns: DBConnectionColumnDescriptionDto[]
@@ -187,9 +188,10 @@ export interface PropertyItemDefinitionDto {
 }
 
 export interface SQLQueryCreateDto {
-   query: SQLQueryDto;
-   parameters: { [key: string]: string };
+  query: SQLQueryDto;
+  parameters: { [key: string]: string };
 }
+
 export interface SQLQueryDto {
   id: number;
   name: string;
@@ -317,6 +319,10 @@ export interface CardDto<TConfig = any> {
   icon: string;
 }
 
+export interface CardDtoWithMaxHeight extends CardDto {
+  maxHeight?: number;
+}
+
 // Type utilitaire pour la factory de configuration
 export type CardConfigFactory<T extends BaseCardConfig> = (json: any) => T;
 
@@ -354,7 +360,7 @@ export function mapCardsFromApi<T extends BaseCardConfig>(
 // Fonction utilitaire pour mapper une CardDto vers le format JSON pour l'API
 export function mapCardToApi<T extends BaseCardConfig>(card: CardDto<T>): any {
   // Extraire les propriétés de base
-  const { configuration, ...baseProperties } = card;
+  const {configuration, ...baseProperties} = card;
 
   // Retourner l'objet avec la configuration spécifique séparée
   return {
@@ -385,8 +391,6 @@ export interface ForeignKeyIncludeConfig {
   displayFormat?: string;
   displayColumns?: string[];
 }
-
-import { StoredProcedureParameter } from './parameters.models';
 
 export interface DataRequestParametersDto {
   pageNumber: number;
@@ -468,4 +472,27 @@ export interface ConnectionStringParameterDto {
   key: string;
   value: string;
   isEncrypted: boolean;
+}
+
+export interface SetupAdminDto {
+  firstName: string;
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface SetupSmtpDto {
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+  useSSL: boolean;
+  senderEmail: string;
+  senderName: string;
+}
+
+export interface SetupConfigDto {
+  admin: SetupAdminDto;
+  smtp: SetupSmtpDto;
+  createSample: boolean;
 }

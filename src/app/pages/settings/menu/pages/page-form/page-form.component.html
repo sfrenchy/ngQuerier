@@ -11,7 +11,7 @@
         {{ error }}
       </div>
 
-      <form [formGroup]="pageForm" (ngSubmit)="onSubmit()">
+      <form (ngSubmit)="onSubmit()" [formGroup]="pageForm">
         <div class="grid grid-cols-2 gap-4">
           <!-- Colonne gauche -->
           <div class="space-y-4">
@@ -32,9 +32,9 @@
               <label class="block">
                 <span class="text-sm font-medium">{{ 'COMMON.ROUTE' | translate }}</span>
                 <input
-                  type="text"
-                  formControlName="route"
                   class="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  formControlName="route"
+                  type="text"
                 >
               </label>
             </div>
@@ -44,8 +44,8 @@
               <label class="block">
                 <span class="text-sm font-medium">{{ 'COMMON.ICON' | translate }}</span>
                 <app-icon-picker
-                  formControlName="icon"
                   class="mt-1 block w-full"
+                  formControlName="icon"
                 ></app-icon-picker>
               </label>
             </div>
@@ -54,9 +54,9 @@
             <div>
               <label class="flex items-center space-x-3">
                 <input
-                  type="checkbox"
-                  formControlName="isVisible"
                   class="h-4 w-4 rounded border-gray-600 text-blue-600 focus:ring-blue-500 bg-gray-700"
+                  formControlName="isVisible"
+                  type="checkbox"
                 >
                 <span class="text-sm font-medium">{{ 'COMMON.VISIBLE' | translate }}</span>
               </label>
@@ -71,11 +71,11 @@
               <div class="space-y-2 bg-gray-700 p-3 rounded-md max-h-[400px] overflow-y-auto">
                 <div *ngFor="let role of availableRoles" class="flex items-center space-x-3">
                   <input
-                    type="checkbox"
-                    [id]="'role-' + role.id"
-                    [checked]="isRoleSelected(role)"
                     (change)="onRoleChange(role, $event)"
+                    [checked]="isRoleSelected(role)"
+                    [id]="'role-' + role.id"
                     class="h-4 w-4 rounded border-gray-600 text-blue-600 focus:ring-blue-500 bg-gray-700"
+                    type="checkbox"
                   >
                   <label [for]="'role-' + role.id" class="text-sm">{{ role.name }}</label>
                 </div>
@@ -87,16 +87,16 @@
         <!-- Actions -->
         <div class="flex justify-end space-x-3 mt-4 pt-4 border-t border-gray-700">
           <button
-            type="button"
             (click)="onCancel()"
             class="px-4 py-2 border border-gray-600 rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+            type="button"
           >
             {{ 'COMMON.CANCEL' | translate }}
           </button>
           <button
-            type="submit"
             [disabled]="pageForm.invalid || isLoading"
             class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            type="submit"
           >
             {{ (isEditMode ? 'COMMON.SAVE' : 'COMMON.CREATE') | translate }}
           </button>
@@ -104,4 +104,4 @@
       </form>
     </div>
   </div>
-</div> 
+</div>

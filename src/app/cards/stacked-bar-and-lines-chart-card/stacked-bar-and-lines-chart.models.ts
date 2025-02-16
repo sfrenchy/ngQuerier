@@ -1,5 +1,5 @@
-import { BaseChartConfig, ChartVisualConfig } from '@models/chart.models';
-import { DatasourceConfig } from '@models/datasource.models';
+import {BaseChartConfig, ChartVisualConfig} from '@models/chart.models';
+import {DatasourceConfig} from '@models/datasource.models';
 
 export interface BarSeriesConfig {
   name: string;
@@ -113,4 +113,4 @@ export interface ChartState {
   data: any[];
   loading: boolean;
   error?: string;
-} 
+}

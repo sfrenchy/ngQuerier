@@ -1,6 +1,6 @@
-import { Component, Input, Output, EventEmitter, ElementRef, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RowDto } from '@models/api.models';
+import {Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {RowDto} from '@models/api.models';
 
 @Component({
   selector: 'app-row-wrapper',
@@ -11,18 +11,21 @@ import { RowDto } from '@models/api.models';
 export class RowWrapperComponent implements OnDestroy, OnInit {
   @Input() row!: RowDto;
   @Input() isEditing = false;
+
   @Input() set height(value: number) {
     this._height = value;
   }
+
   get height(): number {
     return this._height;
   }
+
   private _height = 0;
 
   @Output() delete = new EventEmitter<void>();
   @Output() configure = new EventEmitter<void>();
-  @Output() startResize = new EventEmitter<{event: MouseEvent, rowId: number}>();
-  @Output() endResize = new EventEmitter<{rowId: number, newHeight: number}>();
+  @Output() startResize = new EventEmitter<{ event: MouseEvent, rowId: number }>();
+  @Output() endResize = new EventEmitter<{ rowId: number, newHeight: number }>();
 
   private readonly MIN_HEIGHT = 100;
   private isResizing = false;
@@ -30,7 +33,8 @@ export class RowWrapperComponent implements OnDestroy, OnInit {
   private initialHeight = 0;
   private initialY = 0;
 
-  constructor(private elementRef: ElementRef) {}
+  constructor(private elementRef: ElementRef) {
+  }
 
   ngOnInit() {
     if (this.row.height && this._height === 0) {
@@ -49,19 +53,19 @@ export class RowWrapperComponent implements OnDestroy, OnInit {
   onResizeStart(event: MouseEvent) {
     event.preventDefault();
     this.isResizing = true;
-    
+
     // Créer le ghost
     this.resizeGhost = document.createElement('div');
     this.resizeGhost.className = 'resize-ghost';
-    
+
     // Récupérer les dimensions de la row
     const rowElement = this.elementRef.nativeElement.querySelector('.row') as HTMLElement;
     const rect = rowElement.getBoundingClientRect();
-    
+
     // Initialiser les valeurs
     this.initialHeight = rect.height;
     this.initialY = event.clientY;
-    
+
     // Positionner le ghost
     this.resizeGhost.style.cssText = `
       position: fixed;
@@ -77,13 +81,13 @@ export class RowWrapperComponent implements OnDestroy, OnInit {
       transition: height 0.05s linear;
       will-change: height;
     `;
-    
+
     document.body.appendChild(this.resizeGhost);
-    
+
     // Ajouter les écouteurs
     document.addEventListener('mousemove', this.onResizeMove);
     document.addEventListener('mouseup', this.onResizeEnd);
-    
+
     this.startResize.emit({
       event,
       rowId: this.row.id
@@ -92,7 +96,7 @@ export class RowWrapperComponent implements OnDestroy, OnInit {
 
   private onResizeMove = (event: MouseEvent) => {
     if (!this.resizeGhost) return;
-    
+
     const deltaY = event.clientY - this.initialY;
     const newHeight = Math.max(this.MIN_HEIGHT, this.initialHeight + deltaY);
     this.resizeGhost.style.height = `${newHeight}px`;
@@ -100,17 +104,17 @@ export class RowWrapperComponent implements OnDestroy, OnInit {
 
   private onResizeEnd = (event: MouseEvent) => {
     if (!this.resizeGhost) return;
-    
+
     const deltaY = event.clientY - this.initialY;
     const newHeight = Math.max(this.MIN_HEIGHT, Math.round(this.initialHeight + deltaY));
-    
+
     // Nettoyer
     document.removeEventListener('mousemove', this.onResizeMove);
     document.removeEventListener('mouseup', this.onResizeEnd);
     this.resizeGhost.remove();
     this.resizeGhost = null;
     this.isResizing = false;
-    
+
     this.endResize.emit({
       rowId: this.row.id,
       newHeight
@@ -126,4 +130,4 @@ export class RowWrapperComponent implements OnDestroy, OnInit {
       }
     }
   }
-} 
+}

@@ -1,19 +1,24 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
-import { Card } from '@cards/card.decorator';
-import { BaseChartCard } from '@cards/base/base-chart-card.component';
-import { StackedBarAndLinesChartCardConfig, BarSeriesConfig, LineSeriesConfig } from './stacked-bar-and-lines-chart.models';
-import { DatasourceService } from '@shared/components/datasource-configuration/datasource.service';
-import { StackedBarAndLinesChartConfigurationComponent } from './stacked-bar-and-lines-chart-configuration.component';
-import { RequestParametersService } from '@shared/services/request-parameters.service';
-import { BaseCardComponent } from '@cards/base/base-card.component';
-import { ChartParametersFooterComponent } from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { StackedBarAndLinesChartConfigFactory } from './stacked-bar-and-lines-chart.factory';
-import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
-import { takeUntil } from 'rxjs/operators';
-import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
+import {Component, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {Card} from '@cards/card.decorator';
+import {BaseChartCard} from '@cards/base/base-chart-card.component';
+import {
+  BarSeriesConfig,
+  LineSeriesConfig,
+  StackedBarAndLinesChartCardConfig
+} from './stacked-bar-and-lines-chart.models';
+import {DatasourceService} from '@shared/components/datasource-configuration/datasource.service';
+import {StackedBarAndLinesChartConfigurationComponent} from './stacked-bar-and-lines-chart-configuration.component';
+import {RequestParametersService} from '@shared/services/request-parameters.service';
+import {BaseCardComponent} from '@cards/base/base-card.component';
+import {
+  ChartParametersFooterComponent
+} from '@shared/components/chart-parameters-footer/chart-parameters-footer.component';
+import {StackedBarAndLinesChartConfigFactory} from './stacked-bar-and-lines-chart.factory';
+import {LocalDataSourceService} from '@cards/data-table-card/local-datasource.service';
+import {takeUntil} from 'rxjs/operators';
+import {CardConfigAdapterService} from '@cards/card-config-adapter.service';
 
 @Card({
   name: 'StackedBarAndLinesChart',
@@ -51,7 +56,7 @@ export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAn
   protected override transformData(data: any[]): any[] {
     if (!this.card.configuration) return [];
 
-    const { xAxisColumn, xAxisDateFormat } = this.card.configuration;
+    const {xAxisColumn, xAxisDateFormat} = this.card.configuration;
     if (!xAxisColumn) return [];
 
     // Vérification et transformation des données
@@ -99,7 +104,7 @@ export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAn
       type: 'bar',
       stack: seriesConfig.stack,
       data: this.chartState.data.map(item => item[seriesConfig.name]),
-      itemStyle: seriesConfig.color ? { color: seriesConfig.color } : undefined,
+      itemStyle: seriesConfig.color ? {color: seriesConfig.color} : undefined,
       barWidth: seriesConfig.barWidth,
       barGap: seriesConfig.barGap,
       barCategoryGap: seriesConfig.barCategoryGap
@@ -112,7 +117,7 @@ export class StackedBarAndLinesChartComponent extends BaseChartCard<StackedBarAn
       data: this.chartState.data.map(item => item[seriesConfig.name]),
       showSymbol: seriesConfig.showSymbol,
       symbolSize: seriesConfig.symbolSize,
-      itemStyle: seriesConfig.color ? { color: seriesConfig.color } : undefined,
+      itemStyle: seriesConfig.color ? {color: seriesConfig.color} : undefined,
       areaStyle: seriesConfig.areaStyle,
       smooth: seriesConfig.type === 'smooth'
     }));

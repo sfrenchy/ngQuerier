@@ -1,11 +1,13 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { CommonModule } from '@angular/common';
-import { LabelCardConfig } from './label-card.config';
-import { CardDto, TranslatableString } from '@models/api.models';
-import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
-import { TranslateModule } from '@ngx-translate/core';
-import { ValidationError } from '@cards/validation/validation.models';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {CommonModule} from '@angular/common';
+import {LabelCardConfig} from './label-card.config';
+import {CardDto, TranslatableString} from '@models/api.models';
+import {
+  TranslatableStringFormComponent
+} from '@shared/components/translatable-string-form/translatable-string-form.component';
+import {TranslateModule} from '@ngx-translate/core';
+import {ValidationError} from '@cards/validation/validation.models';
 
 @Component({
   selector: 'app-label-card-configuration',
@@ -20,12 +22,15 @@ import { ValidationError } from '@cards/validation/validation.models';
 })
 export class LabelCardConfigurationComponent implements OnInit {
   @Input() card!: CardDto<LabelCardConfig>;
+
   @Input() set validationErrors(errors: ValidationError[]) {
     this._validationErrors = errors;
   }
+
   get validationErrors(): ValidationError[] {
     return this._validationErrors;
   }
+
   private _validationErrors: ValidationError[] = [];
   @Output() save = new EventEmitter<LabelCardConfig>();
   @Output() configChange = new EventEmitter<LabelCardConfig>();
@@ -60,7 +65,7 @@ export class LabelCardConfigurationComponent implements OnInit {
         fontSize: this.card.configuration.content.fontSize || 16,
         fontWeight: this.card.configuration.content.fontWeight || 'normal',
         textAlign: this.card.configuration.content.textAlign || 'left'
-      }, { emitEvent: false }); // Ne pas émettre lors de l'initialisation
+      }, {emitEvent: false}); // Ne pas émettre lors de l'initialisation
     }
   }
 

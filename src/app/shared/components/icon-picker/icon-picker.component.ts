@@ -1,11 +1,10 @@
-import { Component, forwardRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormsModule } from '@angular/forms';
-import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { fas } from '@fortawesome/free-solid-svg-icons';
-import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { TranslateModule } from '@ngx-translate/core';
+import {Component, forwardRef} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR} from '@angular/forms';
+import {FaIconLibrary, FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import {fas} from '@fortawesome/free-solid-svg-icons';
+import {IconDefinition} from '@fortawesome/fontawesome-svg-core';
+import {TranslateModule} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-icon-picker',
@@ -47,14 +46,16 @@ export class IconPickerComponent implements ControlValueAccessor {
   }
 
   private isIconDefinition(value: any): value is IconDefinition {
-    return typeof value === 'object' && 
-           value !== null && 
-           'iconName' in value &&
-           'prefix' in value;
+    return typeof value === 'object' &&
+      value !== null &&
+      'iconName' in value &&
+      'prefix' in value;
   }
 
-  onChange: any = () => {};
-  onTouched: any = () => {};
+  onChange: any = () => {
+  };
+  onTouched: any = () => {
+  };
 
   writeValue(value: string): void {
     this.value = value;
@@ -90,7 +91,7 @@ export class IconPickerComponent implements ControlValueAccessor {
       this.iconKeys = [...this.allIconKeys];
     } else {
       const searchLower = term.toLowerCase();
-      this.iconKeys = this.allIconKeys.filter(key => 
+      this.iconKeys = this.allIconKeys.filter(key =>
         key.toLowerCase().includes(searchLower)
       );
     }

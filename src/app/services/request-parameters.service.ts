@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { DataRequestParametersDto, ColumnSearchDto, OrderByParameterDto } from '../models/api.models';
+import {Injectable} from '@angular/core';
+import {ColumnSearchDto, DataRequestParametersDto, OrderByParameterDto} from '../models/api.models';
 
 const STORAGE_PREFIX = 'querier_filters_';
 
@@ -20,7 +20,7 @@ export class RequestParametersService {
   addColumnSearch(params: DataRequestParametersDto, search: ColumnSearchDto): DataRequestParametersDto {
     const existingSearchIndex = params.columnSearches.findIndex(s => s.column === search.column);
     const columnSearches = [...params.columnSearches];
-    
+
     if (existingSearchIndex !== -1) {
       // Mettre à jour le filtre existant
       columnSearches[existingSearchIndex] = search;
@@ -45,7 +45,7 @@ export class RequestParametersService {
   addOrderBy(params: DataRequestParametersDto, order: OrderByParameterDto): DataRequestParametersDto {
     const existingOrderIndex = params.orderBy.findIndex(o => o.column === order.column);
     const orderBy = [...params.orderBy];
-    
+
     if (existingOrderIndex !== -1) {
       // Mettre à jour le tri existant
       orderBy[existingOrderIndex] = order;
@@ -85,7 +85,7 @@ export class RequestParametersService {
     try {
       const storageKey = this.getStorageKey(cardId);
       const storedData = localStorage.getItem(storageKey);
-      
+
       if (!storedData) {
         return null;
       }
@@ -112,4 +112,4 @@ export class RequestParametersService {
       console.error('Error clearing parameters from localStorage:', error);
     }
   }
-} 
+}

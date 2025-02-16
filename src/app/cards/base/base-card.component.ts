@@ -1,9 +1,19 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnDestroy, OnInit, HostBinding } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CardDto, BaseCardConfig } from '@models/api.models';
-import { uintToHex } from '../../shared/utils/color.utils';
-import { TranslateService, TranslateModule } from '@ngx-translate/core';
-import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
+import {
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostBinding,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {BaseCardConfig, CardDtoWithMaxHeight} from '@models/api.models';
+import {uintToHex} from '../../shared/utils/color.utils';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {CardConfigAdapterService} from '@cards/card-config-adapter.service';
 
 @Component({
   selector: 'app-base-card',
@@ -13,7 +23,7 @@ import { CardConfigAdapterService } from '@cards/card-config-adapter.service';
   imports: [CommonModule, TranslateModule]
 })
 export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDestroy {
-  @Input() card!: CardDto;
+  @Input() card!: CardDtoWithMaxHeight;
   @Input() isEditing: boolean = false;
   @Input() showFullscreenButton: boolean = false;
   @Input() height: number = 0;
@@ -32,13 +42,15 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
   constructor(
     protected translateService: TranslateService,
     protected cardConfigAdapter: CardConfigAdapterService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     this.onHeightChange();
   }
 
-  ngOnDestroy() {}
+  ngOnDestroy() {
+  }
 
   protected onHeightChange() {
     if (this.isFullscreen) {
@@ -60,6 +72,10 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
 
   get headerBackgroundColor(): string {
     return uintToHex(this.card.headerBackgroundColor);
+  }
+
+  get maxHeight(): string {
+    return this.card.maxHeight ? `${this.card.maxHeight}px` : 'none';
   }
 
   onConfigure() {
@@ -84,7 +100,7 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
     // Initialize empty translation object for the card type
     this.translateService.setTranslation(
       this.translateService.currentLang,
-      { [cardType]: {} },
+      {[cardType]: {}},
       true
     );
 
@@ -111,5 +127,15 @@ export class BaseCardComponent<T extends BaseCardConfig> implements OnInit, OnDe
       .catch(error => {
         console.warn(`No translations found for card type ${cardType}:`, error);
       });
+  }
+
+  getCurrentTitle(): string {
+    if (!this.card?.title?.length) return '';
+
+    const currentLang = this.translateService.currentLang;
+    const titleInCurrentLang = this.card.title.find(t => t.languageCode === currentLang);
+
+    // Si pas de titre dans la langue courante, on prend le premier disponible
+    return titleInCurrentLang?.value || this.card.title[0]?.value || '';
   }
 }

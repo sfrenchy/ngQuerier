@@ -1,8 +1,8 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { StoredProcedureParameter, ParameterType } from '@models/parameters.models';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {ParameterType, StoredProcedureParameter} from '@models/parameters.models';
 
 @Component({
   selector: 'app-chart-parameters-panel',
@@ -77,4 +77,4 @@ export class ChartParametersPanelComponent implements OnInit {
     }
     return value;
   }
-} 
+}

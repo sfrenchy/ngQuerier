@@ -1,6 +1,5 @@
-import { Type } from '@angular/core';
-import { RegisteredCardMetadata } from './card.decorator';
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
+import {RegisteredCardMetadata} from './card.decorator';
 
 @Injectable({
   providedIn: 'root'

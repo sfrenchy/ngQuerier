@@ -1,6 +1,6 @@
-import { BaseCardConfig, ColumnSearchDto, OrderByParameterDto, TranslatableString } from '@models/api.models';
-import { DatasourceConfig } from '@models/datasource.models';
-import { Observable } from 'rxjs';
+import {BaseCardConfig, ColumnSearchDto, OrderByParameterDto, TranslatableString} from '@models/api.models';
+import {DatasourceConfig} from '@models/datasource.models';
+import {Observable} from 'rxjs';
 
 export interface ForeignKeyDisplayConfig {
   table: string;

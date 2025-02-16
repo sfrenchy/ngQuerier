@@ -1,14 +1,13 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
-import { UserService } from '@services/user.service';
-import { AuthService } from '@services/auth.service';
-import { Router } from '@angular/router';
-import { MenuDto, PageDto, TranslatableString, RoleDto } from '@models/api.models';
-import { ApiService } from '@services/api.service';
-import { catchError, switchMap, map } from 'rxjs/operators';
-import { forkJoin, of } from 'rxjs';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {Router, RouterModule} from '@angular/router';
+import {TranslateModule} from '@ngx-translate/core';
+import {UserService} from '@services/user.service';
+import {AuthService} from '@services/auth.service';
+import {MenuDto, PageDto, RoleDto, TranslatableString} from '@models/api.models';
+import {ApiService} from '@services/api.service';
+import {catchError, map, switchMap} from 'rxjs/operators';
+import {forkJoin, of} from 'rxjs';
 
 @Component({
   selector: 'app-side-menu',
@@ -74,9 +73,9 @@ export class SideMenuComponent implements OnInit, OnDestroy {
       switchMap(menus => {
         // Trier les menus par ordre
         this.menus = menus.sort((a, b) => a.order - b.order);
-        
+
         // Create an array of observables for each menu's pages
-        const pageRequests = this.menus.map(menu => 
+        const pageRequests = this.menus.map(menu =>
           this.apiService.getMenuPages(menu.id).pipe(
             catchError(error => {
               console.error(`Failed to load pages for menu ${menu.id}:`, error);
@@ -87,7 +86,7 @@ export class SideMenuComponent implements OnInit, OnDestroy {
 
         // Execute all page requests in parallel
         return forkJoin(
-          pageRequests.map((request, index) => 
+          pageRequests.map((request, index) =>
             request.pipe(
               map(pages => pages.sort((a, b) => a.order - b.order)), // Trier les pages par ordre
               catchError(error => {
@@ -183,4 +182,4 @@ export class SideMenuComponent implements OnInit, OnDestroy {
     // Sinon, vérifier la visibilité et les rôles
     return page.isVisible && this.hasRequiredRole(page.roles);
   }
-} 
+}

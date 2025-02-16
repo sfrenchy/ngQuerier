@@ -1,15 +1,16 @@
-<div class="bg-gray-900 border border-gray-600 rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.3),0_0_5px_rgba(0,0,0,0.3)] backdrop-blur-sm p-4 min-w-[250px] ring-1 ring-white/10">
+<div
+  class="bg-gray-900 border border-gray-600 rounded-lg shadow-[0_0_15px_rgba(0,0,0,0.3),0_0_5px_rgba(0,0,0,0.3)] backdrop-blur-sm p-4 min-w-[250px] ring-1 ring-white/10">
   <!-- Header -->
   <div class="flex justify-between items-center mb-4 border-b border-gray-700 pb-3">
     <h3 class="text-lg font-medium text-gray-100">
       {{ localParameter?.displayName || localParameter?.name }}
     </h3>
-    <button 
+    <button
       (click)="close.emit()"
       class="text-gray-400 hover:text-gray-200 transition-colors hover:bg-gray-800 p-1 rounded-full">
       <span class="sr-only">Close</span>
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
       </svg>
     </button>
   </div>
@@ -20,16 +21,16 @@
   </p>
 
   <!-- Input controls -->
-  <div class="space-y-4" *ngIf="localParameter">
+  <div *ngIf="localParameter" class="space-y-4">
     <!-- Date type selector -->
     <div *ngIf="localParameter.type === 'date'" class="space-y-2">
       <label class="block text-sm font-medium text-gray-200 px-1">
         {{ 'CARDS.PARAMETERS.DATE_TYPE' | translate }}
       </label>
-      <select 
-        [(ngModel)]="localParameter.dateType"
+      <select
         (ngModelChange)="onValueChange()"
-        class="w-full bg-gray-800/50 border border-gray-600 rounded-md text-gray-100 px-3 py-2 
+        [(ngModel)]="localParameter.dateType"
+        class="w-full bg-gray-800/50 border border-gray-600 rounded-md text-gray-100 px-3 py-2
                focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors
                hover:bg-gray-800 hover:border-gray-500">
         <option value="specific">{{ 'CARDS.PARAMETERS.DATE_SPECIFIC' | translate }}</option>
@@ -46,43 +47,43 @@
       <label class="block text-sm font-medium text-gray-200 px-1">
         {{ 'CARDS.PARAMETERS.VALUE' | translate }}
       </label>
-      
+
       <!-- Date input -->
-      <input *ngIf="localParameter.type === 'date' && localParameter.dateType === 'specific'"
-             type="date"
+      <input (ngModelChange)="localParameter.value = $event; onValueChange()"
+             *ngIf="localParameter.type === 'date' && localParameter.dateType === 'specific'"
              [ngModel]="localParameter.value"
-             (ngModelChange)="localParameter.value = $event; onValueChange()"
-             class="w-full bg-gray-800/50 border border-gray-600 rounded-md text-gray-100 px-3 py-2 
+             class="w-full bg-gray-800/50 border border-gray-600 rounded-md text-gray-100 px-3 py-2
                     focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors
-                    hover:bg-gray-800 hover:border-gray-500">
-      
+                    hover:bg-gray-800 hover:border-gray-500"
+             type="date">
+
       <!-- Number input -->
-      <input *ngIf="localParameter.type === 'number'"
-             type="number"
+      <input (ngModelChange)="onValueChange()"
+             *ngIf="localParameter.type === 'number'"
              [(ngModel)]="localParameter.value"
-             (ngModelChange)="onValueChange()"
-             class="w-full bg-gray-800/50 border border-gray-600 rounded-md text-gray-100 px-3 py-2 
+             class="w-full bg-gray-800/50 border border-gray-600 rounded-md text-gray-100 px-3 py-2
                     focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors
-                    hover:bg-gray-800 hover:border-gray-500">
-      
+                    hover:bg-gray-800 hover:border-gray-500"
+             type="number">
+
       <!-- Boolean input -->
       <div *ngIf="localParameter.type === 'boolean'" class="flex items-center px-1">
-        <input type="checkbox"
+        <input (ngModelChange)="onValueChange()"
                [(ngModel)]="localParameter.value"
-               (ngModelChange)="onValueChange()"
-               class="w-4 h-4 text-primary-600 bg-gray-800/50 border-gray-600 rounded 
-                      focus:ring-2 focus:ring-primary-500 focus:ring-offset-gray-900">
+               class="w-4 h-4 text-primary-600 bg-gray-800/50 border-gray-600 rounded
+                      focus:ring-2 focus:ring-primary-500 focus:ring-offset-gray-900"
+               type="checkbox">
         <span class="ml-2 text-sm text-gray-200">{{ 'CARDS.PARAMETERS.ENABLED' | translate }}</span>
       </div>
-      
+
       <!-- Text input -->
-      <input *ngIf="localParameter.type === 'string'"
-             type="text"
+      <input (ngModelChange)="onValueChange()"
+             *ngIf="localParameter.type === 'string'"
              [(ngModel)]="localParameter.value"
-             (ngModelChange)="onValueChange()"
-             class="w-full bg-gray-800/50 border border-gray-600 rounded-md text-gray-100 px-3 py-2 
+             class="w-full bg-gray-800/50 border border-gray-600 rounded-md text-gray-100 px-3 py-2
                     focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors
-                    hover:bg-gray-800 hover:border-gray-500">
+                    hover:bg-gray-800 hover:border-gray-500"
+             type="text">
     </div>
   </div>
-</div> 
+</div>

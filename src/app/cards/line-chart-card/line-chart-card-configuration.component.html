@@ -3,9 +3,9 @@
     <!-- Data Source Configuration -->
     <app-tile [title]="'DATASOURCE.TITLE' | translate">
       <app-datasource-configuration
-        [config]="form.getRawValue().datasource"
         (configChange)="onDatasourceChange($event)"
-        (schemaChange)="onSchemaChange($event)">
+        (schemaChange)="onSchemaChange($event)"
+        [config]="form.getRawValue().datasource">
       </app-datasource-configuration>
       <!-- Affichage des erreurs de datasource -->
       <div *ngIf="errorMessages['datasource']" class="mt-2 text-sm text-red-500">
@@ -14,13 +14,14 @@
     </app-tile>
 
     <!-- Configuration de l'axe X -->
-    <app-tile [title]="'line-chart-card.X_AXIS' | translate" *ngIf="availableColumns.length > 0">
+    <app-tile *ngIf="availableColumns.length > 0" [title]="'line-chart-card.X_AXIS' | translate">
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.X_AXIS_COLUMN' | translate }}</label>
-          <select [formControl]="xAxisColumnControl"
-                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  [class.border-red-500]="errorMessages['xAxisColumn']">
+          <label
+            class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.X_AXIS_COLUMN' | translate }}</label>
+          <select [class.border-red-500]="errorMessages['xAxisColumn']"
+                  [formControl]="xAxisColumnControl"
+                  class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <option value="">{{ 'line-chart-card.SELECT_COLUMN' | translate }}</option>
             <option *ngFor="let column of availableColumns" [value]="column">{{ column }}</option>
           </select>
@@ -32,7 +33,8 @@
 
         <!-- Format de date pour l'axe X -->
         <div *ngIf="form.getRawValue().xAxisColumn">
-          <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.DATE_FORMAT' | translate }}</label>
+          <label
+            class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.DATE_FORMAT' | translate }}</label>
           <select [formControl]="xAxisDateFormatControl"
                   class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
             <option value="">{{ 'line-chart-card.DEFAULT_FORMAT' | translate }}</option>
@@ -45,7 +47,7 @@
     </app-tile>
 
     <!-- Configuration des séries -->
-    <app-tile [title]="'line-chart-card.SERIES' | translate" *ngIf="availableColumns.length > 0">
+    <app-tile *ngIf="availableColumns.length > 0" [title]="'line-chart-card.SERIES' | translate">
       <!-- Affichage des erreurs générales des séries -->
       <div *ngIf="errorMessages['series']" class="mb-4 text-sm text-red-500">
         {{ errorMessages['series'] | translate }}
@@ -55,31 +57,36 @@
         <!-- Liste des séries -->
         <div class="flex flex-col gap-4">
           <div *ngFor="let series of form.getRawValue().series; let i = index"
-               class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg"
-               [class.border-red-500]="hasSeriesErrors(i)">
+               [class.border-red-500]="hasSeriesErrors(i)"
+               class="bg-gray-800 border border-gray-700 rounded-lg shadow-lg">
             <!-- En-tête de la série -->
-            <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700" (click)="toggleSeriesExpand(i)">
+            <div (click)="toggleSeriesExpand(i)"
+                 class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700">
               <div class="flex items-center gap-4">
                 <span class="font-medium text-white">{{ series.name }}</span>
                 <span class="text-sm text-gray-400">({{ series.dataColumn || 'No column selected' }})</span>
               </div>
               <div class="flex items-center gap-2">
-                <button type="button"
-                        (click)="removeSeries(i); $event.stopPropagation()"
-                        class="p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                <button (click)="removeSeries(i); $event.stopPropagation()"
+                        class="p-1 text-gray-400 hover:text-red-500 rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-red-500"
+                        type="button">
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd"
+                          d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                          fill-rule="evenodd"/>
                   </svg>
                 </button>
-                <button type="button"
-                        (click)="toggleSeriesExpand(i)"
-                        class="p-1 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <svg xmlns="http://www.w3.org/2000/svg"
+                <button (click)="toggleSeriesExpand(i)"
+                        class="p-1 text-gray-400 hover:text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        type="button">
+                  <svg [class.rotate-180]="expandedSeriesIndex === i"
                        class="h-5 w-5 transform transition-transform"
-                       [class.rotate-180]="expandedSeriesIndex === i"
+                       fill="currentColor"
                        viewBox="0 0 20 20"
-                       fill="currentColor">
-                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                       xmlns="http://www.w3.org/2000/svg">
+                    <path clip-rule="evenodd"
+                          d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                          fill-rule="evenodd"/>
                   </svg>
                 </button>
               </div>
@@ -89,12 +96,13 @@
               <div class="space-y-4">
                 <!-- Nom de la série -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.SERIES_NAME' | translate }}</label>
-                  <input type="text"
-                         [value]="series.name"
-                         (change)="handleSeriesChange(i, 'name', $event)"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.SERIES_NAME' | translate }}</label>
+                  <input (change)="handleSeriesChange(i, 'name', $event)"
                          [class.border-red-500]="hasSeriesError(i, 'name')"
-                         class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                         [value]="series.name"
+                         class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                         type="text">
                   <!-- Affichage des erreurs du nom de série -->
                   <div *ngIf="hasSeriesError(i, 'name')" class="mt-2 text-sm text-red-500">
                     {{ errorMessages[getSeriesErrorKey(i, 'name')] | translate }}
@@ -103,11 +111,12 @@
 
                 <!-- Colonne de données -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.DATA_COLUMN' | translate }}</label>
-                  <select [(ngModel)]="series.dataColumn"
-                          [ngModelOptions]="{standalone: true}"
-                          (ngModelChange)="handleSeriesChange(i, 'dataColumn', $event)"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.DATA_COLUMN' | translate }}</label>
+                  <select (ngModelChange)="handleSeriesChange(i, 'dataColumn', $event)"
+                          [(ngModel)]="series.dataColumn"
                           [class.border-red-500]="hasSeriesError(i, 'dataColumn')"
+                          [ngModelOptions]="{standalone: true}"
                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="">{{ 'line-chart-card.SELECT_COLUMN' | translate }}</option>
                     <option *ngFor="let column of availableColumns" [value]="column">{{ column }}</option>
@@ -120,9 +129,10 @@
 
                 <!-- Type de ligne -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.LINE_TYPE' | translate }}</label>
-                  <select [value]="series.type"
-                          (change)="handleSeriesChange(i, 'type', $event)"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.LINE_TYPE' | translate }}</label>
+                  <select (change)="handleSeriesChange(i, 'type', $event)"
+                          [value]="series.type"
                           class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <option value="line">{{ 'line-chart-card.LINE_TYPE_STRAIGHT' | translate }}</option>
                     <option value="smooth">{{ 'line-chart-card.LINE_TYPE_SMOOTH' | translate }}</option>
@@ -131,43 +141,47 @@
 
                 <!-- Couleur -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.COLOR' | translate }}</label>
-                  <input type="color"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.COLOR' | translate }}</label>
+                  <input (change)="handleSeriesChange(i, 'color', $event)"
                          [value]="series.color"
-                         (change)="handleSeriesChange(i, 'color', $event)"
-                         class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                         class="w-full h-10 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                         type="color">
                 </div>
 
                 <!-- Afficher les points -->
                 <div class="flex items-center">
-                  <input type="checkbox"
+                  <input (change)="handleSeriesChange(i, 'showSymbol', $event)"
                          [checked]="series.showSymbol"
-                         (change)="handleSeriesChange(i, 'showSymbol', $event)"
-                         class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-offset-gray-800">
-                  <label class="ml-2 text-sm font-medium text-gray-300">{{ 'line-chart-card.SHOW_POINTS' | translate }}</label>
+                         class="h-4 w-4 text-blue-600 bg-gray-800 border-gray-700 rounded focus:ring-blue-500 focus:ring-offset-gray-800"
+                         type="checkbox">
+                  <label
+                    class="ml-2 text-sm font-medium text-gray-300">{{ 'line-chart-card.SHOW_POINTS' | translate }}</label>
                 </div>
 
                 <!-- Taille des points -->
                 <div *ngIf="series.showSymbol">
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.POINT_SIZE' | translate }}</label>
-                  <input type="number"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.POINT_SIZE' | translate }}</label>
+                  <input (change)="handleSeriesChange(i, 'symbolSize', $event)"
                          [value]="series.symbolSize"
-                         (change)="handleSeriesChange(i, 'symbolSize', $event)"
-                         min="1"
+                         class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                          max="20"
-                         class="w-full px-3 py-2 bg-gray-800 border border-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                         min="1"
+                         type="number">
                 </div>
 
                 <!-- Opacité de la zone -->
                 <div>
-                  <label class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.AREA_OPACITY' | translate }}</label>
-                  <input type="range"
+                  <label
+                    class="block text-sm font-medium text-gray-300 mb-1">{{ 'line-chart-card.AREA_OPACITY' | translate }}</label>
+                  <input (change)="onAreaOpacityChange(i, $event)"
                          [value]="series.areaStyle?.opacity || 0"
-                         (change)="onAreaOpacityChange(i, $event)"
-                         min="0"
+                         class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
                          max="1"
+                         min="0"
                          step="0.1"
-                         class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                         type="range">
                 </div>
               </div>
             </div>
@@ -175,11 +189,13 @@
         </div>
 
         <!-- Bouton d'ajout de série -->
-        <button type="button"
-                (click)="addSeries()"
-                class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+        <button (click)="addSeries()"
+                class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white rounded-lg border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                type="button">
+          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd"
+                  d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+                  fill-rule="evenodd"/>
           </svg>
           <span>{{ 'line-chart-card.ADD_SERIES' | translate }}</span>
         </button>

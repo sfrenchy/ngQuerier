@@ -1,4 +1,4 @@
-import { BaseCardConfig, TranslatableString } from '@models/api.models';
+import {BaseCardConfig, TranslatableString} from '@models/api.models';
 
 export class HTMLContentCardConfig extends BaseCardConfig {
   content: {
@@ -9,8 +9,8 @@ export class HTMLContentCardConfig extends BaseCardConfig {
     super();
     this.content = {
       html: [
-        { languageCode: 'fr', value: '<p>Nouveau contenu HTML</p>' },
-        { languageCode: 'en', value: '<p>New HTML content</p>' }
+        {languageCode: 'fr', value: '<p>Nouveau contenu HTML</p>'},
+        {languageCode: 'en', value: '<p>New HTML content</p>'}
       ]
     };
   }

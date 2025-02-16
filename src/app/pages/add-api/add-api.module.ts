@@ -1,9 +1,9 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { AddApiComponent } from './add-api.component';
-import { LanguageSelectorModule } from '../../components/language-selector/language-selector.module';
+import {NgModule} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {ReactiveFormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {AddApiComponent} from './add-api.component';
+import {LanguageSelectorModule} from '../../components/language-selector/language-selector.module';
 
 @NgModule({
   declarations: [
@@ -19,4 +19,5 @@ import { LanguageSelectorModule } from '../../components/language-selector/langu
     AddApiComponent
   ]
 })
-export class AddApiModule { } 
+export class AddApiModule {
+}

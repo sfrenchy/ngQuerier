@@ -1,17 +1,17 @@
 import {
+  apply,
+  chain,
+  mergeWith,
+  move,
+  renameTemplateFiles,
   Rule,
   SchematicContext,
-  Tree,
-  apply,
-  mergeWith,
-  url,
-  move,
-  chain,
   template,
-  renameTemplateFiles
+  Tree,
+  url
 } from '@angular-devkit/schematics';
-import { strings, normalize, Path } from '@angular-devkit/core';
-import { Schema } from './schema';
+import {normalize, strings} from '@angular-devkit/core';
+import {Schema} from './schema';
 
 function addCardToAvailableCards(options: Schema): Rule {
   return (tree: Tree) => {
@@ -34,7 +34,7 @@ function addCardToAvailableCards(options: Schema): Rule {
   };
 }
 
-export default function(options: Schema): Rule {
+export default function (options: Schema): Rule {
   return (tree: Tree, context: SchematicContext) => {
     context.logger.info('Starting card schematic');
 

@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject} from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -29,4 +29,4 @@ export class AuthStateService {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
   }
-} 
+}

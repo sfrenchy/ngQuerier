@@ -1,15 +1,15 @@
-import { Component, OnInit, OnDestroy, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { DragDropModule } from '@angular/cdk/drag-drop';
-import { LayoutDto, RowDto, CardDto } from '@models/api.models';
-import { DroppableRowComponent } from './rows/droppable-row.component';
-import { BaseCardConfigurationComponent } from '@cards/base/base-card-configuration.component';
-import { CardService } from '@cards/card.service';
-import { CardMetadata } from '@cards/card.decorator';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {DragDropModule} from '@angular/cdk/drag-drop';
+import {CardDto, LayoutDto, RowDto} from '@models/api.models';
+import {DroppableRowComponent} from '../../../../../shared/components/layout/rows/droppable-row.component';
+import {BaseCardConfigurationComponent} from '@cards/base/base-card-configuration.component';
+import {CardService} from '@cards/card.service';
+import {CardMetadata} from '@cards/card.decorator';
+import {DomSanitizer, SafeHtml} from '@angular/platform-browser';
 import '@cards/available-cards';
-import { CardRegistry } from '@cards/card.registry';
-import { hexToUint } from '@shared/utils/color.utils';
+import {CardRegistry} from '@cards/card.registry';
+import { LayoutRendererComponent } from '@shared/components/layout/layout-renderer/layout-renderer.component';
 
 interface CardMetadataWithSafeIcon extends CardMetadata {
   safeIcon: SafeHtml;
@@ -23,15 +23,16 @@ interface CardMetadataWithSafeIcon extends CardMetadata {
   imports: [
     CommonModule,
     DragDropModule,
-    DroppableRowComponent,
-    BaseCardConfigurationComponent
+    BaseCardConfigurationComponent,
+    LayoutRendererComponent
   ]
 })
 export class LayoutEditorComponent implements OnInit, OnDestroy {
   constructor(
     private cardService: CardService,
     private sanitizer: DomSanitizer
-  ) {}
+  ) {
+  }
 
   @Input() set pageId(value: number | null) {
     if (value) {
@@ -76,11 +77,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     this._layout = updatedLayout;
   }
 
-  isDraggingRow = false;
-  isDraggingCard = false;
-  private isDraggingRowItem = false;
-  private isDraggingCardItem = false;
-
   resizing = false;
   private currentRowId: number | null = null;
   private startY = 0;
@@ -91,7 +87,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
   isFullscreen = false;
 
   availableCards: CardMetadataWithSafeIcon[] = [];
-
 
 
   ngOnInit() {
@@ -112,54 +107,6 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
         event.dataTransfer.setData('cardType', cardType);
       }
       event.dataTransfer.effectAllowed = 'move';
-      if (!cardMetadata) {
-        this.isDraggingRowItem = true;
-        this.isDraggingRow = true;
-      } else {
-        this.isDraggingCardItem = true;
-        this.isDraggingCard = true;
-      }
-    }
-  }
-
-  onDragOver(event: DragEvent) {
-    event.preventDefault();
-    if (event.dataTransfer) {
-      event.dataTransfer.dropEffect = 'move';
-      if (this.isDraggingRowItem) {
-        this.isDraggingRow = true;
-      }
-    }
-  }
-
-  onDragLeave(event: DragEvent) {
-    if (event.currentTarget === event.target) {
-      this.isDraggingRow = false;
-      this.isDraggingCard = false;
-    }
-  }
-
-  onDrop(event: DragEvent) {
-    event.preventDefault();
-    this.isDraggingRow = false;
-    this.isDraggingCard = false;
-    this.isDraggingRowItem = false;
-    this.isDraggingCardItem = false;
-
-    if (!event.dataTransfer) return;
-
-    const type = event.dataTransfer.getData('text/plain');
-    if (type === 'row') {
-      const newRow: RowDto = {
-        id: -1,
-        order: this.layout.rows.length,
-        height: 300,
-        cards: []
-      };
-      this.layout = {
-        ...this.layout,
-        rows: [...this.layout.rows, newRow]
-      };
     }
   }
 
@@ -229,7 +176,7 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
     const card = row.cards.find(c => c.id === cardId);
     if (!card) return;
 
-    this.configCardData = { rowId, cardId };
+    this.configCardData = {rowId, cardId};
     this.showCardConfig = true;
   }
 
@@ -308,5 +255,12 @@ export class LayoutEditorComponent implements OnInit, OnDestroy {
 
   isCardChart(card: CardDto): boolean {
     return card.type.toLowerCase().includes('chart');
+  }
+
+  onRowDrop(newRow: RowDto) {
+    this.layout = {
+      ...this.layout,
+      rows: [...this.layout.rows, newRow]
+    };
   }
 }

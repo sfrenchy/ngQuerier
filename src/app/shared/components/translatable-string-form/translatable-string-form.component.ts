@@ -1,8 +1,15 @@
-import { Component, EventEmitter, Input, OnInit, Output, forwardRef } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { TranslatableString } from '@models/api.models';
-import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import {Component, EventEmitter, forwardRef, Input, OnInit, Output} from '@angular/core';
+import {
+  ControlValueAccessor,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  NG_VALUE_ACCESSOR,
+  ReactiveFormsModule
+} from '@angular/forms';
+import {TranslatableString} from '@models/api.models';
+import {CommonModule} from '@angular/common';
+import {TranslateModule} from '@ngx-translate/core';
 
 @Component({
   selector: 'app-translatable-string-form',
@@ -31,24 +38,28 @@ export class TranslatableStringFormComponent implements OnInit, ControlValueAcce
       }
     }
   }
+
   get translations(): TranslatableString[] {
     return this._translations;
   }
+
   private _translations: TranslatableString[] = [];
 
   @Output() translationsChange = new EventEmitter<TranslatableString[]>();
 
   form: FormGroup;
   availableLanguages = [
-    { code: 'fr', name: 'Français' },
-    { code: 'en', name: 'English' },
-    { code: 'de', name: 'Deutsch' },
-    { code: 'es', name: 'Español' },
-    { code: 'it', name: 'Italiano' }
+    {code: 'fr', name: 'Français'},
+    {code: 'en', name: 'English'},
+    {code: 'de', name: 'Deutsch'},
+    {code: 'es', name: 'Español'},
+    {code: 'it', name: 'Italiano'}
   ];
 
-  private onChange: (value: TranslatableString[]) => void = () => {};
-  private onTouched: () => void = () => {};
+  private onChange: (value: TranslatableString[]) => void = () => {
+  };
+  private onTouched: () => void = () => {
+  };
 
   constructor(private fb: FormBuilder) {
     this.form = this.fb.group({
@@ -111,7 +122,7 @@ export class TranslatableStringFormComponent implements OnInit, ControlValueAcce
 
   addTranslation() {
     const usedLanguages = this.translationsArray.value.map((t: TranslatableString) => t.languageCode);
-    const availableLanguage = this.availableLanguages.find(lang => 
+    const availableLanguage = this.availableLanguages.find(lang =>
       !usedLanguages.includes(lang.code)
     );
 
@@ -147,7 +158,7 @@ export class TranslatableStringFormComponent implements OnInit, ControlValueAcce
     const usedLanguages = this.translationsArray.value
       .map((t: TranslatableString) => t.languageCode)
       .filter((_: string, i: number) => i !== index);
-    
+
     return this.availableLanguages.filter(lang => !usedLanguages.includes(lang.code));
   }
 }

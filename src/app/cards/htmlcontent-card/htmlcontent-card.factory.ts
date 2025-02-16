@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
-import { CardConfigFactory } from '@cards/card-config.factory';
-import { CardValidationService } from '@cards/card-validation.service';
-import { HTMLContentCardConfig } from './htmlcontent-card.config';
-import { ValidationResult, ValidationError } from '@cards/validation/validation.models';
-import { HTMLContentCardComponent } from './htmlcontent-card.component';
-import { HTMLContentCardConfigurationComponent } from './htmlcontent-card-configuration.component';
+import {Injectable} from '@angular/core';
+import {CardConfigFactory} from '@cards/card-config.factory';
+import {CardValidationService} from '@cards/card-validation.service';
+import {HTMLContentCardConfig} from './htmlcontent-card.config';
+import {ValidationError, ValidationResult} from '@cards/validation/validation.models';
+import {HTMLContentCardComponent} from './htmlcontent-card.component';
+import {HTMLContentCardConfigurationComponent} from './htmlcontent-card-configuration.component';
 
 @Injectable({
   providedIn: 'root'

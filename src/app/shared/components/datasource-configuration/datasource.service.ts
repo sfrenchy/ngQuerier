@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { map, filter } from 'rxjs/operators';
-import { ApiService } from '@services/api.service';
-import { DatasourceConfig, ParameterValue } from '@models/datasource.models';
-import { DataRequestParametersDto, PaginatedResultDto, DBConnectionEndpointRequestInfoDto, DBConnectionEndpointInfoDto } from '@models/api.models';
-import { StoredProcedureParameter } from '@models/parameters.models';
-import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
-import { CardDatabaseService } from '@cards/card-database.service';
+import {Injectable} from '@angular/core';
+import {BehaviorSubject, Observable, throwError} from 'rxjs';
+import {filter, map} from 'rxjs/operators';
+import {ApiService} from '@services/api.service';
+import {DatasourceConfig} from '@models/datasource.models';
+import {DataRequestParametersDto, DBConnectionEndpointInfoDto, PaginatedResultDto} from '@models/api.models';
+import {StoredProcedureParameter} from '@models/parameters.models';
+import {LocalDataSourceService} from '@cards/data-table-card/local-datasource.service';
+import {CardDatabaseService} from '@cards/card-database.service';
 
 interface ForeignKeyDataValue {
   id: string;
@@ -42,7 +42,8 @@ export class DatasourceService {
     private apiService: ApiService,
     private localDataSourceService: LocalDataSourceService,
     private cardDatabaseService: CardDatabaseService
-  ) {}
+  ) {
+  }
 
   setConfig(config: DatasourceConfig): void {
     this.configSubject.next(config);
@@ -58,7 +59,13 @@ export class DatasourceService {
 
   fetchData(
     config: DatasourceConfig,
-    parameters: DataRequestParametersDto = { pageNumber: 1, pageSize: 10, orderBy: [], globalSearch: '', columnSearches: [] },
+    parameters: DataRequestParametersDto = {
+      pageNumber: 1,
+      pageSize: 10,
+      orderBy: [],
+      globalSearch: '',
+      columnSearches: []
+    },
     userParameters?: Record<string, StoredProcedureParameter>
   ): Observable<ExtendedPaginatedResultDto<any>> {
     // Fusionner les paramètres utilisateur avec les paramètres de procédure stockée
@@ -75,8 +82,8 @@ export class DatasourceService {
 
     // Vérifier si nous avons un cache valide
     if (currentCache &&
-        Date.now() - currentCache.timestamp < this.CACHE_DURATION &&
-        JSON.stringify(currentCache.parameters) === JSON.stringify(parameters)) {
+      Date.now() - currentCache.timestamp < this.CACHE_DURATION &&
+      JSON.stringify(currentCache.parameters) === JSON.stringify(parameters)) {
       return new Observable(observer => {
         observer.next(currentCache.data);
         observer.complete();
@@ -209,7 +216,7 @@ export class DatasourceService {
           formattedParams[key] = paramValue.value;
         }
       });
-      parameters = { ...parameters, procedureParameters: formattedParams };
+      parameters = {...parameters, procedureParameters: formattedParams};
     }
 
     return this.apiService.post<ExtendedPaginatedResultDto<any>>(

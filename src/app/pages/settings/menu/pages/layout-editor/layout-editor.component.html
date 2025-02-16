@@ -1,15 +1,17 @@
-<div class="flex gap-4 h-full" [class.no-select]="resizing">
+<div [class.no-select]="resizing" class="flex gap-4 h-full w-full">
   <!-- Toolbox -->
-  <div class="w-64 flex flex-col gap-4">
+  <div class="w-64 flex-shrink-0 flex flex-col gap-4">
     <!-- Row toolbox -->
     <div class="flex flex-col gap-2">
       <span class="text-sm font-medium text-gray-700">Lignes</span>
-      <div class="p-2 bg-gray-50 border border-gray-200 rounded-lg cursor-move hover:bg-gray-100 transition-colors"
-           draggable="true"
-           (dragstart)="onDragStart($event)">
+      <div (dragstart)="onDragStart($event)"
+           class="p-2 bg-gray-50 border border-gray-200 rounded-lg cursor-move hover:bg-gray-100 transition-colors"
+           draggable="true">
         <div class="flex items-center gap-2">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+          <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+            <path clip-rule="evenodd"
+                  d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                  fill-rule="evenodd"/>
           </svg>
           <span class="text-sm font-medium text-gray-700">Nouvelle ligne</span>
         </div>
@@ -19,51 +21,46 @@
     <!-- Card toolbox -->
     <div class="flex flex-col gap-2">
       <span class="text-sm font-medium text-gray-700">Cartes</span>
-      <div *ngFor="let card of availableCards"
+      <div (dragstart)="onDragStart($event, card)"
+           *ngFor="let card of availableCards"
            class="p-2 bg-gray-50 border border-gray-200 rounded-lg cursor-move hover:bg-gray-100 transition-colors"
-           draggable="true"
-           (dragstart)="onDragStart($event, card)">
+           draggable="true">
         <div class="flex items-center gap-2">
           <span [innerHTML]="card.safeIcon" class="text-gray-400"></span>
-          <span class="text-sm font-medium text-gray-700">{{card.name}}</span>
+          <span class="text-sm font-medium text-gray-700">{{ card.name }}</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Editing zone -->
-  <div class="flex-1 p-4 border-2 border-dashed border-gray-300 rounded-lg min-h-[500px] overflow-y-auto transition-colors"
-       [class.bg-gray-100]="!isDraggingRow && !isDraggingCard"
-       [class.bg-gray-200]="isDraggingRow || isDraggingCard"
-       (dragover)="onDragOver($event)"
-       (dragleave)="onDragLeave($event)"
-       (drop)="onDrop($event)">
-    <div class="space-y-4 w-full">
-      <app-droppable-row *ngFor="let row of layout.rows"
-                        [row]="row"
-                        (deleteRow)="deleteRow(row.id)"
-                        (startResize)="startResize($event)"
-                        (endResize)="endResize($event)"
-                        (cardDrop)="onCardDrop($event)"
-                        (deleteCard)="deleteCard($event.rowId, $event.cardId)"
-                        (configureCard)="configureCard($event.rowId, $event.cardId)">
-      </app-droppable-row>
-    </div>
-
-    <!-- Empty state -->
-    <div *ngIf="layout.rows.length === 0" class="flex items-center justify-center h-full">
-      <span class="text-gray-500">Glissez-déposez des lignes depuis la toolbox</span>
-    </div>
+  <div class="flex-1 w-full">
+    <app-layout-renderer
+      [layout]="layout"
+      [options]="{
+        mode: 'edit',
+        emptyMessage: 'LAYOUT.EMPTY_STATE.DROP_ROWS',
+        showEmptyState: true,
+        dragEnabled: true
+      }"
+      (rowDrop)="onRowDrop($event)"
+      (cardDrop)="onCardDrop($event)"
+      (configureCard)="configureCard($event.rowId, $event.cardId)"
+      (deleteCard)="deleteCard($event.rowId, $event.cardId)"
+      (deleteRow)="deleteRow($event)"
+      (startResize)="startResize($event)"
+      (endResize)="endResize($event)">
+    </app-layout-renderer>
   </div>
 
   <!-- Configuration Dialog -->
-  <app-base-card-configuration *ngIf="showCardConfig && getCardToEdit() && getRowForCard()"
-                              [card]="getCardToEdit()!"
-                              [row]="getRowForCard()!"
-                              [isChartCard]="isCardChart(getCardToEdit()!)"
-                              [isFullscreen]="isFullscreen"
-                              (save)="onCardConfigSave($event)"
-                              (cancel)="closeCardConfig()"
-                              (toggleFullscreen)="toggleFullscreen()">
+  <app-base-card-configuration (cancel)="closeCardConfig()"
+                               (save)="onCardConfigSave($event)"
+                               (toggleFullscreen)="toggleFullscreen()"
+                               *ngIf="showCardConfig && getCardToEdit() && getRowForCard()"
+                               [card]="getCardToEdit()!"
+                               [isChartCard]="isCardChart(getCardToEdit()!)"
+                               [isFullscreen]="isFullscreen"
+                               [row]="getRowForCard()!">
   </app-base-card-configuration>
 </div>

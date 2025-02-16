@@ -1,16 +1,18 @@
-import { Component, EventEmitter, Input, OnInit, OnDestroy, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { CardDto } from '@models/api.models';
-import { TileComponent } from '@shared/components/tile/tile.component';
-import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
-import { Subject } from 'rxjs';
-import { takeUntil, take } from 'rxjs/operators';
-import { LineChartCardConfig, SeriesConfig } from './line-chart-card.models';
-import { DatasourceConfig } from '@models/datasource.models';
-import { ValidationError } from '@cards/validation/validation.models';
-import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {CardDto} from '@models/api.models';
+import {TileComponent} from '@shared/components/tile/tile.component';
+import {
+  DatasourceConfigurationComponent
+} from '@shared/components/datasource-configuration/datasource-configuration.component';
+import {Subject} from 'rxjs';
+import {take, takeUntil} from 'rxjs/operators';
+import {LineChartCardConfig, SeriesConfig} from './line-chart-card.models';
+import {DatasourceConfig} from '@models/datasource.models';
+import {ValidationError} from '@cards/validation/validation.models';
+import {LocalDataSourceService} from '@cards/data-table-card/local-datasource.service';
 
 @Component({
   selector: 'app-line-chart-card-configuration',
@@ -27,13 +29,16 @@ import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.
 })
 export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
   @Input() card!: CardDto<LineChartCardConfig>;
+
   @Input() set validationErrors(errors: ValidationError[]) {
     this._validationErrors = errors;
     this.updateErrorMessages();
   }
+
   get validationErrors(): ValidationError[] {
     return this._validationErrors;
   }
+
   @Output() save = new EventEmitter<LineChartCardConfig>();
   @Output() configChange = new EventEmitter<LineChartCardConfig>();
 
@@ -53,7 +58,7 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
 
   constructor(private fb: FormBuilder, private localDataSourceService: LocalDataSourceService) {
     this.form = this.fb.group({
-      datasource: [{ type: 'API' } as DatasourceConfig],
+      datasource: [{type: 'API'} as DatasourceConfig],
       xAxisColumn: this.xAxisColumnControl,
       xAxisDateFormat: this.xAxisDateFormatControl,
       series: [[]],
@@ -62,8 +67,8 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
 
     this.form.valueChanges.subscribe((value: any) => {
       if (this.form.valid) {
-        const { visualConfig, ...rest } = value;
-        this.emitConfig({ ...rest, visualConfig: this.card.configuration?.visualConfig });
+        const {visualConfig, ...rest} = value;
+        this.emitConfig({...rest, visualConfig: this.card.configuration?.visualConfig});
       }
     });
   }
@@ -96,7 +101,7 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
         xAxisDateFormat: this.card.configuration.xAxisDateFormat,
         series: this.card.configuration.series,
         visualConfig: this.card.configuration.visualConfig
-      }, { emitEvent: false });
+      }, {emitEvent: false});
 
       // Initialiser les colonnes si c'est une source locale
       if (this.card.configuration.datasource?.type === 'LocalDataTable') {
@@ -158,7 +163,7 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
   }
 
   onDatasourceChange(config: DatasourceConfig) {
-    this.form.patchValue({ datasource: config });
+    this.form.patchValue({datasource: config});
 
     // Si c'est une table locale, initialiser les colonnes
     if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
@@ -171,7 +176,7 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
               prop.type === 'integer' ||
               prop.type === 'date' ||
               prop.type === 'datetime';
-            return isValid;
+              return true; // TODO: Check if the column is valid
           })
           .map(([key]) => key);
       }
@@ -205,14 +210,14 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
         opacity: 0
       }
     });
-    this.form.patchValue({ series }, { emitEvent: true });
+    this.form.patchValue({series}, {emitEvent: true});
     this.expandedSeriesIndex = series.length - 1;
   }
 
   removeSeries(index: number) {
     const series = this.form.get('series')?.value || [];
     series.splice(index, 1);
-    this.form.patchValue({ series }, { emitEvent: true });
+    this.form.patchValue({series}, {emitEvent: true});
     if (this.expandedSeriesIndex === index) {
       this.expandedSeriesIndex = null;
     }
@@ -238,7 +243,7 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
       [property]: value
     };
 
-    this.form.patchValue({ series }, { emitEvent: true });
+    this.form.patchValue({series}, {emitEvent: true});
   }
 
   onAreaOpacityChange(index: number, event: Event) {
@@ -254,7 +259,7 @@ export class LineChartCardConfigurationComponent implements OnInit, OnDestroy {
       }
     };
 
-    this.form.patchValue({ series }, { emitEvent: true });
+    this.form.patchValue({series}, {emitEvent: true});
   }
 
   onSave() {

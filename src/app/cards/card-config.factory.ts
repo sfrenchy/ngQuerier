@@ -1,24 +1,25 @@
-import { Injectable } from '@angular/core';
-import { BaseCardConfig, CardDto } from '@models/api.models';
-import { CardValidationService } from './card-validation.service';
-import { ValidationResult } from './validation/validation.models';
+import {Injectable} from '@angular/core';
+import {BaseCardConfig, CardDto} from '@models/api.models';
+import {CardValidationService} from './card-validation.service';
+import {ValidationResult} from './validation/validation.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export abstract class CardConfigFactory<T extends BaseCardConfig> {
-  constructor(protected validationService: CardValidationService) {}
+  constructor(protected validationService: CardValidationService) {
+  }
 
   abstract createDefaultConfig(): T;
 
   validateConfig(config: T): ValidationResult {
     // Base validation
     if (!this.validationService.validateConfig(config)) {
-      return { isValid: false, errors: [] };
+      return {isValid: false, errors: []};
     }
 
     // Derived classes can add their own validations
-    return { isValid: true, errors: [] };
+    return {isValid: true, errors: []};
   }
 
   protected createBaseConfig(): CardDto {

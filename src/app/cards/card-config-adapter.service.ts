@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { BaseCardConfig, CardDto } from '@models/api.models';
+import {Injectable} from '@angular/core';
+import {BaseCardConfig, CardDto} from '@models/api.models';
 
 @Injectable({
   providedIn: 'root'

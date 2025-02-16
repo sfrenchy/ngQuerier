@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { QueriesComponent } from './queries.component';
+import {QueriesComponent} from './queries.component';
 
 describe('QueriesComponent', () => {
   let component: QueriesComponent;
@@ -10,7 +10,7 @@ describe('QueriesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [QueriesComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(QueriesComponent);
     component = fixture.componentInstance;

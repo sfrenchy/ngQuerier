@@ -1,9 +1,8 @@
-import { Injectable } from '@angular/core';
-import { CardConfigFactory } from '@cards/card-config.factory';
-import { CardValidationService } from '@cards/card-validation.service';
-import { LabelCardConfig } from './label-card.config';
-import { TranslatableString } from '@models/api.models';
-import { ValidationResult, ValidationError } from '@cards/validation/validation.models';
+import {Injectable} from '@angular/core';
+import {CardConfigFactory} from '@cards/card-config.factory';
+import {CardValidationService} from '@cards/card-validation.service';
+import {LabelCardConfig} from './label-card.config';
+import {ValidationError, ValidationResult} from '@cards/validation/validation.models';
 
 @Injectable({
   providedIn: 'root'

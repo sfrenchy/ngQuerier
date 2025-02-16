@@ -70,7 +70,8 @@
       "ERROR": {
         "TEST_FAILED": "Échec du test de la configuration SMTP. Veuillez vérifier vos paramètres.",
         "SETUP_FAILED": "Échec de l'enregistrement de la configuration. Veuillez réessayer."
-      }
+      },
+      "CREATE_NORTHWIND": "Créer la base de données SQLite Northwind"
     }
   },
   "COMMON": {
@@ -542,7 +543,7 @@
       "NO_SORTS": "Aucun tri",
       "LAST_UPDATE": "Dernière mise à jour",
       "REFRESH": "Rafraîchir",
-      "AUTO_REFRESH": "Rafraîchissement auto",
+      "AUTO_REFRESH": "Rafraîchissement automatique",
       "AUTO_REFRESH_INTERVAL": "Intervalle de rafraîchissement (secondes)",
       "FILTERS": "Filtres",
       "SORTS": "Tris",
@@ -649,6 +650,11 @@
       "LoadingAssembly": "Chargement de l'assembly...",
       "Completed": "Terminé",
       "Failed": "Échec"
+    }
+  },
+  "LAYOUT": {
+    "EMPTY_STATE": {
+      "DROP_ROWS": "Glissez-déposez des lignes depuis la toolbox"
     }
   }
 }

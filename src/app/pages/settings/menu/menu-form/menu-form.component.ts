@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { UserService } from '@services/user.service';
-import { ApiService } from '@services/api.service';
-import { IconPickerComponent } from '@shared/components/icon-picker/icon-picker.component';
-import { TranslatableString, RoleDto, MenuCreateDto, MenuDto } from '@models/api.models';
-import { TranslatableStringFormComponent } from '@shared/components/translatable-string-form/translatable-string-form.component';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {UserService} from '@services/user.service';
+import {ApiService} from '@services/api.service';
+import {IconPickerComponent} from '@shared/components/icon-picker/icon-picker.component';
+import {MenuCreateDto, MenuDto, RoleDto, TranslatableString} from '@models/api.models';
+import {
+  TranslatableStringFormComponent
+} from '@shared/components/translatable-string-form/translatable-string-form.component';
 
 @Component({
   selector: 'app-menu-form',
@@ -51,8 +53,8 @@ export class MenuFormComponent implements OnInit {
     } else {
       // Initialiser avec les langues par défaut seulement pour un nouveau menu
       this.menuTitles = [
-        { languageCode: 'fr', value: '' },
-        { languageCode: 'en', value: '' }
+        {languageCode: 'fr', value: ''},
+        {languageCode: 'en', value: ''}
       ];
     }
   }
@@ -76,7 +78,7 @@ export class MenuFormComponent implements OnInit {
         this.currentMenu = menu;
         // Copie profonde des traductions pour éviter les références partagées
         this.menuTitles = JSON.parse(JSON.stringify(menu.title));
-        
+
         // Mise à jour du formulaire après l'affectation des traductions
         setTimeout(() => {
           this.menuForm.patchValue({
@@ -100,19 +102,19 @@ export class MenuFormComponent implements OnInit {
     if (!this.menuForm.valid) {
       return false;
     }
-    
+
     // Vérifier que les titres sont valides
-    return this.menuTitles.some(title => 
-      title && 
-      title.languageCode && 
-      title.value && 
+    return this.menuTitles.some(title =>
+      title &&
+      title.languageCode &&
+      title.value &&
       title.value.trim() !== ''
     );
   }
 
   onSubmit(): void {
     if (this.isFormValid()) {
-      const formValue = { ...this.menuForm.value };
+      const formValue = {...this.menuForm.value};
       const selectedRoleNames = formValue.roles as string[];
       const selectedRoles = this.availableRoles.filter(role => selectedRoleNames.includes(role.name));
 

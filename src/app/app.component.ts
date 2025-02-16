@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
-import { CardInitializerService } from './cards/available-cards';
+import {Component, OnInit} from '@angular/core';
+import {RouterOutlet} from '@angular/router';
+import {TranslateModule} from '@ngx-translate/core';
+import {CardInitializerService} from './cards/available-cards';
 
 @Component({
   selector: 'app-root',
@@ -14,7 +14,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private cardInitializer: CardInitializerService
-  ) {}
+  ) {
+  }
 
   ngOnInit() {
     // Initialiser les cartes au démarrage de l'application

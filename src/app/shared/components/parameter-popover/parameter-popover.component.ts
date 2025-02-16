@@ -1,11 +1,11 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { StoredProcedureParameter } from '@models/parameters.models';
-import { RequestParametersService } from '@shared/services/request-parameters.service';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import {Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormsModule} from '@angular/forms';
+import {TranslateModule, TranslateService} from '@ngx-translate/core';
+import {StoredProcedureParameter} from '@models/parameters.models';
+import {RequestParametersService} from '@shared/services/request-parameters.service';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'app-parameter-popover',
@@ -43,7 +43,7 @@ export class ParameterPopoverComponent implements OnChanges, OnInit, OnDestroy {
         const savedParameter = savedParams.procedureParameters[this.parameter.name] as StoredProcedureParameter;
         // Ne mettre à jour que si les valeurs sont différentes
         if (savedParameter.value !== this.parameter.value || savedParameter.dateType !== this.parameter.dateType) {
-          this.localParameter = { ...savedParameter };
+          this.localParameter = {...savedParameter};
           // Émettre le paramètre chargé uniquement si différent
           this.parameterChange.emit(this.localParameter);
         }
@@ -54,10 +54,10 @@ export class ParameterPopoverComponent implements OnChanges, OnInit, OnDestroy {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['parameter']) {
       // Ne mettre à jour le paramètre local que s'il n'existe pas déjà ou si les valeurs sont différentes
-      if (!this.localParameter || 
-          this.localParameter.value !== this.parameter.value || 
-          this.localParameter.dateType !== this.parameter.dateType) {
-        this.localParameter = { ...this.parameter };
+      if (!this.localParameter ||
+        this.localParameter.value !== this.parameter.value ||
+        this.localParameter.dateType !== this.parameter.dateType) {
+        this.localParameter = {...this.parameter};
         if (this.localParameter.type === 'date' && this.localParameter.value) {
           const [datePart] = this.localParameter.value.split('T');
           this.localParameter.value = datePart;
@@ -100,4 +100,4 @@ export class ParameterPopoverComponent implements OnChanges, OnInit, OnDestroy {
       }
     }
   }
-} 
+}

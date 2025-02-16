@@ -1,16 +1,18 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { TileComponent } from '@shared/components/tile/tile.component';
-import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
-import { PieChartCardConfig } from './pie-chart-card.models';
-import { CardDto } from '@models/api.models';
-import { DatasourceConfig } from '@models/datasource.models';
-import { ValidationError } from '@cards/validation/validation.models';
-import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
-import { takeUntil, take } from 'rxjs/operators';
-import { Subject } from 'rxjs';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {TileComponent} from '@shared/components/tile/tile.component';
+import {
+  DatasourceConfigurationComponent
+} from '@shared/components/datasource-configuration/datasource-configuration.component';
+import {PieChartCardConfig} from './pie-chart-card.models';
+import {CardDto} from '@models/api.models';
+import {DatasourceConfig} from '@models/datasource.models';
+import {ValidationError} from '@cards/validation/validation.models';
+import {LocalDataSourceService} from '@cards/data-table-card/local-datasource.service';
+import {take, takeUntil} from 'rxjs/operators';
+import {Subject} from 'rxjs';
 
 @Component({
   selector: 'app-pie-chart-card-configuration',
@@ -27,10 +29,12 @@ import { Subject } from 'rxjs';
 export class PieChartCardConfigurationComponent implements OnInit {
   @Input() card!: CardDto<PieChartCardConfig>;
   @Output() configChange = new EventEmitter<PieChartCardConfig>();
+
   @Input() set validationErrors(errors: ValidationError[]) {
     this._validationErrors = errors;
     this.updateErrorMessages();
   }
+
   get validationErrors(): ValidationError[] {
     return this._validationErrors;
   }
@@ -53,7 +57,8 @@ export class PieChartCardConfigurationComponent implements OnInit {
         type: [''],
         localDataTable: this.fb.group({
           cardId: ['']
-        })
+        }),
+        query: [null]
       })
     });
 
@@ -67,14 +72,14 @@ export class PieChartCardConfigurationComponent implements OnInit {
   ngOnInit() {
     if (this.card.configuration) {
       if (this.card.configuration.datasource) {
-        this.form.get('datasource')?.patchValue(this.card.configuration.datasource, { emitEvent: false });
+        this.form.get('datasource')?.patchValue(this.card.configuration.datasource, {emitEvent: false});
       }
 
       this.form.patchValue({
         labelColumn: this.card.configuration.labelColumn,
         valueColumn: this.card.configuration.valueColumn,
         radius: this.card.configuration.radius
-      }, { emitEvent: false });
+      }, {emitEvent: false});
 
       if (this.card.configuration.datasource?.type === 'LocalDataTable') {
         const cardId = this.card.configuration.datasource.localDataTable?.cardId;
@@ -97,16 +102,33 @@ export class PieChartCardConfigurationComponent implements OnInit {
   }
 
   onDatasourceChange(config: DatasourceConfig) {
-    this.form.get('datasource')?.patchValue(config);
 
-    this.emitConfig({ ...this.form.value, datasource: config });
+    this.form.get('datasource')?.patchValue(config, { emitEvent: false });
 
+    if (config.type === 'SQLQuery' && config.query) {
+      this.form.get('datasource.query')?.patchValue(config.query);
+    }
+
+    // Si c'est une table locale, initialiser les colonnes
     if (config.type === 'LocalDataTable' && config.localDataTable?.cardId) {
       const schema = this.localDataSourceService.getTableSchema(config.localDataTable.cardId);
+
       if (schema) {
-        this.availableColumns = Object.keys(schema.properties || {});
+        this.availableColumns = Object.entries(schema.properties)
+          .filter(([_, prop]: [string, any]) => {
+            const isValid = prop.type === 'number' ||
+              prop.type === 'integer' ||
+              prop.type === 'date' ||
+              prop.type === 'datetime';
+            return true; // TODO: Check if the column is valid
+          })
+          .map(([key]) => key);
       }
     }
+
+    const formValue = this.form.value;
+
+    this.emitConfig(formValue);
   }
 
   private setupLocalTableSubscription() {
@@ -128,10 +150,17 @@ export class PieChartCardConfigurationComponent implements OnInit {
       });
   }
 
-  private emitConfig(formValue: any) {
+  private emitConfig(formValue: {
+    datasource?: DatasourceConfig;
+    labelColumn?: string;
+    valueColumn?: string;
+    radius?: string;
+  }) {
+
     const config = new PieChartCardConfig();
-    if (this.card.configuration?.datasource) {
-      config.datasource = this.card.configuration.datasource;
+    if (formValue.datasource) {
+      const datasource = JSON.parse(JSON.stringify(formValue.datasource));
+      config.datasource = datasource;
     }
     if (formValue.labelColumn) {
       config.labelColumn = formValue.labelColumn;
@@ -145,6 +174,7 @@ export class PieChartCardConfigurationComponent implements OnInit {
     if (this.card.configuration?.visualConfig) {
       config.visualConfig = this.card.configuration.visualConfig;
     }
+
     this.configChange.emit(config);
   }
 

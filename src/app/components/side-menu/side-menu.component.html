@@ -1,24 +1,24 @@
 <div
-  class="h-full bg-gray-800 text-white transition-all duration-300 ease-in-out shadow-2xl"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+  [class.backdrop-blur-sm]="!isPinned && isExpanded"
   [class.fixed]="!isPinned"
   [class.relative]="isPinned"
-  [class.z-50]="!isPinned"
   [class.shadow-lg]="!isPinned && isExpanded"
-  [class.backdrop-blur-sm]="!isPinned && isExpanded"
-  [class.w-64]="isExpanded"
   [class.w-16]="!isExpanded"
-  (mouseenter)="onMouseEnter()"
-  (mouseleave)="onMouseLeave()">
+  [class.w-64]="isExpanded"
+  [class.z-50]="!isPinned"
+  class="h-full bg-gray-800 text-white transition-all duration-300 ease-in-out shadow-2xl">
 
   <!-- Pin Button -->
   <button (click)="togglePin()"
-          class="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-700 transition-all duration-300 z-10"
           [class.bg-gray-700]="isPinned"
+          [class.invisible]="!isExpanded"
           [class.opacity-0]="!isExpanded"
-          [class.invisible]="!isExpanded">
-    <i class="fas fa-thumbtack text-sm"
+          class="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-700 transition-all duration-300 z-10">
+    <i [class.rotate-45]="!isPinned"
        [class.text-blue-400]="isPinned"
-       [class.rotate-45]="!isPinned"></i>
+       class="fas fa-thumbtack text-sm"></i>
   </button>
 
   <div class="p-4">
@@ -28,13 +28,13 @@
     </div>
 
     <!-- Logo -->
-    <div class="mb-8 transition-all duration-300" [class.px-2]="!isExpanded">
+    <div [class.px-2]="!isExpanded" class="mb-8 transition-all duration-300">
       <img
         [class.w-32]="isExpanded"
         [class.w-8]="!isExpanded"
-        src="assets/images/querier_logo_no_bg_big.png"
         alt="Querier Logo"
-        class="mx-auto transition-all duration-300">
+        class="mx-auto transition-all duration-300"
+        src="assets/images/querier_logo_no_bg_big.png">
     </div>
 
     <!-- Navigation -->
@@ -45,18 +45,18 @@
           <ng-container *ngIf="menu.isVisible && hasRequiredRole(menu.roles)">
             <div class="relative">
               <button (click)="toggleCategory(menu.id)"
-                      class="w-full flex items-center h-10 px-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
-                      [class.justify-center]="!isExpanded">
-                <i [class]="'fas fa-' + menu.icon" [class.mr-2]="isExpanded"></i>
-                <span class="transition-all duration-300"
-                      [class.opacity-0]="!isExpanded"
+                      [class.justify-center]="!isExpanded"
+                      class="w-full flex items-center h-10 px-2 rounded hover:bg-gray-700 transition-all duration-300 relative group">
+                <i [class.mr-2]="isExpanded" [class]="'fas fa-' + menu.icon"></i>
+                <span [class.opacity-0]="!isExpanded"
                       [class.w-0]="!isExpanded"
-                      [class.w-auto]="isExpanded">
+                      [class.w-auto]="isExpanded"
+                      class="transition-all duration-300">
                   {{ getTranslatedTitle(menu.title) }}
                 </span>
                 <i *ngIf="isExpanded && getCategoryPages(menu.id).length > 0"
-                   class="fas fa-chevron-right ml-2"
-                   [class.rotate-90]="isCategoryExpanded(menu.id)"></i>
+                   [class.rotate-90]="isCategoryExpanded(menu.id)"
+                   class="fas fa-chevron-right ml-2"></i>
                 <div *ngIf="!isExpanded"
                      class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                      style="transform: translateX(10px)">
@@ -84,14 +84,14 @@
 
         <!-- Databases - visible pour Admin et Database Manager -->
         <li *ngIf="userService.canManageDatabase()">
-          <a routerLink="/home/databases"
+          <a [class.justify-center]="!isExpanded"
              class="flex items-center h-10 px-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
-             [class.justify-center]="!isExpanded">
-            <i class="fas fa-database" [class.mr-2]="isExpanded"></i>
-            <span class="transition-all duration-300"
-                  [class.opacity-0]="!isExpanded"
+             routerLink="/home/databases">
+            <i [class.mr-2]="isExpanded" class="fas fa-database"></i>
+            <span [class.opacity-0]="!isExpanded"
                   [class.w-0]="!isExpanded"
-                  [class.w-auto]="isExpanded">
+                  [class.w-auto]="isExpanded"
+                  class="transition-all duration-300">
               {{ 'MENU.DATABASES' | translate }}
             </span>
             <div *ngIf="!isExpanded"
@@ -104,14 +104,14 @@
 
         <!-- Queries - visible pour Admin et Database Manager -->
         <li *ngIf="userService.canManageDatabase()">
-          <a routerLink="/home/queries"
+          <a [class.justify-center]="!isExpanded"
              class="flex items-center h-10 px-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
-             [class.justify-center]="!isExpanded">
-            <i class="fas fa-table" [class.mr-2]="isExpanded"></i>
-            <span class="transition-all duration-300"
-                  [class.opacity-0]="!isExpanded"
+             routerLink="/home/queries">
+            <i [class.mr-2]="isExpanded" class="fas fa-table"></i>
+            <span [class.opacity-0]="!isExpanded"
                   [class.w-0]="!isExpanded"
-                  [class.w-auto]="isExpanded">
+                  [class.w-auto]="isExpanded"
+                  class="transition-all duration-300">
               {{ 'MENU.QUERIES' | translate }}
             </span>
             <div *ngIf="!isExpanded"
@@ -124,14 +124,14 @@
 
         <!-- Contents - visible pour Admin et Content Manager -->
         <li *ngIf="userService.canManageContent()">
-          <a routerLink="/home/contents"
+          <a [class.justify-center]="!isExpanded"
              class="flex items-center h-10 px-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
-             [class.justify-center]="!isExpanded">
-            <i class="fas fa-folder" [class.mr-2]="isExpanded"></i>
-            <span class="transition-all duration-300"
-                  [class.opacity-0]="!isExpanded"
+             routerLink="/home/contents">
+            <i [class.mr-2]="isExpanded" class="fas fa-folder"></i>
+            <span [class.opacity-0]="!isExpanded"
                   [class.w-0]="!isExpanded"
-                  [class.w-auto]="isExpanded">
+                  [class.w-auto]="isExpanded"
+                  class="transition-all duration-300">
               {{ 'MENU.CONTENTS' | translate }}
             </span>
             <div *ngIf="!isExpanded"
@@ -146,18 +146,18 @@
         <li *ngIf="userService.isAdmin()">
           <div class="relative">
             <button (click)="toggleSettings()"
-                    class="w-full flex items-center h-10 px-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
-                    [class.justify-center]="!isExpanded">
-              <i class="fas fa-cog" [class.mr-2]="isExpanded"></i>
-              <span class="transition-all duration-300"
-                    [class.opacity-0]="!isExpanded"
+                    [class.justify-center]="!isExpanded"
+                    class="w-full flex items-center h-10 px-2 rounded hover:bg-gray-700 transition-all duration-300 relative group">
+              <i [class.mr-2]="isExpanded" class="fas fa-cog"></i>
+              <span [class.opacity-0]="!isExpanded"
                     [class.w-0]="!isExpanded"
-                    [class.w-auto]="isExpanded">
+                    [class.w-auto]="isExpanded"
+                    class="transition-all duration-300">
                 {{ 'MENU.SETTINGS' | translate }}
               </span>
               <i *ngIf="isExpanded"
-                 class="fas fa-chevron-right ml-2"
-                 [class.rotate-90]="isSettingsExpanded"></i>
+                 [class.rotate-90]="isSettingsExpanded"
+                 class="fas fa-chevron-right ml-2"></i>
               <div *ngIf="!isExpanded"
                    class="absolute left-full ml-2 px-2 py-1 bg-gray-900 rounded text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                    style="transform: translateX(10px)">
@@ -168,18 +168,18 @@
             <!-- Sous-menu Settings -->
             <div *ngIf="isSettingsExpanded && isExpanded"
                  class="pl-4 mt-1 space-y-1 overflow-hidden transition-all duration-300">
-              <a routerLink="/home/settings/users"
-                 class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
+              <a class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300"
+                 routerLink="/home/settings/users">
                 <i class="fas fa-users mr-2"></i>
                 <span class="truncate">{{ 'MENU.USERS' | translate }}</span>
               </a>
-              <a routerLink="/home/settings/roles"
-                 class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
+              <a class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300"
+                 routerLink="/home/settings/roles">
                 <i class="fas fa-user-shield mr-2"></i>
                 <span class="truncate">{{ 'MENU.ROLES' | translate }}</span>
               </a>
-              <a routerLink="/home/settings/api"
-                 class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300">
+              <a class="flex items-center p-2 rounded hover:bg-gray-700 transition-all duration-300"
+                 routerLink="/home/settings/api">
                 <i class="fas fa-wrench mr-2"></i>
                 <span class="truncate">{{ 'MENU.SERVICES' | translate }}</span>
               </a>
@@ -190,13 +190,13 @@
         <!-- Logout -->
         <li>
           <button (click)="onLogout()"
-                  class="w-full flex items-center h-10 px-2 rounded hover:bg-gray-700 transition-all duration-300 relative group"
-                  [class.justify-center]="!isExpanded">
-            <i class="fas fa-sign-out-alt" [class.mr-2]="isExpanded"></i>
-            <span class="transition-all duration-300"
-                  [class.opacity-0]="!isExpanded"
+                  [class.justify-center]="!isExpanded"
+                  class="w-full flex items-center h-10 px-2 rounded hover:bg-gray-700 transition-all duration-300 relative group">
+            <i [class.mr-2]="isExpanded" class="fas fa-sign-out-alt"></i>
+            <span [class.opacity-0]="!isExpanded"
                   [class.w-0]="!isExpanded"
-                  [class.w-auto]="isExpanded">
+                  [class.w-auto]="isExpanded"
+                  class="transition-all duration-300">
               {{ 'MENU.LOGOUT' | translate }}
             </span>
             <div *ngIf="!isExpanded"

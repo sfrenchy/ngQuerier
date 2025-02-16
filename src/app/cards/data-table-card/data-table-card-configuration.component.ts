@@ -1,19 +1,26 @@
-import { Component, EventEmitter, Input, OnInit, Output, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { DataTableCardConfig, ColumnConfig, TableVisualConfig, CrudConfig, ForeignKeyDisplayConfig } from './data-table-card.models';
-import { CardDto } from '@models/api.models';
-import { TileComponent } from '@shared/components/tile/tile.component';
-import { DatasourceConfig } from '@models/datasource.models';
-import { DatasourceConfigurationComponent } from '@shared/components/datasource-configuration/datasource-configuration.component';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { DataTableCardService } from './data-table-card.service';
-import { CardDatabaseService } from '@cards/card-database.service';
-import { ChangeDetectorRef } from '@angular/core';
-import { ValidationError } from '@cards/validation/validation.models';
-import { LocalDataSourceService } from './local-datasource.service';
+import {ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {
+  ColumnConfig,
+  CrudConfig,
+  DataTableCardConfig,
+  ForeignKeyDisplayConfig,
+  TableVisualConfig
+} from './data-table-card.models';
+import {CardDto} from '@models/api.models';
+import {TileComponent} from '@shared/components/tile/tile.component';
+import {DatasourceConfig} from '@models/datasource.models';
+import {
+  DatasourceConfigurationComponent
+} from '@shared/components/datasource-configuration/datasource-configuration.component';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
+import {DataTableCardService} from './data-table-card.service';
+import {CardDatabaseService} from '@cards/card-database.service';
+import {ValidationError} from '@cards/validation/validation.models';
+import {LocalDataSourceService} from './local-datasource.service';
 
 @Component({
   selector: 'app-data-table-card-configuration',
@@ -31,13 +38,16 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   @Input() card!: CardDto<DataTableCardConfig>;
   @Output() save = new EventEmitter<DataTableCardConfig>();
   @Output() configChange = new EventEmitter<DataTableCardConfig>();
+
   @Input() set validationErrors(errors: ValidationError[]) {
     this._validationErrors = errors;
     this.updateErrorMessages();
   }
+
   get validationErrors(): ValidationError[] {
     return this._validationErrors;
   }
+
   private _validationErrors: ValidationError[] = [];
   errorMessages: { [key: string]: string } = {};
   form: FormGroup;
@@ -95,7 +105,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         columns: this.card.configuration.columns || [],
         visualConfig: this.card.configuration.visualConfig,
         crudConfig: this.card.configuration.crudConfig
-      }, { emitEvent: false });
+      }, {emitEvent: false});
       this.columns = this.card.configuration.columns || [];
     } else {
       // Initialiser avec les valeurs par défaut si pas de configuration
@@ -103,32 +113,32 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       this.form.patchValue({
         visualConfig: defaultConfig.visualConfig,
         crudConfig: defaultConfig.crudConfig
-      }, { emitEvent: false });
+      }, {emitEvent: false});
     }
   }
 
   onDatasourceChange(datasource: DatasourceConfig) {
-    this.form.patchValue({ datasource }, { emitEvent: false });
+    this.form.patchValue({datasource}, {emitEvent: false});
 
-    // Réinitialiser les colonnes
-    this.columns = [];
-
-    if (datasource.type === 'LocalDataTable' && datasource.localDataTable?.cardId) {
-      // S'abonner à l'état de préparation de la table
-      this.localDataSourceService.getTableReadyState$(datasource.localDataTable.cardId)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(state => {
-          if (state.isSchemaReady) {
-            const schema = this.localDataSourceService.getTableSchema(datasource.localDataTable!.cardId);
-            if (schema) {
-              this.initializeColumns(schema);
-              this.cdr.detectChanges();
+    // Ne pas réinitialiser les colonnes si on a déjà une configuration
+    if (this.columns.length === 0) {
+      if (datasource.type === 'LocalDataTable' && datasource.localDataTable?.cardId) {
+        // S'abonner à l'état de préparation de la table
+        this.localDataSourceService.getTableReadyState$(datasource.localDataTable.cardId)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe(state => {
+            if (state.isSchemaReady) {
+              const schema = this.localDataSourceService.getTableSchema(datasource.localDataTable!.cardId);
+              if (schema) {
+                this.initializeColumns(schema);
+                this.cdr.detectChanges();
+              }
             }
-          }
-        });
+          });
+      }
     }
 
-    this.emitConfig({ ...this.form.value, datasource });
+    this.emitConfig({...this.form.value, datasource});
   }
 
   onSchemaChange(schema: string) {
@@ -150,39 +160,96 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         this.columns.map(col => [col.key, col])
       );
 
-      this.columns = Object.entries(schema.properties)
-        .map(([key, prop]: [string, any]) => {
-          const type = this.getColumnType(prop);
-          const existingColumn = existingColumnsMap.get(key);
-
-          // Si la colonne existe déjà, préserver sa configuration
-          if (existingColumn) {
+      if (this.columns.length > 0) {
+        // Si nous avons des colonnes existantes, mettre à jour leurs métadonnées tout en préservant l'ordre
+        this.columns = this.columns.map(column => {
+          const prop = schema.properties[column.key];
+          if (prop) {
             return {
-              ...existingColumn,
-              type
+              ...column,
+              type: this.getColumnType(prop),
+              entityMetadata: prop['x-entity-metadata']
             };
           }
-
-          // Sinon, créer une nouvelle configuration
-          return {
-            key,
-            type,
-            label: { en: key, fr: key },
-            alignment: this.getDefaultAlignment(type),
-            visible: true,
-            decimals: type === 'number' ? 2 : undefined,
-            dateFormat: type === 'date' ? 'datetime' : undefined,
-            isFixed: false,
-            isFixedRight: false
-          };
+          return column;
         });
 
+        // Ajouter les nouvelles colonnes à la fin
+        Object.entries(schema.properties)
+          .filter(([key]) => !existingColumnsMap.has(key))
+          .forEach(([key, prop]: [string, any]) => {
+            this.columns.push({
+              key,
+              type: this.getColumnType(prop),
+              label: {en: key, fr: key},
+              alignment: this.getDefaultAlignment(this.getColumnType(prop)),
+              visible: true,
+              decimals: this.getColumnType(prop) === 'number' ? 2 : undefined,
+              dateFormat: this.getColumnType(prop) === 'date' ? 'datetime' : undefined,
+              isFixed: false,
+              isFixedRight: false,
+              entityMetadata: prop['x-entity-metadata']
+            });
+          });
+      } else {
+        // Si pas de colonnes existantes, créer la liste initiale
+        this.columns = Object.entries(schema.properties)
+          .map(([key, prop]: [string, any]) => ({
+            key,
+            type: this.getColumnType(prop),
+            label: {en: key, fr: key},
+            alignment: this.getDefaultAlignment(this.getColumnType(prop)),
+            visible: true,
+            decimals: this.getColumnType(prop) === 'number' ? 2 : undefined,
+            dateFormat: this.getColumnType(prop) === 'date' ? 'datetime' : undefined,
+            isFixed: false,
+            isFixedRight: false,
+            entityMetadata: prop['x-entity-metadata']
+          }));
+      }
+
       // Mettre à jour le formulaire
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
+      this.updateVirtualColumns(existingColumnsMap);
     }
   }
 
   private getColumnType(prop: any): string {
+    // Vérifier d'abord les métadonnées d'entité
+    if (prop['x-entity-metadata']) {
+      const metadata = prop['x-entity-metadata'];
+
+      // Si c'est une navigation, retourner le type de navigation
+      if (metadata.navigationType) {
+        return metadata.navigationType;
+      }
+
+      // Si c'est une clé étrangère, retourner 'foreignKey'
+      if (metadata.isForeignKey) {
+        return 'foreignKey';
+      }
+
+      // Utiliser le type de colonne s'il est disponible
+      if (metadata.columnType) {
+        const columnType = metadata.columnType.toLowerCase();
+
+        // Gérer les types de date
+        if (columnType.includes('date')) {
+          return 'date';
+        }
+
+        // Gérer les types numériques
+        if (columnType.includes('int') ||
+            columnType.includes('decimal') ||
+            columnType.includes('float') ||
+            columnType.includes('double') ||
+            columnType.includes('money')) {
+          return 'number';
+        }
+      }
+    }
+
+    // Si pas de métadonnées ou type non reconnu, utiliser le type de base ou 'string' par défaut
     return prop.type || 'string';
   }
 
@@ -190,9 +257,15 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     switch (type) {
       case 'number':
       case 'integer':
+      case 'decimal':
+      case 'float':
+      case 'double':
+      case 'money':
         return 'right';
       case 'boolean':
         return 'center';
+      case 'foreignKey':
+        return 'left';
       default:
         return 'left';
     }
@@ -229,7 +302,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
     this.columns.splice(targetIndex, 0, column);
 
     // Mettre à jour le formulaire
-    this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+    this.form.patchValue({columns: this.columns}, {emitEvent: true});
 
     this.draggedColumnIndex = null;
   }
@@ -252,7 +325,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   handleColumnLabelChange(index: number, lang: string, event: Event) {
     this.onInputChange(event, (value) => {
       this.columns[index].label[lang] = value;
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     });
   }
 
@@ -263,14 +336,14 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
     if (alignment) {
       this.columns[index].alignment = alignment;
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     }
   }
 
   handleColumnDecimalsChange(index: number, event: Event) {
     this.onInputChange(event, (value) => {
       this.columns[index].decimals = parseInt(value, 10);
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     });
   }
 
@@ -298,14 +371,14 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         }
       }
 
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     });
   }
 
   handleColumnDateFormatChange(index: number, event: Event) {
     this.onSelectChange(event, (value) => {
       this.columns[index].dateFormat = value as 'date' | 'time' | 'datetime';
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     });
   }
 
@@ -368,7 +441,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         this.columns[index].isFixedRight = false;
       }
 
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     });
   }
 
@@ -393,7 +466,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
         this.columns[index].isFixed = false;
       }
 
-      this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+      this.form.patchValue({columns: this.columns}, {emitEvent: true});
     });
   }
 
@@ -432,7 +505,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       [property]: value
     };
 
-    this.form.patchValue({ visualConfig: newVisualConfig });
+    this.form.patchValue({visualConfig: newVisualConfig});
   }
 
   isDateColumn(column: ColumnConfig): boolean {
@@ -452,7 +525,7 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       [property]: value
     };
 
-    this.form.patchValue({ crudConfig: newCrudConfig });
+    this.form.patchValue({crudConfig: newCrudConfig});
   }
 
   canEnableCrud(): boolean {
@@ -678,18 +751,19 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
   }
 
   private updateVirtualColumns(existingColumnsMap?: Map<string, ColumnConfig>) {
-    // Sauvegarder l'état des colonnes virtuelles existantes
-    const virtualColumnsState = new Map<string, ColumnConfig>();
-    this.columns
-      .filter(col => col.isVirtualForeignKey)
-      .forEach(col => {
-        if (col.sourceColumn) {
-          virtualColumnsState.set(col.sourceColumn, col);
-        }
-      });
+    // Créer une map des colonnes virtuelles existantes avec leur position
+    const virtualColumnPositions = new Map<string, number>();
+    this.columns.forEach((col, index) => {
+      if (col.isVirtualForeignKey) {
+        virtualColumnPositions.set(col.key, index);
+      }
+    });
 
     // Filtrer les colonnes virtuelles existantes
     this.columns = this.columns.filter(col => !col.isVirtualForeignKey);
+
+    // Préparer les colonnes virtuelles à ajouter
+    const virtualColumnsToAdd: { column: ColumnConfig, position: number }[] = [];
 
     // Ajouter les nouvelles colonnes virtuelles pour les clés étrangères
     const foreignKeyConfigs = this.form.value.crudConfig?.foreignKeyConfigs;
@@ -697,7 +771,6 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
       Object.entries(foreignKeyConfigs).forEach(([table, rawConfig]) => {
         const config = rawConfig as ForeignKeyDisplayConfig;
         if (config.showInTable) {
-          // Trouver la colonne de clé étrangère correspondante
           const foreignKeyColumn = this.columns.find(col =>
             col.entityMetadata?.isForeignKey &&
             col.entityMetadata?.foreignKeyTable === table
@@ -705,12 +778,10 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
 
           if (foreignKeyColumn) {
             const virtualColumnKey = `${foreignKeyColumn.key}_display`;
-            // Récupérer l'état précédent de la colonne virtuelle
-            const existingVirtualColumn = virtualColumnsState.get(foreignKeyColumn.key) ||
-                                       (existingColumnsMap?.get(virtualColumnKey));
+            const existingVirtualColumn = existingColumnsMap?.get(virtualColumnKey);
+            const position = virtualColumnPositions.get(virtualColumnKey) ?? this.columns.length;
 
-            // Créer une colonne virtuelle
-            const virtualColumn: ColumnConfig = {
+            const virtualColumn = existingVirtualColumn || {
               key: virtualColumnKey,
               type: 'string',
               label: {
@@ -718,21 +789,30 @@ export class DataTableCardConfigurationComponent implements OnInit, OnDestroy {
                 fr: `${table}`
               },
               alignment: 'left',
-              visible: existingVirtualColumn ? existingVirtualColumn.visible : true, // Par défaut visible
-              isFixed: existingVirtualColumn ? existingVirtualColumn.isFixed : false,
-              isFixedRight: existingVirtualColumn ? existingVirtualColumn.isFixedRight : false,
+              visible: true,
+              isFixed: false,
+              isFixedRight: false,
               isVirtualForeignKey: true,
               sourceColumn: foreignKeyColumn.key,
               foreignKeyConfig: config
             };
-            this.columns.push(virtualColumn);
+
+            virtualColumnsToAdd.push({ column: virtualColumn, position });
           }
         }
       });
     }
 
+    // Trier les colonnes virtuelles par leur position d'origine
+    virtualColumnsToAdd.sort((a, b) => a.position - b.position);
+
+    // Insérer les colonnes virtuelles à leurs positions d'origine
+    virtualColumnsToAdd.forEach(({ column, position }) => {
+      this.columns.splice(position, 0, column);
+    });
+
     // Mettre à jour le formulaire
-    this.form.patchValue({ columns: this.columns }, { emitEvent: true });
+    this.form.patchValue({columns: this.columns}, {emitEvent: true});
   }
 
   private updateErrorMessages() {

@@ -1,0 +1,31 @@
+<app-row-wrapper (configure)="onConfigureRow()" (delete)="onDeleteRow()" (endResize)="onResizeEnd($event)" (startResize)="onResizeStart($event)"
+                 [height]="height" [isEditing]="isEditing" [row]="row">
+  <div (dragenter)="onDragEnter($event)"
+       (dragleave)="onDragLeave($event)"
+       (dragover)="onDragOver($event)"
+       (drop)="onDrop($event)"
+       [class.dragging-over]="isDraggingCard"
+       class="layout-grid h-full w-full">
+    <ng-container *ngFor="let card of row.cards">
+      <div [style.grid-column]="'span ' + (card.gridWidth || 12)" class="layout-card">
+        <app-card-wrapper (configure)="onCardConfigure(card.id)" (delete)="onCardDelete(card.id)" [card]="card" [height]="height"
+                          [isEditing]="isEditing">
+          <ng-container *ngComponentOutlet="getCardComponent(card).component;
+                                        injector: moduleRef.injector;
+                                        inputs: getCardComponent(card).inputs">
+          </ng-container>
+        </app-card-wrapper>
+      </div>
+    </ng-container>
+
+    <div *ngIf="row.cards.length === 0" class="col-span-12 text-gray-500">
+      Glissez-déposez des cartes depuis la toolbox
+    </div>
+  </div>
+</app-row-wrapper>
+
+<style>
+  .dragging-over {
+    @apply ring-2 ring-blue-500 ring-inset;
+  }
+</style>

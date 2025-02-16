@@ -1,13 +1,21 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, AbstractControl, ValidatorFn } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { ApiService } from '@services/api.service';
-import { DBConnectionCreateDto, DBConnectionDto, DBConnectionType, ConnectionStringParameterDto } from '@models/api.models';
-import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
-import { SignalRService } from '@services/signalr.service';
-import { v4 as uuidv4 } from 'uuid';
-import { OperationStatusComponent } from '@shared/components/operation-status/operation-status.component';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {ApiService} from '@services/api.service';
+import {DBConnectionCreateDto, DBConnectionDto, DBConnectionType} from '@models/api.models';
+import {ConfirmationDialogComponent} from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import {SignalRService} from '@services/signalr.service';
+import {v4 as uuidv4} from 'uuid';
+import {OperationStatusComponent} from '@shared/components/operation-status/operation-status.component';
 
 interface DBProviderConfig {
   value: number;
@@ -42,33 +50,41 @@ export class DatabasesComponent implements OnInit, OnDestroy {
       value: 0,
       label: 'SQL Server',
       defaultParams: [
-        { key: 'Server', isEncrypted: false },
-        { key: 'Database', isEncrypted: false },
-        { key: 'User Id', isEncrypted: false },
-        { key: 'Password', isEncrypted: true },
-        { key: 'TrustServerCertificate', isEncrypted: false }
+        {key: 'Server', isEncrypted: false},
+        {key: 'Database', isEncrypted: false},
+        {key: 'User Id', isEncrypted: false},
+        {key: 'Password', isEncrypted: true},
+        {key: 'TrustServerCertificate', isEncrypted: false}
       ]
     },
     {
       value: 1,
       label: 'MySQL',
       defaultParams: [
-        { key: 'Server', isEncrypted: false },
-        { key: 'Database', isEncrypted: false },
-        { key: 'Uid', isEncrypted: false },
-        { key: 'Pwd', isEncrypted: true },
-        { key: 'Port', isEncrypted: false }
+        {key: 'Server', isEncrypted: false},
+        {key: 'Database', isEncrypted: false},
+        {key: 'Uid', isEncrypted: false},
+        {key: 'Pwd', isEncrypted: true},
+        {key: 'Port', isEncrypted: false}
       ]
     },
     {
       value: 2,
       label: 'PostgreSQL',
       defaultParams: [
-        { key: 'Host', isEncrypted: false },
-        { key: 'Database', isEncrypted: false },
-        { key: 'Username', isEncrypted: false },
-        { key: 'Password', isEncrypted: true },
-        { key: 'Port', isEncrypted: false }
+        {key: 'Host', isEncrypted: false},
+        {key: 'Database', isEncrypted: false},
+        {key: 'Username', isEncrypted: false},
+        {key: 'Password', isEncrypted: true},
+        {key: 'Port', isEncrypted: false}
+      ]
+    },
+    {
+      value: 3,
+      label: 'SQLite',
+      defaultParams: [
+        {key: 'Data Source', isEncrypted: false},
+        {key: 'Version', isEncrypted: false}
       ]
     }
   ];
@@ -111,10 +127,16 @@ export class DatabasesComponent implements OnInit, OnDestroy {
 
   private updateParametersForType(type: DBConnectionType): void {
     const parameters = this.dbForm.get('parameters') as FormArray;
+    const generateProceduresControl = this.dbForm.get('generateProcedureControllersAndServices');
 
     // Vider les paramètres existants
     while (parameters.length !== 0) {
       parameters.removeAt(0);
+    }
+
+    // Mettre à jour generateProcedureControllersAndServices en fonction du type
+    if (type !== DBConnectionType.SqlServer) {
+      generateProceduresControl?.setValue(false);
     }
 
     const providerConfig = this.providers.find(p => p.value === Number(type));
@@ -159,6 +181,8 @@ export class DatabasesComponent implements OnInit, OnDestroy {
           return 'MySQL';
         case 'PgSQL':
           return 'PostgreSQL';
+        case 'SQLite':
+          return 'SQLite';
         default:
           return 'Unknown';
       }
@@ -171,6 +195,8 @@ export class DatabasesComponent implements OnInit, OnDestroy {
         return 'MySQL';
       case DBConnectionType.PgSQL:
         return 'PostgreSQL';
+      case DBConnectionType.SQLite:
+        return 'SQLite';
       default:
         return 'Unknown';
     }
@@ -276,7 +302,7 @@ export class DatabasesComponent implements OnInit, OnDestroy {
 
   // Validateur pour empêcher un chiffre en premier caractère
   private noLeadingDigitValidator(): ValidatorFn {
-    return (control: AbstractControl): {[key: string]: any} | null => {
+    return (control: AbstractControl): { [key: string]: any } | null => {
       const forbidden = /^[0-9]/.test(control.value);
       return forbidden ? {'noLeadingDigit': {value: control.value}} : null;
     };

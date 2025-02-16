@@ -1,4 +1,4 @@
-import { CardDto } from "./api.models";
+import {CardDto} from "./api.models";
 
 export interface PlaceholderCard extends CardDto {
   type: 'placeholder';

@@ -1,20 +1,19 @@
 import {
+  apply,
+  chain,
+  FileEntry,
+  filter,
+  forEach,
+  mergeWith,
+  move,
   Rule,
   SchematicContext,
-  Tree,
-  apply,
-  mergeWith,
-  url,
-  move,
-  chain,
-  forEach,
-  FileEntry,
-  Source,
   template,
-  filter
+  Tree,
+  url
 } from '@angular-devkit/schematics';
-import { strings, normalize, Path } from '@angular-devkit/core';
-import { Schema } from './schema';
+import {normalize, Path, strings} from '@angular-devkit/core';
+import {Schema} from './schema';
 
 export function card(_options: Schema): Rule {
   return (tree: Tree, context: SchematicContext) => {

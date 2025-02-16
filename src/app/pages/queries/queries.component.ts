@@ -1,14 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
-import { ApiService } from '@services/api.service';
-import { UserService } from '@services/user.service';
-import { SQLQueryDto, DBConnectionDto, SQLQueryCreateDto, UserDto } from '@models/api.models';
-import { ConfirmationDialogComponent } from '@shared/components/confirmation-dialog/confirmation-dialog.component';
-import { MonacoEditorModule, NGX_MONACO_EDITOR_CONFIG } from 'ngx-monaco-editor-v2';
-import { forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {Component, OnInit} from '@angular/core';
+import {CommonModule} from '@angular/common';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {TranslateModule} from '@ngx-translate/core';
+import {ApiService} from '@services/api.service';
+import {UserService} from '@services/user.service';
+import {DBConnectionDto, SQLQueryCreateDto, SQLQueryDto, UserDto} from '@models/api.models';
+import {ConfirmationDialogComponent} from '@shared/components/confirmation-dialog/confirmation-dialog.component';
+import {MonacoEditorModule, NGX_MONACO_EDITOR_CONFIG} from 'ngx-monaco-editor-v2';
+import {forkJoin} from 'rxjs';
 
 const monacoConfig = {
   onMonacoLoad: () => {
@@ -37,7 +36,7 @@ export class QueriesComponent implements OnInit {
   editorOptions = {
     theme: 'vs-dark',
     language: 'sql',
-    minimap: { enabled: false }
+    minimap: {enabled: false}
   };
   private userCache: Map<string, UserDto> = new Map();
 
@@ -158,7 +157,7 @@ export class QueriesComponent implements OnInit {
   onSubmit(): void {
     if (this.queryForm.valid) {
       const formValue = this.queryForm.value;
-      
+
       const query: SQLQueryDto = {
         id: this.queryToDelete?.id || 0,
         name: formValue.name,

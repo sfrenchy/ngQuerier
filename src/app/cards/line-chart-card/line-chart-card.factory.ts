@@ -1,9 +1,9 @@
-import { Injectable } from '@angular/core';
-import { CardConfigFactory } from '@cards/card-config.factory';
-import { CardValidationService } from '@cards/card-validation.service';
-import { LineChartCardConfig } from './line-chart-card.models';
-import { ValidationResult, ValidationError } from '@cards/validation/validation.models';
-import { LocalDataSourceService } from '@cards/data-table-card/local-datasource.service';
+import {Injectable} from '@angular/core';
+import {CardConfigFactory} from '@cards/card-config.factory';
+import {CardValidationService} from '@cards/card-validation.service';
+import {LineChartCardConfig} from './line-chart-card.models';
+import {ValidationError, ValidationResult} from '@cards/validation/validation.models';
+import {LocalDataSourceService} from '@cards/data-table-card/local-datasource.service';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +27,7 @@ export class LineChartCardConfigFactory extends CardConfigFactory<LineChartCardC
         message: 'LINE_CHART_CARD.ERRORS.MISSING_DATASOURCE',
         controlPath: 'datasource'
       });
-      return { isValid: false, errors };
+      return {isValid: false, errors};
     }
 
     // Validation spécifique pour LocalDataTable

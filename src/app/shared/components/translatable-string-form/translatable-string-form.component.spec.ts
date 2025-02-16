@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { TranslatableStringFormComponent } from './translatable-string-form.component';
+import {TranslatableStringFormComponent} from './translatable-string-form.component';
 
 describe('TranslatableStringFormComponent', () => {
   let component: TranslatableStringFormComponent;
@@ -10,7 +10,7 @@ describe('TranslatableStringFormComponent', () => {
     await TestBed.configureTestingModule({
       imports: [TranslatableStringFormComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(TranslatableStringFormComponent);
     component = fixture.componentInstance;

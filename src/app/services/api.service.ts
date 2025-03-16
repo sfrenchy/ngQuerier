@@ -56,7 +56,7 @@ interface ExtendedPaginatedResultDto<T> extends PaginatedResultDto<T> {
   providedIn: 'root'
 })
 export class ApiService {
-  private baseUrl: string = '';
+  public baseUrl: string = '';
   private menuUpdated = new Subject<void>();
   private tokenExpirationTimer: any;
 

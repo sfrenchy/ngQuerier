@@ -5,6 +5,7 @@ import {environment} from '@environments/environment';
 import {AuthStateService} from '@services/auth-state.service';
 import {AddDBConnectionProgressStatus} from '@shared/enums/add-db-connection-progress-status.enum';
 import {OperationProgress} from '@shared/models/operation-progress.model';
+import { ApiService } from './api.service';
 
 export interface ProgressEvent {
   operationId: string;
@@ -21,13 +22,13 @@ export class SignalRService {
   private hubConnection!: HubConnection;
   private operationProgressSubject = new Subject<OperationProgress>();
 
-  constructor(private authStateService: AuthStateService) {
+  constructor(private authStateService: AuthStateService, private apiService: ApiService) {
     this.initializeConnection();
   }
 
   private initializeConnection(): void {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl(`${environment.apiUrl}/hubs/querier`, {
+      .withUrl(`${this.apiService.baseUrl}/hubs/querier`, {
         accessTokenFactory: () => {
           const token = this.authStateService.getAccessToken();
           return token ?? '';

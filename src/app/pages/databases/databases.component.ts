@@ -54,7 +54,8 @@ export class DatabasesComponent implements OnInit, OnDestroy {
         {key: 'Database', isEncrypted: false},
         {key: 'User Id', isEncrypted: false},
         {key: 'Password', isEncrypted: true},
-        {key: 'TrustServerCertificate', isEncrypted: false}
+        {key: 'TrustServerCertificate', isEncrypted: false},
+        {key: 'MultipleActiveResultSets', isEncrypted: false}
       ]
     },
     {

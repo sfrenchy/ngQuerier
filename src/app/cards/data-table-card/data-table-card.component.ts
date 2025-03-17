@@ -84,6 +84,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   private readonly SCROLLBAR_HEIGHT = 8;
   private readonly SCROLLBAR_MARGIN = 16;
   private readonly DEFAULT_ROW_HEIGHT = 30;
+  customPageInput: number = this.currentPage;
 
   private get TOTAL_SCROLLBAR_SPACE(): number {
     return this.SCROLLBAR_HEIGHT + this.SCROLLBAR_MARGIN;
@@ -104,6 +105,8 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
   private isAdjusting: boolean = false;
   private resizeTimeout: any = null;
   columnWidths = new Map<string, number>();
+  private pageChangeSubject = new Subject<number>();
+
   private tableWidth: number = 0;
   @Output() configurationChanged = new EventEmitter<any>();
   @ViewChild('customScroll') customScrollRef!: ElementRef;
@@ -205,6 +208,15 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       this.loadData();
     });
 
+    this.pageChangeSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(page => {
+      this.currentPage = page;
+      this.customPageInput = page;
+      this.loadData(); // Rafraîchir les données
+    });
+
     // Ajouter le listener de clic sur le document
     this.documentClickListener = (event: MouseEvent) => {
       // Ne pas fermer si on clique sur un bouton de filtre
@@ -235,6 +247,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     super.ngOnInit();
     this.loadCardTranslations();
     this.loadSavedState();
+    this.customPageInput = this.currentPage;
     if (this.card.configuration?.datasource?.type !== 'LocalDataTable') {
       this.registerAsDataSource();
     }
@@ -586,8 +599,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     if (this.pageSize <= 0) return [1];
 
     const totalPages = Math.ceil(this.totalItems / this.pageSize);
-    // Limiter à un maximum raisonnable de pages (par exemple 10000)
-    const safeTotal = Math.min(Math.max(1, totalPages), 10000);
+    const safeTotal = Math.max(1, totalPages);
 
     try {
       return Array.from({length: safeTotal}, (_, i) => i + 1);
@@ -601,7 +613,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
       return [1];
     }
   }
-
+/*
   onPageChange(page: number) {
     if (page === this.currentPage) {
       return;
@@ -612,7 +624,7 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     this.currentPage = page;
     this.loadData();
   }
-
+*/
   getRowStyle(index: number): any {
     return {
       'height.px': this.adjustedRowHeight + this.CELL_PADDING,
@@ -1371,6 +1383,66 @@ export class DataTableCardComponent extends BaseCardComponent<DataTableCardConfi
     }
     return true;
   }
+
+  getNearbyPages(): number[] {
+    const total = this.getTotalPages().length;
+    const current = this.currentPage;
+    let pages = new Set<number>();
+  
+    // Pages immédiatement autour de la page actuelle
+    for (let i = -2; i <= 2; i++) {
+      let page = current + i;
+      if (page > 1 && page < total) pages.add(page);
+    }
+  
+    return [...pages].sort((a, b) => a - b);
+  }
+  
+  getJumpPages(): number[] {
+    const total = this.getTotalPages().length;
+    const current = this.currentPage;
+    let pages = new Set<number>();
+  
+    // Toujours inclure la première et dernière page
+    pages.add(1);
+    pages.add(total);
+  
+    // Ajouter des paliers dynamiques en fonction de la position actuelle
+    const dynamicSteps = [1, 10, 50, 100, 500, 1000, 5000, 10000, 50000];
+  
+    for (let step of dynamicSteps) {
+      let prevStep = Math.max(1, current - step);
+      let nextStep = Math.min(total, current + step);
+      pages.add(prevStep);
+      pages.add(nextStep);
+    }
+  
+    return [...pages].sort((a, b) => a - b);
+  }
+  
+  onPageChange(page: number) {
+    const newPage = Math.max(1, Math.min(this.getTotalPages().length, Number(page)));
+    if (newPage !== this.currentPage) {
+      this.currentPage = newPage;
+      this.customPageInput = newPage; // 🔹 Mise à jour du champ de saisie
+      this.loadData(); // Rafraîchir les données
+    }
+  }
+  
+  // Gestion du `<select>` pour éviter la surcharge
+  onSelectChange(event: any) {
+    const selectedPage = Number(event.target.value);
+    if (selectedPage) {
+      this.onPageChange(selectedPage);
+    }
+  }
+  
+  // Gestion du champ de saisie manuel
+  onSelectChangeInput() {
+    this.onPageChange(this.customPageInput);
+  }
+  
+  
 
   onDatasourceConfigChange(config: DatasourceConfig) {
     if (!this.validateDatasourceConfig(config)) {

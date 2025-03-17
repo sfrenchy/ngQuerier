@@ -236,43 +236,62 @@
       <div class="text-sm text-gray-400">
         {{ totalItems }} {{ 'data-table-card.ITEMS' | translate }}
       </div>
+  
       <div class="flex items-center gap-2">
-        <button
-          (click)="onPageChange(currentPage - 1)"
-          [disabled]="currentPage === 1"
-          class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed">
-          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path clip-rule="evenodd"
-                  d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                  fill-rule="evenodd"/>
-          </svg>
+        <!-- Premier bouton -->
+        <button (click)="onPageChange(1)" [disabled]="currentPage === 1"
+                class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed">
+          «
         </button>
-
-        <div class="flex items-center gap-1 text-sm text-gray-400">
-          <select
-            (ngModelChange)="onPageChange($event)"
-            [ngModel]="currentPage"
-            class="bg-gray-800 border border-gray-700 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <option *ngFor="let page of getTotalPages()" [value]="page">
-              {{ page }}
-            </option>
-          </select>
-          <span>/ {{ getTotalPages().length }}</span>
-        </div>
-
-        <button
-          (click)="onPageChange(currentPage + 1)"
-          [disabled]="currentPage === getTotalPages().length"
-          class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed">
-          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path clip-rule="evenodd"
-                  d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                  fill-rule="evenodd"/>
-          </svg>
+  
+        <!-- Précédent -->
+        <button (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1"
+                class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed">
+          ‹
         </button>
+  
+        <!-- Pages proches -->
+        <ng-container *ngFor="let page of getNearbyPages()">
+          <button (click)="onPageChange(page)"
+                  [class.bg-blue-600]="page === currentPage"
+                  class="p-1 rounded px-3 text-gray-400 hover:text-white bg-gray-800">
+            {{ page }}
+          </button>
+        </ng-container>
+  
+        <!-- Sélecteur pour les grands sauts -->
+        <select (change)="onSelectChange($event)"
+                class="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="">Aller à...</option>
+          <option *ngFor="let page of getJumpPages()" [value]="page">
+            {{ page }}
+          </option>
+        </select>
+  
+        <!-- Suivant -->
+        <button (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === getTotalPages().length"
+                class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed">
+          ›
+        </button>
+  
+        <!-- Dernier bouton -->
+        <button (click)="onPageChange(getTotalPages().length)" [disabled]="currentPage === getTotalPages().length"
+                class="p-1 text-gray-400 hover:text-white disabled:text-gray-600 disabled:cursor-not-allowed">
+          »
+        </button>
+  
+        <!-- Saisie manuelle -->
+        <input type="number" [(ngModel)]="customPageInput"
+               (keyup.enter)="onSelectChangeInput()"
+               [min]="1" [max]="getTotalPages().length"
+               class="w-24 bg-gray-800 border border-gray-700 rounded px-2 py-1 text-center text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <span>/ {{ getTotalPages().length }}</span>
       </div>
     </div>
   </div>
+  
+  
+  
 </app-base-card>
 
 <!-- Modal pour le formulaire d'ajout -->
